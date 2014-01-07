@@ -24,7 +24,7 @@ package main
 import (
 	"dlib/dbus"
 	"strings"
-        "time"
+	"time"
 )
 
 type CityPinyin struct{}
@@ -43,14 +43,29 @@ func (cp *CityPinyin) GetDBusInfo() dbus.DBusInfo {
 	}
 }
 
-func (cp *CityPinyin) GetValuesByKey(key string) map[string][]string {
+func (cp *CityPinyin) GetValues(key string) []string {
+	if len(key) < 2 {
+		return nil
+	}
+
+	values := []string{}
+	tmp := strings.ToLower(key)
+	for k, v := range CityPinyinMap {
+		if strings.Contains(k, tmp) {
+			values = append(values, v...)
+		}
+	}
+
+	return values
+}
+
+func (cp *CityPinyin) GetValuesWithPinyin(key string) map[string][]string {
 	if len(key) < 2 {
 		return nil
 	}
 
 	values := make(map[string][]string)
 	tmp := strings.ToLower(key)
-
 	for k, v := range CityPinyinMap {
 		if strings.Contains(k, tmp) {
 			values[k] = append(values[k], v...)
@@ -65,6 +80,6 @@ func main() {
 	dbus.InstallOnSession(cp)
 	dbus.DealWithUnhandledMessage()
 
-        timer := time.NewTimer(time.Second * 10)
-        <-timer.C
+	timer := time.NewTimer(time.Second * 10)
+	<-timer.C
 }
