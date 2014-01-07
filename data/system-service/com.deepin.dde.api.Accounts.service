@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=com.deepin.dde.api.Accounts
+Exec=/usr/lib/deepin-api/accounts-api
+User=root
