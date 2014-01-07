@@ -1,0 +1,5 @@
+*.*.swp
+Test
+test-*
+test_*
+*.*~
