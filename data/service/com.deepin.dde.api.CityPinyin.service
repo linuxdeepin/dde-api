@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=com.deepin.dde.api.CityPinyin
+Exec=/usr/lib/deepin-api/city-index
