@@ -52,7 +52,8 @@ func (cp *CityPinyin) GetValues(key string) []string {
 	tmp := strings.ToLower(key)
 	for k, v := range CityPinyinMap {
 		if strings.Contains(k, tmp) {
-			values = append(values, v...)
+                        array := strings.Split(v, ";")
+			values = append(values, array...)
 		}
 	}
 
@@ -68,7 +69,8 @@ func (cp *CityPinyin) GetValuesWithPinyin(key string) map[string][]string {
 	tmp := strings.ToLower(key)
 	for k, v := range CityPinyinMap {
 		if strings.Contains(k, tmp) {
-			values[k] = append(values[k], v...)
+                        array := strings.Split(v, ";")
+			values[k] = append(values[k], array...)
 		}
 	}
 
