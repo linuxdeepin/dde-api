@@ -58,7 +58,8 @@ func (m *Manager) GetPinyinByHans(hans string) []string {
 			print("str: ", code, "\n")
 			value := PinyinDataMap[strings.ToUpper(code)]
 			print("value: ", value, "\n")
-			return value
+                        array := strings.Split(value, ";")
+			return array
 		}
 	}
 
@@ -66,8 +67,6 @@ func (m *Manager) GetPinyinByHans(hans string) []string {
 }
 
 func main() {
-	InitPinyinData()
-
 	m := &Manager{}
 	err := dbus.InstallOnSession(m)
 	if err != nil {
