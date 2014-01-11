@@ -44,26 +44,40 @@ func (m *Manager) GetDBusInfo() dbus.DBusInfo {
 	}
 }
 
-func (m *Manager) GetPinyinByHans(hans string) []string {
-	print("key: ", hans, "\n")
-	print("len: ", len(hans), "\n")
-	if len(hans) != 3 {
-		return nil
-	}
-
-	for _, c := range hans {
-		print("c: ", c, "\n")
+func (m *Manager) PinyinFromKey(key string) []string {
+	rets := []string{}
+	for _, c := range key {
 		if unicode.Is(unicode.Scripts["Han"], c) {
-			code := strconv.FormatInt(int64(c), 16)
-			print("str: ", code, "\n")
-			value := PinyinDataMap[strings.ToUpper(code)]
-			print("value: ", value, "\n")
-                        array := strings.Split(value, ";")
-			return array
+                        array := GetPinyinByHan(int64(c))
+                        if len(rets) == 0 {
+                                rets = array
+                                continue
+                        }
+                        rets = RangeArray(rets, array)
 		}
 	}
 
-	return nil
+	return rets
+}
+
+func GetPinyinByHan(han int64) []string {
+	code := strconv.FormatInt(han, 16)
+	print("str: ", code, "\n")
+	value := PinyinDataMap[strings.ToUpper(code)]
+	print("value: ", value, "\n")
+	array := strings.Split(value, ";")
+	return array
+}
+
+func RangeArray(a1, a2 []string) []string {
+        rets := []string{}
+        for _, v := range a1 {
+                for _, r := range a2 {
+                        rets = append(rets, v + r)
+                }
+        }
+
+        return rets
 }
 
 func main() {
