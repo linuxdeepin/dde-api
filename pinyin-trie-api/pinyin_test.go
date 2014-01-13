@@ -62,6 +62,8 @@ func TestPinyin(t *testing.T) {
 }
 
 func TestPinyinTrie(t *testing.T) {
+        trieMD5Map = make(map[string]*Trie)
+        strsMD5Map = make(map[string][]*TrieInfo)
 	strs := []string{"背景", "商店", "武汉", "四川", "工作"}
 	pt := &PinyinTrie{}
 	if pt == nil {
