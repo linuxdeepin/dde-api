@@ -34,6 +34,7 @@ import (
 	"dlib/dbus"
 	"fmt"
 	"os"
+	"os/user"
 	"strconv"
 )
 
@@ -44,7 +45,11 @@ type _BlurResult struct {
 
 const (
 	_ACCOUNTS_PATH          = "/org/freedesktop/Accounts/User"
-	_BG_BLUR_PICT_CACHE_DIR = "gaussian-background"
+	_BG_BLUR_PICT_CACHE_DIR = ".gaussian-background"
+)
+
+var (
+	jobInHand map[string]bool
 )
 
 func (blur *AccountExtendsManager) BackgroundBlurPictPath(uid, srcPath string) *_BlurResult {
@@ -70,10 +75,19 @@ func (blur *AccountExtendsManager) BackgroundBlurPictPath(uid, srcPath string) *
 		return &_BlurResult{Success: true, PictPath: destPath}
 	}
 
-	if MkGaussianCacheDir(homeDir) {
+	if MkGaussianCacheDir(uid) {
 		go func() {
 			success := GenerateBlurPict(srcPath, destPath)
 			if success && !srcFlag {
+				userInfo, err := user.LookupId(uid)
+				if err != nil {
+					fmt.Println("New User Info Failed:", err)
+				}
+				uidInt, _ := strconv.ParseInt(userInfo.Uid, 10, 64)
+				gidInt, _ := strconv.ParseInt(userInfo.Gid, 10, 64)
+				f, _ := os.Open(destPath)
+				defer f.Close()
+				f.Chown(int(uidInt), int(gidInt))
 				blur.BlurPictChanged(uid, destPath)
 			}
 		}()
@@ -95,17 +109,33 @@ func GetCurrentSrcPath(uid string) string {
 	return srcPath
 }
 
-func MkGaussianCacheDir(homeDir string) bool {
-	if len(homeDir) <= 0 {
+func MkGaussianCacheDir(uid string) bool {
+	if len(uid) <= 0 {
 		return false
 	}
 
-	pictPath := homeDir + "/.cache/" + _BG_BLUR_PICT_CACHE_DIR
-	err := os.MkdirAll(pictPath, os.FileMode(0700))
+	userInfo, err := user.LookupId(uid)
+	if err != nil {
+		fmt.Println("New User Info Failed:", err)
+		return false
+	}
+
+	homeDir := userInfo.HomeDir
+	pictPath := homeDir + "/" + _BG_BLUR_PICT_CACHE_DIR
+	err = os.MkdirAll(pictPath, os.FileMode(0755))
 	if err != nil {
 		fmt.Println(err)
 		return false
 	}
+	f, err1 := os.Open(pictPath)
+	defer f.Close()
+	if err1 != nil {
+		fmt.Println("'%s' Open Failed:", err)
+		return false
+	}
+	uidInt, _ := strconv.ParseInt(userInfo.Uid, 10, 64)
+	gidInt, _ := strconv.ParseInt(userInfo.Gid, 10, 64)
+	f.Chown(int(uidInt), int(gidInt))
 
 	return true
 
@@ -117,12 +147,18 @@ func GenerateBlurPict(srcPath, destPath string) bool {
 		return false
 	}
 
+	if _, ok := jobInHand[destPath]; ok {
+		fmt.Printf("'%s' has been in hand\n", destPath)
+		return false
+	}
 	src := C.CString(srcPath)
 	defer C.free(unsafe.Pointer(src))
 	dest := C.CString(destPath)
 	defer C.free(unsafe.Pointer(dest))
 
+	jobInHand[destPath] = true
 	is_ok := C.generate_blur_pict(src, dest)
+	delete(jobInHand, destPath)
 	if is_ok == 0 {
 		fmt.Println("generate gaussian picture failed")
 		return false
@@ -148,7 +184,7 @@ func GenerateDestPath(srcPath, homeDir string) string {
 		}
 	}
 
-	destPath := homeDir + "/.cache/" + _BG_BLUR_PICT_CACHE_DIR + "/" + md5Str + ".png"
+	destPath := homeDir + "/" + _BG_BLUR_PICT_CACHE_DIR + "/" + md5Str + ".png"
 	return destPath
 }
 

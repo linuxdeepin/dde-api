@@ -66,8 +66,9 @@ func FileIsExist(filename string) bool {
 }
 
 func main() {
+	jobInHand = make(map[string]bool)
 	accountExt := &AccountExtendsManager{}
-	err := dbus.InstallOnSystem(accountExt)
+        err := dbus.InstallOnSystem(accountExt)
 	if err != nil {
 		panic(err)
 	}
