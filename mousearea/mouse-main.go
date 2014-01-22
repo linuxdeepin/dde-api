@@ -34,7 +34,8 @@ import (
 )
 
 var (
-	lock sync.Mutex
+	opMouse *Manager
+	lock    sync.Mutex
 
 	genID = func() func() int32 {
 		id := int32(0)
@@ -47,6 +48,17 @@ var (
 		}
 	}()
 )
+
+func (op *Manager) RegisterArea(area []coordinateRange) int32 {
+	cookie := genID()
+	idRangeMap[cookie] = area
+
+	return cookie
+}
+
+func (op *Manager) UnregisterArea(cookie int32) {
+	delete(idRangeMap, cookie)
+}
 
 func (op *IdleTick) RigisterIdle(name string, timeout int32) int32 {
 	cookie := genID()
@@ -61,10 +73,6 @@ func (op *IdleTick) UnregisterIdle(cookie int32) {
 	endTimer(cookie, true)
 }
 
-//export emitCoordinate
-func emitCoordinate(_x, _y C.int) {
-}
-
 func NewManager() *Manager {
 	return &Manager{}
 }
@@ -76,22 +84,27 @@ func main() {
 		}
 	}()
 
-	cookieTimerMap = make(map[int32]*TimerInfo)
-	C.record_init()
-	defer C.record_finalize()
-	m := NewManager()
-	err := dbus.InstallOnSession(m)
+	//cookieTimerMap = make(map[int32]*TimerInfo)
+	idRangeMap = make(map[int32][]coordinateRange)
+	//tmp := coordinateRange{X1: 1266, X2: 1370, Y1: 600, Y2: 767}
+	//idRangeMap[0] = []coordinateRange{tmp}
+	opMouse = NewManager()
+	err := dbus.InstallOnSession(opMouse)
 	if err != nil {
 		logger.Println("Install DBus Session Failed:", err)
 		panic(err)
 	}
 
-	err = dbus.InstallOnSession(idle)
-	if err != nil {
-		logger.Println("Install DBus Session Failed:", err)
-		panic(err)
-	}
+	/*
+		err = dbus.InstallOnSession(idle)
+		if err != nil {
+			logger.Println("Install DBus Session Failed:", err)
+			panic(err)
+		}
+	*/
 	dbus.DealWithUnhandledMessage()
+	C.record_init()
+	defer C.record_finalize()
 
 	dlib.StartLoop()
 }

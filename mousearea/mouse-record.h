@@ -29,4 +29,8 @@ void simulate_user_activity(int flag);
 //Go Export Functions
 extern void startAllTimer();
 extern void endAllTimer();
+
+extern void parseMotionEvent(int x, int y);
+extern void parseButtonEvent(int type, int x, int y);
+extern void parseKeyboardEvent(int type, int x, int y);
 #endif

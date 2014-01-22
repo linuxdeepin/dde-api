@@ -30,6 +30,11 @@
 #define MOUSE_AREA_PATH "/com/deepin/dde/api/MouseArea"
 #define MOUSE_AREA_IFC  "com.deepin.dde.api.MouseArea"
 
+#define KEY_PRESS 1
+#define KEY_RELEASE 0
+#define BUTTON_PRESS 1
+#define BUTTON_RELEASE 0
+
 typedef struct _RecordEventInfo {
     Display *ctrl_disp;
     Display *data_disp;
@@ -178,27 +183,38 @@ record_event_cb (XPointer user_data, XRecordInterceptData *hook)
 
     switch (event_type) {
         case KeyPress:
-        case KeyRelease:
-        case MotionNotify:
-        case ButtonPress:
-            if (!user_activity_flag) {
-                // end all timer
-                // start all timer
-                endAllTimer();
-                startAllTimer();
-            } else {
-                // end all timer
-                endAllTimer();
-            }
+            parseKeyboardEvent(KEY_PRESS, rootX, rootY);
+            break;
 
+        case KeyRelease:
+            parseKeyboardEvent(KEY_RELEASE, rootX, rootY);
+            break;
+
+        case MotionNotify:
+            parseMotionEvent(rootX, rootY);
+            break;
+
+        case ButtonPress:
+            /*if (!user_activity_flag) {*/
+            // end all timer
+            // start all timer
+            /*endAllTimer();*/
+            /*startAllTimer();*/
+            /*} else {*/
+            // end all timer
+            /*endAllTimer();*/
+            /*}*/
+
+            parseButtonEvent(BUTTON_PRESS, rootX, rootY);
             break;
 
         case ButtonRelease:
             // emit signal coordinate(X, Y)
-                endAllTimer();
-                startAllTimer();
-            g_print("key press pointer: x - %d, y - %d, time - %d\n",
-                    rootX, rootY, time);
+            /*endAllTimer();*/
+            /*startAllTimer();*/
+            /*g_print("key press pointer: x - %d, y - %d, time - %d\n",*/
+            /*rootX, rootY, time);*/
+            parseButtonEvent(BUTTON_RELEASE, rootX, rootY);
             break;
 
         default:

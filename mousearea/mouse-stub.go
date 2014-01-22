@@ -22,12 +22,16 @@
 package main
 
 import (
-        "dlib/dbus"
+	"dlib/dbus"
 )
 
 type Manager struct {
-        MouseArea func(int32, int32)
-        IdleTimeOut func(int32, string)
+	MouseArea          func(int32, int32)
+	IdleTimeOut        func(int32, string)
+	MotionCoordinate   func(string, int32, int32, int32)
+	ButtonCoordinate   func(string, int32, int32, int32)
+	KeyboardCoordinate func(string, int32, int32, int32)
+	CancleAllArea      func(int32, int32, int32) //resolution changed
 }
 
 type IdleTick struct {
@@ -35,27 +39,27 @@ type IdleTick struct {
 }
 
 const (
-        MOUSE_AREA_DEST = "com.deepin.dde.api.MouseArea"
-        MOUSE_AREA_PATH = "/com/deepin/dde/api/MouseArea"
-        MOUSE_AREA_IFC = "com.deepin.dde.api.MouseArea"
+	MOUSE_AREA_DEST = "com.deepin.dde.api.MouseArea"
+	MOUSE_AREA_PATH = "/com/deepin/dde/api/MouseArea"
+	MOUSE_AREA_IFC  = "com.deepin.dde.api.MouseArea"
 
-        IDLE_DEST = "com.deepin.dde.api.Idle"
-        IDLE_PATH = "/com/deepin/dde/api/Idle"
-        IDLE_IFC = "com.deepin.dde.api.Idle"
+	IDLE_DEST = "com.deepin.dde.api.Idle"
+	IDLE_PATH = "/com/deepin/dde/api/Idle"
+	IDLE_IFC  = "com.deepin.dde.api.Idle"
 )
 
-func (m *Manager) GetDBusInfo () dbus.DBusInfo {
-        return dbus.DBusInfo {
-                MOUSE_AREA_DEST,
-                MOUSE_AREA_PATH,
-                MOUSE_AREA_IFC,
-        }
+func (m *Manager) GetDBusInfo() dbus.DBusInfo {
+	return dbus.DBusInfo{
+		MOUSE_AREA_DEST,
+		MOUSE_AREA_PATH,
+		MOUSE_AREA_IFC,
+	}
 }
 
 func (op *IdleTick) GetDBusInfo() dbus.DBusInfo {
-        return dbus.DBusInfo {
-                MOUSE_AREA_DEST,
-                IDLE_PATH,
-                IDLE_IFC,
-        }
+	return dbus.DBusInfo{
+		MOUSE_AREA_DEST,
+		IDLE_PATH,
+		IDLE_IFC,
+	}
 }
