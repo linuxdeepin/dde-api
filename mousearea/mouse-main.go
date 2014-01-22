@@ -82,6 +82,7 @@ func main() {
 	}
 
 	dbus.DealWithUnhandledMessage()
+        cancleAllReigsterArea()
 	C.record_init()
 	defer C.record_finalize()
 
