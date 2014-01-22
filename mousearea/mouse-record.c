@@ -195,25 +195,10 @@ record_event_cb (XPointer user_data, XRecordInterceptData *hook)
             break;
 
         case ButtonPress:
-            /*if (!user_activity_flag) {*/
-            // end all timer
-            // start all timer
-            /*endAllTimer();*/
-            /*startAllTimer();*/
-            /*} else {*/
-            // end all timer
-            /*endAllTimer();*/
-            /*}*/
-
             parseButtonEvent(BUTTON_PRESS, rootX, rootY);
             break;
 
         case ButtonRelease:
-            // emit signal coordinate(X, Y)
-            /*endAllTimer();*/
-            /*startAllTimer();*/
-            /*g_print("key press pointer: x - %d, y - %d, time - %d\n",*/
-            /*rootX, rootY, time);*/
             parseButtonEvent(BUTTON_RELEASE, rootX, rootY);
             break;
 

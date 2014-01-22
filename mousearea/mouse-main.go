@@ -27,15 +27,15 @@ package main
 import "C"
 
 import (
-	"dlib"
 	"dlib/dbus"
 	"dlib/logger"
 	"sync"
 )
 
 var (
-	opMouse *Manager
-	lock    sync.Mutex
+	opMouse    *Manager
+	lock       sync.Mutex
+	idRangeMap map[int32][]coordinateRange
 
 	genID = func() func() int32 {
 		id := int32(0)
@@ -60,19 +60,6 @@ func (op *Manager) UnregisterArea(cookie int32) {
 	delete(idRangeMap, cookie)
 }
 
-func (op *IdleTick) RigisterIdle(name string, timeout int32) int32 {
-	cookie := genID()
-	info := newTimerInfo(name, cookie, timeout)
-	cookieTimerMap[cookie] = info
-	go startTimer(cookie)
-
-	return cookie
-}
-
-func (op *IdleTick) UnregisterIdle(cookie int32) {
-	endTimer(cookie, true)
-}
-
 func NewManager() *Manager {
 	return &Manager{}
 }
@@ -84,7 +71,6 @@ func main() {
 		}
 	}()
 
-	//cookieTimerMap = make(map[int32]*TimerInfo)
 	idRangeMap = make(map[int32][]coordinateRange)
 	//tmp := coordinateRange{X1: 1266, X2: 1370, Y1: 600, Y2: 767}
 	//idRangeMap[0] = []coordinateRange{tmp}
@@ -95,16 +81,9 @@ func main() {
 		panic(err)
 	}
 
-	/*
-		err = dbus.InstallOnSession(idle)
-		if err != nil {
-			logger.Println("Install DBus Session Failed:", err)
-			panic(err)
-		}
-	*/
 	dbus.DealWithUnhandledMessage()
 	C.record_init()
 	defer C.record_finalize()
 
-	dlib.StartLoop()
+        select{}
 }

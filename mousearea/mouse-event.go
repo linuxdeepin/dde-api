@@ -33,8 +33,6 @@ type coordinateRange struct {
 	Y2 int32
 }
 
-var idRangeMap map[int32][]coordinateRange
-
 //export parseMotionEvent
 func parseMotionEvent(_x, _y C.int) {
 	coorX := int32(_x)
