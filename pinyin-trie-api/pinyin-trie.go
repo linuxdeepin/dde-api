@@ -24,8 +24,9 @@ package main
 import (
 	"crypto/md5"
 	"dlib/dbus"
-	"fmt"
+	"dlib/logger"
 	"strconv"
+	"strings"
 )
 
 type PinyinTrie struct{}
@@ -49,30 +50,58 @@ func (t *PinyinTrie) GetDBusInfo() dbus.DBusInfo {
 }
 
 func (t *PinyinTrie) NewTrieWithString(values []string) string {
-	root := NewTrie()
+	root := newTrie()
 	if values == nil {
-                return ""
+		return ""
 	}
 
-	md5Byte := md5.Sum([]byte(GetStringFromArray(values)))
-	fmt.Println("MD5: ", md5Byte)
+	md5Byte := md5.Sum([]byte(getStringFromArray(values)))
+	logger.Println("MD5: ", md5Byte)
 	if len(md5Byte) == 0 {
 		return ""
 	}
-	md5Str := GetMD5String(md5Byte)
-	infos := GetPinyinArray(values)
+	md5Str := getMD5String(md5Byte)
+	infos := getPinyinArray(values)
 	strsMD5Map[md5Str] = infos
-	root.InsertTrieInfo(infos)
+	root.insertTrieInfo(infos)
 	trieMD5Map[md5Str] = root
-	fmt.Println(md5Str)
+	logger.Println(md5Str)
 	return md5Str
 }
 
 func (t *PinyinTrie) TraversalTrie(str string) {
 	root := trieMD5Map[str]
-	root.TraversalTrie()
+	root.traversalTrie()
 }
 
+func (t *PinyinTrie) SearchKeys(keys string, str string) []int32 {
+	root, ok := trieMD5Map[str]
+	if !ok {
+		return nil
+	}
+	rets := root.searchTrie(keys)
+	tmp := searchKeyFromString(keys, str)
+	for _, v := range tmp {
+		if !isSuffixExist(v, rets) {
+			rets = append(rets, v)
+		}
+	}
+
+	return rets
+}
+
+func (t *PinyinTrie) DestroyTrie(md5Str string) {
+	/*
+		root, ok := trieMD5Map[md5Str]
+		if !ok {
+			return
+		}
+	*/
+	delete(trieMD5Map, md5Str)
+	delete(strsMD5Map, md5Str)
+}
+
+/*
 func (t *PinyinTrie) SearchTrieWithString(keys string,
 	str string) []string {
 	root, ok := trieMD5Map[str]
@@ -89,8 +118,9 @@ func (t *PinyinTrie) SearchTrieWithString(keys string,
 
 	return retStrs
 }
+*/
 
-func GetStringFromArray(strs []string) string {
+func getStringFromArray(strs []string) string {
 	str := ""
 
 	for i, _ := range strs {
@@ -100,10 +130,10 @@ func GetStringFromArray(strs []string) string {
 	return str
 }
 
-func GetPinyinArray(strs []string) []*TrieInfo {
+func getPinyinArray(strs []string) []*TrieInfo {
 	rets := []*TrieInfo{}
 	for _, k := range strs {
-		array := GetPinyinFromKey(k)
+		array := getPinyinFromKey(k)
 		tmp := &TrieInfo{Pinyins: array, Value: k}
 		rets = append(rets, tmp)
 	}
@@ -111,7 +141,7 @@ func GetPinyinArray(strs []string) []*TrieInfo {
 	return rets
 }
 
-func GetMD5String(bytes [16]byte) string {
+func getMD5String(bytes [16]byte) string {
 	str := ""
 
 	for _, v := range bytes {
@@ -124,4 +154,27 @@ func GetMD5String(bytes [16]byte) string {
 	}
 
 	return str
+}
+
+func searchKeyFromString(key, md5Str string) []int32 {
+	rets := []int32{}
+
+	infos := strsMD5Map[md5Str]
+	for i, v := range infos {
+		if strings.Contains(v.Value, key) {
+			rets = append(rets, int32(i))
+		}
+	}
+
+	return rets
+}
+
+func isSuffixExist(suffix int32, list []int32) bool {
+	for _, v := range list {
+		if v == suffix {
+			return true
+		}
+	}
+
+	return false
 }

@@ -23,79 +23,29 @@ package main
 
 import (
 	"dlib/dbus"
-	"strconv"
-	"strings"
-	"unicode"
+	"dlib/logger"
 )
-
-type Manager struct{}
-
-const (
-	PINYIN_DEST         = "com.deepin.dde.api.Pinyin"
-	HANS_TO_PINYIN_PATH = "/com/deepin/dde/api/HansToPinyin"
-	HANS_TO_PINYIN_IFC  = "com.deepin.dde.api.HansToPinyin"
-)
-
-func (m *Manager) GetDBusInfo() dbus.DBusInfo {
-	return dbus.DBusInfo{
-		PINYIN_DEST,
-		HANS_TO_PINYIN_PATH,
-		HANS_TO_PINYIN_IFC,
-	}
-}
-
-func (m *Manager) PinyinFromKey(key string) []string {
-	return GetPinyinFromKey(key)
-}
-
-func GetPinyinFromKey(key string) []string {
-	rets := []string{}
-	for _, c := range key {
-		if unicode.Is(unicode.Scripts["Han"], c) {
-			array := GetPinyinByHan(int64(c))
-			if len(rets) == 0 {
-				rets = array
-				continue
-			}
-			rets = RangeArray(rets, array)
-		}
-	}
-
-	return rets
-}
-
-func GetPinyinByHan(han int64) []string {
-	code := strconv.FormatInt(han, 16)
-	print("str: ", code, "\n")
-	value := PinyinDataMap[strings.ToUpper(code)]
-	print("value: ", value, "\n")
-	array := strings.Split(value, ";")
-	return array
-}
-
-func RangeArray(a1, a2 []string) []string {
-	rets := []string{}
-	for _, v := range a1 {
-		for _, r := range a2 {
-			rets = append(rets, v+r)
-		}
-	}
-
-	return rets
-}
 
 func main() {
-        trieMD5Map = make(map[string]*Trie)
-        strsMD5Map = make(map[string][]*TrieInfo)
-	m := &Manager{}
+	defer func() {
+		if err := recover(); err != nil {
+			logger.Println("recover err:", err)
+		}
+	}()
+
+	trieMD5Map = make(map[string]*Trie)
+	strsMD5Map = make(map[string][]*TrieInfo)
+	m := &Pinyin{}
 	err := dbus.InstallOnSession(m)
 	if err != nil {
+		logger.Println("Install Pinyin DBus Session Failed:", err)
 		panic(err)
 	}
 
 	t := &PinyinTrie{}
 	err = dbus.InstallOnSession(t)
 	if err != nil {
+		logger.Println("Install Pinyin Trie DBus Session Failed:", err)
 		panic(err)
 	}
 	dbus.DealWithUnhandledMessage()

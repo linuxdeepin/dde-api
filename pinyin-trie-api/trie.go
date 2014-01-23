@@ -22,7 +22,7 @@
 package main
 
 import (
-	"fmt"
+	"dlib/logger"
 	"strings"
 )
 
@@ -41,67 +41,67 @@ var (
 	strsMD5Map map[string][]*TrieInfo
 )
 
-func GetNode(ch byte) *Trie {
+func getNode(ch byte) *Trie {
 	node := new(Trie)
 	node.Key = ch
 	return node
 }
 
-func NewTrie() *Trie {
-	root := GetNode(' ')
+func newTrie() *Trie {
+	root := getNode(' ')
 	return root
 }
 
-func (root *Trie) InsertTrieInfo(values []*TrieInfo) {
+func (root *Trie) insertTrieInfo(values []*TrieInfo) {
 	for i, v := range values {
-		root.InsertStringArray(v.Pinyins, int32(i))
+		root.insertStringArray(v.Pinyins, int32(i))
 	}
 }
 
-func (root *Trie) InsertStringArray(strs []string, pos int32) {
+func (root *Trie) insertStringArray(strs []string, pos int32) {
 	if strs == nil {
 		return
 	}
 
 	for _, v := range strs {
-		root.InsertString(v, pos)
+		root.insertString(v, pos)
 	}
 }
 
-func (root *Trie) InsertString(str string, pos int32) {
+func (root *Trie) insertString(str string, pos int32) {
 	if l := len(str); l == 0 {
 		return
 	}
 	low := strings.ToLower(str)
 	curNode := root
 
-	fmt.Println("keys: ", low)
+	logger.Println("keys: ", low)
 	for i, _ := range str {
 		index := low[i] - 'a'
 		if curNode.NextNode[index] == nil {
-			curNode.NextNode[index] = GetNode(low[i])
+			curNode.NextNode[index] = getNode(low[i])
 		}
 		curNode.NextNode[index].IndexArray = append(curNode.NextNode[index].IndexArray, pos)
 		curNode = curNode.NextNode[index]
 	}
 }
 
-func (node *Trie) TraversalTrie() {
+func (node *Trie) traversalTrie() {
 	if node == nil {
-		fmt.Println("trie is nil")
+		logger.Println("trie is nil")
 		return
 	}
 
 	for i := 0; i < _TRIE_CHILD_LEN; i++ {
 		if node.NextNode[i] != nil {
-			node.NextNode[i].TraversalTrie()
-			/*fmt.Println(node.NextNode[i].Key)*/
-			fmt.Println(node.NextNode[i].IndexArray)
+			node.NextNode[i].traversalTrie()
+			/*logger.Println(node.NextNode[i].Key)*/
+			logger.Println(node.NextNode[i].IndexArray)
 		}
 	}
 }
 
-func (root *Trie) SearchTrie(keys string) []int32 {
+func (root *Trie) searchTrie(keys string) []int32 {
 	if root == nil {
 		return nil
 	}
@@ -112,14 +112,18 @@ func (root *Trie) SearchTrie(keys string) []int32 {
 	curNode := root
 	low := strings.ToLower(keys)
 	for i, _ := range low {
-		index := low[i] - 'a'
-		if curNode.NextNode[index] == nil {
+		if i >= 'a' && i <= 'z' {
+			index := low[i] - 'a'
+			if curNode.NextNode[index] == nil {
+				return nil
+			}
+			curNode = curNode.NextNode[index]
+		} else {
 			return nil
 		}
-		curNode = curNode.NextNode[index]
 	}
 
 	retArray := curNode.IndexArray
-	fmt.Println("ret array:", retArray)
+	logger.Println("ret array:", retArray)
 	return retArray
 }
