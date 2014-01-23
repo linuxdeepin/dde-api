@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=com.deepin.dde.api.Pinyin
+Exec=/usr/lib/deepin-api/pinyin-trie-api
