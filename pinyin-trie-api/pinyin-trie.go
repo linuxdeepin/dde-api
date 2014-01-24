@@ -50,22 +50,29 @@ func (t *PinyinTrie) GetDBusInfo() dbus.DBusInfo {
 }
 
 func (t *PinyinTrie) NewTrieWithString(values []string) string {
-	root := newTrie()
-	if values == nil {
-		return ""
-	}
-
 	md5Byte := md5.Sum([]byte(getStringFromArray(values)))
 	logger.Println("MD5: ", md5Byte)
 	if len(md5Byte) == 0 {
 		return ""
 	}
+
 	md5Str := getMD5String(md5Byte)
-	infos := getPinyinArray(values)
-	strsMD5Map[md5Str] = infos
-	root.insertTrieInfo(infos)
-	trieMD5Map[md5Str] = root
-	logger.Println(md5Str)
+	if isMd5Exist(md5Str) {
+		return md5Str
+	}
+
+		root := newTrie()
+		if values == nil {
+			return ""
+		}
+
+	go func() {
+		infos := getPinyinArray(values)
+		strsMD5Map[md5Str] = infos
+		root.insertTrieInfo(infos)
+		trieMD5Map[md5Str] = root
+		logger.Println(md5Str)
+	}()
 	return md5Str
 }
 
@@ -174,6 +181,15 @@ func isSuffixExist(suffix int32, list []int32) bool {
 		if v == suffix {
 			return true
 		}
+	}
+
+	return false
+}
+
+func isMd5Exist(md5Str string) bool {
+	_, ok := strsMD5Map[md5Str]
+	if ok {
+		return true
 	}
 
 	return false
