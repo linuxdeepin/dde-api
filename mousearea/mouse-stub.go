@@ -33,9 +33,9 @@ type Manager struct {
 }
 
 const (
-	MOUSE_AREA_DEST = "com.deepin.dde.api.MouseArea"
-	MOUSE_AREA_PATH = "/com/deepin/dde/api/MouseArea"
-	MOUSE_AREA_IFC  = "com.deepin.dde.api.MouseArea"
+	MOUSE_AREA_DEST = "com.deepin.dde.api.XMouseArea"
+	MOUSE_AREA_PATH = "/com/deepin/dde/api/XMouseArea"
+	MOUSE_AREA_IFC  = "com.deepin.dde.api.XMouseArea"
 )
 
 func (m *Manager) GetDBusInfo() dbus.DBusInfo {
