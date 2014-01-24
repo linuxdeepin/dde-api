@@ -35,6 +35,7 @@ func main() {
 
 	trieMD5Map = make(map[string]*Trie)
 	strsMD5Map = make(map[string][]*TrieInfo)
+        nameMD5Map = make(map[string]string)
 	m := &Pinyin{}
 	err := dbus.InstallOnSession(m)
 	if err != nil {

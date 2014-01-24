@@ -41,6 +41,8 @@ const (
 	PINYIN_TRIE_IFC  = "com.deepin.dde.api.PinyinTrie"
 )
 
+var nameMD5Map map[string]string
+
 func (t *PinyinTrie) GetDBusInfo() dbus.DBusInfo {
 	return dbus.DBusInfo{
 		PINYIN_DEST,
@@ -49,7 +51,7 @@ func (t *PinyinTrie) GetDBusInfo() dbus.DBusInfo {
 	}
 }
 
-func (t *PinyinTrie) NewTrieWithString(values []string) string {
+func (t *PinyinTrie) NewTrieWithString(values []string, name string) string {
 	md5Byte := md5.Sum([]byte(getStringFromArray(values)))
 	logger.Println("MD5: ", md5Byte)
 	if len(md5Byte) == 0 {
@@ -66,6 +68,11 @@ func (t *PinyinTrie) NewTrieWithString(values []string) string {
 		return ""
 	}
 
+        if isNameExist(name) {
+                str, _ := nameMD5Map[name]
+                t.DestroyTrie(str)
+        }
+	nameMD5Map[name] = md5Str
 	go func() {
 		infos := getPinyinArray(values)
 		strsMD5Map[md5Str] = infos
@@ -142,7 +149,7 @@ func getPinyinArray(strs []string) []*TrieInfo {
 	rets := []*TrieInfo{}
 	for _, k := range strs {
 		array := getPinyinFromKey(k)
-                k = strings.ToLower(k)
+		k = strings.ToLower(k)
 		tmp := &TrieInfo{Pinyins: array, Value: k}
 		rets = append(rets, tmp)
 	}
@@ -190,6 +197,15 @@ func isSuffixExist(suffix int32, list []int32) bool {
 
 func isMd5Exist(md5Str string) bool {
 	_, ok := strsMD5Map[md5Str]
+	if ok {
+		return true
+	}
+
+	return false
+}
+
+func isNameExist(name string) bool {
+	_, ok := nameMD5Map[name]
 	if ok {
 		return true
 	}
