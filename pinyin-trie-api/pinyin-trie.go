@@ -61,10 +61,10 @@ func (t *PinyinTrie) NewTrieWithString(values []string) string {
 		return md5Str
 	}
 
-		root := newTrie()
-		if values == nil {
-			return ""
-		}
+	root := newTrie()
+	if values == nil {
+		return ""
+	}
 
 	go func() {
 		infos := getPinyinArray(values)
@@ -86,6 +86,7 @@ func (t *PinyinTrie) SearchKeys(keys string, str string) []int32 {
 	if !ok {
 		return nil
 	}
+	keys = strings.ToLower(keys)
 	rets := root.searchTrie(keys)
 	tmp := searchKeyFromString(keys, str)
 	for _, v := range tmp {
@@ -141,6 +142,7 @@ func getPinyinArray(strs []string) []*TrieInfo {
 	rets := []*TrieInfo{}
 	for _, k := range strs {
 		array := getPinyinFromKey(k)
+                k = strings.ToLower(k)
 		tmp := &TrieInfo{Pinyins: array, Value: k}
 		rets = append(rets, tmp)
 	}
