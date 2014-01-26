@@ -53,22 +53,22 @@ func newTrie() *Trie {
 }
 
 func (root *Trie) insertTrieInfo(values []*TrieInfo) {
-	for i, v := range values {
-		root.insertStringArray(v.Pinyins, int32(i))
+	for _, v := range values {
+		root.insertStringArray(v.Pinyins, v.Value.Id)
 	}
 }
 
-func (root *Trie) insertStringArray(strs []string, pos int32) {
+func (root *Trie) insertStringArray(strs []string, id int32) {
 	if strs == nil {
 		return
 	}
 
 	for _, v := range strs {
-		root.insertString(v, pos)
+		root.insertString(v, id)
 	}
 }
 
-func (root *Trie) insertString(str string, pos int32) {
+func (root *Trie) insertString(str string, id int32) {
 	if l := len(str); l == 0 {
 		return
 	}
@@ -81,7 +81,7 @@ func (root *Trie) insertString(str string, pos int32) {
 		if curNode.NextNode[index] == nil {
 			curNode.NextNode[index] = getNode(low[i])
 		}
-		curNode.NextNode[index].IndexArray = append(curNode.NextNode[index].IndexArray, pos)
+		curNode.NextNode[index].IndexArray = append(curNode.NextNode[index].IndexArray, id)
 		curNode = curNode.NextNode[index]
 	}
 }
@@ -105,15 +105,15 @@ func (root *Trie) searchTrie(keys string) []int32 {
 	if root == nil {
 		return nil
 	}
-	if l := len(keys); l == 0 {
+	if len(keys) <= 0 {
 		return nil
 	}
 
 	curNode := root
 	low := strings.ToLower(keys)
-	for i, _ := range low {
+	for _, i := range low {
 		if i >= 'a' && i <= 'z' {
-			index := low[i] - 'a'
+			index := i - 'a'
 			if curNode.NextNode[index] == nil {
 				return nil
 			}

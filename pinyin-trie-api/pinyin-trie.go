@@ -33,7 +33,12 @@ type PinyinTrie struct{}
 
 type TrieInfo struct {
 	Pinyins []string
-	Value   string
+	Value   ParamInfo
+}
+
+type ParamInfo struct {
+	Id    int32
+	Value string
 }
 
 const (
@@ -51,7 +56,7 @@ func (t *PinyinTrie) GetDBusInfo() dbus.DBusInfo {
 	}
 }
 
-func (t *PinyinTrie) NewTrieWithString(values []string, name string) string {
+func (t *PinyinTrie) NewTrieWithString(values []ParamInfo, name string) string {
 	md5Byte := md5.Sum([]byte(getStringFromArray(values)))
 	logger.Println("MD5: ", md5Byte)
 	if len(md5Byte) == 0 {
@@ -63,16 +68,16 @@ func (t *PinyinTrie) NewTrieWithString(values []string, name string) string {
 		return md5Str
 	}
 
+	if isNameExist(name) {
+		str, _ := nameMD5Map[name]
+		t.DestroyTrie(str)
+	}
+	nameMD5Map[name] = md5Str
+
 	root := newTrie()
 	if values == nil {
 		return ""
 	}
-
-        if isNameExist(name) {
-                str, _ := nameMD5Map[name]
-                t.DestroyTrie(str)
-        }
-	nameMD5Map[name] = md5Str
 	go func() {
 		infos := getPinyinArray(values)
 		strsMD5Map[md5Str] = infos
@@ -83,10 +88,12 @@ func (t *PinyinTrie) NewTrieWithString(values []string, name string) string {
 	return md5Str
 }
 
+/*
 func (t *PinyinTrie) TraversalTrie(str string) {
 	root := trieMD5Map[str]
 	root.traversalTrie()
 }
+*/
 
 func (t *PinyinTrie) SearchKeys(keys string, str string) []int32 {
 	root, ok := trieMD5Map[str]
@@ -97,7 +104,7 @@ func (t *PinyinTrie) SearchKeys(keys string, str string) []int32 {
 	rets := root.searchTrie(keys)
 	tmp := searchKeyFromString(keys, str)
 	for _, v := range tmp {
-		if !isSuffixExist(v, rets) {
+		if !isIdExist(v, rets) {
 			rets = append(rets, v)
 		}
 	}
@@ -135,21 +142,21 @@ func (t *PinyinTrie) SearchTrieWithString(keys string,
 }
 */
 
-func getStringFromArray(strs []string) string {
+func getStringFromArray(strs []ParamInfo) string {
 	str := ""
 
-	for i, _ := range strs {
-		str += strs[i]
+	for _, v := range strs {
+		str += v.Value
 	}
 
 	return str
 }
 
-func getPinyinArray(strs []string) []*TrieInfo {
+func getPinyinArray(strs []ParamInfo) []*TrieInfo {
 	rets := []*TrieInfo{}
 	for _, k := range strs {
-		array := getPinyinFromKey(k)
-		k = strings.ToLower(k)
+		array := getPinyinFromKey(k.Value)
+		k.Value = strings.ToLower(k.Value)
 		tmp := &TrieInfo{Pinyins: array, Value: k}
 		rets = append(rets, tmp)
 	}
@@ -176,18 +183,18 @@ func searchKeyFromString(key, md5Str string) []int32 {
 	rets := []int32{}
 
 	infos := strsMD5Map[md5Str]
-	for i, v := range infos {
-		if strings.Contains(v.Value, key) {
-			rets = append(rets, int32(i))
+	for _, v := range infos {
+		if strings.Contains(v.Value.Value, key) {
+			rets = append(rets, v.Value.Id)
 		}
 	}
 
 	return rets
 }
 
-func isSuffixExist(suffix int32, list []int32) bool {
+func isIdExist(id int32, list []int32) bool {
 	for _, v := range list {
-		if v == suffix {
+		if v == id {
 			return true
 		}
 	}
