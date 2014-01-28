@@ -33,12 +33,8 @@ type PinyinTrie struct{}
 
 type TrieInfo struct {
 	Pinyins []string
-	Value   ParamInfo
-}
-
-type ParamInfo struct {
-	Id    int32
-	Value string
+	Key     string
+	Value   string
 }
 
 const (
@@ -56,7 +52,7 @@ func (t *PinyinTrie) GetDBusInfo() dbus.DBusInfo {
 	}
 }
 
-func (t *PinyinTrie) NewTrieWithString(values []ParamInfo, name string) string {
+func (t *PinyinTrie) NewTrieWithString(values map[string]string, name string) string {
 	md5Byte := md5.Sum([]byte(getStringFromArray(values)))
 	logger.Println("MD5: ", md5Byte)
 	if len(md5Byte) == 0 {
@@ -83,7 +79,6 @@ func (t *PinyinTrie) NewTrieWithString(values []ParamInfo, name string) string {
 		strsMD5Map[md5Str] = infos
 		root.insertTrieInfo(infos)
 		trieMD5Map[md5Str] = root
-		logger.Println(md5Str)
 	}()
 	return md5Str
 }
@@ -95,7 +90,7 @@ func (t *PinyinTrie) TraversalTrie(str string) {
 }
 */
 
-func (t *PinyinTrie) SearchKeys(keys string, str string) []int32 {
+func (t *PinyinTrie) SearchKeys(keys string, str string) []string {
 	root, ok := trieMD5Map[str]
 	if !ok {
 		return nil
@@ -142,22 +137,22 @@ func (t *PinyinTrie) SearchTrieWithString(keys string,
 }
 */
 
-func getStringFromArray(strs []ParamInfo) string {
+func getStringFromArray(strs map[string]string) string {
 	str := ""
 
 	for _, v := range strs {
-		str += v.Value
+		str += v
 	}
 
 	return str
 }
 
-func getPinyinArray(strs []ParamInfo) []*TrieInfo {
+func getPinyinArray(strs map[string]string) []*TrieInfo {
 	rets := []*TrieInfo{}
-	for _, k := range strs {
-		array := getPinyinFromKey(k.Value)
-		k.Value = strings.ToLower(k.Value)
-		tmp := &TrieInfo{Pinyins: array, Value: k}
+	for k, v := range strs {
+		array := getPinyinFromKey(v)
+		v = strings.ToLower(v)
+		tmp := &TrieInfo{Pinyins: array, Key: k, Value: v}
 		rets = append(rets, tmp)
 	}
 
@@ -179,20 +174,20 @@ func getMD5String(bytes [16]byte) string {
 	return str
 }
 
-func searchKeyFromString(key, md5Str string) []int32 {
-	rets := []int32{}
+func searchKeyFromString(key, md5Str string) []string {
+	rets := []string{}
 
 	infos := strsMD5Map[md5Str]
 	for _, v := range infos {
-		if strings.Contains(v.Value.Value, key) {
-			rets = append(rets, v.Value.Id)
+		if strings.Contains(v.Value, key) {
+			rets = append(rets, v.Key)
 		}
 	}
 
 	return rets
 }
 
-func isIdExist(id int32, list []int32) bool {
+func isIdExist(id string, list []string) bool {
 	for _, v := range list {
 		if v == id {
 			return true

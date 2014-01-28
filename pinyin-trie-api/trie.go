@@ -27,9 +27,9 @@ import (
 )
 
 type Trie struct {
-	Key        byte
-	IndexArray []int32
-	NextNode   [_TRIE_CHILD_LEN]*Trie
+	Key      byte
+	Values   []string
+	NextNode [_TRIE_CHILD_LEN]*Trie
 }
 
 const (
@@ -54,11 +54,11 @@ func newTrie() *Trie {
 
 func (root *Trie) insertTrieInfo(values []*TrieInfo) {
 	for _, v := range values {
-		root.insertStringArray(v.Pinyins, v.Value.Id)
+		root.insertStringArray(v.Pinyins, v.Key)
 	}
 }
 
-func (root *Trie) insertStringArray(strs []string, id int32) {
+func (root *Trie) insertStringArray(strs []string, id string) {
 	if strs == nil {
 		return
 	}
@@ -68,20 +68,19 @@ func (root *Trie) insertStringArray(strs []string, id int32) {
 	}
 }
 
-func (root *Trie) insertString(str string, id int32) {
+func (root *Trie) insertString(str, id string) {
 	if l := len(str); l == 0 {
 		return
 	}
 	low := strings.ToLower(str)
 	curNode := root
 
-	logger.Println("keys: ", low)
 	for i, _ := range str {
 		index := low[i] - 'a'
 		if curNode.NextNode[index] == nil {
 			curNode.NextNode[index] = getNode(low[i])
 		}
-		curNode.NextNode[index].IndexArray = append(curNode.NextNode[index].IndexArray, id)
+		curNode.NextNode[index].Values = append(curNode.NextNode[index].Values, id)
 		curNode = curNode.NextNode[index]
 	}
 }
@@ -96,12 +95,12 @@ func (node *Trie) traversalTrie() {
 		if node.NextNode[i] != nil {
 			node.NextNode[i].traversalTrie()
 			/*logger.Println(node.NextNode[i].Key)*/
-			logger.Println(node.NextNode[i].IndexArray)
+			logger.Println(node.NextNode[i].Values)
 		}
 	}
 }
 
-func (root *Trie) searchTrie(keys string) []int32 {
+func (root *Trie) searchTrie(keys string) []string {
 	if root == nil {
 		return nil
 	}
@@ -123,7 +122,7 @@ func (root *Trie) searchTrie(keys string) []int32 {
 		}
 	}
 
-	retArray := curNode.IndexArray
+	retArray := curNode.Values
 	logger.Println("ret array:", retArray)
 	return retArray
 }
