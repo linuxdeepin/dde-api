@@ -80,7 +80,9 @@ func (root *Trie) insertString(str, id string) {
 		if curNode.NextNode[index] == nil {
 			curNode.NextNode[index] = getNode(low[i])
 		}
+                if !isIdExist(id, curNode.NextNode[index].Values) {
 		curNode.NextNode[index].Values = append(curNode.NextNode[index].Values, id)
+        }
 		curNode = curNode.NextNode[index]
 	}
 }

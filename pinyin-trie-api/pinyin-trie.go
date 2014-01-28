@@ -97,7 +97,9 @@ func (t *PinyinTrie) SearchKeys(keys string, str string) []string {
 	}
 	keys = strings.ToLower(keys)
 	rets := root.searchTrie(keys)
+	logger.Println("trie rets:", rets)
 	tmp := searchKeyFromString(keys, str)
+	logger.Println("array rets:", tmp)
 	for _, v := range tmp {
 		if !isIdExist(v, rets) {
 			rets = append(rets, v)

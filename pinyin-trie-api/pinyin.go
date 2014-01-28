@@ -51,7 +51,6 @@ func (m *Pinyin) PinyinFromKey(key string) []string {
 func getPinyinFromKey(key string) []string {
 	rets := []string{}
 	for _, c := range key {
-		println("pinyin char:", string(c))
 		if unicode.Is(unicode.Scripts["Han"], c) {
 			array := getPinyinByHan(int64(c))
 			if len(rets) == 0 {
