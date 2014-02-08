@@ -22,12 +22,13 @@
 #ifndef __MOUSE_RECORD_H__
 #define __MOUSE_RECORD_H__
 
+#define KEY_PRESS 1
+#define KEY_RELEASE 0
+#define BUTTON_PRESS 1
+#define BUTTON_RELEASE 0
+
 void record_init ();
 void record_finalize();
 void simulate_user_activity(int flag);
 
-//Go Export Functions
-extern void parseMotionEvent(int x, int y);
-extern void parseButtonEvent(int type, int x, int y);
-extern void parseKeyboardEvent(int type, int x, int y);
 #endif

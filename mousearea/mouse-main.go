@@ -21,7 +21,7 @@
 
 package main
 
-// #cgo amd63 386 CFLAGS: -g -Wall
+// #cgo CFLAGS: -g -Wall
 // #cgo pkg-config: x11 xtst glib-2.0
 // #include "mouse-record.h"
 import "C"
@@ -32,10 +32,15 @@ import (
 	"sync"
 )
 
+type coordinateInfo struct {
+	areas    []coordinateRange
+	moveFlag int32
+}
+
 var (
 	opMouse    *Manager
 	lock       sync.Mutex
-	idRangeMap map[int32][]coordinateRange
+	idRangeMap map[int32]*coordinateInfo
 
 	genID = func() func() int32 {
 		id := int32(0)
@@ -51,7 +56,7 @@ var (
 
 func (op *Manager) RegisterArea(area []coordinateRange) int32 {
 	cookie := genID()
-	idRangeMap[cookie] = area
+	idRangeMap[cookie] = &coordinateInfo{areas: area, moveFlag: -1}
 
 	return cookie
 }
@@ -71,9 +76,7 @@ func main() {
 		}
 	}()
 
-	idRangeMap = make(map[int32][]coordinateRange)
-	//tmp := coordinateRange{X1: 1266, X2: 1370, Y1: 600, Y2: 767}
-	//idRangeMap[0] = []coordinateRange{tmp}
+	idRangeMap = make(map[int32]*coordinateInfo)
 	opMouse = NewManager()
 	err := dbus.InstallOnSession(opMouse)
 	if err != nil {
@@ -82,9 +85,11 @@ func main() {
 	}
 
 	dbus.DealWithUnhandledMessage()
-        cancleAllReigsterArea()
+	cancleAllReigsterArea()
+        tmp := coordinateRange{X1: 1266, X2: 1370, Y1: 600, Y2: 767}
+        opMouse.RegisterArea([]coordinateRange{tmp})
 	C.record_init()
 	defer C.record_finalize()
 
-        select{}
+	select {}
 }

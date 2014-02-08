@@ -21,7 +21,7 @@
 
 package main
 
-// #cgo amd63 386 CFLAGS: -g -Wall
+// #cgo CFLAGS: -g -Wall
 // #cgo pkg-config: x11 xtst glib-2.0
 // #include "mouse-record.h"
 import "C"
@@ -34,7 +34,7 @@ type coordinateRange struct {
 }
 
 //export parseMotionEvent
-func parseMotionEvent(_x, _y C.int) {
+func parseMotionEvent(_x, _y int32) {
 	coorX := int32(_x)
 	coorY := int32(_y)
 
@@ -48,12 +48,12 @@ func parseMotionEvent(_x, _y C.int) {
 }
 
 //export parseButtonEvent
-func parseButtonEvent(_type, _x, _y C.int) {
+func parseButtonEvent(_type, _x, _y int32) {
 	coorX := int32(_x)
 	coorY := int32(_y)
 	tmp := int32(_type)
 	coorType := ""
-	if tmp == 1 {
+	if tmp == C.BUTTON_PRESS {
 		coorType = "Press"
 	} else {
 		coorType = "Release"
@@ -65,12 +65,12 @@ func parseButtonEvent(_type, _x, _y C.int) {
 }
 
 //export parseKeyboardEvent
-func parseKeyboardEvent(_type, _x, _y C.int) {
+func parseKeyboardEvent(_type, _x, _y int32) {
 	coorX := int32(_x)
 	coorY := int32(_y)
 	tmp := int32(_type)
 	coorType := ""
-	if tmp == 1 {
+	if tmp == C.KEY_PRESS {
 		coorType = "Press"
 	} else {
 		coorType = "Release"
@@ -83,17 +83,17 @@ func parseKeyboardEvent(_type, _x, _y C.int) {
 }
 
 func cancleAllReigsterArea() {
-        list := []int32{}
+	list := []int32{}
 
 	for id, _ := range idRangeMap {
-                list = append(list, id)
+		list = append(list, id)
 		delete(idRangeMap, id)
 	}
 
 	println("map len:", len(idRangeMap))
-        for _, cookie := range list {
-                opMouse.CancleAllArea(1365, 767, cookie)
-        }
+	for _, cookie := range list {
+		opMouse.CancleAllArea(1365, 767, cookie)
+	}
 }
 
 func getIDList(x, y int32) ([]int32, []int32) {
@@ -102,17 +102,25 @@ func getIDList(x, y int32) ([]int32, []int32) {
 
 	for id, array := range idRangeMap {
 		inFlag := false
-		for _, area := range array {
+		for _, area := range array.areas {
 			if isInArea(x, y, area) {
 				inFlag = true
-				if !isInIDList(id, inList) {
-					inList = append(inList, id)
+				/* moveFlag == 1 : mouse move in area */
+				if array.moveFlag != 1 {
+					array.moveFlag = 1
+					if !isInIDList(id, inList) {
+						inList = append(inList, id)
+					}
 				}
 			}
 		}
 		if !inFlag {
-			if !isInIDList(id, outList) {
-				outList = append(outList, id)
+			/* moveFlag == 0 : mouse move out area */
+			if array.moveFlag != 0 {
+				array.moveFlag = 0
+				if !isInIDList(id, outList) {
+					outList = append(outList, id)
+				}
 			}
 		}
 	}

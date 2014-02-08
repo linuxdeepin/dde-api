@@ -25,15 +25,11 @@
 #include <X11/extensions/record.h>
 
 #include "mouse-record.h"
+#include "_cgo_export.h"
 
 #define MOUSE_AREA_DEST "com.deepin.dde.api.MouseArea"
 #define MOUSE_AREA_PATH "/com/deepin/dde/api/MouseArea"
 #define MOUSE_AREA_IFC  "com.deepin.dde.api.MouseArea"
-
-#define KEY_PRESS 1
-#define KEY_RELEASE 0
-#define BUTTON_PRESS 1
-#define BUTTON_RELEASE 0
 
 typedef struct _RecordEventInfo {
     Display *ctrl_disp;
@@ -179,7 +175,7 @@ record_event_cb (XPointer user_data, XRecordInterceptData *hook)
     int event_type = data->type;
     int rootX = data->xe.u.keyButtonPointer.rootX;
     int rootY = data->xe.u.keyButtonPointer.rootY;
-    int time = hook->server_time;
+    /*int time = hook->server_time;*/
 
     switch (event_type) {
         case KeyPress:
