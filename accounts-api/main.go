@@ -29,9 +29,9 @@ import (
 )
 
 const (
-	_BLUR_PICT_DEST = "com.deepin.dde.api.Accounts"
-	_BLUR_PICT_PATH = "/com/deepin/dde/api/Accounts"
-	_BLUR_PICT_IFC  = "com.deepin.dde.api.Accounts"
+	_BLUR_PICT_DEST = "com.deepin.api.Accounts"
+	_BLUR_PICT_PATH = "/com/deepin/api/Accounts"
+	_BLUR_PICT_IFC  = "com.deepin.api.Accounts"
 )
 
 type AccountExtendsManager struct {

@@ -38,8 +38,8 @@ type TrieInfo struct {
 }
 
 const (
-	PINYIN_TRIE_PATH = "/com/deepin/dde/api/PinyinTrie"
-	PINYIN_TRIE_IFC  = "com.deepin.dde.api.PinyinTrie"
+	PINYIN_TRIE_PATH = "/com/deepin/api/PinyinTrie"
+	PINYIN_TRIE_IFC  = "com.deepin.api.PinyinTrie"
 )
 
 var nameMD5Map map[string]string

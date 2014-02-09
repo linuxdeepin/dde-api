@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=com.deepin.api.XMouseArea
+Exec=/usr/lib/deepin-api/mousearea

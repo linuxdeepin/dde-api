@@ -11,9 +11,9 @@ import (
 
 const (
 	_NTP_HOST           = "0.pool.ntp.org"
-	_SET_DATE_TIME_DEST = "com.deepin.dde.api.SetDateTime"
-	_SET_DATE_TIME_PATH = "/com/deepin/dde/api/SetDateTime"
-	_SET_DATA_TIME_IFC  = "com.deepin.dde.api.SetDateTime"
+	_SET_DATE_TIME_DEST = "com.deepin.api.SetDateTime"
+	_SET_DATE_TIME_PATH = "/com/deepin/api/SetDateTime"
+	_SET_DATA_TIME_IFC  = "com.deepin.api.SetDateTime"
 )
 
 var (

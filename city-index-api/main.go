@@ -30,9 +30,9 @@ import (
 type CityPinyin struct{}
 
 const (
-	_CITY_PINYIN_DEST = "com.deepin.dde.api.CityPinyin"
-	_CITY_PINYIN_PATH = "/com/deepin/dde/api/CityPinyin"
-	_CITY_PINYIN_IFC  = "com.deepin.dde.api.CityPinyin"
+	_CITY_PINYIN_DEST = "com.deepin.api.CityPinyin"
+	_CITY_PINYIN_PATH = "/com/deepin/api/CityPinyin"
+	_CITY_PINYIN_IFC  = "com.deepin.api.CityPinyin"
 )
 
 func (cp *CityPinyin) GetDBusInfo() dbus.DBusInfo {
