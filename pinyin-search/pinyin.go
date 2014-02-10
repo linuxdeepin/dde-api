@@ -31,9 +31,9 @@ import (
 type Pinyin struct{}
 
 const (
-	PINYIN_DEST         = "com.deepin.api.Pinyin"
-	HANS_TO_PINYIN_PATH = "/com/deepin/api/HansToPinyin"
-	HANS_TO_PINYIN_IFC  = "com.deepin.api.HansToPinyin"
+	PINYIN_DEST         = "com.deepin.api.Search"
+	HANS_TO_PINYIN_PATH = "/com/deepin/api/Pinyin"
+	HANS_TO_PINYIN_IFC  = "com.deepin.api.Pinyin"
 )
 
 func (m *Pinyin) GetDBusInfo() dbus.DBusInfo {
