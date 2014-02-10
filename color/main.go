@@ -22,7 +22,7 @@ func main() {
 	}()
 
 	color := &Color{}
-	err := dbus.InstallOnSystem(color)
+	err := dbus.InstallOnSession(color)
 	if err != nil {
 		panic(err)
 	}
