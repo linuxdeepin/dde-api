@@ -4,10 +4,10 @@ import (
 	"testing"
 )
 
-var image *Image
+var dimg *DImage
 
 func init() {
-	image = &Image{}
+	dimg = &DImage{}
 }
 
 func delta(x, y uint8) uint8 {
@@ -24,8 +24,8 @@ func TestHSV(t *testing.T) {
 		for g := 0; g < 255; g += 5 {
 			for b := 0; b < 255; b += 3 {
 				r0, g0, b0 := uint8(r), uint8(g), uint8(b)
-				h, s, v := image.RGB2HSV(r0, g0, b0)
-				r1, g1, b1 := image.HSV2RGB(h, s, v)
+				h, s, v := dimg.RGB2HSV(r0, g0, b0)
+				r1, g1, b1 := dimg.HSV2RGB(h, s, v)
 				if delta(r0, r1) > 1 || delta(g0, g1) > 1 || delta(b0, b1) > 1 {
 					t.Fatalf("r0, g0, b0 = %d, %d, %d   r1, g1, b1 = %d, %d, %d", r0, g0, b0, r1, g1, b1)
 				}

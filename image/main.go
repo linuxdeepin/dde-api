@@ -4,9 +4,9 @@ import (
 	"dlib/dbus"
 )
 
-type Image struct{}
+type DImage struct{}
 
-func (image *Image) GetDBusInfo() dbus.DBusInfo {
+func (dimg *DImage) GetDBusInfo() dbus.DBusInfo {
 	return dbus.DBusInfo{
 		"com.deepin.api.Image",
 		"/com/deepin/api/Image",
@@ -21,8 +21,8 @@ func main() {
 		}
 	}()
 
-	image := &Image{}
-	err := dbus.InstallOnSession(image)
+	dimg := &DImage{}
+	err := dbus.InstallOnSession(dimg)
 	if err != nil {
 		panic(err)
 	}
