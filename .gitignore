@@ -3,3 +3,5 @@ Test
 test-*
 test_*
 *.*~
+*/*.test
+image/image

@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=com.deepin.api.Image
+Exec=/usr/lib/deepin-api/image

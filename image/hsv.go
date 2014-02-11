@@ -4,7 +4,7 @@ import (
 	"math"
 )
 
-func (color *Color) RGB2HSV(r, g, b uint8) (h, s, v float64) {
+func (image *Image) RGB2HSV(r, g, b uint8) (h, s, v float64) {
 	fr := float64(r) / 255
 	fg := float64(g) / 255
 	fb := float64(b) / 255
@@ -39,7 +39,7 @@ func (color *Color) RGB2HSV(r, g, b uint8) (h, s, v float64) {
 	return
 }
 
-func (color *Color) HSV2RGB(h, s, v float64) (r, g, b uint8) {
+func (image *Image) HSV2RGB(h, s, v float64) (r, g, b uint8) {
 	var fr, fg, fb float64
 	hi := int(math.Floor(h/60)) % 6
 	f := h/60 - float64(hi)
