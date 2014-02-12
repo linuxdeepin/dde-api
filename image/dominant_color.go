@@ -69,5 +69,5 @@ func (dimg *DImage) GetDominantColorOfImage(imagePath string) (h, s, v float64) 
 	if s < 0.05 {
 		return def_h, def_s, def_v
 	}
-	return h, def_s, def_v
+	return
 }
