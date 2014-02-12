@@ -24,7 +24,7 @@ package main
 // #cgo pkg-config: glib-2.0 gdk-pixbuf-2.0
 // #cgo LDFLAGS: -lm
 // #include <stdlib.h>
-// #include "blur-pict.h"
+// #include "blur_pict.h"
 import "C"
 import "unsafe"
 

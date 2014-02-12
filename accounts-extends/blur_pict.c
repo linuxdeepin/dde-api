@@ -26,7 +26,7 @@
 #include <glib/gstdio.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include "gaussianiir2d.h"
-#include "blur-pict.h"
+#include "blur_pict.h"
 
 #define	BG_BLUR_PICT_CACHE_DIR	"gaussian-background"
 #define BG_EXT_URI	 "tEXt::Blur::URI"
