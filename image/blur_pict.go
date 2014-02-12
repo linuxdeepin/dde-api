@@ -52,7 +52,7 @@ var (
 	jobInHand map[string]bool
 )
 
-func (blur *AccountExtendsManager) BackgroundBlurPictPath(uid, srcPath string) *_BlurResult {
+func (image *Image) BackgroundBlurPictPath(uid, srcPath string) *_BlurResult {
 	if len(uid) <= 0 {
 		return &_BlurResult{Success: false, PictPath: ""}
 	}
@@ -88,7 +88,9 @@ func (blur *AccountExtendsManager) BackgroundBlurPictPath(uid, srcPath string) *
 				f, _ := os.Open(destPath)
 				defer f.Close()
 				f.Chown(int(uidInt), int(gidInt))
-				blur.BlurPictChanged(uid, destPath)
+				if image.BlurPictChanged != nil {
+					image.BlurPictChanged(uid, destPath)
+				}
 			}
 		}()
 	}
@@ -204,6 +206,25 @@ func IsFileValid(srcPath, destPath string) bool {
 	defer C.free(unsafe.Pointer(dest))
 	if C.blur_pict_is_valid(src, dest) == 0 {
 		fmt.Println("file invalid")
+		return false
+	}
+
+	return true
+}
+
+func GetHomeDirById(uid string) (string, error) {
+	userInfo, err := user.LookupId(uid)
+	if err != nil {
+		fmt.Println(err) // TODO
+		return "", err
+	}
+
+	return userInfo.HomeDir, nil
+}
+
+func FileIsExist(filename string) bool {
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		fmt.Printf("File '%s' not exist:%s\n", filename, err)
 		return false
 	}
 

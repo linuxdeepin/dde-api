@@ -25,7 +25,9 @@ import (
 	"dlib/dbus"
 )
 
-type Image struct{}
+type Image struct {
+	BlurPictChanged func(string, string)
+}
 
 func (image *Image) GetDBusInfo() dbus.DBusInfo {
 	return dbus.DBusInfo{
@@ -41,6 +43,8 @@ func main() {
 			// TODO logFatal("deepin image api failed: %v", err)
 		}
 	}()
+
+	jobInHand = make(map[string]bool)
 
 	image := &Image{}
 	err := dbus.InstallOnSession(image)

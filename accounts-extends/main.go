@@ -34,9 +34,7 @@ const (
 	_BLUR_PICT_IFC  = "com.deepin.api.Accounts"
 )
 
-type AccountExtendsManager struct {
-	BlurPictChanged func(string, string)
-}
+type AccountExtendsManager struct{}
 
 func (blur *AccountExtendsManager) GetDBusInfo() dbus.DBusInfo {
 	return dbus.DBusInfo{
@@ -66,9 +64,8 @@ func FileIsExist(filename string) bool {
 }
 
 func main() {
-	jobInHand = make(map[string]bool)
 	accountExt := &AccountExtendsManager{}
-        err := dbus.InstallOnSystem(accountExt)
+	err := dbus.InstallOnSystem(accountExt)
 	if err != nil {
 		panic(err)
 	}
