@@ -22,14 +22,14 @@
 package main
 
 import (
-	"image"
+	_image "image"
 	_ "image/jpeg"
 	_ "image/png"
 	"log"
 	"os"
 )
 
-func (dimg *DImage) GetDominantColorOfImage(imagePath string) (h, s, v float64) {
+func (image *Image) GetDominantColorOfImage(imagePath string) (h, s, v float64) {
 	var def_h, def_s, def_v float64 = 200, 0.5, 0.8 // default hsv
 
 	// open the image file
@@ -40,7 +40,7 @@ func (dimg *DImage) GetDominantColorOfImage(imagePath string) (h, s, v float64) 
 	}
 	defer fr.Close()
 
-	img, _, err := image.Decode(fr)
+	img, _, err := _image.Decode(fr)
 	if err != nil {
 		log.Printf(err.Error()) // TODO
 		return def_h, def_s, def_v
@@ -64,7 +64,7 @@ func (dimg *DImage) GetDominantColorOfImage(imagePath string) (h, s, v float64) 
 		}
 	}
 
-	h, s, v = dimg.RGB2HSV(uint8(sum_r/count), uint8(sum_g/count), uint8(sum_b/count))
+	h, s, v = image.RGB2HSV(uint8(sum_r/count), uint8(sum_g/count), uint8(sum_b/count))
 	log.Printf("h=%f, s=%f, v=%f", h, s, v) // TODO
 	if s < 0.05 {
 		return def_h, def_s, def_v

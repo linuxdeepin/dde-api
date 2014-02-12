@@ -22,13 +22,13 @@
 package main
 
 import (
-	"image"
+	_image "image"
 	_ "image/jpeg"
 	_ "image/png"
 	"os"
 )
 
-func (dimg *DImage) GetImageSize(imageFile string) (w, h int32, err error) {
+func (image *Image) GetImageSize(imageFile string) (w, h int32, err error) {
 	// open the image file
 	fr, err := os.Open(imageFile)
 	if err != nil {
@@ -37,7 +37,7 @@ func (dimg *DImage) GetImageSize(imageFile string) (w, h int32, err error) {
 	}
 	defer fr.Close()
 
-	img, _, err := image.Decode(fr)
+	img, _, err := _image.Decode(fr)
 	if err != nil {
 		// image format not support
 		// logError(err.Error()) // TODO

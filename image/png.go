@@ -22,7 +22,7 @@
 package main
 
 import (
-	"image"
+	_image "image"
 	"image/draw"
 	_ "image/jpeg"
 	"image/png"
@@ -30,7 +30,7 @@ import (
 )
 
 // Converts from any recognized format to PNG.
-func (dimg *DImage) ConvertToPNG(src, dest string) (err error) {
+func (image *Image) ConvertToPNG(src, dest string) (err error) {
 	sf, err := os.Open(src)
 	if err != nil {
 		return
@@ -42,7 +42,7 @@ func (dimg *DImage) ConvertToPNG(src, dest string) (err error) {
 	}
 	defer df.Close()
 
-	img, _, err := image.Decode(sf)
+	img, _, err := _image.Decode(sf)
 	if err != nil {
 		return
 	}
@@ -50,7 +50,7 @@ func (dimg *DImage) ConvertToPNG(src, dest string) (err error) {
 }
 
 // Clip any recognized format image and save to PNG.
-func (dimg *DImage) ClipPNG(src, dest string, x0, y0, x1, y1 int32) (err error) {
+func (image *Image) ClipPNG(src, dest string, x0, y0, x1, y1 int32) (err error) {
 	sf, err := os.Open(src)
 	if err != nil {
 		return
@@ -63,12 +63,12 @@ func (dimg *DImage) ClipPNG(src, dest string, x0, y0, x1, y1 int32) (err error) 
 	}
 	defer df.Close()
 
-	imgSrc, _, err := image.Decode(sf)
+	imgSrc, _, err := _image.Decode(sf)
 	if err != nil {
 		return
 	}
 
-	imgDest := image.NewRGBA(image.Rect(int(x0), int(y0), int(x1), int(y1)))
-	draw.Draw(imgDest, imgDest.Bounds(), imgSrc, image.Point{0, 0}, draw.Src)
+	imgDest := _image.NewRGBA(_image.Rect(int(x0), int(y0), int(x1), int(y1)))
+	draw.Draw(imgDest, imgDest.Bounds(), imgSrc, _image.Point{0, 0}, draw.Src)
 	return png.Encode(df, imgDest)
 }
