@@ -42,6 +42,12 @@ func getTimezone() (string, bool) {
 		return "", false
 	}
 
+        for _, b := range contents {
+                if b == '\n' {
+                        b = '0'
+                }
+        }
+
 	return string(contents), true
 }
 
