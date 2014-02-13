@@ -2,7 +2,7 @@ package main
 
 import (
 	"dlib/dbus"
-	"fmt"
+	"dlib/logger"
 	"net"
 	"os/exec"
 	"strconv"
@@ -35,7 +35,7 @@ func (sdt *SetDateTime) GetDBusInfo() dbus.DBusInfo {
 func (sdt *SetDateTime) SetCurrentDate(d string) bool {
 	/* Date String Format: 2013-11-17 */
 	if CountCharInString('-', d) != 2 {
-		fmt.Println("date string format error")
+		logger.Println("date string format error")
 		return false
 	}
 
@@ -45,7 +45,7 @@ func (sdt *SetDateTime) SetCurrentDate(d string) bool {
 	cmd := exec.Command("/bin/date", "--set", d)
 	_, err := cmd.Output()
 	if err != nil {
-		fmt.Println("Set Date error:", err)
+		logger.Println("Set Date error:", err)
 		return false
 	}
 	sdt.SetCurrentTime(tStr)
@@ -55,23 +55,35 @@ func (sdt *SetDateTime) SetCurrentDate(d string) bool {
 func (sdt *SetDateTime) SetCurrentTime(t string) bool {
 	/* Time String Format: 12:23:09 */
 	if CountCharInString(':', t) != 2 {
-		fmt.Println("time string format error")
+		logger.Println("time string format error")
 		return false
 	}
 
 	cmd := exec.Command("/bin/date", "+%T", "-s", t)
 	_, err := cmd.Output()
 	if err != nil {
-		fmt.Println("Set time error:", err)
+		logger.Println("Set time error:", err)
 		return false
 	}
 	return true
 }
 
+func (sdt *SetDateTime) GetTimezone() (string, bool) {
+	return getTimezone()
+}
+
+func (sdt *SetDateTime) SetTimezone(tz string) bool {
+	return setTimezone(tz)
+}
+
+func (sdt *SetDateTime) TimezoneCityList() []string {
+	return getZoneCityList()
+}
+
 func (sdt *SetDateTime) SyncNtpTime() bool {
 	t, err := GetNtpNow()
 	if err != nil {
-		fmt.Println(err)
+		logger.Println(err)
 		return false
 	}
 
@@ -84,7 +96,7 @@ func (sdt *SetDateTime) SetNtpUsing(using bool) bool {
 	if using {
 		if sdt.ntpRunFlag {
 			sdt.SyncNtpTime()
-			fmt.Println("Ntp is running....")
+			logger.Println("Ntp is running....")
 			return true
 		}
 
@@ -92,7 +104,7 @@ func (sdt *SetDateTime) SetNtpUsing(using bool) bool {
 		go SetNtpThread(sdt)
 	} else {
 		if sdt.ntpRunFlag {
-			fmt.Println("Ntp will quit....")
+			logger.Println("Ntp will quit....")
 			quitChan <- true
 		}
 
