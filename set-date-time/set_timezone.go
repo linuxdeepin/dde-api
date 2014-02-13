@@ -45,20 +45,12 @@ func getTimezone() (string, bool) {
 	return string(contents), true
 }
 
-func getZoneCityList() []string {
-	return zoneCityInfo
-}
-
 func setTimezone(tz string) bool {
 	defer func() {
 		if err := recover(); err != nil {
 			logger.Println("Recover Error:", err)
 		}
 	}()
-
-	if !zoneCityIsValid(tz) {
-		return false
-	}
 
 	if !fileIsRegular(ETC_LOCALTIME) {
 		return false
@@ -173,20 +165,5 @@ func zoneFileIsExist(file string) bool {
 	}
 	logger.Printf("'%s' is not exist\n", file)
 
-	return false
-}
-
-func zoneCityIsValid(tz string) bool {
-	return isElementExist(tz, zoneCityInfo)
-}
-
-func isElementExist(element string, list []string) bool {
-	for _, v := range list {
-		if v == element {
-			return true
-		}
-	}
-
-	logger.Printf("'%s' is not exist in list\n", element)
 	return false
 }

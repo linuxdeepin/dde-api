@@ -76,10 +76,6 @@ func (sdt *SetDateTime) SetTimezone(tz string) bool {
 	return setTimezone(tz)
 }
 
-func (sdt *SetDateTime) TimezoneCityList() []string {
-	return getZoneCityList()
-}
-
 func (sdt *SetDateTime) SyncNtpTime() bool {
 	t, err := GetNtpNow()
 	if err != nil {
