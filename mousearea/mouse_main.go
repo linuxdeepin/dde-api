@@ -23,7 +23,7 @@ package main
 
 // #cgo CFLAGS: -g -Wall
 // #cgo pkg-config: x11 xtst glib-2.0
-// #include "mouse-record.h"
+// #include "mouse_record.h"
 import "C"
 
 import (

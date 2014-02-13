@@ -24,7 +24,7 @@
 #include <X11/Xlibint.h>
 #include <X11/extensions/record.h>
 
-#include "mouse-record.h"
+#include "mouse_record.h"
 #include "_cgo_export.h"
 
 #define MOUSE_AREA_DEST "com.deepin.dde.api.MouseArea"
