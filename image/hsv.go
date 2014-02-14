@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2011 ~ 2013 Deepin, Inc.
- *               2013 Xu FaSheng
+ * Copyright (c) 2013 ~ 2014 Deepin, Inc.
+ *               2013 ~ 2014 Xu FaSheng
  *
  * Author:      Xu FaSheng <fasheng.xu@gmail.com>
  * Maintainer:  Xu FaSheng <fasheng.xu@gmail.com>

@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2011 ~ 2013 Deepin, Inc.
- *               2013 Xu FaSheng
+ * Copyright (c) 2013 ~ 2014 Deepin, Inc.
+ *               2013 ~ 2014 Xu FaSheng
  *
  * Author:      Xu FaSheng <fasheng.xu@gmail.com>
  * Maintainer:  Xu FaSheng <fasheng.xu@gmail.com>
@@ -44,7 +44,7 @@ func main() {
 		}
 	}()
 
-	jobInHand = make(map[string]bool)
+	jobInHand = make(map[string]bool) // used by blur pict
 
 	image := &Image{}
 	err := dbus.InstallOnSession(image)
