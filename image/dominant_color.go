@@ -54,10 +54,14 @@ func (image *Image) GetDominantColorOfImage(imagePath string) (h, s, v float64) 
 	if count == 0 {
 		return def_h, def_s, def_v
 	}
-	for x := 0; x <= mx; x++ {
-		for y := 0; y <= my; y++ {
+	if mx == 0 && my == 0 {
+		return def_h, def_s, def_v
+	}
+	for x := 1; x <= mx; x++ {
+		for y := 1; y <= my; y++ {
 			c := img.At(x, y)
-			r, g, b, _ := c.RGBA()
+			rr, gg, bb, _ := c.RGBA()
+			r, g, b := rr>>8, gg>>8, bb>>8
 			sum_r += uint64(r)
 			sum_g += uint64(g)
 			sum_b += uint64(b)
@@ -66,8 +70,5 @@ func (image *Image) GetDominantColorOfImage(imagePath string) (h, s, v float64) 
 
 	h, s, v = image.RGB2HSV(uint8(sum_r/count), uint8(sum_g/count), uint8(sum_b/count))
 	log.Printf("h=%f, s=%f, v=%f", h, s, v) // TODO
-	if s < 0.05 {
-		return def_h, def_s, def_v
-	}
 	return
 }
