@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=com.deepin.api.Logger
+Exec=/usr/lib/deepin-api/logger
+User=root
