@@ -32,7 +32,7 @@ import (
 
 const (
 	_LOG_FILE          = "/var/log/deepin.log"
-	_LOG_FILE_MAX_SIZE = 1024 * 1024 * 100
+	_LOG_FILE_MAX_SIZE = 1024 * 1024 * 100 // 100mb
 )
 
 var (
@@ -112,13 +112,14 @@ func main() {
 		}
 	}()
 
-	logFile, err := os.OpenFile(_LOG_FILE, os.O_APPEND|os.O_CREATE, 0644)
+	// open log file
+	logfile, err := os.OpenFile(_LOG_FILE, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
 		panic(err)
 	}
-	defer logFile.Close()
+	defer logfile.Close()
 
-	_LOGGER = _log.New(logFile, "", 0)
+	_LOGGER = _log.New(logfile, "", _log.Ldate)
 
 	logger := NewLogger()
 	err = dbus.InstallOnSystem(logger)
