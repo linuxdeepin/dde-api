@@ -62,10 +62,12 @@ func (logger *Logger) NewLogger(name string) (id uint64, err error) {
 	_LOGGER_ID++
 	id = _LOGGER_ID
 	logger.names[id] = name
+	logger.doLog(id, "NEW", fmt.Sprintf("id=%d", id))
 	return
 }
 
 func (logger *Logger) DeleteLogger(id uint64) {
+	logger.doLog(id, "DELETE", fmt.Sprintf("id=%d", id))
 	delete(logger.names, id)
 }
 
@@ -121,7 +123,7 @@ func main() {
 	}
 	defer logfile.Close()
 
-	_LOGGER = _log.New(logfile, "", _log.Ldate)
+	_LOGGER = _log.New(logfile, "", 0)
 
 	logger := NewLogger()
 	err = dbus.InstallOnSystem(logger)
