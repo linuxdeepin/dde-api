@@ -77,11 +77,13 @@ func (logger *Logger) getName(id uint64) (name string) {
 	return
 }
 
-func (logger *Logger) doLog(id uint64, prefix, msg string) {
+func (logger *Logger) doLog(id uint64, level, msg string) {
 	now := time.Now()
-	dateStr := fmt.Sprintf("%d-%d-%d %d:%d:%d", now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second())
-	fmtMsg := strings.Replace(msg, "\n", "    \n", -1)
-	fmt.Sprintf("%s %s: [%s] %s", dateStr, logger.getName(id), prefix, fmtMsg)
+	date := fmt.Sprintf("%d-%d-%d %d:%d:%d", now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second())
+	prefix := fmt.Sprintf("%s %s: [%s] ", date, logger.getName(id), level)
+	fmtMsg := prefix + msg
+	fmtMsg = strings.Replace(fmtMsg, "\n", "\n"+prefix, -1)
+	_LOGGER.Println(fmtMsg)
 	return
 }
 
