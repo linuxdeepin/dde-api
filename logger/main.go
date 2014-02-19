@@ -72,9 +72,13 @@ func (logger *Logger) DeleteLogger(id uint64) {
 }
 
 func (logger *Logger) getName(id uint64) (name string) {
+	if id == 0 {
+		name = "<common>"
+		return
+	}
 	name = logger.names[id]
 	if len(name) == 0 {
-		name = "Unknown"
+		name = "<unknown>"
 	}
 	return
 }
@@ -112,7 +116,7 @@ func (logger *Logger) Fatal(id uint64, msg string) {
 func main() {
 	defer func() {
 		if err := recover(); err != nil {
-			_log.Fatal(err)
+			_log.Fatal(err) // TODO
 		}
 	}()
 
