@@ -22,9 +22,15 @@
 package main
 
 import (
-	"dlib/graph"
+	_graph "dlib/graph"
 )
 
-func (image *Image) GetDominantColorOfImage(imagePath string) (h, s, v float64) {
-	return graph.GetDominantColorOfImage(imagePath)
+// Converts from any recognized format to PNG.
+func (graph *Graph) ConvertToPNG(src, dest string) (err error) {
+	return _graph.ConvertToPNG(src, dest)
+}
+
+// Clip any recognized format image and save to PNG.
+func (graph *Graph) ClipPNG(src, dest string, x0, y0, x1, y1 int32) (err error) {
+	return _graph.ConvertToPNG(src, dest)
 }

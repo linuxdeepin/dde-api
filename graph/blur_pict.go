@@ -52,7 +52,7 @@ var (
 	jobInHand map[string]bool
 )
 
-func (image *Image) BackgroundBlurPictPath(uid, srcPath string) *_BlurResult {
+func (graph *Graph) BackgroundBlurPictPath(uid, srcPath string) *_BlurResult {
 	if len(uid) <= 0 {
 		return &_BlurResult{Success: false, PictPath: ""}
 	}
@@ -88,8 +88,8 @@ func (image *Image) BackgroundBlurPictPath(uid, srcPath string) *_BlurResult {
 				f, _ := os.Open(destPath)
 				defer f.Close()
 				f.Chown(int(uidInt), int(gidInt))
-				if image.BlurPictChanged != nil {
-					image.BlurPictChanged(uid, destPath)
+				if graph.BlurPictChanged != nil {
+					graph.BlurPictChanged(uid, destPath)
 				}
 			}
 		}()

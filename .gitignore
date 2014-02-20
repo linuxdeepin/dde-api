@@ -4,5 +4,5 @@ test-*
 test_*
 *.*~
 */*.test
-image/image
+graph/graph
 logger/logger

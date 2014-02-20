@@ -22,9 +22,13 @@
 package main
 
 import (
-	"dlib/graph"
+	_graph "dlib/graph"
 )
 
-func (image *Image) GetImageSize(imageFile string) (w, h int32, err error) {
-	return graph.GetImageSize(imageFile)
+func (graph *Graph) RGB2HSV(r, g, b uint8) (h, s, v float64) {
+	return _graph.RGB2HSV(r, g, b)
+}
+
+func (graph *Graph) HSV2RGB(h, s, v float64) (r, g, b uint8) {
+	return _graph.HSV2RGB(h, s, v)
 }

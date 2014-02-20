@@ -22,15 +22,36 @@
 package main
 
 import (
-	"dlib/graph"
+	"dlib/dbus"
 )
 
-// Converts from any recognized format to PNG.
-func (image *Image) ConvertToPNG(src, dest string) (err error) {
-	return graph.ConvertToPNG(src, dest)
+type Graph struct {
+	BlurPictChanged func(string, string)
 }
 
-// Clip any recognized format image and save to PNG.
-func (image *Image) ClipPNG(src, dest string, x0, y0, x1, y1 int32) (err error) {
-	return graph.ConvertToPNG(src, dest)
+func (graph *Graph) GetDBusInfo() dbus.DBusInfo {
+	return dbus.DBusInfo{
+		"com.deepin.api.Graph",
+		"/com/deepin/api/Graph",
+		"com.deepin.api.Graph",
+	}
+}
+
+func main() {
+	defer func() {
+		if err := recover(); err != nil {
+			// TODO logFatal("deepin graph api failed: %v", err)
+		}
+	}()
+
+	jobInHand = make(map[string]bool) // used by blur pict
+
+	graph := &Graph{}
+	err := dbus.InstallOnSession(graph)
+	if err != nil {
+		panic(err)
+	}
+	dbus.DealWithUnhandledMessage()
+
+	select {}
 }

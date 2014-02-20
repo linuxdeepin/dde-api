@@ -22,36 +22,9 @@
 package main
 
 import (
-	"dlib/dbus"
+	_graph "dlib/graph"
 )
 
-type Image struct {
-	BlurPictChanged func(string, string)
-}
-
-func (image *Image) GetDBusInfo() dbus.DBusInfo {
-	return dbus.DBusInfo{
-		"com.deepin.api.Image",
-		"/com/deepin/api/Image",
-		"com.deepin.api.Image",
-	}
-}
-
-func main() {
-	defer func() {
-		if err := recover(); err != nil {
-			// TODO logFatal("deepin image api failed: %v", err)
-		}
-	}()
-
-	jobInHand = make(map[string]bool) // used by blur pict
-
-	image := &Image{}
-	err := dbus.InstallOnSession(image)
-	if err != nil {
-		panic(err)
-	}
-	dbus.DealWithUnhandledMessage()
-
-	select {}
+func (graph *Graph) GetDominantColorOfImage(imagePath string) (h, s, v float64) {
+	return _graph.GetDominantColorOfImage(imagePath)
 }
