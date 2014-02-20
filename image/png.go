@@ -22,53 +22,15 @@
 package main
 
 import (
-	_image "image"
-	"image/draw"
-	_ "image/jpeg"
-	"image/png"
-	"os"
+	"dlib/graph"
 )
 
 // Converts from any recognized format to PNG.
 func (image *Image) ConvertToPNG(src, dest string) (err error) {
-	sf, err := os.Open(src)
-	if err != nil {
-		return
-	}
-	defer sf.Close()
-	df, err := os.OpenFile(dest, os.O_WRONLY|os.O_CREATE, 0644)
-	if err != nil {
-		return
-	}
-	defer df.Close()
-
-	img, _, err := _image.Decode(sf)
-	if err != nil {
-		return
-	}
-	return png.Encode(df, img)
+	return graph.ConvertToPNG(src, dest)
 }
 
 // Clip any recognized format image and save to PNG.
 func (image *Image) ClipPNG(src, dest string, x0, y0, x1, y1 int32) (err error) {
-	sf, err := os.Open(src)
-	if err != nil {
-		return
-	}
-	defer sf.Close()
-
-	df, err := os.OpenFile(dest, os.O_WRONLY|os.O_CREATE, 0644)
-	if err != nil {
-		return
-	}
-	defer df.Close()
-
-	imgSrc, _, err := _image.Decode(sf)
-	if err != nil {
-		return
-	}
-
-	imgDest := _image.NewRGBA(_image.Rect(int(x0), int(y0), int(x1), int(y1)))
-	draw.Draw(imgDest, imgDest.Bounds(), imgSrc, _image.Point{0, 0}, draw.Src)
-	return png.Encode(df, imgDest)
+	return graph.ConvertToPNG(src, dest)
 }
