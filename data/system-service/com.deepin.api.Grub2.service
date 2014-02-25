@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=com.deepin.api.Grub2
+Exec=/usr/lib/deepin-api/grub2ext
+User=root
