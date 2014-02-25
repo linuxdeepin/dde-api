@@ -22,10 +22,44 @@
 package main
 
 import (
+        "dlib/gio-2.0"
         "dlib/logger"
+        "encoding/binary"
         "github.com/BurntSushi/xgb"
         "github.com/BurntSushi/xgb/xproto"
+        "strconv"
+        "strings"
         "time"
+)
+
+type HeaderInfo struct {
+        vType      byte
+        nameLen    uint16
+        name       string
+        lastSerial uint32
+        value      interface{}
+}
+
+const (
+        XSETTINGS_S0       = "_XSETTINGS_S0"
+        XSETTINGS_SETTINGS = "_XSETTINGS_SETTINGS"
+
+        XSETTINGS_FORMAT = 8
+        XSETTINGS_ORDER  = 0
+        XSETTINGS_SERIAL = 0
+
+        XSETTINGS_INTERGER = 0
+        XSETTINGS_STRING   = 1
+        XSETTINGS_COLOR    = 2
+
+        XSETTINGS_SCHEMA_ID = "com.deepin.dde.xsettings"
+)
+
+var (
+        sReply    *xproto.GetSelectionOwnerReply
+        byteOrder binary.ByteOrder
+
+        xsSettings = gio.NewSettings(XSETTINGS_SCHEMA_ID)
 )
 
 func getAtom(X *xgb.Conn, name string) xproto.Atom {
@@ -72,6 +106,75 @@ func newXWindow() {
         }
         xproto.MapWindow(X, wid)
         X.Sync()
+}
+
+func initXSettings() {
+        var err error
+
+        if XSETTINGS_ORDER == 1 {
+                byteOrder = binary.BigEndian
+        } else {
+                byteOrder = binary.LittleEndian
+        }
+
+        sReply, err = xproto.GetSelectionOwner(X,
+                getAtom(X, XSETTINGS_S0)).Reply()
+        if err != nil {
+                logger.Println("Unable to connect X server:", err)
+                panic(err)
+        }
+        logger.Println("select owner wid:", sReply.Owner)
+
+        setAllXSettingsKeys()
+}
+
+func setAllXSettingsKeys() {
+        for k, _ := range xsKeyMap {
+                strs := xsSettings.GetString(k)
+                a := strings.Split(strs, ";")
+                if len(a) != 2 {
+                        continue
+                }
+                t, _ := strconv.ParseInt(a[1], 10, 64)
+                setXSettingsKey(k, a[0], int32(t))
+        }
+}
+
+func setXSettingsKey(key, value string, t int32) {
+        logger.Println("type:", t)
+        v, ok := xsKeyMap[key]
+        if !ok {
+                return
+        }
+        switch t {
+        case XSETTINGS_INTERGER:
+                vInt, _ := strconv.ParseUint(value, 10, 32)
+                logger.Printf("Set: %s, Value: %d\n", v, vInt)
+                setXSettingsName(v, uint32(vInt))
+        case XSETTINGS_STRING:
+                logger.Printf("Set: %s, Value: %s\n", v, value)
+                setXSettingsName(v, value)
+        case XSETTINGS_COLOR:
+                tmps := strings.Split(value, ",")
+                bytes := []byte{}
+                for _, s := range tmps {
+                        b, _ := strconv.ParseInt(s, 10, 8)
+                        bytes = append(bytes, byte(b))
+                }
+                logger.Println("Set:", v, ", Value:", bytes)
+                setXSettingsName(v, bytes)
+        }
+}
+
+func setGSettingsKey(key, value string, t int32) {
+        switch t {
+        case XSETTINGS_INTERGER:
+                xsSettings.SetString(key, value+";0")
+        case XSETTINGS_STRING:
+                xsSettings.SetString(key, value+";1")
+        case XSETTINGS_COLOR:
+                xsSettings.SetString(key, value+";2")
+        }
 }
 
 func getCurrentTimestamp() int64 {
