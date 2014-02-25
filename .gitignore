@@ -6,3 +6,4 @@ test_*
 */*.test
 graph/graph
 logger/logger
+grub2ext/grub2ext
