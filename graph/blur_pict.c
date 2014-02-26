@@ -35,7 +35,8 @@
 static time_t get_file_mtime (const char *file);
 
 int
-generate_blur_pict (const char *src_path, const char *dest_path)
+generate_blur_pict (const char *src_path, const char *dest_path,
+                    double sigma, double numsteps)
 {
     GError *error = NULL;
     GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file (src_path, &error);
@@ -54,7 +55,7 @@ generate_blur_pict (const char *src_path, const char *dest_path)
 
     clock_t start = clock ();
     gaussianiir2d_pixbuf_c(image_data, width, height,
-                           rowstride, n_channels, 50.0, 1.0);
+                           rowstride, n_channels, sigma, numsteps);
     clock_t end = clock ();
     g_debug ("time : %f", (end - start) / (float)CLOCKS_PER_SEC);
 
