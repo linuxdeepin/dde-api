@@ -19,11 +19,28 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  **/
 
-#ifndef __BLUR_PICT_H__
-#define __BLUR_PICT_H__
+package main
 
-int generate_blur_pict (const char *src_path, const char *dest_path,
-        double sigma, double numsteps);
-int blur_pict_is_valid (const char *src_path, const char *dest_path);
+type Manager struct{}
 
-#endif
+const (
+        UTILS_DEST = "com.deepin.api.Utils"
+        UTILS_PATH = "/com/deepin/api/Utils"
+        UTILS_IFC  = "com.deepin.api.Utils"
+
+        URI_STRING_FILE  = "file://"
+        URI_STRING_FTP   = "ftp://"
+        URI_STRING_HTTP  = "http://"
+        URI_STRING_HTTPS = "https://"
+        URI_STRING_SMB   = "smb://"
+
+        URI_TYPE_FILE  = 0
+        URI_TYPE_FTP   = 1
+        URI_TYPE_HTTP  = 2
+        URI_TYPE_HTTPS = 3
+        URI_TYPE_SMB   = 4
+
+        ELEMENT_TYPE_INT    = 0
+        ELEMENT_TYPE_STRING = 1
+        ELEMENT_TYPE_BYTE   = 2
+)

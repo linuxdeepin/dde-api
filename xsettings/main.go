@@ -19,11 +19,45 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  **/
 
-#ifndef __BLUR_PICT_H__
-#define __BLUR_PICT_H__
+package main
 
-int generate_blur_pict (const char *src_path, const char *dest_path,
-        double sigma, double numsteps);
-int blur_pict_is_valid (const char *src_path, const char *dest_path);
+import (
+        "dlib/dbus"
+        "dlib/logger"
+        "github.com/BurntSushi/xgb"
+)
 
-#endif
+type Manager struct{}
+
+var (
+        X *xgb.Conn
+)
+
+/*
+ * vType value : 0, 1, 2
+ * vType = 0, int, value = "123"
+ * vType = 1, string, value = ""
+ * vType = 2, color, value = "1,2,3,4"
+ */
+func (op *Manager) SetXSettingsKey(key, value string, vType int32) {
+        setXSettingsKey(key, value, vType)
+        setGSettingsKey(key, value, vType)
+}
+
+func main() {
+        var err error
+        X, err = xgb.NewConn()
+        if err != nil {
+                logger.Println("Unable to connect X server:", err)
+                panic(err)
+        }
+
+        newXWindow()
+        initXSettings()
+
+        m := &Manager{}
+        dbus.InstallOnSession(m)
+        dbus.DealWithUnhandledMessage()
+
+        select {}
+}

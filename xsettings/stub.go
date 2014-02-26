@@ -19,11 +19,22 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  **/
 
-#ifndef __BLUR_PICT_H__
-#define __BLUR_PICT_H__
+package main
 
-int generate_blur_pict (const char *src_path, const char *dest_path,
-        double sigma, double numsteps);
-int blur_pict_is_valid (const char *src_path, const char *dest_path);
+import (
+        "dlib/dbus"
+)
 
-#endif
+const (
+        XSETTINGS_DEST = "com.deepin.api.XSettings"
+        XSETTINGS_PATH = "/com/deepin/api/XSettings"
+        XSETTINGS_IFC  = "com.deepin.api.XSettings"
+)
+
+func (op *Manager) GetDBusInfo() dbus.DBusInfo {
+        return dbus.DBusInfo{
+                XSETTINGS_DEST,
+                XSETTINGS_PATH,
+                XSETTINGS_IFC,
+        }
+}

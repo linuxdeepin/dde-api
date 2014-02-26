@@ -22,36 +22,36 @@
 package main
 
 import (
-	"dlib/dbus"
+        "dlib/dbus"
 )
 
 type Graph struct {
-	BlurPictChanged func(string, string)
+        BlurPictChanged func(string, string)
 }
 
 func (graph *Graph) GetDBusInfo() dbus.DBusInfo {
-	return dbus.DBusInfo{
-		"com.deepin.api.Graph",
-		"/com/deepin/api/Graph",
-		"com.deepin.api.Graph",
-	}
+        return dbus.DBusInfo{
+                "com.deepin.api.Graph",
+                "/com/deepin/api/Graph",
+                "com.deepin.api.Graph",
+        }
 }
 
 func main() {
-	defer func() {
-		if err := recover(); err != nil {
-			// TODO logFatal("deepin graph api failed: %v", err)
-		}
-	}()
+        defer func() {
+                if err := recover(); err != nil {
+                        // TODO logFatal("deepin graph api failed: %v", err)
+                }
+        }()
 
-	jobInHand = make(map[string]bool) // used by blur pict
+        jobInHand = make(map[string]bool) // used by blur pict
 
-	graph := &Graph{}
-	err := dbus.InstallOnSession(graph)
-	if err != nil {
-		panic(err)
-	}
-	dbus.DealWithUnhandledMessage()
+        graph := &Graph{}
+        err := dbus.InstallOnSession(graph)
+        if err != nil {
+                panic(err)
+        }
+        dbus.DealWithUnhandledMessage()
 
-	select {}
+        select {}
 }

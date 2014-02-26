@@ -19,11 +19,32 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  **/
 
-#ifndef __BLUR_PICT_H__
-#define __BLUR_PICT_H__
+package main
 
-int generate_blur_pict (const char *src_path, const char *dest_path,
-        double sigma, double numsteps);
-int blur_pict_is_valid (const char *src_path, const char *dest_path);
+import (
+        "dlib/dbus"
+        "dlib/logger"
+        "time"
+)
 
-#endif
+func (op *Manager) GetDBusInfo() dbus.DBusInfo {
+        return dbus.DBusInfo{
+                UTILS_DEST,
+                UTILS_PATH,
+                UTILS_IFC,
+        }
+}
+
+func main() {
+        defer func() {
+                if err := recover(); err != nil {
+                        logger.Println("Recover Error:", err)
+                }
+        }()
+
+        m := &Manager{}
+        dbus.InstallOnSession(m)
+        dbus.DealWithUnhandledMessage()
+
+        <-time.NewTimer(time.Second * 5).C
+}
