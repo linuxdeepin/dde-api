@@ -39,7 +39,6 @@ func (grub *Grub2Ext) GetDBusInfo() dbus.DBusInfo {
 	}
 }
 
-// TODO
 func (grub *Grub2Ext) DoWriteSettings(fileContent string) (ok bool, err error) {
 	err = ioutil.WriteFile(_GRUB_CONFIG_FILE, []byte(fileContent), 0664)
 	if err != nil {
@@ -49,7 +48,6 @@ func (grub *Grub2Ext) DoWriteSettings(fileContent string) (ok bool, err error) {
 	return true, nil
 }
 
-// TODO
 func (grub *Grub2Ext) DoWriteCacheConfig(fileContent string) (ok bool, err error) {
 	err = ioutil.WriteFile(_GRUB_CACHE_FILE, []byte(fileContent), 0644)
 	if err != nil {
@@ -59,7 +57,6 @@ func (grub *Grub2Ext) DoWriteCacheConfig(fileContent string) (ok bool, err error
 	return true, nil
 }
 
-// TODO
 func (grub *Grub2Ext) DoGenerateGrubConfig() (ok bool, err error) {
 	_LOGGER.Info("start to generate a new grub configuration file")
 	_, stderr, err := execAndWait(30, _GRUB_UPDATE_EXE)
@@ -72,7 +69,6 @@ func (grub *Grub2Ext) DoGenerateGrubConfig() (ok bool, err error) {
 	return true, nil
 }
 
-// TODO
 func (grub *Grub2Ext) DoSetThemeBackgroundSourceFile(imageFile string, screenWidth, screenHeight uint16) (ok bool, err error) {
 	// backup background source file
 	_, err = copyFile(imageFile, _THEME_BG_SRC_FILE)
@@ -84,7 +80,6 @@ func (grub *Grub2Ext) DoSetThemeBackgroundSourceFile(imageFile string, screenWid
 	return grub.DoGenerateThemeBackground(screenWidth, screenHeight)
 }
 
-// TODO
 func (grub *Grub2Ext) DoGenerateThemeBackground(screenWidth, screenHeight uint16) (ok bool, err error) {
 	imgWidth, imgHeight, err := graph.GetImageSize(_THEME_BG_SRC_FILE)
 	if err != nil {
@@ -103,7 +98,6 @@ func (grub *Grub2Ext) DoGenerateThemeBackground(screenWidth, screenHeight uint16
 	return true, nil
 }
 
-// TODO
 func (grub *Grub2Ext) DoCustomTheme(fileContent string) (ok bool, err error) {
 	err = ioutil.WriteFile(_THEME_MAIN_FILE, []byte(fileContent), 0664)
 	if err != nil {
@@ -113,7 +107,6 @@ func (grub *Grub2Ext) DoCustomTheme(fileContent string) (ok bool, err error) {
 	return true, nil
 }
 
-// TODO
 func (grub *Grub2Ext) DoWriteThemeJson(fileContent string) (ok bool, err error) {
 	err = ioutil.WriteFile(_THEME_JSON_FILE, []byte(fileContent), 0664)
 	if err != nil {

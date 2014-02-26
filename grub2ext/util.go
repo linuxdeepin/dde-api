@@ -48,7 +48,6 @@ func copyFile(src, dest string) (written int64, err error) {
 	return io.Copy(df, sf)
 }
 
-// TODO move to go-dlib/os, dde-api/os
 func execAndWait(timeout int, name string, arg ...string) (stdout, stderr string, err error) {
 	cmd := exec.Command(name, arg...)
 	var buf_stdout, buf_stderr bytes.Buffer
