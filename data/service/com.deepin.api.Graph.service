@@ -1,3 +1,0 @@
-[D-BUS Service]
-Name=com.deepin.api.Graph
-Exec=/usr/lib/deepin-api/graph

@@ -22,15 +22,15 @@
 package main
 
 import (
-	_graph "dlib/graph"
+	_graphic "dlib/graphic"
 )
 
 // Converts from any recognized format to PNG.
-func (graph *Graph) ConvertToPNG(src, dest string) (err error) {
-	return _graph.ConvertToPNG(src, dest)
+func (graphic *Graphic) ConvertToPNG(src, dest string) (err error) {
+	return _graphic.ConvertToPNG(src, dest)
 }
 
 // Clip any recognized format image and save to PNG.
-func (graph *Graph) ClipPNG(src, dest string, x0, y0, x1, y1 int32) (err error) {
-	return _graph.ConvertToPNG(src, dest)
+func (graphic *Graphic) ClipPNG(src, dest string, x0, y0, x1, y1 int32) (err error) {
+	return _graphic.ConvertToPNG(src, dest)
 }

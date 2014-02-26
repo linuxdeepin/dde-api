@@ -4,6 +4,6 @@ test-*
 test_*
 *.*~
 */*.test
-graph/graph
+graphic/graphic
 logger/logger
 grub2ext/grub2ext

@@ -22,9 +22,9 @@
 package main
 
 import (
-	_graph "dlib/graph"
+	_graphic "dlib/graphic"
 )
 
-func (graph *Graph) GetImageSize(imageFile string) (w, h int32, err error) {
-	return _graph.GetImageSize(imageFile)
+func (graphic *Graphic) GetImageSize(imageFile string) (w, h int32, err error) {
+	return _graphic.GetImageSize(imageFile)
 }

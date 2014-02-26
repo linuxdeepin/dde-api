@@ -22,13 +22,13 @@
 package main
 
 import (
-	_graph "dlib/graph"
+	_graphic "dlib/graphic"
 )
 
-func (graph *Graph) RGB2HSV(r, g, b uint8) (h, s, v float64) {
-	return _graph.RGB2HSV(r, g, b)
+func (graphic *Graphic) RGB2HSV(r, g, b uint8) (h, s, v float64) {
+	return _graphic.RGB2HSV(r, g, b)
 }
 
-func (graph *Graph) HSV2RGB(h, s, v float64) (r, g, b uint8) {
-	return _graph.HSV2RGB(h, s, v)
+func (graphic *Graphic) HSV2RGB(h, s, v float64) (r, g, b uint8) {
+	return _graphic.HSV2RGB(h, s, v)
 }

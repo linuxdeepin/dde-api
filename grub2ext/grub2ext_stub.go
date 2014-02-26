@@ -27,7 +27,7 @@ package main
 
 import (
 	"dlib/dbus"
-	"dlib/graph"
+	"dlib/graphic"
 	"io/ioutil"
 )
 
@@ -81,7 +81,7 @@ func (grub *Grub2Ext) DoSetThemeBackgroundSourceFile(imageFile string, screenWid
 }
 
 func (grub *Grub2Ext) DoGenerateThemeBackground(screenWidth, screenHeight uint16) (ok bool, err error) {
-	imgWidth, imgHeight, err := graph.GetImageSize(_THEME_BG_SRC_FILE)
+	imgWidth, imgHeight, err := graphic.GetImageSize(_THEME_BG_SRC_FILE)
 	if err != nil {
 		_LOGGER.Error(err.Error())
 		return false, err
@@ -90,7 +90,7 @@ func (grub *Grub2Ext) DoGenerateThemeBackground(screenWidth, screenHeight uint16
 
 	w, h := getImgClipSizeByResolution(screenWidth, screenHeight, imgWidth, imgHeight)
 	_LOGGER.Info("background size %dx%d", w, h)
-	err = graph.ClipPNG(_THEME_BG_SRC_FILE, _THEME_BG_FILE, 0, 0, w, h)
+	err = graphic.ClipPNG(_THEME_BG_SRC_FILE, _THEME_BG_FILE, 0, 0, w, h)
 	if err != nil {
 		_LOGGER.Error(err.Error())
 		return false, err

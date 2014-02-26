@@ -44,7 +44,7 @@ var (
         jobInHand map[string]bool
 )
 
-func (graph *Graph) BackgroundBlurPictPath(srcPath, destPath string,
+func (graphic *Graphic) BackgroundBlurPictPath(srcPath, destPath string,
         sigma, numsteps float64) (int32, string) {
         if len(srcPath) <= 0 {
                 return -1, ""
@@ -77,8 +77,8 @@ func (graph *Graph) BackgroundBlurPictPath(srcPath, destPath string,
                                 f, _ := os.Open(destPath)
                                 defer f.Close()
                                 f.Chown(int(uidInt), int(gidInt))
-                                if graph.BlurPictChanged != nil {
-                                        graph.BlurPictChanged(srcPath, destPath)
+                                if graphic.BlurPictChanged != nil {
+                                        graphic.BlurPictChanged(srcPath, destPath)
                                 }
                         }
                 }()
