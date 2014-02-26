@@ -30,6 +30,7 @@ import "unsafe"
 
 import (
         "crypto/md5"
+        dutils "dbus/com/deepin/api/utils"
         "fmt"
         "os"
         "os/user"
@@ -44,11 +45,18 @@ var (
         jobInHand map[string]bool
 )
 
-func (graph *Graph) BackgroundBlurPictPath(srcPath, destPath string,
+func (graph *Graph) BackgroundBlurPictPath(srcURI, destURI string,
         sigma, numsteps float64) (int32, string) {
-        if len(srcPath) <= 0 {
+        if len(srcURI) <= 0 {
                 return -1, ""
         }
+        opUtil, _err := dutils.NewUtils("/com/deepin/api/Utils")
+        if _err != nil {
+                fmt.Println("New Utils Failed:", _err)
+                panic(_err)
+        }
+        srcPath, _, _ := opUtil.ConvertURIToPath(srcURI, 0)
+
         homeDir, err := getHomeDir()
         if err != nil {
                 fmt.Println("get home dir failed")
@@ -56,8 +64,12 @@ func (graph *Graph) BackgroundBlurPictPath(srcPath, destPath string,
         }
 
         srcFlag := true
-        if len(destPath) <= 0 {
+        destPath := ""
+        if len(destURI) <= 0 {
                 destPath = GenerateDestPath(srcPath, homeDir)
+                destURI, _, _ = opUtil.ConvertPathToURI(destPath, 0)
+        } else {
+                destPath, _, _ = opUtil.ConvertURIToPath(destURI, 0)
         }
         if IsFileValid(srcPath, destPath) {
                 return 0, destPath
@@ -78,13 +90,13 @@ func (graph *Graph) BackgroundBlurPictPath(srcPath, destPath string,
                                 defer f.Close()
                                 f.Chown(int(uidInt), int(gidInt))
                                 if graph.BlurPictChanged != nil {
-                                        graph.BlurPictChanged(srcPath, destPath)
+                                        graph.BlurPictChanged(srcURI, destURI)
                                 }
                         }
                 }()
         }
 
-        return 1, srcPath
+        return 1, srcURI
 }
 
 func MkGaussianCacheDir() bool {
