@@ -27,6 +27,8 @@ import (
 	"dlib/logger"
 )
 
+var _LOGGER, _ = logger.New("dde-api/graphic")
+
 type Graphic struct {
 	BlurPictChanged func(string, string)
 }
@@ -68,7 +70,7 @@ func (graphic *Graphic) ClipPNG(src, dest string, x0, y0, x1, y1 int32) (err err
 func main() {
 	defer func() {
 		if err := recover(); err != nil {
-			// TODO logFatal("deepin graphic api failed: %v", err)
+			_LOGGER.Fatal("%v", err)
 		}
 	}()
 
