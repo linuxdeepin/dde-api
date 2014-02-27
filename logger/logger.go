@@ -24,32 +24,35 @@ package main
 import (
 	"dlib/dbus"
 	"fmt"
-	_log "log"
+	golog "log"
 	"os"
 	"strings"
 	"time"
 )
 
 const (
-	_LOG_FILE          = "/var/log/deepin.log"
-	_LOG_FILE_MAX_SIZE = 1024 * 1024 * 100 // 100mb
+	logfile = "/var/log/deepin.log"
 )
 
 var (
-	_LOGGER_ID uint64 = 0
-	_LOGGER    *_log.Logger
+	loggerID uint64
+	logimpl  *golog.Logger
 )
 
+// A Logger represents an active logging object that will provides a
+// dbus service to write log message.
 type Logger struct {
 	names map[uint64]string
 }
 
+// NewLogger creates a new Logger.
 func NewLogger() *Logger {
 	logger := &Logger{}
 	logger.names = make(map[uint64]string)
 	return logger
 }
 
+// GetDBusInfo implement interface of dbus.DBusObject
 func (logger *Logger) GetDBusInfo() dbus.DBusInfo {
 	return dbus.DBusInfo{
 		"com.deepin.api.Logger",
@@ -58,14 +61,17 @@ func (logger *Logger) GetDBusInfo() dbus.DBusInfo {
 	}
 }
 
+// NewLogger register a new logger source with name, and return a
+// uniquely id which will be used in following operator.
 func (logger *Logger) NewLogger(name string) (id uint64, err error) {
-	_LOGGER_ID++
-	id = _LOGGER_ID
+	loggerID++
+	id = loggerID
 	logger.names[id] = name
 	logger.doLog(id, "NEW", fmt.Sprintf("id=%d", id))
 	return
 }
 
+// DeleteLogger unregister a logger source. TODO[remove]
 func (logger *Logger) DeleteLogger(id uint64) {
 	logger.doLog(id, "DELETE", fmt.Sprintf("id=%d", id))
 	delete(logger.names, id)
@@ -89,26 +95,31 @@ func (logger *Logger) doLog(id uint64, level, msg string) {
 	prefix := fmt.Sprintf("%s %s: [%s] ", date, logger.getName(id), level)
 	fmtMsg := prefix + msg
 	fmtMsg = strings.Replace(fmtMsg, "\n", "\n"+prefix, -1)
-	_LOGGER.Println(fmtMsg)
+	logimpl.Println(fmtMsg)
 	return
 }
 
+// Debug will write a log message with 'DEBUG' as prefix.
 func (logger *Logger) Debug(id uint64, msg string) {
 	logger.doLog(id, "DEBUG", msg)
 }
 
+// Info will write a log message with 'INFO' as prefix.
 func (logger *Logger) Info(id uint64, msg string) {
 	logger.doLog(id, "INFO", msg)
 }
 
+// Warning will write a log message with 'WARNING' as prefix.
 func (logger *Logger) Warning(id uint64, msg string) {
 	logger.doLog(id, "WARNING", msg)
 }
 
+// Error will write a log message with 'ERROR' as prefix.
 func (logger *Logger) Error(id uint64, msg string) {
 	logger.doLog(id, "ERROR", msg)
 }
 
+// Fatal will write a log message with 'FATAL' as prefix.
 func (logger *Logger) Fatal(id uint64, msg string) {
 	logger.doLog(id, "FATAL", msg)
 }
@@ -116,18 +127,18 @@ func (logger *Logger) Fatal(id uint64, msg string) {
 func main() {
 	defer func() {
 		if err := recover(); err != nil {
-			_log.Fatal(err) // TODO
+			golog.Fatal(err)
 		}
 	}()
 
 	// open log file
-	logfile, err := os.OpenFile(_LOG_FILE, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
+	logfile, err := os.OpenFile(logfile, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
 		panic(err)
 	}
 	defer logfile.Close()
 
-	_LOGGER = _log.New(logfile, "", 0)
+	logimpl = golog.New(logfile, "", 0)
 
 	logger := NewLogger()
 	err = dbus.InstallOnSystem(logger)
