@@ -24,15 +24,17 @@ package main
 import (
 	"dlib/dbus"
 	libgraphic "dlib/graphic"
-	"dlib/logger"
+	liblogger "dlib/logger"
 )
 
-var _LOGGER, _ = logger.New("dde-api/graphic")
+var logger, _ = liblogger.New("dde-api/graphic")
 
+// Graphic is a dbus interface wrapper for dlib/graphic.
 type Graphic struct {
 	BlurPictChanged func(string, string)
 }
 
+// GetDBusInfo implement interface of dbus.DBusObject
 func (graphic *Graphic) GetDBusInfo() dbus.DBusInfo {
 	return dbus.DBusInfo{
 		"com.deepin.api.Graphic",
@@ -41,28 +43,32 @@ func (graphic *Graphic) GetDBusInfo() dbus.DBusInfo {
 	}
 }
 
+// RGB2HSV convert color format from RGB(r, g, b=[0..255]) to HSV(h=[0..360), s,v=[0..1]).
 func (graphic *Graphic) RGB2HSV(r, g, b uint8) (h, s, v float64) {
 	return libgraphic.RGB2HSV(r, g, b)
 }
 
+// HSV2RGB convert color format from HSV(h=[0..360), s,v=[0..1]) to RGB(r, g, b=[0..255]).
 func (graphic *Graphic) HSV2RGB(h, s, v float64) (r, g, b uint8) {
 	return libgraphic.HSV2RGB(h, s, v)
 }
 
+// GetImageSize return a image's width and height.
 func (graphic *Graphic) GetImageSize(imageFile string) (w, h int32, err error) {
 	return libgraphic.GetImageSize(imageFile)
 }
 
+// GetDominantColorOfImage return the dominant hsv color of a image.
 func (graphic *Graphic) GetDominantColorOfImage(imagePath string) (h, s, v float64) {
 	return libgraphic.GetDominantColorOfImage(imagePath)
 }
 
-// Converts from any recognized format to PNG.
+// ConvertToPNG converts from any recognized format to PNG.
 func (graphic *Graphic) ConvertToPNG(src, dest string) (err error) {
 	return libgraphic.ConvertToPNG(src, dest)
 }
 
-// Clip any recognized format image and save to PNG.
+// ClipPNG clip any recognized format image and save to PNG.
 func (graphic *Graphic) ClipPNG(src, dest string, x0, y0, x1, y1 int32) (err error) {
 	return libgraphic.ConvertToPNG(src, dest)
 }
@@ -70,7 +76,7 @@ func (graphic *Graphic) ClipPNG(src, dest string, x0, y0, x1, y1 int32) (err err
 func main() {
 	defer func() {
 		if err := recover(); err != nil {
-			_LOGGER.Fatal("%v", err)
+			logger.Fatal("%v", err)
 		}
 	}()
 
