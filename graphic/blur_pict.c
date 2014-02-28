@@ -66,6 +66,7 @@ generate_blur_pict (const char *src_path, const char *dest_path,
 
     if (tmp_fd == -1) {
         g_free (tmp_path);
+        g_object_unref(pixbuf);
         return FALSE;
     }
 
@@ -96,10 +97,12 @@ generate_blur_pict (const char *src_path, const char *dest_path,
         g_debug ("save pixbuf failed: %s", error->message);
         g_error_free (error);
         g_free (tmp_path);
+        g_object_unref(pixbuf);
         return FALSE;
     }
 
     g_free (tmp_path);
+    g_object_unref(pixbuf);
     return TRUE;
 }
 
