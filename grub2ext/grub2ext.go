@@ -19,33 +19,33 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  **/
 
-// This module is split from dde-daemon/grub2 to fix launch issue
-// through dbus-daemon for that system bus in root couldn't access
-// session bus interface.
-
 package main
 
 import (
 	"dlib/dbus"
-	"dlib/logger"
+	liblogger "dlib/logger"
 )
 
 const (
-	_GRUB_CONFIG_FILE = "/etc/default/grub"
-	_GRUB_UPDATE_EXE  = "/usr/sbin/update-grub"
-	_GRUB_CACHE_FILE  = "/var/cache/dde-daemon/grub2.json"
+	grubConfigFile = "/etc/default/grub"
+	grubUpdateExe  = "/usr/sbin/update-grub"
+	grubCacheFile  = "/var/cache/dde-daemon/grub2.json"
 
-	_THEME_PATH        = "/boot/grub/themes/deepin"
-	_THEME_MAIN_FILE   = _THEME_PATH + "/theme.txt"
-	_THEME_JSON_FILE   = _THEME_PATH + "/theme_tpl.json"
-	_THEME_BG_SRC_FILE = _THEME_PATH + "/background_source"
-	_THEME_BG_FILE     = _THEME_PATH + "/background.png"
+	themePath      = "/boot/grub/themes/deepin"
+	themeMainFile  = themePath + "/theme.txt"
+	themeJSONFile  = themePath + "/theme_tpl.json"
+	themeBgSrcFile = themePath + "/background_source"
+	themeBgFile    = themePath + "/background.png"
 )
 
-var _LOGGER, _ = logger.New("dde-api/grub2ext")
+var logger, _ = liblogger.New("dde-api/grub2ext")
 
+// Grub2Ext is a dbus object, and is split from dde-daemon/grub2 to
+// fix launch issue through dbus-daemon for that system bus in root
+// couldn't access session bus interface.
 type Grub2Ext struct{}
 
+// NewGrub2Ext create a Grub2Ext object.
 func NewGrub2Ext() *Grub2Ext {
 	grub := &Grub2Ext{}
 	return grub
@@ -54,7 +54,7 @@ func NewGrub2Ext() *Grub2Ext {
 func main() {
 	defer func() {
 		if err := recover(); err != nil {
-			_LOGGER.Fatal("%v", err)
+			logger.Fatal("%v", err)
 		}
 	}()
 

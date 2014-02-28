@@ -31,6 +31,7 @@ import (
 	"io/ioutil"
 )
 
+// GetDBusInfo implement interface of dbus.DBusObject
 func (grub *Grub2Ext) GetDBusInfo() dbus.DBusInfo {
 	return dbus.DBusInfo{
 		"com.deepin.api.Grub2",
@@ -39,39 +40,46 @@ func (grub *Grub2Ext) GetDBusInfo() dbus.DBusInfo {
 	}
 }
 
+// DoWriteSettings write file content to "/etc/default/grub".
 func (grub *Grub2Ext) DoWriteSettings(fileContent string) (ok bool, err error) {
-	err = ioutil.WriteFile(_GRUB_CONFIG_FILE, []byte(fileContent), 0664)
+	err = ioutil.WriteFile(grubConfigFile, []byte(fileContent), 0664)
 	if err != nil {
-		_LOGGER.Error(err.Error())
+		logger.Error(err.Error())
 		return false, err
 	}
 	return true, nil
 }
 
+// DoWriteCacheConfig write file content to "/var/cache/dde-daemon/grub2.json".
 func (grub *Grub2Ext) DoWriteCacheConfig(fileContent string) (ok bool, err error) {
-	err = ioutil.WriteFile(_GRUB_CACHE_FILE, []byte(fileContent), 0644)
+	err = ioutil.WriteFile(grubCacheFile, []byte(fileContent), 0644)
 	if err != nil {
-		_LOGGER.Error(err.Error())
+		logger.Error(err.Error())
 		return false, err
 	}
 	return true, nil
 }
 
+// DoGenerateGrubConfig execute command "/usr/sbin/update-grub" to
+// generate a new grub configuration.
 func (grub *Grub2Ext) DoGenerateGrubConfig() (ok bool, err error) {
-	_LOGGER.Info("start to generate a new grub configuration file")
-	_, stderr, err := execAndWait(30, _GRUB_UPDATE_EXE)
-	_LOGGER.Info("process output: %s", stderr)
+	logger.Info("start to generate a new grub configuration file")
+	_, stderr, err := execAndWait(30, grubUpdateExe)
+	logger.Info("process output: %s", stderr)
 	if err != nil {
-		_LOGGER.Error("generate grub configuration failed")
+		logger.Error("generate grub configuration failed: %v", err)
 		return false, err
 	}
-	_LOGGER.Info("generate grub configuration finished")
+	logger.Info("generate grub configuration successful")
 	return true, nil
 }
 
+// DoSetThemeBackgroundSourceFile setup a new background source file
+// for deepin grub2 theme, and then generate the background depends on
+// screen resolution.
 func (grub *Grub2Ext) DoSetThemeBackgroundSourceFile(imageFile string, screenWidth, screenHeight uint16) (ok bool, err error) {
 	// backup background source file
-	_, err = copyFile(imageFile, _THEME_BG_SRC_FILE)
+	_, err = copyFile(imageFile, themeBgSrcFile)
 	if err != nil {
 		return false, err
 	}
@@ -80,37 +88,41 @@ func (grub *Grub2Ext) DoSetThemeBackgroundSourceFile(imageFile string, screenWid
 	return grub.DoGenerateThemeBackground(screenWidth, screenHeight)
 }
 
+// DoGenerateThemeBackground generate the background for deepin grub2
+// theme depends on screen resolution.
 func (grub *Grub2Ext) DoGenerateThemeBackground(screenWidth, screenHeight uint16) (ok bool, err error) {
-	imgWidth, imgHeight, err := graphic.GetImageSize(_THEME_BG_SRC_FILE)
+	imgWidth, imgHeight, err := graphic.GetImageSize(themeBgSrcFile)
 	if err != nil {
-		_LOGGER.Error(err.Error())
+		logger.Error(err.Error())
 		return false, err
 	}
-	_LOGGER.Info("source background size %dx%d", imgWidth, imgHeight)
+	logger.Info("source background size %dx%d", imgWidth, imgHeight)
 
 	w, h := getImgClipSizeByResolution(screenWidth, screenHeight, imgWidth, imgHeight)
-	_LOGGER.Info("background size %dx%d", w, h)
-	err = graphic.ClipPNG(_THEME_BG_SRC_FILE, _THEME_BG_FILE, 0, 0, w, h)
+	logger.Info("background size %dx%d", w, h)
+	err = graphic.ClipPNG(themeBgSrcFile, themeBgFile, 0, 0, w, h)
 	if err != nil {
-		_LOGGER.Error(err.Error())
+		logger.Error(err.Error())
 		return false, err
 	}
 	return true, nil
 }
 
+// DoCustomTheme write file content to "/boot/grub/themes/deepin/theme.txt".
 func (grub *Grub2Ext) DoCustomTheme(fileContent string) (ok bool, err error) {
-	err = ioutil.WriteFile(_THEME_MAIN_FILE, []byte(fileContent), 0664)
+	err = ioutil.WriteFile(themeMainFile, []byte(fileContent), 0664)
 	if err != nil {
-		_LOGGER.Error(err.Error())
+		logger.Error(err.Error())
 		return false, err
 	}
 	return true, nil
 }
 
+// DoWriteThemeJson write file content to "/boot/grub/themes/deepin/theme_tpl.json".
 func (grub *Grub2Ext) DoWriteThemeJson(fileContent string) (ok bool, err error) {
-	err = ioutil.WriteFile(_THEME_JSON_FILE, []byte(fileContent), 0664)
+	err = ioutil.WriteFile(themeJSONFile, []byte(fileContent), 0664)
 	if err != nil {
-		_LOGGER.Error(err.Error())
+		logger.Error(err.Error())
 		return false, err
 	}
 	return true, nil

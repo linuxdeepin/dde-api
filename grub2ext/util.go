@@ -24,6 +24,7 @@ package main
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -50,12 +51,11 @@ func copyFile(src, dest string) (written int64, err error) {
 
 func execAndWait(timeout int, name string, arg ...string) (stdout, stderr string, err error) {
 	cmd := exec.Command(name, arg...)
-	var buf_stdout, buf_stderr bytes.Buffer
-	cmd.Stdout = &buf_stdout
-	cmd.Stderr = &buf_stderr
+	var bufStdout, bufStderr bytes.Buffer
+	cmd.Stdout = &bufStdout
+	cmd.Stderr = &bufStderr
 	err = cmd.Start()
 	if err != nil {
-		_LOGGER.Error(err.Error())
 		return
 	}
 
@@ -68,16 +68,14 @@ func execAndWait(timeout int, name string, arg ...string) (stdout, stderr string
 	select {
 	case <-time.After(time.Duration(timeout) * time.Second):
 		if err = cmd.Process.Kill(); err != nil {
-			_LOGGER.Error(err.Error())
 			return
 		}
 		<-done
-		_LOGGER.Info("time out and process was killed")
+		err = fmt.Errorf("time out and process was killed")
 	case err = <-done:
-		stdout = buf_stdout.String()
-		stderr = buf_stderr.String()
+		stdout = bufStdout.String()
+		stderr = bufStderr.String()
 		if err != nil {
-			_LOGGER.Error("process done with error = %v", err)
 			return
 		}
 	}
