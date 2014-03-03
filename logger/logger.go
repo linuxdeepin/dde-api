@@ -27,17 +27,27 @@ import (
 	golog "log"
 	"os"
 	"strings"
+	"syscall"
 	"time"
 )
 
 const (
-	logfile = "/var/log/deepin.log"
+	selfID  uint64 = 1
+	logfile        = "/var/log/deepin.log"
 )
 
 var (
-	loggerID uint64
+	loggerID = selfID
 	logimpl  *golog.Logger
 )
+
+// ProcessInfo store the process information which will be
+// used to restart if application fataled.
+type ProcessInfo struct {
+	UID     int               // Real user ID
+	Environ map[string]string // Environment variables
+	Args    []string          // Command-line arguments, starting with the program name
+}
 
 // A Logger represents an active logging object that will provides a
 // dbus service to write log message.
@@ -45,7 +55,7 @@ type Logger struct {
 	names map[uint64]string
 }
 
-// NewLogger creates a new Logger.
+// NewLogger creates a new Logger object.
 func NewLogger() *Logger {
 	logger := &Logger{}
 	logger.names = make(map[uint64]string)
@@ -71,15 +81,9 @@ func (logger *Logger) NewLogger(name string) (id uint64, err error) {
 	return
 }
 
-// DeleteLogger unregister a logger source. TODO[remove]
-func (logger *Logger) DeleteLogger(id uint64) {
-	logger.doLog(id, "DELETE", fmt.Sprintf("id=%d", id))
-	delete(logger.names, id)
-}
-
 func (logger *Logger) getName(id uint64) (name string) {
-	if id == 0 {
-		name = "<common>"
+	if id == selfID {
+		name = "<logger>"
 		return
 	}
 	name = logger.names[id]
@@ -99,29 +103,57 @@ func (logger *Logger) doLog(id uint64, level, msg string) {
 	return
 }
 
-// Debug will write a log message with 'DEBUG' as prefix.
+// Debug write a log message with 'DEBUG' as prefix.
 func (logger *Logger) Debug(id uint64, msg string) {
 	logger.doLog(id, "DEBUG", msg)
 }
 
-// Info will write a log message with 'INFO' as prefix.
+// Info write a log message with 'INFO' as prefix.
 func (logger *Logger) Info(id uint64, msg string) {
 	logger.doLog(id, "INFO", msg)
 }
 
-// Warning will write a log message with 'WARNING' as prefix.
+// Warning write a log message with 'WARNING' as prefix.
 func (logger *Logger) Warning(id uint64, msg string) {
 	logger.doLog(id, "WARNING", msg)
 }
 
-// Error will write a log message with 'ERROR' as prefix.
+// Error write a log message with 'ERROR' as prefix.
 func (logger *Logger) Error(id uint64, msg string) {
 	logger.doLog(id, "ERROR", msg)
 }
 
-// Fatal will write a log message with 'FATAL' as prefix.
+// Fatal write a log message with 'FATAL' as prefix.
 func (logger *Logger) Fatal(id uint64, msg string) {
 	logger.doLog(id, "FATAL", msg)
+}
+
+// NotifyRestart restart target process, need the following arguments:
+// FIXME security issue
+//
+// - id, logger ID
+// - uid, user ID
+// - dir, working directory
+// - environ, environment variables, in the form "key=value"
+// - exefile, program file to execute
+// - args, arguments for the program
+func (logger *Logger) NotifyRestart(id uint64, uid int32, dir string, environ []string, exefile string, args []string) {
+	msg := fmt.Sprintf("uid=%d\nworking directory=%s\nenvironment variables=%v\nprograme=%s\narguments=%v",
+		uid, dir, environ, exefile, args)
+	logger.doLog(id, "RESTART", msg)
+	// TODO
+	// logger.doRestart(id, uid, dir, environ, exefile, args)
+}
+
+func (logger *Logger) doRestart(id uint64, uid int32, dir string, environ []string, exefile string, args []string) {
+	err := syscall.Setreuid(-1, int(uid))
+	if err != nil {
+		logger.doLog(id, "ERROR", err.Error())
+		return
+	}
+	fmt.Printf("current euid=%d\n", syscall.Geteuid())
+	os.StartProcess(exefile, args, &os.ProcAttr{Dir: dir, Env: environ,
+		Files: []*os.File{os.Stdin, os.Stdout, os.Stderr}})
 }
 
 func main() {
