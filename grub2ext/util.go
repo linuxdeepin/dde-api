@@ -31,6 +31,15 @@ import (
 	"time"
 )
 
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
 func copyFile(src, dest string) (written int64, err error) {
 	if dest == src {
 		return -1, errors.New("source and destination are same file")
