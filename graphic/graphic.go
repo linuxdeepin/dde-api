@@ -27,7 +27,7 @@ import (
 	liblogger "dlib/logger"
 )
 
-var logger, _ = liblogger.New("dde-api/graphic")
+var logger, _ = liblogger.NewLogger("dde-api/graphic")
 
 // Graphic is a dbus interface wrapper for dlib/graphic.
 type Graphic struct {
