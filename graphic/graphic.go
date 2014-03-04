@@ -56,7 +56,11 @@ func (graphic *Graphic) HSV2RGB(h, s, v float64) (r, g, b uint8) {
 
 // GetImageSize return a image's width and height.
 func (graphic *Graphic) GetImageSize(imageFile string) (w, h int32, err error) {
-	return libgraphic.GetImageSize(imageFile)
+	w, h, err = libgraphic.GetImageSize(imageFile)
+	if err != nil {
+		logger.Error("%v", err)
+	}
+	return
 }
 
 // GetDominantColorOfImage return the dominant hsv color of a image.
@@ -66,12 +70,29 @@ func (graphic *Graphic) GetDominantColorOfImage(imagePath string) (h, s, v float
 
 // ConvertToPNG converts from any recognized format to PNG.
 func (graphic *Graphic) ConvertToPNG(src, dest string) (err error) {
-	return libgraphic.ConvertToPNG(src, dest)
+	err = libgraphic.ConvertToPNG(src, dest)
+	if err != nil {
+		logger.Error("%v", err)
+	}
+	return
 }
 
 // ClipPNG clip any recognized format image and save to PNG.
 func (graphic *Graphic) ClipPNG(src, dest string, x0, y0, x1, y1 int32) (err error) {
-	return libgraphic.ConvertToPNG(src, dest)
+	err = libgraphic.ConvertToPNG(src, dest)
+	if err != nil {
+		logger.Error("%v", err)
+	}
+	return
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }
 
 func main() {
@@ -80,6 +101,12 @@ func main() {
 			logger.Fatal("%v", err)
 		}
 	}()
+
+	// configure logger
+	logger.SetRestartCommand("/usr/lib/deepin-api/graphic", "--debug")
+	if stringInSlice("-d", os.Args) || stringInSlice("--debug", os.Args) {
+		logger.SetLogLevel(liblogger.LEVEL_DEBUG)
+	}
 
 	jobInHand = make(map[string]bool) // used by blur pict
 
