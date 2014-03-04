@@ -23,7 +23,7 @@ package main
 
 import (
 	"dlib/dbus"
-	pkglogger "dlib/logger"
+	liblogger "dlib/logger"
 	"os"
 )
 
@@ -39,7 +39,7 @@ const (
 	themeBgFile    = themePath + "/background.png"
 )
 
-var logger, _ = pkglogger.NewLogger("dde-api/grub2ext")
+var logger = liblogger.NewLogger("dde-api/grub2ext")
 
 // Grub2Ext is a dbus object, and is split from dde-daemon/grub2 to
 // fix launch issue through dbus-daemon for that system bus in root
@@ -60,9 +60,9 @@ func main() {
 	}()
 
 	// configure logger
-	logger.AddExtArgForRestart("--debug")
+	logger.SetRestartCommand("/usr/lib/deepin-api/grub2ext", "--debug")
 	if stringInSlice("-d", os.Args) || stringInSlice("--debug", os.Args) {
-		logger.SetLogLevel(pkglogger.LEVEL_DEBUG)
+		logger.SetLogLevel(liblogger.LEVEL_DEBUG)
 	}
 
 	grub := NewGrub2Ext()
