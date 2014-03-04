@@ -22,34 +22,41 @@
 package main
 
 import (
-	"dlib/dbus"
-	"dlib/logger"
+        "dlib/dbus"
+        "dlib/logger"
+        "os"
 )
 
 func main() {
-	defer func() {
-		if err := recover(); err != nil {
-			logger.Println("recover err:", err)
-		}
-	}()
+        defer func() {
+                if err := recover(); err != nil {
+                        logger.Println("recover err:", err)
+                }
+        }()
 
-	trieMD5Map = make(map[string]*Trie)
-	strsMD5Map = make(map[string][]*TrieInfo)
+        trieMD5Map = make(map[string]*Trie)
+        strsMD5Map = make(map[string][]*TrieInfo)
         nameMD5Map = make(map[string]string)
-	m := &Pinyin{}
-	err := dbus.InstallOnSession(m)
-	if err != nil {
-		logger.Println("Install Pinyin DBus Session Failed:", err)
-		panic(err)
-	}
+        m := &Pinyin{}
+        err := dbus.InstallOnSession(m)
+        if err != nil {
+                logger.Println("Install Pinyin DBus Session Failed:", err)
+                panic(err)
+        }
 
-	t := &PinyinTrie{}
-	err = dbus.InstallOnSession(t)
-	if err != nil {
-		logger.Println("Install Pinyin Trie DBus Session Failed:", err)
-		panic(err)
-	}
-	dbus.DealWithUnhandledMessage()
+        t := &PinyinTrie{}
+        err = dbus.InstallOnSession(t)
+        if err != nil {
+                logger.Println("Install Pinyin Trie DBus Session Failed:", err)
+                panic(err)
+        }
+        dbus.DealWithUnhandledMessage()
 
-	select {}
+        //select {}
+        if err = dbus.Wait(); err != nil {
+                logger.Println("lost dbus session:", err)
+                os.Exit(1)
+        } else {
+                os.Exit(0)
+        }
 }
