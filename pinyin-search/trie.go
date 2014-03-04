@@ -22,7 +22,6 @@
 package main
 
 import (
-	"dlib/logger"
 	"strings"
 )
 
@@ -80,24 +79,24 @@ func (root *Trie) insertString(str, id string) {
 		if curNode.NextNode[index] == nil {
 			curNode.NextNode[index] = getNode(low[i])
 		}
-                if !isIdExist(id, curNode.NextNode[index].Values) {
-		curNode.NextNode[index].Values = append(curNode.NextNode[index].Values, id)
-        }
+		if !isIdExist(id, curNode.NextNode[index].Values) {
+			curNode.NextNode[index].Values = append(curNode.NextNode[index].Values, id)
+		}
 		curNode = curNode.NextNode[index]
 	}
 }
 
 func (node *Trie) traversalTrie() {
 	if node == nil {
-		logger.Println("trie is nil")
+		logger.Info("trie is nil")
 		return
 	}
 
 	for i := 0; i < _TRIE_CHILD_LEN; i++ {
 		if node.NextNode[i] != nil {
 			node.NextNode[i].traversalTrie()
-			/*logger.Println(node.NextNode[i].Key)*/
-			logger.Println(node.NextNode[i].Values)
+			/*logger.Info(node.NextNode[i].Key)*/
+			logger.Info("%v", node.NextNode[i].Values)
 		}
 	}
 }
@@ -125,6 +124,6 @@ func (root *Trie) searchTrie(keys string) []string {
 	}
 
 	retArray := curNode.Values
-	logger.Println("ret array:", retArray)
+	logger.Info("ret array:", retArray)
 	return retArray
 }

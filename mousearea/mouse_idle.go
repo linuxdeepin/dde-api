@@ -26,7 +26,6 @@ package main
 // #include "mouse_record.h"
 import "C"
 import "time"
-import "dlib/logger"
 
 type IdleTick struct {
 	IdleTimeout func(int32, string)
@@ -64,7 +63,7 @@ func endAllTimer(stopFlag bool) {
 func startTimer(cookie int32) {
 	info, ok := cookieTimerMap[cookie]
 	if !ok {
-		logger.Println("Get timer info failed in startTimer.cookie:",
+		logger.Info("Get timer info failed in startTimer.cookie:",
 			cookie)
 		return
 	}
@@ -74,7 +73,7 @@ func startTimer(cookie int32) {
 
 	select {
 	case <-info.timer.C:
-		logger.Println("Timeout. cookie:", info.cookie)
+		logger.Info("Timeout. cookie:", info.cookie)
 		opIdle.IdleTimeout(info.cookie, info.name)
 		delete(cookieTimerMap, cookie)
 		return
@@ -87,13 +86,13 @@ func startTimer(cookie int32) {
 func endTimer(cookie int32, stopFlag bool) {
 	info, ok := cookieTimerMap[cookie]
 	if !ok {
-		logger.Println("Get timer info failed in endTimer.cookie:",
+		logger.Info("Get timer info failed in endTimer.cookie:",
 			cookie)
 		return
 	}
 
 	if info.runFlag == false {
-		logger.Println("Timer has been end. cookie:", cookie)
+		logger.Info("Timer has been end. cookie:", cookie)
 		return
 	}
 
@@ -104,14 +103,14 @@ func endTimer(cookie int32, stopFlag bool) {
 	}
 }
 
-func newTimerInfo (name string, cookie, timeout int32) *timerInfo {
-        info := &timerInfo{}
+func newTimerInfo(name string, cookie, timeout int32) *timerInfo {
+	info := &timerInfo{}
 
-        info.runFlag = false
-        info.name = name
-        info.cookie = cookie
-        info.timeout = timeout
-        info.closeChan = make(chan bool)
+	info.runFlag = false
+	info.name = name
+	info.cookie = cookie
+	info.timeout = timeout
+	info.closeChan = make(chan bool)
 
-        return info
+	return info
 }

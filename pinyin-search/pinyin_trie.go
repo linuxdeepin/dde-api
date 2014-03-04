@@ -22,65 +22,64 @@
 package main
 
 import (
-        "crypto/md5"
-        "dlib/dbus"
-        "dlib/logger"
-        "strconv"
-        "strings"
+	"crypto/md5"
+	"dlib/dbus"
+	"strconv"
+	"strings"
 )
 
 type PinyinTrie struct{}
 
 type TrieInfo struct {
-        Pinyins []string
-        Key     string
-        Value   string
+	Pinyins []string
+	Key     string
+	Value   string
 }
 
 const (
-        PINYIN_TRIE_PATH = "/com/deepin/api/Search"
-        PINYIN_TRIE_IFC  = "com.deepin.api.Search"
+	PINYIN_TRIE_PATH = "/com/deepin/api/Search"
+	PINYIN_TRIE_IFC  = "com.deepin.api.Search"
 )
 
 var nameMD5Map map[string]string
 
 func (t *PinyinTrie) GetDBusInfo() dbus.DBusInfo {
-        return dbus.DBusInfo{
-                PINYIN_DEST,
-                PINYIN_TRIE_PATH,
-                PINYIN_TRIE_IFC,
-        }
+	return dbus.DBusInfo{
+		PINYIN_DEST,
+		PINYIN_TRIE_PATH,
+		PINYIN_TRIE_IFC,
+	}
 }
 
 func (t *PinyinTrie) NewTrieWithString(values map[string]string, name string) string {
-        md5Byte := md5.Sum([]byte(getStringFromArray(values)))
-        logger.Println("MD5: ", md5Byte)
-        if len(md5Byte) == 0 {
-                return ""
-        }
+	md5Byte := md5.Sum([]byte(getStringFromArray(values)))
+	logger.Info("MD5: ", md5Byte)
+	if len(md5Byte) == 0 {
+		return ""
+	}
 
-        md5Str := getMD5String(md5Byte)
-        if isMd5Exist(md5Str) {
-                return md5Str
-        }
+	md5Str := getMD5String(md5Byte)
+	if isMd5Exist(md5Str) {
+		return md5Str
+	}
 
-        if isNameExist(name) {
-                str, _ := nameMD5Map[name]
-                t.DestroyTrie(str)
-        }
-        nameMD5Map[name] = md5Str
+	if isNameExist(name) {
+		str, _ := nameMD5Map[name]
+		t.DestroyTrie(str)
+	}
+	nameMD5Map[name] = md5Str
 
-        root := newTrie()
-        if values == nil {
-                return ""
-        }
-        go func() {
-                infos := getPinyinArray(values)
-                strsMD5Map[md5Str] = infos
-                root.insertTrieInfo(infos)
-                trieMD5Map[md5Str] = root
-        }()
-        return md5Str
+	root := newTrie()
+	if values == nil {
+		return ""
+	}
+	go func() {
+		infos := getPinyinArray(values)
+		strsMD5Map[md5Str] = infos
+		root.insertTrieInfo(infos)
+		trieMD5Map[md5Str] = root
+	}()
+	return md5Str
 }
 
 /*
@@ -91,45 +90,45 @@ func (t *PinyinTrie) TraversalTrie(str string) {
 */
 
 func (t *PinyinTrie) SearchKeys(keys string, str string) []string {
-        root, ok := trieMD5Map[str]
-        if !ok {
-                return nil
-        }
-        keys = strings.ToLower(keys)
-        rets := root.searchTrie(keys)
-        logger.Println("trie rets:", rets)
-        tmp := searchKeyFromString(keys, str)
-        logger.Println("array rets:", tmp)
-        for _, v := range tmp {
-                if !isIdExist(v, rets) {
-                        rets = append(rets, v)
-                }
-        }
+	root, ok := trieMD5Map[str]
+	if !ok {
+		return nil
+	}
+	keys = strings.ToLower(keys)
+	rets := root.searchTrie(keys)
+	logger.Info("trie rets:", rets)
+	tmp := searchKeyFromString(keys, str)
+	logger.Info("array rets:", tmp)
+	for _, v := range tmp {
+		if !isIdExist(v, rets) {
+			rets = append(rets, v)
+		}
+	}
 
-        return rets
+	return rets
 }
 
 func (t *PinyinTrie) SearchKeysByFirstLetter(keys string, md5Str string) []string {
-        root, ok := trieMD5Map[md5Str]
-        if !ok {
-                return nil
-        }
+	root, ok := trieMD5Map[md5Str]
+	if !ok {
+		return nil
+	}
 
-        keys = strings.ToLower(keys)
-        rets := root.searchTrie(keys)
+	keys = strings.ToLower(keys)
+	rets := root.searchTrie(keys)
 
-        return rets
+	return rets
 }
 
 func (t *PinyinTrie) DestroyTrie(md5Str string) {
-        /*
-        	root, ok := trieMD5Map[md5Str]
-        	if !ok {
-        		return
-        	}
-        */
-        delete(trieMD5Map, md5Str)
-        delete(strsMD5Map, md5Str)
+	/*
+		root, ok := trieMD5Map[md5Str]
+		if !ok {
+			return
+		}
+	*/
+	delete(trieMD5Map, md5Str)
+	delete(strsMD5Map, md5Str)
 }
 
 /*
@@ -152,79 +151,79 @@ func (t *PinyinTrie) SearchTrieWithString(keys string,
 */
 
 func getStringFromArray(strs map[string]string) string {
-        str := ""
+	str := ""
 
-        for _, v := range strs {
-                str += v
-        }
+	for _, v := range strs {
+		str += v
+	}
 
-        return str
+	return str
 }
 
 func getPinyinArray(strs map[string]string) []*TrieInfo {
-        rets := []*TrieInfo{}
-        for k, v := range strs {
-                array := getPinyinFromKey(v)
-                v = strings.ToLower(v)
-                tmp := &TrieInfo{Pinyins: array, Key: k, Value: v}
-                rets = append(rets, tmp)
-        }
+	rets := []*TrieInfo{}
+	for k, v := range strs {
+		array := getPinyinFromKey(v)
+		v = strings.ToLower(v)
+		tmp := &TrieInfo{Pinyins: array, Key: k, Value: v}
+		rets = append(rets, tmp)
+	}
 
-        return rets
+	return rets
 }
 
 func getMD5String(bytes [16]byte) string {
-        str := ""
+	str := ""
 
-        for _, v := range bytes {
-                s := strconv.FormatInt(int64(v), 16)
-                if len(s) == 1 {
-                        str += "0" + s
-                } else {
-                        str += s
-                }
-        }
+	for _, v := range bytes {
+		s := strconv.FormatInt(int64(v), 16)
+		if len(s) == 1 {
+			str += "0" + s
+		} else {
+			str += s
+		}
+	}
 
-        return str
+	return str
 }
 
 func searchKeyFromString(key, md5Str string) []string {
-        rets := []string{}
+	rets := []string{}
 
-        infos := strsMD5Map[md5Str]
-        for _, v := range infos {
-                if strings.Contains(v.Value, key) {
-                        rets = append(rets, v.Key)
-                }
-        }
+	infos := strsMD5Map[md5Str]
+	for _, v := range infos {
+		if strings.Contains(v.Value, key) {
+			rets = append(rets, v.Key)
+		}
+	}
 
-        return rets
+	return rets
 }
 
 func isIdExist(id string, list []string) bool {
-        for _, v := range list {
-                if v == id {
-                        return true
-                }
-        }
+	for _, v := range list {
+		if v == id {
+			return true
+		}
+	}
 
-        return false
+	return false
 }
 
 func isMd5Exist(md5Str string) bool {
-        _, ok := strsMD5Map[md5Str]
-        if ok {
-                return true
-        }
+	_, ok := strsMD5Map[md5Str]
+	if ok {
+		return true
+	}
 
-        return false
+	return false
 }
 
 func isNameExist(name string) bool {
-        _, ok := nameMD5Map[name]
-        if ok {
-                return true
-        }
+	_, ok := nameMD5Map[name]
+	if ok {
+		return true
+	}
 
-        return false
+	return false
 }

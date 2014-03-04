@@ -22,156 +22,155 @@
 package main
 
 import (
-        "dlib/logger"
-        "io/ioutil"
-        "os"
+	"io/ioutil"
+	"os"
 )
 
 const (
-        ETC_TIMEZONE  = "/etc/timezone"
-        ETC_LOCALTIME = "/etc/localtime"
-        ZONE_INFO_DIR = "/usr/share/zoneinfo/"
-        ETC_PERM      = 0644
+	ETC_TIMEZONE  = "/etc/timezone"
+	ETC_LOCALTIME = "/etc/localtime"
+	ZONE_INFO_DIR = "/usr/share/zoneinfo/"
+	ETC_PERM      = 0644
 )
 
 func getTimezone() (string, bool) {
-        contents, err := ioutil.ReadFile(ETC_TIMEZONE)
-        if err != nil {
-                logger.Printf("ReadFile '%s' failed: %s\n",
-                        ETC_TIMEZONE, err)
-                return "", false
-        }
+	contents, err := ioutil.ReadFile(ETC_TIMEZONE)
+	if err != nil {
+		logger.Info("ReadFile '%s' failed: %s\n",
+			ETC_TIMEZONE, err)
+		return "", false
+	}
 
-        tmp := ""
-        for _, b := range contents {
-                if b == '\n' {
-                        continue
-                }
-                tmp += string(b)
-        }
+	tmp := ""
+	for _, b := range contents {
+		if b == '\n' {
+			continue
+		}
+		tmp += string(b)
+	}
 
-        return tmp, true
+	return tmp, true
 }
 
 func setTimezone(tz string) bool {
-        defer func() {
-                if err := recover(); err != nil {
-                        logger.Println("Recover Error:", err)
-                }
-        }()
+	defer func() {
+		if err := recover(); err != nil {
+			logger.Error("Recover Error: %v", err)
+		}
+	}()
 
-        if !fileIsRegular(ETC_LOCALTIME) {
-                return false
-        }
+	if !fileIsRegular(ETC_LOCALTIME) {
+		return false
+	}
 
-        tzFile := ZONE_INFO_DIR + tz
-        if !fileIsRegular(tzFile) {
-                return false
-        }
+	tzFile := ZONE_INFO_DIR + tz
+	if !fileIsRegular(tzFile) {
+		return false
+	}
 
-        /* Modify /etc/localtime */
-        if fileIsSymlink(ETC_LOCALTIME) {
-                err := os.Remove(ETC_LOCALTIME)
-                if err != nil {
-                        logger.Printf("Remove '%s' failed: %s\n",
-                                ETC_TIMEZONE, err)
-                        return false
-                }
+	/* Modify /etc/localtime */
+	if fileIsSymlink(ETC_LOCALTIME) {
+		err := os.Remove(ETC_LOCALTIME)
+		if err != nil {
+			logger.Info("Remove '%s' failed: %s",
+				ETC_TIMEZONE, err)
+			return false
+		}
 
-                err = os.Symlink(tzFile, ETC_TIMEZONE)
-                if err != nil {
-                        logger.Printf("Symlink '%s' to '%s' failed: %s\n",
-                                tzFile, ETC_TIMEZONE, err)
-                        return false
-                }
-        } else {
-                if !copyFile(tzFile, ETC_LOCALTIME, ETC_PERM) {
-                        return false
-                }
-        }
+		err = os.Symlink(tzFile, ETC_TIMEZONE)
+		if err != nil {
+			logger.Info("Symlink '%s' to '%s' failed: %s",
+				tzFile, ETC_TIMEZONE, err)
+			return false
+		}
+	} else {
+		if !copyFile(tzFile, ETC_LOCALTIME, ETC_PERM) {
+			return false
+		}
+	}
 
-        /* Modify /etc/timezone */
-        if !fileIsRegular(ETC_TIMEZONE) {
-                return false
-        }
-        err := ioutil.WriteFile(ETC_TIMEZONE, []byte(tz),
-                os.FileMode(ETC_PERM))
-        if err != nil {
-                logger.Printf("WriteFile '%s' failed: %s\n", ETC_TIMEZONE, err)
-                return false
-        }
+	/* Modify /etc/timezone */
+	if !fileIsRegular(ETC_TIMEZONE) {
+		return false
+	}
+	err := ioutil.WriteFile(ETC_TIMEZONE, []byte(tz),
+		os.FileMode(ETC_PERM))
+	if err != nil {
+		logger.Info("WriteFile '%s' failed: %s\n", ETC_TIMEZONE, err)
+		return false
+	}
 
-        return true
+	return true
 }
 
 func copyFile(src, dest string, perm os.FileMode) bool {
-        contents, err := ioutil.ReadFile(src)
-        if err != nil {
-                logger.Printf("ReadFile '%s' failed: %s\n", src, err)
-                return false
-        }
+	contents, err := ioutil.ReadFile(src)
+	if err != nil {
+		logger.Info("ReadFile '%s' failed: %s\n", src, err)
+		return false
+	}
 
-        err = ioutil.WriteFile(dest, contents, os.FileMode(ETC_PERM))
-        if err != nil {
-                logger.Printf("WriteFile '%s' failed: %s\n", dest, err)
-                return false
-        }
+	err = ioutil.WriteFile(dest, contents, os.FileMode(ETC_PERM))
+	if err != nil {
+		logger.Info("WriteFile '%s' failed: %s\n", dest, err)
+		return false
+	}
 
-        return true
+	return true
 }
 
 func getFileMode(file string) os.FileMode {
-        f, err := os.Open(file)
-        defer f.Close()
-        if err != nil {
-                logger.Printf("Open '%s' failed: %s\n", file, err)
-                panic(err)
-        }
+	f, err := os.Open(file)
+	defer f.Close()
+	if err != nil {
+		logger.Info("Open '%s' failed: %s\n", file, err)
+		panic(err)
+	}
 
-        info, err1 := f.Stat()
-        if err1 != nil {
-                logger.Printf("Stat '%s' failed: %s\n", file, err1)
-                panic(err1)
-        }
+	info, err1 := f.Stat()
+	if err1 != nil {
+		logger.Info("Stat '%s' failed: %s\n", file, err1)
+		panic(err1)
+	}
 
-        return info.Mode()
+	return info.Mode()
 }
 
 func fileIsRegular(file string) bool {
-        ok := getFileMode(file).IsRegular()
-        if !ok {
-                logger.Printf("'%s' is not regular\n", file)
-                return false
-        }
+	ok := getFileMode(file).IsRegular()
+	if !ok {
+		logger.Info("'%s' is not regular\n", file)
+		return false
+	}
 
-        return true
+	return true
 }
 
 func fileIsDir(file string) bool {
-        ok := getFileMode(file).IsDir()
-        if !ok {
-                logger.Printf("'%s' is not dir\n", file)
-                return false
-        }
+	ok := getFileMode(file).IsDir()
+	if !ok {
+		logger.Info("'%s' is not dir\n", file)
+		return false
+	}
 
-        return true
+	return true
 }
 
 func fileIsSymlink(file string) bool {
-        mode := getFileMode(file)
-        if mode == os.ModeSymlink {
-                logger.Printf("'%s' is symlink\n", file)
-                return true
-        }
+	mode := getFileMode(file)
+	if mode == os.ModeSymlink {
+		logger.Info("'%s' is symlink\n", file)
+		return true
+	}
 
-        return false
+	return false
 }
 
 func zoneFileIsExist(file string) bool {
-        if _, err := os.Stat(file); os.IsExist(err) {
-                return true
-        }
-        logger.Printf("'%s' is not exist\n", file)
+	if _, err := os.Stat(file); os.IsExist(err) {
+		return true
+	}
+	logger.Info("'%s' is not exist\n", file)
 
-        return false
+	return false
 }
