@@ -1,0 +1,5 @@
+/var/log/deepin.log {
+       daily
+       rotate 7
+       nocompress
+}
