@@ -22,29 +22,31 @@
 package main
 
 import (
-        "dlib/dbus"
-        "dlib/logger"
-        "time"
+	"dlib/dbus"
+	liblogger "dlib/logger"
+	"time"
 )
 
+var logger = liblogger.NewLogger("dde-api/utils")
+
 func (op *Manager) GetDBusInfo() dbus.DBusInfo {
-        return dbus.DBusInfo{
-                UTILS_DEST,
-                UTILS_PATH,
-                UTILS_IFC,
-        }
+	return dbus.DBusInfo{
+		UTILS_DEST,
+		UTILS_PATH,
+		UTILS_IFC,
+	}
 }
 
 func main() {
-        defer func() {
-                if err := recover(); err != nil {
-                        logger.Println("Recover Error:", err)
-                }
-        }()
+	defer func() {
+		if err := recover(); err != nil {
+			logger.Fatal("Recover Error:", err)
+		}
+	}()
 
-        m := &Manager{}
-        dbus.InstallOnSession(m)
-        dbus.DealWithUnhandledMessage()
+	m := &Manager{}
+	dbus.InstallOnSession(m)
+	dbus.DealWithUnhandledMessage()
 
-        <-time.NewTimer(time.Second * 5).C
+	<-time.NewTimer(time.Second * 5).C
 }
