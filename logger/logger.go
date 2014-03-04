@@ -180,6 +180,9 @@ func main() {
 	dbus.DealWithUnhandledMessage()
 
 	if err := dbus.Wait(); err != nil {
-		golog.Fatal("lost dbus session: %v", err)
+		golog.Printf("lost dbus session: %v\n", err)
+		os.Exit(1)
+	} else {
+		os.Exit(0)
 	}
 }

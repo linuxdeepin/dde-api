@@ -25,6 +25,7 @@ import (
 	"dlib/dbus"
 	libgraphic "dlib/graphic"
 	liblogger "dlib/logger"
+	"os"
 )
 
 var logger = liblogger.NewLogger("dde-api/graphic")
@@ -90,6 +91,9 @@ func main() {
 	dbus.DealWithUnhandledMessage()
 
 	if err := dbus.Wait(); err != nil {
-		logger.Fatal("lost dbus session: %v", err)
+		liblogger.Printf("lost dbus session: %v\n", err)
+		os.Exit(1)
+	} else {
+		os.Exit(0)
 	}
 }
