@@ -25,7 +25,6 @@ import (
 	"dlib/dbus"
 	libgraphic "dlib/graphic"
 	liblogger "dlib/logger"
-	"fmt"
 	"os"
 )
 
