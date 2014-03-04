@@ -1,8 +1,6 @@
 run:=go build -o .out && rm .out
 
 all: 
-	cd accounts-extends/ && $(run)
-	cd city-index/ && $(run)
 	cd graphic/ && $(run)
 	cd logger/ && $(run)
 	cd mousearea/ && $(run)
