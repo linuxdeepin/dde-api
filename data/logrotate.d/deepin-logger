@@ -2,5 +2,5 @@
        daily
        rotate 7
        nocompress
-       create 0644 syslog adm
+       create 0644 deepin-daemon deepin-daemon
 }
