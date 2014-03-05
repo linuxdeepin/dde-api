@@ -175,7 +175,8 @@ func main() {
 	logger := NewLogger()
 	err = dbus.InstallOnSystem(logger)
 	if err != nil {
-		panic(err)
+		golog.Printf("register dbus interface failed: %v\n", err)
+		os.Exit(1)
 	}
 	dbus.DealWithUnhandledMessage()
 

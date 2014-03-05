@@ -113,12 +113,13 @@ func main() {
 	graphic := &Graphic{}
 	err := dbus.InstallOnSession(graphic)
 	if err != nil {
-		panic(err)
+		logger.Error("register dbus interface failed: %v", err)
+		os.Exit(1)
 	}
 	dbus.DealWithUnhandledMessage()
 
 	if err := dbus.Wait(); err != nil {
-		logger.Error("lost dbus session: %v\n", err)
+		logger.Error("lost dbus session: %v", err)
 		os.Exit(1)
 	} else {
 		os.Exit(0)
