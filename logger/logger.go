@@ -34,6 +34,8 @@ import (
 const (
 	selfID  uint64 = 1
 	logfile        = "/var/log/deepin.log"
+	// maxFileSize        = 10 * 1024 * 1024 // 10MB
+	maxFileSize = 100 * 1024 // 10MB
 )
 
 var (
@@ -164,14 +166,22 @@ func main() {
 	}()
 
 	// open log file
-	logfile, err := os.OpenFile(logfile, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
+	f, err := os.OpenFile(logfile, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
 		panic(err)
 	}
-	defer logfile.Close()
+	defer f.Close()
 
-	logimpl = golog.New(logfile, "", 0)
+	// check log file size, if larger than max size, reopen it without
+	// "O_APPEND" option
+	stat, _ := f.Stat()
+	if stat.Size() >= maxFileSize {
+		golog.Println("log file is to large, clear it")
+		f.Truncate(0)
+		f.Sync()
+	}
 
+	logimpl = golog.New(f, "", 0)
 	logger := NewLogger()
 	err = dbus.InstallOnSystem(logger)
 	if err != nil {
