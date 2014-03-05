@@ -124,6 +124,7 @@ blur_pict_is_valid (const char *src_path, const char *dest_path)
     const char *blur_uri_bs64 = gdk_pixbuf_get_option (pixbuf, BG_EXT_URI);
 
     if ( !blur_uri_bs64 ) {
+        g_object_unref(pixbuf);
         return FALSE;
     }
 
@@ -133,6 +134,7 @@ blur_pict_is_valid (const char *src_path, const char *dest_path)
     g_free (src_uri_bs64);
 
     if ( !is_equal ) {
+        g_object_unref(pixbuf);
         return FALSE;
     }
 
@@ -141,15 +143,18 @@ blur_pict_is_valid (const char *src_path, const char *dest_path)
     const char *blur_mtime_str = gdk_pixbuf_get_option (pixbuf, BG_EXT_MTIME);
 
     if ( !blur_mtime_str ) {
+        g_object_unref(pixbuf);
         return FALSE;
     }
 
     time_t blur_mtime = atol (blur_mtime_str);
 
     if ( src_mtime != blur_mtime ) {
+        g_object_unref(pixbuf);
         return FALSE;
     }
 
+    g_object_unref(pixbuf);
     return TRUE;
 }
 
