@@ -176,7 +176,7 @@ func main() {
 	// "O_APPEND" option
 	stat, _ := f.Stat()
 	if stat.Size() >= maxFileSize {
-		golog.Println("log file is to large, clear it")
+		golog.Println("log file is too large, clear it")
 		f.Truncate(0)
 		f.Sync()
 	}
