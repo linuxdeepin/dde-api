@@ -55,8 +55,8 @@ func (graphic *Graphic) HSV2RGB(h, s, v float64) (r, g, b uint8) {
 }
 
 // GetImageSize return a image's width and height.
-func (graphic *Graphic) GetImageSize(imageFile string) (w, h int32, err error) {
-	w, h, err = libgraphic.GetImageSize(imageFile)
+func (graphic *Graphic) GetImageSize(imgfile string) (w, h int32, err error) {
+	w, h, err = libgraphic.GetImageSize(imgfile)
 	if err != nil {
 		logger.Error("%v", err)
 	}
@@ -64,22 +64,28 @@ func (graphic *Graphic) GetImageSize(imageFile string) (w, h int32, err error) {
 }
 
 // GetDominantColorOfImage return the dominant hsv color of a image.
-func (graphic *Graphic) GetDominantColorOfImage(imagePath string) (h, s, v float64) {
-	return libgraphic.GetDominantColorOfImage(imagePath)
-}
-
-// ConvertToPNG converts from any recognized format to PNG.
-func (graphic *Graphic) ConvertToPNG(src, dest string) (err error) {
-	err = libgraphic.ConvertToPNG(src, dest)
+func (graphic *Graphic) GetDominantColorOfImage(imgfile string) (h, s, v float64, err error) {
+	h, s, v, err = libgraphic.GetDominantColorOfImage(imgfile)
 	if err != nil {
 		logger.Error("%v", err)
 	}
 	return
 }
 
-// ClipPNG clip any recognized format image and save to PNG.
-func (graphic *Graphic) ClipPNG(src, dest string, x0, y0, x1, y1 int32) (err error) {
-	err = libgraphic.ConvertToPNG(src, dest)
+// ConvertImage converts from any recognized format imaget to target
+// format image which could be "png" or "jpeg".
+func (graphic *Graphic) ConvertImage(srcfile, dstfile, f string) (err error) {
+	err = libgraphic.ConvertImage(srcfile, dstfile, libgraphic.Format(f))
+	if err != nil {
+		logger.Error("%v", err)
+	}
+	return
+}
+
+// ClipImage clip any recognized format image to target format image
+// which could be "png" or "jpeg".
+func (graphic *Graphic) ClipImage(srcfile, dstfile string, x0, y0, x1, y1 int32, f string) (err error) {
+	err = libgraphic.ClipImage(srcfile, dstfile, x0, y0, x1, y1, libgraphic.Format(f))
 	if err != nil {
 		logger.Error("%v", err)
 	}
