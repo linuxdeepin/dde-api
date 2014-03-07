@@ -119,6 +119,11 @@ func (logger *Logger) Fatal(id uint64, msg string) {
 	logger.doLog(id, "FATAL", msg)
 }
 
+// GetLog return all log messages that wrote by target ID.
+func (logger *Logger) GetLog(id uint64) (msg string) {
+	return "<coming soon>"
+}
+
 func main() {
 	defer func() {
 		if err := recover(); err != nil {
