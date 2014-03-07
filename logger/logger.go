@@ -43,13 +43,13 @@ var (
 // A Logger represents an active logging object that will provides a
 // dbus service to write log message.
 type Logger struct {
-	names map[uint64]string
+	Names map[uint64]string
 }
 
 // NewLogger creates a new Logger object.
 func NewLogger() *Logger {
 	logger := &Logger{}
-	logger.names = make(map[uint64]string)
+	logger.Names = make(map[uint64]string)
 	return logger
 }
 
@@ -67,7 +67,7 @@ func (logger *Logger) GetDBusInfo() dbus.DBusInfo {
 func (logger *Logger) NewLogger(name string) (id uint64, err error) {
 	loggerID++
 	id = loggerID
-	logger.names[id] = name
+	logger.Names[id] = name
 	logger.doLog(id, "NEW", fmt.Sprintf("id=%d", id))
 	return
 }
@@ -77,7 +77,7 @@ func (logger *Logger) getName(id uint64) (name string) {
 		name = "<logger>"
 		return
 	}
-	name = logger.names[id]
+	name = logger.Names[id]
 	if len(name) == 0 {
 		name = "<unknown>"
 	}
