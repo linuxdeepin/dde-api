@@ -40,14 +40,6 @@ var (
 	logimpl  *golog.Logger
 )
 
-// ProcessInfo store the process information which will be
-// used to restart if application fataled.
-type ProcessInfo struct {
-	UID     int               // Real user ID
-	Environ map[string]string // Environment variables
-	Args    []string          // Command-line arguments, starting with the program name
-}
-
 // A Logger represents an active logging object that will provides a
 // dbus service to write log message.
 type Logger struct {
