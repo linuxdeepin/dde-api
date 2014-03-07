@@ -27,7 +27,6 @@ import (
 	golog "log"
 	"os"
 	"strings"
-	"syscall"
 	"time"
 )
 
@@ -126,34 +125,6 @@ func (logger *Logger) Error(id uint64, msg string) {
 // Fatal write a log message with 'FATAL' as prefix.
 func (logger *Logger) Fatal(id uint64, msg string) {
 	logger.doLog(id, "FATAL", msg)
-}
-
-// NotifyRestart restart target process, need the following arguments:
-// FIXME security issue
-//
-// - id, logger ID
-// - uid, user ID
-// - dir, working directory
-// - environ, environment variables, in the form "key=value"
-// - exefile, program file to execute
-// - args, arguments for the program
-func (logger *Logger) NotifyRestart(id uint64, uid int32, dir string, environ []string, exefile string, args []string) {
-	msg := fmt.Sprintf("uid=%d\nworking directory=%s\nenvironment variables=%v\nprograme=%s\narguments=%v",
-		uid, dir, environ, exefile, args)
-	logger.doLog(id, "RESTART", msg)
-	// TODO
-	// logger.doRestart(id, uid, dir, environ, exefile, args)
-}
-
-func (logger *Logger) doRestart(id uint64, uid int32, dir string, environ []string, exefile string, args []string) {
-	err := syscall.Setreuid(-1, int(uid))
-	if err != nil {
-		logger.doLog(id, "ERROR", err.Error())
-		return
-	}
-	fmt.Printf("current euid=%d\n", syscall.Geteuid())
-	os.StartProcess(exefile, args, &os.ProcAttr{Dir: dir, Env: environ,
-		Files: []*os.File{os.Stdin, os.Stdout, os.Stderr}})
 }
 
 func main() {
