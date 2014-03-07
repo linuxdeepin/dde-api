@@ -22,6 +22,7 @@
 package main
 
 import (
+	"crypto/rand"
 	"dlib/dbus"
 	"fmt"
 	golog "log"
@@ -31,25 +32,25 @@ import (
 )
 
 const (
-	selfID  uint64 = 1
-	logfile        = "/var/log/deepin.log"
+	selfName    = "<logger>"
+	selfID      = "0000000"
+	unknownName = "<unknown>"
+	logfile     = "/var/log/deepin.log"
 )
 
-var (
-	loggerID = selfID
-	logimpl  *golog.Logger
-)
+var logimpl *golog.Logger
 
 // A Logger represents an active logging object that will provides a
 // dbus service to write log message.
 type Logger struct {
-	Names map[uint64]string
+	Names map[string]string
 }
 
 // NewLogger creates a new Logger object.
 func NewLogger() *Logger {
 	logger := &Logger{}
-	logger.Names = make(map[uint64]string)
+	logger.Names = make(map[string]string)
+	logger.Names[selfID] = selfName
 	return logger
 }
 
@@ -64,63 +65,73 @@ func (logger *Logger) GetDBusInfo() dbus.DBusInfo {
 
 // NewLogger register a new logger source with name, and return a
 // uniquely id which will be used in following operator.
-func (logger *Logger) NewLogger(name string) (id uint64, err error) {
-	loggerID++
-	id = loggerID
+func (logger *Logger) NewLogger(name string) (id string, err error) {
+	id = randString(len(selfID))
 	logger.Names[id] = name
-	logger.doLog(id, "NEW", fmt.Sprintf("id=%d", id))
+	logger.doLog(id, "NEW", fmt.Sprintf("id=%s", id))
 	return
 }
 
-func (logger *Logger) getName(id uint64) (name string) {
+func randString(n int) string {
+	const alphanum = "0123456789abcdef"
+	var bytes = make([]byte, n)
+	rand.Read(bytes)
+	for i, b := range bytes {
+		bytes[i] = alphanum[b%byte(len(alphanum))]
+	}
+	return string(bytes)
+}
+
+func (logger *Logger) getName(id string) (name string) {
 	if id == selfID {
-		name = "<logger>"
+		name = selfName
 		return
 	}
 	name = logger.Names[id]
 	if len(name) == 0 {
-		name = "<unknown>"
+		name = unknownName
 	}
 	return
 }
 
-func (logger *Logger) doLog(id uint64, level, msg string) {
+func (logger *Logger) doLog(id string, level, msg string) {
 	now := time.Now()
 	date := fmt.Sprintf("%d-%d-%d %d:%d:%d", now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second())
-	prefix := fmt.Sprintf("%s %s: [%s] ", date, logger.getName(id), level)
+	prefix := fmt.Sprintf("%s %s %s: [%s] ", id, date, logger.getName(id), level)
 	fmtMsg := prefix + msg
-	fmtMsg = strings.Replace(fmtMsg, "\n", "\n"+prefix, -1)
+	fmtMsg = strings.Replace(fmtMsg, "\n", "\n"+prefix, -1) // format multi-lines message
 	logimpl.Println(fmtMsg)
 	return
 }
 
 // Debug write a log message with 'DEBUG' as prefix.
-func (logger *Logger) Debug(id uint64, msg string) {
+func (logger *Logger) Debug(id string, msg string) {
 	logger.doLog(id, "DEBUG", msg)
 }
 
 // Info write a log message with 'INFO' as prefix.
-func (logger *Logger) Info(id uint64, msg string) {
+func (logger *Logger) Info(id string, msg string) {
 	logger.doLog(id, "INFO", msg)
 }
 
 // Warning write a log message with 'WARNING' as prefix.
-func (logger *Logger) Warning(id uint64, msg string) {
+func (logger *Logger) Warning(id string, msg string) {
 	logger.doLog(id, "WARNING", msg)
 }
 
 // Error write a log message with 'ERROR' as prefix.
-func (logger *Logger) Error(id uint64, msg string) {
+func (logger *Logger) Error(id string, msg string) {
 	logger.doLog(id, "ERROR", msg)
 }
 
 // Fatal write a log message with 'FATAL' as prefix.
-func (logger *Logger) Fatal(id uint64, msg string) {
+func (logger *Logger) Fatal(id string, msg string) {
 	logger.doLog(id, "FATAL", msg)
 }
 
 // GetLog return all log messages that wrote by target ID.
-func (logger *Logger) GetLog(id uint64) (msg string) {
+func (logger *Logger) GetLog(id string) (msg string) {
+	// TODO
 	return "<coming soon>"
 }
 
