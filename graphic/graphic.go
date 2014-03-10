@@ -44,6 +44,64 @@ func (graphic *Graphic) GetDBusInfo() dbus.DBusInfo {
 	}
 }
 
+// BlurImage generate blur effect to an image.
+func (graphic *Graphic) BlurImage(srcfile, dstfile string, sigma, numsteps float64, format string) (err error) {
+	err = libgraphic.BlurImage(srcfile, dstfile, sigma, numsteps, libgraphic.Format(format))
+	if err != nil {
+		logger.Error("%v", err)
+	}
+	return
+}
+
+// ClipImage clip any recognized format image to target format image
+// which could be "png" or "jpeg".
+func (graphic *Graphic) ClipImage(srcfile, dstfile string, x0, y0, x1, y1 int32, format string) (err error) {
+	err = libgraphic.ClipImage(srcfile, dstfile, x0, y0, x1, y1, libgraphic.Format(format))
+	if err != nil {
+		logger.Error("%v", err)
+	}
+	return
+}
+
+// ConvertImage converts from any recognized format imaget to target
+// format image which could be "png" or "jpeg".
+func (graphic *Graphic) ConvertImage(srcfile, dstfile, format string) (err error) {
+	err = libgraphic.ConvertImage(srcfile, dstfile, libgraphic.Format(format))
+	if err != nil {
+		logger.Error("%v", err)
+	}
+	return
+}
+
+// GetDominantColorOfImage return the dominant hsv color of a image.
+func (graphic *Graphic) GetDominantColorOfImage(imgfile string) (h, s, v float64, err error) {
+	h, s, v, err = libgraphic.GetDominantColorOfImage(imgfile)
+	if err != nil {
+		logger.Error("%v", err)
+	}
+	return
+}
+
+// FlipImageHorizontal flip image in horizontal direction, and save as
+// target format which could be "png" or "jpeg".
+func (graphic *Graphic) FlipImageHorizontal(srcfile, dstfile string, format string) (err error) {
+	err = libgraphic.FlipImageHorizontal(srcfile, dstfile, libgraphic.Format(format))
+	if err != nil {
+		logger.Error("%v", err)
+	}
+	return
+}
+
+// FlipImageVertical flip image in vertical direction, and save as
+// target format which could be "png" or "jpeg".
+func (graphic *Graphic) FlipImageVertical(srcfile, dstfile string, format string) (err error) {
+	err = libgraphic.FlipImageVertical(srcfile, dstfile, libgraphic.Format(format))
+	if err != nil {
+		logger.Error("%v", err)
+	}
+	return
+}
+
 // RGB2HSV convert color format from RGB(r, g, b=[0..255]) to HSV(h=[0..360), s,v=[0..1]).
 func (graphic *Graphic) RGB2HSV(r, g, b uint8) (h, s, v float64) {
 	return libgraphic.RGB2HSV(r, g, b)
@@ -63,29 +121,31 @@ func (graphic *Graphic) GetImageSize(imgfile string) (w, h int32, err error) {
 	return
 }
 
-// GetDominantColorOfImage return the dominant hsv color of a image.
-func (graphic *Graphic) GetDominantColorOfImage(imgfile string) (h, s, v float64, err error) {
-	h, s, v, err = libgraphic.GetDominantColorOfImage(imgfile)
+// ResizeImage returns a new image file with the given width and
+// height created by resizing the given image, and save to target
+// image format which could be "png" or "jpeg".
+func (graphic *Graphic) ResizeImage(srcfile, dstfile string, newWidth, newHeight int32, format string) (err error) {
+	err = libgraphic.ResizeImage(srcfile, dstfile, newWidth, newHeight, libgraphic.Format(format))
 	if err != nil {
 		logger.Error("%v", err)
 	}
 	return
 }
 
-// ConvertImage converts from any recognized format imaget to target
-// format image which could be "png" or "jpeg".
-func (graphic *Graphic) ConvertImage(srcfile, dstfile, f string) (err error) {
-	err = libgraphic.ConvertImage(srcfile, dstfile, libgraphic.Format(f))
+// RotateImageLeft rotate image to left side, and save to target image
+// format which could be "png" or "jpeg".
+func (graphic *Graphic) RotateImageLeft(srcfile, dstfile string, format string) (err error) {
+	err = libgraphic.RotateImageLeft(srcfile, dstfile, libgraphic.Format(format))
 	if err != nil {
 		logger.Error("%v", err)
 	}
 	return
 }
 
-// ClipImage clip any recognized format image to target format image
-// which could be "png" or "jpeg".
-func (graphic *Graphic) ClipImage(srcfile, dstfile string, x0, y0, x1, y1 int32, f string) (err error) {
-	err = libgraphic.ClipImage(srcfile, dstfile, x0, y0, x1, y1, libgraphic.Format(f))
+// RotateImageRight rotate image to right side, and save to target image
+// format which could be "png" or "jpeg".
+func (graphic *Graphic) RotateImageRight(srcfile, dstfile string, format string) (err error) {
+	err = libgraphic.RotateImageRight(srcfile, dstfile, libgraphic.Format(format))
 	if err != nil {
 		logger.Error("%v", err)
 	}
