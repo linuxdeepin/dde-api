@@ -22,11 +22,15 @@
 package main
 
 import (
+	"bufio"
 	"crypto/rand"
 	"dlib/dbus"
 	"fmt"
+	"io/ioutil"
 	golog "log"
 	"os"
+	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 )
@@ -131,8 +135,45 @@ func (logger *Logger) Fatal(id string, msg string) {
 
 // GetLog return all log messages that wrote by target ID.
 func (logger *Logger) GetLog(id string) (msg string) {
-	// TODO
-	return "<coming soon>"
+	// get all deepin log files
+	logfiles, err := filepath.Glob(logfile + "*")
+	if err != nil {
+		msg = "get log files failed"
+		golog.Println(msg)
+		return
+	}
+
+	// open log file in order
+	sort.Sort(sort.Reverse(sort.StringSlice(logfiles)))
+	for _, f := range logfiles {
+		m, err := logger.doGetLog(id, f)
+		if err != nil {
+			golog.Println(err)
+			continue
+		}
+		if len(m) != 0 {
+			msg = msg + m
+		}
+	}
+	return
+}
+
+func (logger *Logger) doGetLog(id string, file string) (msg string, err error) {
+	fileContent, err := ioutil.ReadFile(file)
+	if err != nil {
+		return
+	}
+
+	s := bufio.NewScanner(strings.NewReader(string(fileContent)))
+	s.Split(bufio.ScanLines)
+	for s.Scan() {
+		line := s.Text()
+		if strings.HasPrefix(line, id) {
+			msg = msg + line + "\n"
+		}
+	}
+
+	return
 }
 
 func main() {
