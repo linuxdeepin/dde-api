@@ -29,6 +29,8 @@ import (
 	"dlib/dbus"
 	"dlib/graphic"
 	"io/ioutil"
+	"os"
+	"path"
 )
 
 // GetDBusInfo implement interface of dbus.DBusObject
@@ -52,6 +54,10 @@ func (grub *Grub2Ext) DoWriteSettings(fileContent string) (ok bool, err error) {
 
 // DoWriteCacheConfig write file content to "/var/cache/dde-daemon/grub2.json".
 func (grub *Grub2Ext) DoWriteCacheConfig(fileContent string) (ok bool, err error) {
+	// ensure parent directory exists
+	if !isFileExists(grubCacheFile) {
+		os.MkdirAll(path.Dir(grubCacheFile), 0755)
+	}
 	err = ioutil.WriteFile(grubCacheFile, []byte(fileContent), 0644)
 	if err != nil {
 		logger.Error(err.Error())

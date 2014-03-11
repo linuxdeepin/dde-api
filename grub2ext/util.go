@@ -40,6 +40,13 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
+func isFileExists(file string) bool {
+	if _, err := os.Stat(file); err == nil {
+		return true
+	}
+	return false
+}
+
 func copyFile(src, dest string) (written int64, err error) {
 	if dest == src {
 		return -1, errors.New("source and destination are same file")
