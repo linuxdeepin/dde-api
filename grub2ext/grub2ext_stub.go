@@ -104,9 +104,10 @@ func (grub *Grub2Ext) DoGenerateThemeBackground(screenWidth, screenHeight uint16
 	}
 	logger.Info("source background size %dx%d", imgWidth, imgHeight)
 
-	w, h := getImgClipSizeByResolution(screenWidth, screenHeight, imgWidth, imgHeight)
-	logger.Info("background size %dx%d", w, h)
-	err = graphic.ClipImage(themeBgSrcFile, themeBgFile, 0, 0, w, h, graphic.PNG)
+	x0, y0, x1, y1 := getImgClipRectByResolution(screenWidth, screenHeight, imgWidth, imgHeight)
+	logger.Info("background clip rect (%d,%d), (%d,%d)", x0, y0, x1, y1)
+	logger.Info("background size %dx%d", x1-x0, y1-y0)
+	err = graphic.ClipImage(themeBgSrcFile, themeBgFile, x0, y0, x1, y1, graphic.PNG)
 	if err != nil {
 		logger.Error(err.Error())
 		return false, err

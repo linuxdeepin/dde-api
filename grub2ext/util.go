@@ -98,18 +98,27 @@ func execAndWait(timeout int, name string, arg ...string) (stdout, stderr string
 	return
 }
 
-func getImgClipSizeByResolution(screenWidth, screenHeight uint16, imgWidth, imgHeight int32) (w int32, h int32) {
+func getImgClipRectByResolution(screenWidth, screenHeight uint16, imgWidth, imgHeight int32) (x0, y0, x1, y1 int32) {
 	if imgWidth >= int32(screenWidth) && imgHeight >= int32(screenHeight) {
-		w = int32(screenWidth)
-		h = int32(screenHeight)
+		// image size bigger than screen, clip in the center of image
+		w := int32(screenWidth)
+		h := int32(screenHeight)
+		x0 = imgWidth/2 - int32(screenWidth)/2
+		y0 = imgHeight/2 - int32(screenHeight)/2
+		x1 = x0 + w
+		y1 = y0 + h
 	} else {
 		scale := float32(screenWidth) / float32(screenHeight)
-		w = imgWidth
-		h = int32(float32(w) / scale)
+		w := imgWidth
+		h := int32(float32(w) / scale)
 		if h > imgHeight {
 			h = imgHeight
 			w = int32(float32(h) * scale)
 		}
+		x0 = 0
+		y0 = 0
+		x1 = x0 + w
+		y1 = y0 + h
 	}
 	return
 }
