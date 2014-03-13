@@ -82,6 +82,17 @@ func (graphic *Graphic) GetDominantColorOfImage(imgfile string) (h, s, v float64
 	return
 }
 
+// FillImage generate a new image in target width and height through
+// source image, there are many fill sytles to choice from, such as
+// "tile", "center", "stretch", "scalestretch".
+func (graphic *Graphic) FillImage(srcfile, dstfile string, width, height int32, style, format string) (err error) {
+	err = libgraphic.FillImage(srcfile, dstfile, width, height, libgraphic.FillStyle(style), libgraphic.Format(format))
+	if err != nil {
+		logger.Error("%v", err)
+	}
+	return
+}
+
 // FlipImageHorizontal flip image in horizontal direction, and save as
 // target format which could be "png" or "jpeg".
 func (graphic *Graphic) FlipImageHorizontal(srcfile, dstfile string, format string) (err error) {
