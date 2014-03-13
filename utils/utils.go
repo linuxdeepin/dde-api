@@ -36,56 +36,6 @@ func deleteStartSpace(str string) string {
         return tmp
 }
 
-func (op *Manager) ConvertURIToPath(uri string, t int32) (string, bool) {
-        tmp := deleteStartSpace(uri)
-        switch t {
-        case URI_TYPE_FILE:
-                if !op.IsContainFromStart(tmp, URI_STRING_FILE) {
-                        return "", false
-                }
-                return tmp[7:], true
-        case URI_TYPE_FTP:
-                if !op.IsContainFromStart(tmp, URI_STRING_FTP) {
-                        return "", false
-                }
-                return tmp[6:], true
-        case URI_TYPE_HTTP:
-                if !op.IsContainFromStart(tmp, URI_STRING_HTTP) {
-                        return "", false
-                }
-                return tmp[7:], true
-        case URI_TYPE_HTTPS:
-                if !op.IsContainFromStart(tmp, URI_STRING_HTTPS) {
-                        return "", false
-                }
-                return tmp[8:], true
-        case URI_TYPE_SMB:
-                if !op.IsContainFromStart(tmp, URI_STRING_SMB) {
-                        return "", false
-                }
-                return tmp[6:], true
-        }
-
-        return "", false
-}
-
-func (op *Manager) ConvertPathToURI(path string, t int32) (string, bool) {
-        switch t {
-        case URI_TYPE_FILE:
-                return URI_STRING_FILE + path, true
-        case URI_TYPE_FTP:
-                return URI_STRING_FTP + path, true
-        case URI_TYPE_HTTP:
-                return URI_STRING_HTTP + path, true
-        case URI_TYPE_HTTPS:
-                return URI_STRING_HTTPS + path, true
-        case URI_TYPE_SMB:
-                return URI_STRING_SMB + path, true
-        }
-
-        return "", false
-}
-
 func (op *Manager) IsContainFromStart(str, substr string) bool {
         l1 := len(substr)
         l2 := len(str)
@@ -111,7 +61,11 @@ func (op *Manager) IsFileExist(filename string) bool {
                 return false
         }
 
-        _, err := os.Stat(filename)
+        path, ok := op.URIToPath(filename)
+        if !ok {
+                return false
+        }
+        _, err := os.Stat(path)
 
         return err == nil || os.IsExist(err)
 }
@@ -122,9 +76,9 @@ func (op *Manager) IsFileExist(filename string) bool {
  *      1 : string
  *      2 : byte
  */
-func (op *Manager) IsElementExist(e interface{}, l interface{}, t int32) bool {
-        switch t {
-        case ELEMENT_TYPE_INT:
+func (op *Manager) IsElementExist(e interface{}, l interface{}) bool {
+        switch e.(type) {
+        case int32, uint32, int64, uint64:
                 element := e.(int64)
                 list := l.([]int64)
                 for _, v := range list {
@@ -132,7 +86,7 @@ func (op *Manager) IsElementExist(e interface{}, l interface{}, t int32) bool {
                                 return true
                         }
                 }
-        case ELEMENT_TYPE_STRING:
+        case string:
                 element := e.(string)
                 list := l.([]string)
                 for _, v := range list {
@@ -140,7 +94,7 @@ func (op *Manager) IsElementExist(e interface{}, l interface{}, t int32) bool {
                                 return true
                         }
                 }
-        case ELEMENT_TYPE_BYTE:
+        case byte:
                 element := e.(byte)
                 list := l.([]byte)
                 for _, v := range list {
@@ -153,9 +107,9 @@ func (op *Manager) IsElementExist(e interface{}, l interface{}, t int32) bool {
         return false
 }
 
-func (op *Manager) IsListEqual(l1, l2 interface{}, t int32) bool {
-        switch t {
-        case ELEMENT_TYPE_INT:
+func (op *Manager) IsListEqual(l1, l2 interface{}) bool {
+        switch l1.(type) {
+        case []int32, []int64, []uint32:
                 list1 := l1.([]int64)
                 list2 := l2.([]int64)
 
@@ -171,7 +125,7 @@ func (op *Manager) IsListEqual(l1, l2 interface{}, t int32) bool {
                                 return false
                         }
                 }
-        case ELEMENT_TYPE_STRING:
+        case []string:
                 list1 := l1.([]string)
                 list2 := l2.([]string)
 
@@ -187,7 +141,7 @@ func (op *Manager) IsListEqual(l1, l2 interface{}, t int32) bool {
                                 return false
                         }
                 }
-        case ELEMENT_TYPE_BYTE:
+        case []byte:
                 list1 := l1.([]byte)
                 list2 := l2.([]byte)
 
