@@ -45,7 +45,7 @@ func (graphic *Graphic) BackgroundBlurPictPath(srcURI, destURI string,
 	if len(srcURI) <= 0 {
 		return -1, _BG_BLUR_PICT_CACHE_DIR
 	}
-	opUtil, _err := dutils.NewUtils("/com/deepin/api/Utils")
+	opUtil, _err := dutils.NewUtils("com.deepin.api.Utils", "/com/deepin/api/Utils")
 	if _err != nil {
 		fmt.Println("New Utils Failed:", _err)
 		panic(_err)
