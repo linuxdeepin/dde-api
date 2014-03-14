@@ -54,7 +54,8 @@ func (graphic *Graphic) BlurImage(srcfile, dstfile string, sigma, numsteps float
 }
 
 // ClipImage clip any recognized format image to target format image
-// which could be "png" or "jpeg".
+// which could be "png" or "jpeg", for the rectangle to clip, (x0, y0)
+// means the left-top point, (x1, y1) means the right-bottom point.
 func (graphic *Graphic) ClipImage(srcfile, dstfile string, x0, y0, x1, y1 int32, format string) (err error) {
 	err = libgraphic.ClipImage(srcfile, dstfile, x0, y0, x1, y1, libgraphic.Format(format))
 	if err != nil {
