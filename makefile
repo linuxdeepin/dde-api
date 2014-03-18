@@ -7,6 +7,7 @@ all:
 	cd mousearea/ && $(run)
 	cd pinyin-search/ && $(run)
 	cd set-date-time/ && $(run)
+	cd sound/ && $(run)
 	cd utils/ && $(run)
 
 
