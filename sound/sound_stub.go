@@ -33,11 +33,11 @@ import (
 )
 
 const (
-	PERSONALIZATION_ID       = "com.deepin.dde.personalization"
-	GKEY_CURRENT_SOUND_THEME = "current-sound-theme"
+	personalizationID     = "com.deepin.dde.personalization"
+	gkeyCurrentSoundTheme = "current-sound-theme"
 )
 
-var personSettings = gio.NewSettings(PERSONALIZATION_ID)
+var personSettings = gio.NewSettings(personalizationID)
 
 type Sound struct{}
 
@@ -55,7 +55,7 @@ func (s *Sound) PlaySystemSound(event string) (err error) {
 }
 
 func (s *Sound) getCurrentSoundTheme() string {
-	return personSettings.GetString(GKEY_CURRENT_SOUND_THEME)
+	return personSettings.GetString(gkeyCurrentSoundTheme)
 }
 
 // PlayThemeSound play a target theme's event sound.
