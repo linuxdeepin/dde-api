@@ -32,11 +32,12 @@ const (
 	grubUpdateExe  = "/usr/sbin/update-grub"
 	grubCacheFile  = "/var/cache/dde-daemon/grub2.json"
 
-	themePath      = "/boot/grub/themes/deepin"
-	themeMainFile  = themePath + "/theme.txt"
-	themeJSONFile  = themePath + "/theme_tpl.json"
-	themeBgSrcFile = themePath + "/background_source"
-	themeBgFile    = themePath + "/background.png"
+	themePath          = "/boot/grub/themes/deepin"
+	themeMainFile      = themePath + "/theme.txt"
+	themeJSONFile      = themePath + "/theme_tpl.json"
+	themeBgOrigSrcFile = themePath + "/background_origin_source"
+	themeBgSrcFile     = themePath + "/background_source"
+	themeBgFile        = themePath + "/background.png"
 )
 
 var logger = liblogger.NewLogger("dde-api/grub2ext")

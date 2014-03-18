@@ -134,3 +134,13 @@ func (grub *Grub2Ext) DoWriteThemeJSON(fileContent string) (ok bool, err error) 
 	}
 	return true, nil
 }
+
+// DoResetThemeBackground link background_origin_source to background_source
+func (grub *Grub2Ext) DoResetThemeBackground(fileContent string) (ok bool, err error) {
+	err = os.Symlink(themeBgOrigSrcFile, themeBgSrcFile)
+	if err != nil {
+		logger.Error(err.Error())
+		return false, err
+	}
+	return true, nil
+}
