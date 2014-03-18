@@ -125,8 +125,8 @@ func (grub *Grub2Ext) DoCustomTheme(fileContent string) (ok bool, err error) {
 	return true, nil
 }
 
-// DoWriteThemeJson write file content to "/boot/grub/themes/deepin/theme_tpl.json".
-func (grub *Grub2Ext) DoWriteThemeJson(fileContent string) (ok bool, err error) {
+// DoWriteThemeJSON write file content to "/boot/grub/themes/deepin/theme_tpl.json".
+func (grub *Grub2Ext) DoWriteThemeJSON(fileContent string) (ok bool, err error) {
 	err = ioutil.WriteFile(themeJSONFile, []byte(fileContent), 0664)
 	if err != nil {
 		logger.Error(err.Error())
