@@ -79,17 +79,21 @@ func (sdt *SetDateTime) SetTimezone(tz string) bool {
 }
 
 func (sdt *SetDateTime) SyncNtpTime() bool {
-        t, err := GetNtpNow()
-        if err != nil {
-                logger.Info(err.Error())
-                return false
+        for i := 0; i < 10; i++ {
+                t, err := GetNtpNow()
+                if err == nil && t != nil {
+                        dStr, tStr := GetDateTimeAny(t)
+                        logger.Info("Data: %s, Time: %s\n", dStr, tStr)
+                        sdt.SetCurrentDate(dStr)
+                        sdt.SetCurrentTime(tStr)
+                        return true
+                } else {
+                        logger.Info(err.Error())
+                        //return false
+                }
         }
 
-        dStr, tStr := GetDateTimeAny(t)
-        logger.Info("Data: %s, Time: %s\n", dStr, tStr)
-        sdt.SetCurrentDate(dStr)
-        sdt.SetCurrentTime(tStr)
-        return true
+        return false
 }
 
 func (sdt *SetDateTime) SetNtpUsing(using bool) bool {
