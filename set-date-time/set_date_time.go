@@ -11,7 +11,7 @@ import (
 )
 
 const (
-        _NTP_HOST           = "0.pool.ntp.org"
+        _NTP_HOST           = "0.cn.pool.ntp.org"
         _SET_DATE_TIME_DEST = "com.deepin.api.SetDateTime"
         _SET_DATE_TIME_PATH = "/com/deepin/api/SetDateTime"
         _SET_DATA_TIME_IFC  = "com.deepin.api.SetDateTime"
@@ -86,7 +86,7 @@ func (sdt *SetDateTime) SyncNtpTime() bool {
         }
 
         dStr, tStr := GetDateTimeAny(t)
-        //logger.Info("Data: %s, Time: %s\n", dStr, tStr)
+        logger.Info("Data: %s, Time: %s\n", dStr, tStr)
         sdt.SetCurrentDate(dStr)
         sdt.SetCurrentTime(tStr)
         return true
@@ -191,7 +191,7 @@ func GetNtpNow() (*time.Time, error) {
         nsec := sec * 1e9
         nsec += (frac * 1e9) >> 32
 
-        t := time.Date(1990, 1, 0, 0, 0, 0, 0, time.UTC).
+        t := time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC).
                 Add(time.Duration(nsec)).Local()
 
         return &t, nil
