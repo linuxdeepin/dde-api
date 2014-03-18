@@ -47,6 +47,20 @@ func isFileExists(file string) bool {
 	return false
 }
 
+func isSymlink(file string) bool {
+	f, err := os.Lstat(file)
+	if err != nil {
+		return false
+	}
+	if f.Mode()&os.ModeSymlink == os.ModeSymlink {
+		// This is a symlink
+		return true
+	}
+
+	// Not a symlink
+	return false
+}
+
 func copyFile(src, dest string) (written int64, err error) {
 	if dest == src {
 		return -1, errors.New("source and destination are same file")
