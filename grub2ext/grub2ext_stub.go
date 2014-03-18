@@ -84,6 +84,11 @@ func (grub *Grub2Ext) DoGenerateGrubConfig() (ok bool, err error) {
 // for deepin grub2 theme, and then generate the background depends on
 // screen resolution.
 func (grub *Grub2Ext) DoSetThemeBackgroundSourceFile(imageFile string, screenWidth, screenHeight uint16) (ok bool, err error) {
+	// if background source file is a symlink, just delete it
+	if isSymlink(themeBgSrcFile) {
+		os.Remove(themeBgSrcFile)
+	}
+
 	// backup background source file
 	_, err = copyFile(imageFile, themeBgSrcFile)
 	if err != nil {
@@ -137,6 +142,7 @@ func (grub *Grub2Ext) DoWriteThemeJSON(fileContent string) (ok bool, err error) 
 
 // DoResetThemeBackground link background_origin_source to background_source
 func (grub *Grub2Ext) DoResetThemeBackground() (ok bool, err error) {
+	os.Remove(themeBgSrcFile)
 	err = os.Symlink(themeBgOrigSrcFile, themeBgSrcFile)
 	if err != nil {
 		logger.Error(err.Error())
