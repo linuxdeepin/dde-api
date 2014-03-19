@@ -67,7 +67,7 @@ func (s *Sound) PlayThemeSound(theme, event string) (err error) {
 		defer C.free(unsafe.Pointer(cevent))
 		ret := C.canberra_play_system_sound(ctheme, cevent)
 		if ret != 0 {
-			logger.Error("play system sound failed: theme=%s, event=%s, %s",
+			logger.Errorf("play system sound failed: theme=%s, event=%s, %s",
 				theme, event, C.GoString(C.ca_strerror(ret)))
 		}
 	}()
@@ -81,7 +81,7 @@ func (s *Sound) PlaySoundFile(file string) (err error) {
 		defer C.free(unsafe.Pointer(cfile))
 		ret := C.canberra_play_sound_file(cfile)
 		if ret != 0 {
-			logger.Error("play sound file failed: %s, %s", file, C.GoString(C.ca_strerror(ret)))
+			logger.Errorf("play sound file failed: %s, %s", file, C.GoString(C.ca_strerror(ret)))
 		}
 	}()
 	return

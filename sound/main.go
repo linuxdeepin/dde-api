@@ -32,20 +32,20 @@ var logger = liblogger.NewLogger("dde-api/sound")
 func main() {
         defer func() {
                 if err := recover(); err != nil {
-                        logger.Fatal("%v", err)
+                        logger.Fatalf("%v", err)
                 }
         }()
 
         s := &Sound{}
         err := dbus.InstallOnSession(s)
         if err != nil {
-                logger.Error("register dbus interface failed: %v", err)
+                logger.Errorf("register dbus interface failed: %v", err)
                 os.Exit(1)
         }
 
         dbus.DealWithUnhandledMessage()
         if err := dbus.Wait(); err != nil {
-                logger.Error("lost dbus session: %v", err)
+                logger.Errorf("lost dbus session: %v", err)
                 os.Exit(1)
         } else {
                 os.Exit(0)
