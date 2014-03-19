@@ -56,7 +56,7 @@ func NewGrub2Ext() *Grub2Ext {
 func main() {
 	defer func() {
 		if err := recover(); err != nil {
-			logger.Fatal("%v", err)
+			logger.Fatalf("%v", err)
 		}
 	}()
 
@@ -69,14 +69,14 @@ func main() {
 	grub := NewGrub2Ext()
 	err := dbus.InstallOnSystem(grub)
 	if err != nil {
-		logger.Error("register dbus interface failed: %v", err)
+		logger.Errorf("register dbus interface failed: %v", err)
 		os.Exit(1)
 	}
 
 	dbus.DealWithUnhandledMessage()
 
 	if err := dbus.Wait(); err != nil {
-		logger.Error("lost dbus session: %v", err)
+		logger.Errorf("lost dbus session: %v", err)
 		os.Exit(1)
 	} else {
 		os.Exit(0)
