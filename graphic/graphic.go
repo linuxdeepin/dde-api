@@ -48,7 +48,7 @@ func (graphic *Graphic) GetDBusInfo() dbus.DBusInfo {
 func (graphic *Graphic) BlurImage(srcfile, dstfile string, sigma, numsteps float64, format string) (err error) {
 	err = libgraphic.BlurImage(srcfile, dstfile, sigma, numsteps, libgraphic.Format(format))
 	if err != nil {
-		logger.Error("%v", err)
+		logger.Errorf("%v", err)
 	}
 	return
 }
@@ -59,7 +59,7 @@ func (graphic *Graphic) BlurImage(srcfile, dstfile string, sigma, numsteps float
 func (graphic *Graphic) ClipImage(srcfile, dstfile string, x0, y0, x1, y1 int32, format string) (err error) {
 	err = libgraphic.ClipImage(srcfile, dstfile, x0, y0, x1, y1, libgraphic.Format(format))
 	if err != nil {
-		logger.Error("%v", err)
+		logger.Errorf("%v", err)
 	}
 	return
 }
@@ -69,7 +69,7 @@ func (graphic *Graphic) ClipImage(srcfile, dstfile string, x0, y0, x1, y1 int32,
 func (graphic *Graphic) ConvertImage(srcfile, dstfile, format string) (err error) {
 	err = libgraphic.ConvertImage(srcfile, dstfile, libgraphic.Format(format))
 	if err != nil {
-		logger.Error("%v", err)
+		logger.Errorf("%v", err)
 	}
 	return
 }
@@ -78,7 +78,7 @@ func (graphic *Graphic) ConvertImage(srcfile, dstfile, format string) (err error
 func (graphic *Graphic) GetDominantColorOfImage(imgfile string) (h, s, v float64, err error) {
 	h, s, v, err = libgraphic.GetDominantColorOfImage(imgfile)
 	if err != nil {
-		logger.Error("%v", err)
+		logger.Errorf("%v", err)
 	}
 	return
 }
@@ -89,7 +89,7 @@ func (graphic *Graphic) GetDominantColorOfImage(imgfile string) (h, s, v float64
 func (graphic *Graphic) FillImage(srcfile, dstfile string, width, height int32, style, format string) (err error) {
 	err = libgraphic.FillImage(srcfile, dstfile, width, height, libgraphic.FillStyle(style), libgraphic.Format(format))
 	if err != nil {
-		logger.Error("%v", err)
+		logger.Errorf("%v", err)
 	}
 	return
 }
@@ -99,7 +99,7 @@ func (graphic *Graphic) FillImage(srcfile, dstfile string, width, height int32, 
 func (graphic *Graphic) FlipImageHorizontal(srcfile, dstfile string, format string) (err error) {
 	err = libgraphic.FlipImageHorizontal(srcfile, dstfile, libgraphic.Format(format))
 	if err != nil {
-		logger.Error("%v", err)
+		logger.Errorf("%v", err)
 	}
 	return
 }
@@ -109,7 +109,7 @@ func (graphic *Graphic) FlipImageHorizontal(srcfile, dstfile string, format stri
 func (graphic *Graphic) FlipImageVertical(srcfile, dstfile string, format string) (err error) {
 	err = libgraphic.FlipImageVertical(srcfile, dstfile, libgraphic.Format(format))
 	if err != nil {
-		logger.Error("%v", err)
+		logger.Errorf("%v", err)
 	}
 	return
 }
@@ -128,7 +128,7 @@ func (graphic *Graphic) HSV2RGB(h, s, v float64) (r, g, b uint8) {
 func (graphic *Graphic) GetImageSize(imgfile string) (w, h int32, err error) {
 	w, h, err = libgraphic.GetImageSize(imgfile)
 	if err != nil {
-		logger.Error("%v", err)
+		logger.Errorf("%v", err)
 	}
 	return
 }
@@ -139,7 +139,7 @@ func (graphic *Graphic) GetImageSize(imgfile string) (w, h int32, err error) {
 func (graphic *Graphic) ResizeImage(srcfile, dstfile string, newWidth, newHeight int32, format string) (err error) {
 	err = libgraphic.ResizeImage(srcfile, dstfile, newWidth, newHeight, libgraphic.Format(format))
 	if err != nil {
-		logger.Error("%v", err)
+		logger.Errorf("%v", err)
 	}
 	return
 }
@@ -149,7 +149,7 @@ func (graphic *Graphic) ResizeImage(srcfile, dstfile string, newWidth, newHeight
 func (graphic *Graphic) RotateImageLeft(srcfile, dstfile string, format string) (err error) {
 	err = libgraphic.RotateImageLeft(srcfile, dstfile, libgraphic.Format(format))
 	if err != nil {
-		logger.Error("%v", err)
+		logger.Errorf("%v", err)
 	}
 	return
 }
@@ -159,7 +159,7 @@ func (graphic *Graphic) RotateImageLeft(srcfile, dstfile string, format string) 
 func (graphic *Graphic) RotateImageRight(srcfile, dstfile string, format string) (err error) {
 	err = libgraphic.RotateImageRight(srcfile, dstfile, libgraphic.Format(format))
 	if err != nil {
-		logger.Error("%v", err)
+		logger.Errorf("%v", err)
 	}
 	return
 }
@@ -176,7 +176,7 @@ func stringInSlice(a string, list []string) bool {
 func main() {
 	defer func() {
 		if err := recover(); err != nil {
-			logger.Fatal("%v", err)
+			logger.Fatalf("%v", err)
 		}
 	}()
 
@@ -191,13 +191,13 @@ func main() {
 	graphic := &Graphic{}
 	err := dbus.InstallOnSession(graphic)
 	if err != nil {
-		logger.Error("register dbus interface failed: %v", err)
+		logger.Errorf("register dbus interface failed: %v", err)
 		os.Exit(1)
 	}
 	dbus.DealWithUnhandledMessage()
 
 	if err := dbus.Wait(); err != nil {
-		logger.Error("lost dbus session: %v", err)
+		logger.Errorf("lost dbus session: %v", err)
 		os.Exit(1)
 	} else {
 		os.Exit(0)
