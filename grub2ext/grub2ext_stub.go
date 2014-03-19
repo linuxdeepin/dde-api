@@ -71,9 +71,9 @@ func (grub *Grub2Ext) DoWriteCacheConfig(fileContent string) (ok bool, err error
 func (grub *Grub2Ext) DoGenerateGrubConfig() (ok bool, err error) {
 	logger.Info("start to generate a new grub configuration file")
 	_, stderr, err := execAndWait(30, grubUpdateExe)
-	logger.Info("process output: %s", stderr)
+	logger.Infof("process output: %s", stderr)
 	if err != nil {
-		logger.Error("generate grub configuration failed: %v", err)
+		logger.Errorf("generate grub configuration failed: %v", err)
 		return false, err
 	}
 	logger.Info("generate grub configuration successful")
@@ -107,11 +107,11 @@ func (grub *Grub2Ext) DoGenerateThemeBackground(screenWidth, screenHeight uint16
 		logger.Error(err.Error())
 		return false, err
 	}
-	logger.Info("source background size %dx%d", imgWidth, imgHeight)
+	logger.Infof("source background size %dx%d", imgWidth, imgHeight)
 
 	x0, y0, x1, y1 := getImgClipRectByResolution(screenWidth, screenHeight, imgWidth, imgHeight)
-	logger.Info("background clip rect (%d,%d), (%d,%d)", x0, y0, x1, y1)
-	logger.Info("background size %dx%d", x1-x0, y1-y0)
+	logger.Infof("background clip rect (%d,%d), (%d,%d)", x0, y0, x1, y1)
+	logger.Infof("background size %dx%d", x1-x0, y1-y0)
 	err = graphic.ClipImage(themeBgSrcFile, themeBgFile, x0, y0, x1, y1, graphic.PNG)
 	if err != nil {
 		logger.Error(err.Error())
