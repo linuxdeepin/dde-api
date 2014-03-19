@@ -7,3 +7,4 @@ test_*
 graphic/graphic
 logger/logger
 grub2ext/grub2ext
+sound/sound
