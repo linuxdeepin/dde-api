@@ -96,7 +96,7 @@ func (node *Trie) traversalTrie() {
 		if node.NextNode[i] != nil {
 			node.NextNode[i].traversalTrie()
 			/*logger.Info(node.NextNode[i].Key)*/
-			logger.Info("%v", node.NextNode[i].Values)
+			logger.Infof("%v", node.NextNode[i].Values)
 		}
 	}
 }
