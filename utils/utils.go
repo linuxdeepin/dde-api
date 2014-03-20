@@ -55,7 +55,10 @@ func (op *Manager) CopyFile(src, dest string) bool {
         }
         defer f.Close()
 
-        f.Write(contents)
+        if _, err := f.Write(contents); err != nil {
+                logger.Infof("Write '%s' failed: %v", dest+"~", err)
+                return false
+        }
         f.Sync()
 
         if err := os.Rename(dest+"~", dest); err != nil {
