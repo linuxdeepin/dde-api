@@ -36,6 +36,19 @@ func deleteStartSpace(str string) string {
         return tmp
 }
 
+func (op *Manager) GetBaseName(path string) (string, bool) {
+        if len(path) <= 0 {
+                return "", false
+        }
+
+        as := strings.Split(path, "/")
+        if l := len(as); l > 1 {
+                return as[l-1], true
+        }
+
+        return "", false
+}
+
 func (op *Manager) IsContainFromStart(str, substr string) bool {
         l1 := len(substr)
         l2 := len(str)
