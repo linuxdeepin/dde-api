@@ -48,6 +48,6 @@ func main() {
         dbus.InstallOnSession(m)
         dbus.DealWithUnhandledMessage()
 
-        <-time.NewTimer(time.Second * 5).C
+        <-time.NewTimer(time.Second * 30).C
         //select {}
 }
