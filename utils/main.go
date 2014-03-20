@@ -40,7 +40,7 @@ func (op *Manager) GetDBusInfo() dbus.DBusInfo {
 func main() {
         defer func() {
                 if err := recover(); err != nil {
-                        logger.Fatal("Recover Error: %v", err)
+                        logger.Fatalf("Recover Error: %v", err)
                 }
         }()
 

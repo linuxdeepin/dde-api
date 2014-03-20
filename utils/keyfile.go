@@ -43,7 +43,7 @@ func (op *Manager) ReadKeyFromKeyFile(filename, group, key string, t interface{}
         _, err := keyFile.LoadFromFile(filename,
                 glib.KeyFileFlagsKeepComments)
         if err != nil {
-                logger.Warning("LoadFile '%s' failed: %v\n", filename, err)
+                logger.Warningf("LoadFile '%s' failed: %v", filename, err)
                 return nil, false
         }
 
@@ -51,7 +51,7 @@ func (op *Manager) ReadKeyFromKeyFile(filename, group, key string, t interface{}
         case bool:
                 value, err := keyFile.GetBoolean(group, key)
                 if err != nil {
-                        logger.Warning("Get '%s' '%s' '%s' failed: %v\n",
+                        logger.Warningf("Get '%s' '%s' '%s' failed: %v",
                                 filename, group, key, err)
                         return nil, false
                 }
@@ -59,7 +59,7 @@ func (op *Manager) ReadKeyFromKeyFile(filename, group, key string, t interface{}
         case []bool:
                 _, value, err := keyFile.GetBooleanList(group, key)
                 if err != nil {
-                        logger.Warning("Get '%s' '%s' '%s' failed: %v\n",
+                        logger.Warningf("Get '%s' '%s' '%s' failed: %v",
                                 filename, group, key, err)
                         return nil, false
                 }
@@ -67,7 +67,7 @@ func (op *Manager) ReadKeyFromKeyFile(filename, group, key string, t interface{}
         case int, int32, uint32:
                 value, err := keyFile.GetInteger(group, key)
                 if err != nil {
-                        logger.Warning("Get '%s' '%s' '%s' failed: %v\n",
+                        logger.Warningf("Get '%s' '%s' '%s' failed: %v",
                                 filename, group, key, err)
                         return nil, false
                 }
@@ -75,7 +75,7 @@ func (op *Manager) ReadKeyFromKeyFile(filename, group, key string, t interface{}
         case int64:
                 value, err := keyFile.GetInt64(group, key)
                 if err != nil {
-                        logger.Warning("Get '%s' '%s' '%s' failed: %v\n",
+                        logger.Warningf("Get '%s' '%s' '%s' failed: %v",
                                 filename, group, key, err)
                         return nil, false
                 }
@@ -83,7 +83,7 @@ func (op *Manager) ReadKeyFromKeyFile(filename, group, key string, t interface{}
         case uint64:
                 value, err := keyFile.GetUint64(group, key)
                 if err != nil {
-                        logger.Warning("Get '%s' '%s' '%s' failed: %v\n",
+                        logger.Warningf("Get '%s' '%s' '%s' failed: %v",
                                 filename, group, key, err)
                         return nil, false
                 }
@@ -91,7 +91,7 @@ func (op *Manager) ReadKeyFromKeyFile(filename, group, key string, t interface{}
         case []int, []int32, []uint32, []int64, []uint64:
                 _, value, err := keyFile.GetIntegerList(group, key)
                 if err != nil {
-                        logger.Warning("Get '%s' '%s' '%s' failed: %v\n",
+                        logger.Warningf("Get '%s' '%s' '%s' failed: %v",
                                 filename, group, key, err)
                         return nil, false
                 }
@@ -103,7 +103,7 @@ func (op *Manager) ReadKeyFromKeyFile(filename, group, key string, t interface{}
         case float32, float64:
                 value, err := keyFile.GetDouble(group, key)
                 if err != nil {
-                        logger.Warning("Get '%s' '%s' '%s' failed: %v\n",
+                        logger.Warningf("Get '%s' '%s' '%s' failed: %v",
                                 filename, group, key, err)
                         return nil, false
                 }
@@ -111,7 +111,7 @@ func (op *Manager) ReadKeyFromKeyFile(filename, group, key string, t interface{}
         case []float32, []float64:
                 _, value, err := keyFile.GetDoubleList(group, key)
                 if err != nil {
-                        logger.Warning("Get '%s' '%s' '%s' failed: %v\n",
+                        logger.Warningf("Get '%s' '%s' '%s' failed: %v",
                                 filename, group, key, err)
                         return nil, false
                 }
@@ -123,7 +123,7 @@ func (op *Manager) ReadKeyFromKeyFile(filename, group, key string, t interface{}
         case string:
                 value, err := keyFile.GetString(group, key)
                 if err != nil {
-                        logger.Warning("Get '%s' '%s' '%s' failed: %v\n",
+                        logger.Warningf("Get '%s' '%s' '%s' failed: %v",
                                 filename, group, key, err)
                         return nil, false
                 }
@@ -131,7 +131,7 @@ func (op *Manager) ReadKeyFromKeyFile(filename, group, key string, t interface{}
         case []string:
                 _, value, err := keyFile.GetStringList(group, key)
                 if err != nil {
-                        logger.Warning("Get '%s' '%s' '%s' failed: %v\n",
+                        logger.Warningf("Get '%s' '%s' '%s' failed: %v",
                                 filename, group, key, err)
                         return nil, false
                 }
@@ -139,7 +139,7 @@ func (op *Manager) ReadKeyFromKeyFile(filename, group, key string, t interface{}
         default:
                 value, err := keyFile.GetValue(group, key)
                 if err != nil {
-                        logger.Warning("Get '%s' '%s' '%s' failed: %v\n",
+                        logger.Warningf("Get '%s' '%s' '%s' failed: %v",
                                 filename, group, key, err)
                         return nil, false
                 }
@@ -159,7 +159,7 @@ func (op *Manager) WriteKeyToKeyFile(filename, group, key string, value interfac
         if !op.IsFileExist(filename) {
                 f, err := os.Create(filename)
                 if err != nil {
-                        logger.Warning("Create '%s' failed: %v\n",
+                        logger.Warningf("Create '%s' failed: %v",
                                 filename, err)
                         return false
                 }
@@ -171,7 +171,7 @@ func (op *Manager) WriteKeyToKeyFile(filename, group, key string, value interfac
         _, err := keyFile.LoadFromFile(filename,
                 glib.KeyFileFlagsKeepComments)
         if err != nil {
-                logger.Warning("LoadFile '%s' failed: %v\n", filename, err)
+                logger.Warningf("LoadFile '%s' failed: %v", filename, err)
                 return false
         }
 
@@ -241,7 +241,7 @@ func (op *Manager) WriteKeyToKeyFile(filename, group, key string, value interfac
 
         _, contents, err1 := keyFile.ToData()
         if err1 != nil {
-                logger.Warning("KeyFile ToData Failed: %v\n", err1)
+                logger.Warningf("KeyFile ToData Failed: %v", err1)
                 return false
         }
 
@@ -260,14 +260,14 @@ func writeStringToKeyFile(filename, contents string) bool {
 
         f, err := os.Create(filename + "~")
         if err != nil {
-                logger.Warning("OpenFile '%s' failed: %v\n",
+                logger.Warningf("OpenFile '%s' failed: %v",
                         filename+"~", err)
                 return false
         }
         defer f.Close()
 
         if _, err = f.WriteString(contents); err != nil {
-                logger.Warning("WriteString '%s' failed: %v\n",
+                logger.Warningf("WriteString '%s' failed: %v",
                         filename, err)
                 return false
         }

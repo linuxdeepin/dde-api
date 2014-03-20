@@ -83,7 +83,7 @@ func (sdt *SetDateTime) SyncNtpTime() bool {
                 t, err := GetNtpNow()
                 if err == nil && t != nil {
                         dStr, tStr := GetDateTimeAny(t)
-                        logger.Info("Data: %s, Time: %s\n", dStr, tStr)
+                        logger.Infof("Data: %s, Time: %s", dStr, tStr)
                         sdt.SetCurrentDate(dStr)
                         sdt.SetCurrentTime(tStr)
                         return true
