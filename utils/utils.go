@@ -22,6 +22,7 @@
 package main
 
 import (
+        "io/ioutil"
         "os"
         "strings"
 )
@@ -34,6 +35,35 @@ func deleteStartSpace(str string) string {
         tmp := strings.TrimLeft(str, " ")
 
         return tmp
+}
+
+func (op *Manager) CopyFile(src, dest string) bool {
+        if ok := op.IsFileExist(src); !ok && len(dest) <= 0 {
+                return false
+        }
+
+        contents, err := ioutil.ReadFile(src)
+        if err != nil {
+                logger.Infof("ReadFile '%s' failed: %v", src, err)
+                return false
+        }
+
+        f, err1 := os.Create(dest + "~")
+        if err1 != nil {
+                logger.Infof("Create '%s' failed: %v", dest+"~", err1)
+                return false
+        }
+        defer f.Close()
+
+        f.Write(contents)
+        f.Sync()
+
+        if err := os.Rename(dest+"~", dest); err != nil {
+                logger.Infof("Rename '%s' failed: %v", dest+"~", err)
+                return false
+        }
+
+        return true
 }
 
 func (op *Manager) GetBaseName(path string) (string, bool) {
