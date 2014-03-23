@@ -23,8 +23,8 @@ package main
 
 import (
         "crypto/md5"
-        dutils "dbus/com/deepin/api/utils"
         libgraphic "dlib/graphic"
+        dutils "dlib/utils"
         "fmt"
         "os"
         "os/user"
@@ -38,6 +38,7 @@ const (
 
 var (
         jobInHand map[string]bool
+        opUtil    = dutils.NewUtils()
 )
 
 func (graphic *Graphic) BackgroundBlurPictPath(srcURI, destURI string,
@@ -45,12 +46,7 @@ func (graphic *Graphic) BackgroundBlurPictPath(srcURI, destURI string,
         if len(srcURI) <= 0 {
                 return -1, _BG_BLUR_PICT_CACHE_DIR
         }
-        opUtil, _err := dutils.NewUtils("com.deepin.api.Utils", "/com/deepin/api/Utils")
-        if _err != nil {
-                fmt.Println("New Utils Failed:", _err)
-                panic(_err)
-        }
-        srcPath, _, _ := opUtil.URIToPath(srcURI)
+        srcPath, _ := opUtil.URIToPath(srcURI)
 
         homeDir, err := getHomeDir()
         if err != nil {
@@ -62,9 +58,9 @@ func (graphic *Graphic) BackgroundBlurPictPath(srcURI, destURI string,
         destPath := ""
         if len(destURI) <= 0 {
                 destPath = GenerateDestPath(srcPath, homeDir)
-                destURI, _, _ = opUtil.PathToFileURI(destPath)
+                destURI, _ = opUtil.PathToFileURI(destPath)
         } else {
-                destPath, _, _ = opUtil.URIToPath(destURI)
+                destPath, _ = opUtil.URIToPath(destURI)
         }
         if isFileValid(srcPath, destPath) {
                 return 0, destURI
