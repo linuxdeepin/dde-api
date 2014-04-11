@@ -109,13 +109,11 @@ func main() {
                 panic(err)
         }
 
-        dbus.DealWithUnhandledMessage()
         cancleAllReigsterArea()
-        tmp := coordinateRange{X1: 1266, X2: 1370, Y1: 600, Y2: 767}
-        opMouse.RegisterArea([]coordinateRange{tmp})
         C.record_init()
         defer C.record_finalize()
 
+        dbus.DealWithUnhandledMessage()
         //select {}
         if err = dbus.Wait(); err != nil {
                 logger.Error("lost dbus session:", err)
