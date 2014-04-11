@@ -109,7 +109,6 @@ func main() {
                 panic(err)
         }
 
-        cancleAllReigsterArea()
         C.record_init()
         defer C.record_finalize()
 
