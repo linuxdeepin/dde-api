@@ -27,93 +27,100 @@ package main
 import "C"
 
 import (
-	"dlib/dbus"
-	dlogger "dlib/logger"
-	"os"
-	"sync"
+        "dlib/dbus"
+        dlogger "dlib/logger"
+        "os"
+        "sync"
 )
 
 var logger = dlogger.NewLogger("dde-api/mousearea")
 
 type coordinateInfo struct {
-	areas    []coordinateRange
-	moveFlag int32
+        areas    []coordinateRange
+        moveFlag int32
 }
 
 var (
-	opMouse    *Manager
-	lock       sync.Mutex
-	idRangeMap map[int32]*coordinateInfo
+        opMouse    *Manager
+        lock       sync.Mutex
+        idRangeMap map[int32]*coordinateInfo
 
-	genID = func() func() int32 {
-		id := int32(0)
-		return func() int32 {
-			lock.Lock()
-			tmp := id
-			id += 1
-			lock.Unlock()
-			return tmp
-		}
-	}()
+        genID   = func() func() int32 {
+                id := int32(0)
+                return func() int32 {
+                        lock.Lock()
+                        tmp := id
+                        id += 1
+                        lock.Unlock()
+                        return tmp
+                }
+        }()
 )
 
 func (op *Manager) RegisterArea(area []coordinateRange) int32 {
-	cookie := genID()
-	idRangeMap[cookie] = &coordinateInfo{areas: area, moveFlag: -1}
+        cookie := genID()
+        logger.Info("ID: ", cookie)
+        for _, a := range area {
+                logger.Info("\t", a)
+        }
 
-	return cookie
+        idRangeMap[cookie] = &coordinateInfo{areas: area, moveFlag: -1}
+
+        return cookie
 }
 
 func (op *Manager) UnregisterArea(cookie int32) {
-	delete(idRangeMap, cookie)
+        if _, ok := idRangeMap[cookie]; ok {
+                delete(idRangeMap, cookie)
+        }
 }
 
 func NewManager() *Manager {
-	return &Manager{}
+        return &Manager{}
 }
 
 func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
+        for _, b := range list {
+                if b == a {
+                        return true
+                }
+        }
+        return false
 }
 
 func main() {
-	defer func() {
-		if err := recover(); err != nil {
-			logger.Error("recover error:", err)
-		}
-	}()
+        defer func() {
+                if err := recover(); err != nil {
+                        logger.Error("recover error:", err)
+                }
+        }()
 
-	// configure logger
-	logger.SetRestartCommand("/usr/lib/deepin-api/mousearea", "--debug")
-	if stringInSlice("-d", os.Args) || stringInSlice("--debug", os.Args) {
-		logger.SetLogLevel(dlogger.LEVEL_DEBUG)
-	}
+        // configure logger
+        logger.SetRestartCommand("/usr/lib/deepin-api/mousearea", "--debug")
+        if stringInSlice("-d", os.Args) || stringInSlice("--debug", os.Args) {
+                logger.SetLogLevel(dlogger.LEVEL_DEBUG)
+        }
 
-	idRangeMap = make(map[int32]*coordinateInfo)
-	opMouse = NewManager()
-	err := dbus.InstallOnSession(opMouse)
-	if err != nil {
-		logger.Error("Install DBus Session Failed:", err)
-		panic(err)
-	}
+        idRangeMap = make(map[int32]*coordinateInfo)
+        opMouse = NewManager()
+        err := dbus.InstallOnSession(opMouse)
+        if err != nil {
+                logger.Error("Install DBus Session Failed:", err)
+                panic(err)
+        }
 
-	dbus.DealWithUnhandledMessage()
-	cancleAllReigsterArea()
-	tmp := coordinateRange{X1: 1266, X2: 1370, Y1: 600, Y2: 767}
-	opMouse.RegisterArea([]coordinateRange{tmp})
-	C.record_init()
-	defer C.record_finalize()
+        dbus.DealWithUnhandledMessage()
+        cancleAllReigsterArea()
+        tmp := coordinateRange{X1: 1266, X2: 1370, Y1: 600, Y2: 767}
+        opMouse.RegisterArea([]coordinateRange{tmp})
+        C.record_init()
+        defer C.record_finalize()
 
-	//select {}
-	if err = dbus.Wait(); err != nil {
-		logger.Error("lost dbus session:", err)
-		os.Exit(1)
-	} else {
-		os.Exit(0)
-	}
+        //select {}
+        if err = dbus.Wait(); err != nil {
+                logger.Error("lost dbus session:", err)
+                os.Exit(1)
+        } else {
+                os.Exit(0)
+        }
 }
