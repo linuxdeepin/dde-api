@@ -22,6 +22,7 @@
 package main
 
 import (
+        "dlib"
         "dlib/dbus"
         liblogger "dlib/logger"
         "os"
@@ -35,6 +36,11 @@ func main() {
                         logger.Fatalf("%v", err)
                 }
         }()
+
+        if !dlib.UniqueOnSession("com.deepin.api.Sound") {
+                logger.Warning("There already has an Sound daemon running.")
+                return
+        }
 
         s := &Sound{}
         err := dbus.InstallOnSession(s)

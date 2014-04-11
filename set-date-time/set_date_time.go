@@ -1,6 +1,7 @@
 package main
 
 import (
+        "dlib"
         "dlib/dbus"
         dlogger "dlib/logger"
         "net"
@@ -216,6 +217,11 @@ func main() {
                         logger.Error("recover err:", err)
                 }
         }()
+
+        if !dlib.UniqueOnSystem(_SET_DATE_TIME_DEST) {
+                logger.Warning("There already has an SetDateTime daemon running.")
+                return
+        }
 
         // configure logger
         logger.SetRestartCommand("/usr/lib/deepin-api/set-date-time", "--debug")

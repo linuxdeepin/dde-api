@@ -22,22 +22,23 @@
 package main
 
 import (
-	"dlib/dbus"
-	liblogger "dlib/logger"
-	"os"
+        "dlib"
+        "dlib/dbus"
+        liblogger "dlib/logger"
+        "os"
 )
 
 const (
-	grubConfigFile = "/etc/default/grub"
-	grubUpdateExe  = "/usr/sbin/update-grub"
-	grubCacheFile  = "/var/cache/dde-daemon/grub2.json"
+        grubConfigFile = "/etc/default/grub"
+        grubUpdateExe  = "/usr/sbin/update-grub"
+        grubCacheFile  = "/var/cache/dde-daemon/grub2.json"
 
-	themePath          = "/boot/grub/themes/deepin"
-	themeMainFile      = themePath + "/theme.txt"
-	themeJSONFile      = themePath + "/theme_tpl.json"
-	themeBgOrigSrcFile = themePath + "/background_origin_source"
-	themeBgSrcFile     = themePath + "/background_source"
-	themeBgFile        = themePath + "/background.png"
+        themePath          = "/boot/grub/themes/deepin"
+        themeMainFile      = themePath + "/theme.txt"
+        themeJSONFile      = themePath + "/theme_tpl.json"
+        themeBgOrigSrcFile = themePath + "/background_origin_source"
+        themeBgSrcFile     = themePath + "/background_source"
+        themeBgFile        = themePath + "/background.png"
 )
 
 var logger = liblogger.NewLogger("dde-api/grub2ext")
@@ -49,36 +50,41 @@ type Grub2Ext struct{}
 
 // NewGrub2Ext create a Grub2Ext object.
 func NewGrub2Ext() *Grub2Ext {
-	grub := &Grub2Ext{}
-	return grub
+        grub := &Grub2Ext{}
+        return grub
 }
 
 func main() {
-	defer func() {
-		if err := recover(); err != nil {
-			logger.Fatalf("%v", err)
-		}
-	}()
+        defer func() {
+                if err := recover(); err != nil {
+                        logger.Fatalf("%v", err)
+                }
+        }()
 
-	// configure logger
-	logger.SetRestartCommand("/usr/lib/deepin-api/grub2ext", "--debug")
-	if stringInSlice("-d", os.Args) || stringInSlice("--debug", os.Args) {
-		logger.SetLogLevel(liblogger.LEVEL_DEBUG)
-	}
+        if !dlib.UniqueOnSystem("com.deepin.api.Grub2") {
+                logger.Warning("There already has an Grub2 daemon running.")
+                return
+        }
 
-	grub := NewGrub2Ext()
-	err := dbus.InstallOnSystem(grub)
-	if err != nil {
-		logger.Errorf("register dbus interface failed: %v", err)
-		os.Exit(1)
-	}
+        // configure logger
+        logger.SetRestartCommand("/usr/lib/deepin-api/grub2ext", "--debug")
+        if stringInSlice("-d", os.Args) || stringInSlice("--debug", os.Args) {
+                logger.SetLogLevel(liblogger.LEVEL_DEBUG)
+        }
 
-	dbus.DealWithUnhandledMessage()
+        grub := NewGrub2Ext()
+        err := dbus.InstallOnSystem(grub)
+        if err != nil {
+                logger.Errorf("register dbus interface failed: %v", err)
+                os.Exit(1)
+        }
 
-	if err := dbus.Wait(); err != nil {
-		logger.Errorf("lost dbus session: %v", err)
-		os.Exit(1)
-	} else {
-		os.Exit(0)
-	}
+        dbus.DealWithUnhandledMessage()
+
+        if err := dbus.Wait(); err != nil {
+                logger.Errorf("lost dbus session: %v", err)
+                os.Exit(1)
+        } else {
+                os.Exit(0)
+        }
 }

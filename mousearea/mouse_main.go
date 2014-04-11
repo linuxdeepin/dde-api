@@ -27,6 +27,7 @@ package main
 import "C"
 
 import (
+        "dlib"
         "dlib/dbus"
         dlogger "dlib/logger"
         "os"
@@ -94,6 +95,11 @@ func main() {
                         logger.Error("recover error:", err)
                 }
         }()
+
+        if !dlib.UniqueOnSession(MOUSE_AREA_DEST) {
+                logger.Warning("There already has an XMouseArea daemon running.")
+                return
+        }
 
         // configure logger
         logger.SetRestartCommand("/usr/lib/deepin-api/mousearea", "--debug")
