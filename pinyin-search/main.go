@@ -22,58 +22,64 @@
 package main
 
 import (
-	"dlib/dbus"
-	dlogger "dlib/logger"
-	"os"
+        "dlib"
+        "dlib/dbus"
+        dlogger "dlib/logger"
+        "os"
 )
 
 var logger = dlogger.NewLogger("dde-api/pinyin-search")
 
 func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
+        for _, b := range list {
+                if b == a {
+                        return true
+                }
+        }
+        return false
 }
 
 func main() {
-	defer func() {
-		if err := recover(); err != nil {
-			logger.Error("recover err:", err)
-		}
-	}()
+        defer func() {
+                if err := recover(); err != nil {
+                        logger.Error("recover err:", err)
+                }
+        }()
 
-	// configure logger
-	logger.SetRestartCommand("/usr/lib/deepin-api/pinyin-search", "--debug")
-	if stringInSlice("-d", os.Args) || stringInSlice("--debug", os.Args) {
-		logger.SetLogLevel(dlogger.LEVEL_DEBUG)
-	}
+        if !dlib.UniqueOnSession(PINYIN_DEST) {
+                logger.Warning("There already has an Search daemon running.")
+                return
+        }
 
-	trieMD5Map = make(map[string]*Trie)
-	strsMD5Map = make(map[string][]*TrieInfo)
-	nameMD5Map = make(map[string]string)
-	m := &Pinyin{}
-	err := dbus.InstallOnSession(m)
-	if err != nil {
-		logger.Error("Install Pinyin DBus Session Failed:", err)
-		panic(err)
-	}
+        // configure logger
+        logger.SetRestartCommand("/usr/lib/deepin-api/pinyin-search", "--debug")
+        if stringInSlice("-d", os.Args) || stringInSlice("--debug", os.Args) {
+                logger.SetLogLevel(dlogger.LEVEL_DEBUG)
+        }
 
-	t := &PinyinTrie{}
-	err = dbus.InstallOnSession(t)
-	if err != nil {
-		logger.Error("Install Pinyin Trie DBus Session Failed:", err)
-		panic(err)
-	}
-	dbus.DealWithUnhandledMessage()
+        trieMD5Map = make(map[string]*Trie)
+        strsMD5Map = make(map[string][]*TrieInfo)
+        nameMD5Map = make(map[string]string)
+        m := &Pinyin{}
+        err := dbus.InstallOnSession(m)
+        if err != nil {
+                logger.Error("Install Pinyin DBus Session Failed:", err)
+                panic(err)
+        }
 
-	//select {}
-	if err = dbus.Wait(); err != nil {
-		logger.Error("lost dbus session:", err)
-		os.Exit(1)
-	} else {
-		os.Exit(0)
-	}
+        t := &PinyinTrie{}
+        err = dbus.InstallOnSession(t)
+        if err != nil {
+                logger.Error("Install Pinyin Trie DBus Session Failed:", err)
+                panic(err)
+        }
+        dbus.DealWithUnhandledMessage()
+
+        //select {}
+        if err = dbus.Wait(); err != nil {
+                logger.Error("lost dbus session:", err)
+                os.Exit(1)
+        } else {
+                os.Exit(0)
+        }
 }
