@@ -22,26 +22,30 @@
 package main
 
 import (
-	"dlib/dbus"
+        "dlib/dbus"
 )
 
 type Manager struct {
-	MotionCoordinate   func(string, int32, int32, int32)
-	ButtonCoordinate   func(string, int32, int32, int32)
-	KeyboardCoordinate func(string, int32, int32, int32)
-	CancleAllArea      func(int32, int32, int32) //resolution changed
+        MotionInto    func(int32, int32, int32)
+        MotionOut     func(int32, int32, int32)
+        MotionMove    func(int32, int32, int32)
+        ButtonPress   func(string, int32, int32, int32)
+        ButtonRelease func(string, int32, int32, int32)
+        KeyPress      func(string, int32, int32, int32)
+        KeyRelease    func(string, int32, int32, int32)
+        CancleAllArea func(int32, int32, int32) //resolution changed
 }
 
 const (
-	MOUSE_AREA_DEST = "com.deepin.api.XMouseArea"
-	MOUSE_AREA_PATH = "/com/deepin/api/XMouseArea"
-	MOUSE_AREA_IFC  = "com.deepin.api.XMouseArea"
+        MOUSE_AREA_DEST = "com.deepin.api.XMouseArea"
+        MOUSE_AREA_PATH = "/com/deepin/api/XMouseArea"
+        MOUSE_AREA_IFC  = "com.deepin.api.XMouseArea"
 )
 
 func (m *Manager) GetDBusInfo() dbus.DBusInfo {
-	return dbus.DBusInfo{
-		MOUSE_AREA_DEST,
-		MOUSE_AREA_PATH,
-		MOUSE_AREA_IFC,
-	}
+        return dbus.DBusInfo{
+                MOUSE_AREA_DEST,
+                MOUSE_AREA_PATH,
+                MOUSE_AREA_IFC,
+        }
 }

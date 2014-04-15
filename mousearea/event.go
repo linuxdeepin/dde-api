@@ -23,10 +23,14 @@ package main
 
 // #cgo CFLAGS: -g -Wall
 // #cgo pkg-config: x11 xtst glib-2.0
-// #include "mouse_record.h"
+// #include "record.h"
 import "C"
 
-import "fmt"
+import (
+        "github.com/BurntSushi/xgb/xproto"
+        "github.com/BurntSushi/xgbutil/keybind"
+        "strings"
+)
 
 type coordinateRange struct {
         X1      int32
@@ -43,62 +47,101 @@ func parseMotionEvent(_x, _y int32) {
         inList, outList := getIDList(coorX, coorY)
         for _, cookie := range inList {
                 if array, ok := idRangeMap[cookie]; ok {
-                        /* moveFlag == 1 : mouse move in area */
-                        if array.moveFlag != 1 {
-                                array.moveFlag = 1
-                                opMouse.MotionCoordinate("inside",
-                                        coorX, coorY, cookie)
+                        /* moveIntoFlag == true : mouse move in area */
+                        if !array.moveIntoFlag {
+                                array.moveIntoFlag = true
+                                opMouse.MotionInto(coorX, coorY, cookie)
+                        }
+
+                        if array.motionFlag {
+                                opMouse.MotionMove(coorX, coorY, cookie)
                         }
                 }
         }
         for _, cookie := range outList {
                 if array, ok := idRangeMap[cookie]; ok {
-                        /* moveFlag == 0 : mouse move out area */
-                        if array.moveFlag != 0 {
-                                array.moveFlag = 0
-                                opMouse.MotionCoordinate("outside",
-                                        coorX, coorY, cookie)
+                        /* moveIntoFlag == false : mouse move out area */
+                        if array.moveIntoFlag {
+                                array.moveIntoFlag = false
+                                opMouse.MotionOut(coorX, coorY, cookie)
                         }
                 }
         }
 }
 
 //export parseButtonEvent
-func parseButtonEvent(_type, _x, _y int32) {
+func parseButtonEvent(_code, _type, _x, _y int32) {
+        btnCode := int32(_code)
         coorX := int32(_x)
         coorY := int32(_y)
         tmp := int32(_type)
-        coorType := ""
+        coorType := false
         if tmp == C.BUTTON_PRESS {
-                coorType = "Press"
+                coorType = true
         } else {
-                coorType = "Release"
+                coorType = false
         }
+
+        btnStr := ""
+        if btnCode == 1 {
+                btnStr = "LeftButton"
+        } else if btnCode == 2 {
+                btnStr = "Middlebutton"
+        } else if btnCode == 3 {
+                btnStr = "Rightbutton"
+        }
+
         cookies, _ := getIDList(coorX, coorY)
-        fmt.Println("Button Cookies: ", cookies)
-        fmt.Printf("\tX: %d, Y: %d\n\n", coorX, coorY)
+        //logger.Info("Button Cookies: ", cookies)
+        //logger.Infof("\tX: %d, Y: %d\n\n", coorX, coorY)
         for _, cookie := range cookies {
-                opMouse.ButtonCoordinate(coorType, coorX, coorY, cookie)
+                if array, ok := idRangeMap[cookie]; ok {
+                        if !array.buttonFlag {
+                                continue
+                        }
+                        if coorType {
+                                opMouse.ButtonPress(btnStr, coorX, coorY, cookie)
+                        } else {
+                                opMouse.ButtonRelease(btnStr, coorX, coorY, cookie)
+                        }
+                }
         }
 }
 
 //export parseKeyboardEvent
-func parseKeyboardEvent(_type, _x, _y int32) {
+func parseKeyboardEvent(_code, _type, _x, _y int32) {
+        keyCode := int32(_code)
         coorX := int32(_x)
         coorY := int32(_y)
         tmp := int32(_type)
-        coorType := ""
+        coorType := false
         if tmp == C.KEY_PRESS {
-                coorType = "Press"
+                coorType = true
         } else {
-                coorType = "Release"
+                coorType = false
         }
 
+        keyStr := keybind.LookupString(X, 0, xproto.Keycode(keyCode))
+        if keyStr == " " {
+                keyStr = "space"
+        }
+        keyStr = strings.ToLower(keyStr)
+        //logger.Info("KeyStr: ", keyStr)
+
         cookies, _ := getIDList(coorX, coorY)
-        fmt.Println("Keyboard Cookies: ", cookies)
-        fmt.Printf("\tX: %d, Y: %d\n\n", coorX, coorY)
+        //logger.Info("Keyboard Cookies: ", cookies)
+        //logger.Infof("\tX: %d, Y: %d\n\n", coorX, coorY)
         for _, cookie := range cookies {
-                opMouse.KeyboardCoordinate(coorType, coorX, coorY, cookie)
+                if array, ok := idRangeMap[cookie]; ok {
+                        if !array.keyFlag {
+                                continue
+                        }
+                        if coorType {
+                                opMouse.KeyPress(keyStr, coorX, coorY, cookie)
+                        } else {
+                                opMouse.KeyRelease(keyStr, coorX, coorY, cookie)
+                        }
+                }
         }
 }
 
