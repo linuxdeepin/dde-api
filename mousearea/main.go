@@ -23,22 +23,30 @@ package main
 
 // #cgo CFLAGS: -g -Wall
 // #cgo pkg-config: x11 xtst glib-2.0
-// #include "mouse_record.h"
+// #include "record.h"
 import "C"
 
 import (
         "dlib"
         "dlib/dbus"
         dlogger "dlib/logger"
+        "github.com/BurntSushi/xgbutil"
+        "github.com/BurntSushi/xgbutil/keybind"
         "os"
         "sync"
 )
 
-var logger = dlogger.NewLogger("dde-api/mousearea")
+var (
+        logger  = dlogger.NewLogger("dde-api/mousearea")
+        X       *xgbutil.XUtil
+)
 
 type coordinateInfo struct {
-        areas    []coordinateRange
-        moveFlag int32
+        areas        []coordinateRange
+        moveIntoFlag bool
+        motionFlag   bool
+        buttonFlag   bool
+        keyFlag      bool
 }
 
 var (
@@ -58,14 +66,42 @@ var (
         }()
 )
 
-func (op *Manager) RegisterArea(area []coordinateRange) int32 {
+/*
+ * flags:
+ *      motionFlag: 001
+ *      buttonFlag: 010
+ *      keyFlag:    100
+ *      allFlag:    111
+ */
+func (op *Manager) RegisterArea(area []coordinateRange, flag int32) int32 {
         cookie := genID()
         logger.Info("ID: ", cookie)
         for _, a := range area {
                 logger.Info("\t", a)
         }
 
-        idRangeMap[cookie] = &coordinateInfo{areas: area, moveFlag: -1}
+        info := &coordinateInfo{}
+        info.areas = area
+        info.moveIntoFlag = false
+        info.buttonFlag = false
+        info.keyFlag = false
+        info.motionFlag = false
+        if flag >= 0 && flag <= 7 {
+                if flag%2 == 1 {
+                        info.motionFlag = true
+                }
+
+                flag = flag >> 1
+                if flag%2 == 1 {
+                        info.buttonFlag = true
+                }
+
+                flag = flag >> 1
+                if flag%2 == 1 {
+                        info.keyFlag = true
+                }
+        }
+        idRangeMap[cookie] = info
 
         return cookie
 }
@@ -107,9 +143,17 @@ func main() {
                 logger.SetLogLevel(dlogger.LEVEL_DEBUG)
         }
 
+        var err error
+        X, err = xgbutil.NewConn()
+        if err != nil {
+                logger.Warning("New XGB Connection Failed")
+                return
+        }
+        keybind.Initialize(X)
+
         idRangeMap = make(map[int32]*coordinateInfo)
         opMouse = NewManager()
-        err := dbus.InstallOnSession(opMouse)
+        err = dbus.InstallOnSession(opMouse)
         if err != nil {
                 logger.Error("Install DBus Session Failed:", err)
                 panic(err)

@@ -24,7 +24,7 @@
 #include <X11/Xlibint.h>
 #include <X11/extensions/record.h>
 
-#include "mouse_record.h"
+#include "record.h"
 #include "_cgo_export.h"
 
 #define MOUSE_AREA_DEST "com.deepin.dde.api.MouseArea"
@@ -172,6 +172,7 @@ record_event_cb (XPointer user_data, XRecordInterceptData *hook)
     }
 
     RecordDate *data = (RecordDate *)hook->data;
+    int detail = data->xe.u.u.detail;
     int event_type = data->type;
     int rootX = data->xe.u.keyButtonPointer.rootX;
     int rootY = data->xe.u.keyButtonPointer.rootY;
@@ -179,11 +180,12 @@ record_event_cb (XPointer user_data, XRecordInterceptData *hook)
 
     switch (event_type) {
         case KeyPress:
-            parseKeyboardEvent(KEY_PRESS, rootX, rootY);
+            parseKeyboardEvent(detail, KEY_PRESS, rootX, rootY);
+            /*KeySym sym = XKeycodeToKeysym(grab_info->data_disp, detail, 0);*/
             break;
 
         case KeyRelease:
-            parseKeyboardEvent(KEY_RELEASE, rootX, rootY);
+            parseKeyboardEvent(detail, KEY_RELEASE, rootX, rootY);
             break;
 
         case MotionNotify:
@@ -191,11 +193,11 @@ record_event_cb (XPointer user_data, XRecordInterceptData *hook)
             break;
 
         case ButtonPress:
-            parseButtonEvent(BUTTON_PRESS, rootX, rootY);
+            parseButtonEvent(detail,BUTTON_PRESS, rootX, rootY);
             break;
 
         case ButtonRelease:
-            parseButtonEvent(BUTTON_RELEASE, rootX, rootY);
+            parseButtonEvent(detail, BUTTON_RELEASE, rootX, rootY);
             break;
 
         default:

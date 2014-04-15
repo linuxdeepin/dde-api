@@ -19,8 +19,8 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  **/
 
-#ifndef __MOUSE_RECORD_H__
-#define __MOUSE_RECORD_H__
+#ifndef __RECORD_H__
+#define __RECORD_H__
 
 #define KEY_PRESS 1
 #define KEY_RELEASE 0
