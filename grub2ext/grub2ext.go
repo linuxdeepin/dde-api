@@ -55,11 +55,7 @@ func NewGrub2Ext() *Grub2Ext {
 }
 
 func main() {
-        defer func() {
-                if err := recover(); err != nil {
-                        logger.Fatalf("%v", err)
-                }
-        }()
+        defer logger.EndTracing()
 
         if !dlib.UniqueOnSystem("com.deepin.api.Grub2") {
                 logger.Warning("There already has an Grub2 daemon running.")

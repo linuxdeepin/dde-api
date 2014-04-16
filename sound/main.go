@@ -31,11 +31,7 @@ import (
 var logger = liblogger.NewLogger("dde-api/sound")
 
 func main() {
-	defer func() {
-		if err := recover(); err != nil {
-			logger.Fatalf("%v", err)
-		}
-	}()
+	defer logger.EndTracing()
 
 	if !dlib.UniqueOnSession("com.deepin.api.Sound") {
 		logger.Warning("There already has an Sound daemon running.")

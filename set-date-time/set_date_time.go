@@ -212,11 +212,7 @@ func stringInSlice(a string, list []string) bool {
 }
 
 func main() {
-        defer func() {
-                if err := recover(); err != nil {
-                        logger.Error("recover err:", err)
-                }
-        }()
+        defer logger.EndTracing()
 
         if !dlib.UniqueOnSystem(_SET_DATE_TIME_DEST) {
                 logger.Warning("There already has an SetDateTime daemon running.")

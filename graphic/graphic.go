@@ -175,11 +175,7 @@ func stringInSlice(a string, list []string) bool {
 }
 
 func main() {
-        defer func() {
-                if err := recover(); err != nil {
-                        logger.Fatalf("%v", err)
-                }
-        }()
+        defer logger.EndTracing()
 
         if !dlib.UniqueOnSession("com.deepin.api.Graphic") {
                 logger.Warning("There already has an Graphic daemon running.")
