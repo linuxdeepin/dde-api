@@ -22,38 +22,38 @@
 package main
 
 import (
-        "dlib"
-        "dlib/dbus"
-        liblogger "dlib/logger"
-        "os"
+	"dlib"
+	"dlib/dbus"
+	liblogger "dlib/logger"
+	"os"
 )
 
 var logger = liblogger.NewLogger("dde-api/sound")
 
 func main() {
-        defer func() {
-                if err := recover(); err != nil {
-                        logger.Fatalf("%v", err)
-                }
-        }()
+	defer func() {
+		if err := recover(); err != nil {
+			logger.Fatalf("%v", err)
+		}
+	}()
 
-        if !dlib.UniqueOnSession("com.deepin.api.Sound") {
-                logger.Warning("There already has an Sound daemon running.")
-                return
-        }
+	if !dlib.UniqueOnSession("com.deepin.api.Sound") {
+		logger.Warning("There already has an Sound daemon running.")
+		return
+	}
 
-        s := &Sound{}
-        err := dbus.InstallOnSession(s)
-        if err != nil {
-                logger.Errorf("register dbus interface failed: %v", err)
-                os.Exit(1)
-        }
+	s := &Sound{}
+	err := dbus.InstallOnSession(s)
+	if err != nil {
+		logger.Errorf("register dbus interface failed: %v", err)
+		os.Exit(1)
+	}
 
-        dbus.DealWithUnhandledMessage()
-        if err := dbus.Wait(); err != nil {
-                logger.Errorf("lost dbus session: %v", err)
-                os.Exit(1)
-        } else {
-                os.Exit(0)
-        }
+	dbus.DealWithUnhandledMessage()
+	if err := dbus.Wait(); err != nil {
+		logger.Errorf("lost dbus session: %v", err)
+		os.Exit(1)
+	} else {
+		os.Exit(0)
+	}
 }
