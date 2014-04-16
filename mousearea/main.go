@@ -126,11 +126,7 @@ func stringInSlice(a string, list []string) bool {
 }
 
 func main() {
-        defer func() {
-                if err := recover(); err != nil {
-                        logger.Error("recover error:", err)
-                }
-        }()
+        defer logger.EndTracing()
 
         if !dlib.UniqueOnSession(MOUSE_AREA_DEST) {
                 logger.Warning("There already has an XMouseArea daemon running.")

@@ -38,11 +38,7 @@ func (op *Manager) GetDBusInfo() dbus.DBusInfo {
 }
 
 func main() {
-        defer func() {
-                if err := recover(); err != nil {
-                        logger.Fatalf("Recover Error: %v", err)
-                }
-        }()
+        defer logger.EndTracing()
 
         m := &Manager{}
         dbus.InstallOnSession(m)
