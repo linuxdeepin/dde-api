@@ -101,7 +101,7 @@ func (logger *Logger) getName(id string) (name string) {
 
 func (logger *Logger) doLog(id string, level, msg string) {
 	now := time.Now()
-	date := fmt.Sprintf("%d-%d-%d %d:%d:%d.%d", now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second(), now.Nanosecond())
+	date := fmt.Sprintf("%d-%d-%d %d:%d:%d.%d", now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second(), int(float64(now.Nanosecond())/float64(999999999)*1000))
 	prefix := fmt.Sprintf("%s %s %s: [%s] ", id, date, logger.getName(id), level)
 	fmtMsg := prefix + msg
 	fmtMsg = strings.Replace(fmtMsg, "\n", "\n"+prefix, -1) // format multi-lines message
