@@ -22,25 +22,25 @@
 package main
 
 import (
-        "bufio"
-        "crypto/rand"
-        "dlib"
-        "dlib/dbus"
-        "fmt"
-        "io/ioutil"
-        golog "log"
-        "os"
-        "path/filepath"
-        "sort"
-        "strings"
-        "time"
+	"bufio"
+	"crypto/rand"
+	"dlib"
+	"dlib/dbus"
+	"fmt"
+	"io/ioutil"
+	golog "log"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
+	"time"
 )
 
 const (
-        selfName    = "<logger>"
-        selfID      = "0000000"
-        unknownName = "<unknown>"
-        logfile     = "/var/log/deepin.log"
+	selfName    = "<logger>"
+	selfID      = "0000000"
+	unknownName = "<unknown>"
+	logfile     = "/var/log/deepin.log"
 )
 
 var logimpl *golog.Logger
@@ -48,167 +48,167 @@ var logimpl *golog.Logger
 // A Logger represents an active logging object that will provides a
 // dbus service to write log message.
 type Logger struct {
-        Names map[string]string
+	Names map[string]string
 }
 
 // NewLogger creates a new Logger object.
 func NewLogger() *Logger {
-        logger := &Logger{}
-        logger.Names = make(map[string]string)
-        logger.Names[selfID] = selfName
-        return logger
+	logger := &Logger{}
+	logger.Names = make(map[string]string)
+	logger.Names[selfID] = selfName
+	return logger
 }
 
 // GetDBusInfo implement interface of dbus.DBusObject
 func (logger *Logger) GetDBusInfo() dbus.DBusInfo {
-        return dbus.DBusInfo{
-                "com.deepin.api.Logger",
-                "/com/deepin/api/Logger",
-                "com.deepin.api.Logger",
-        }
+	return dbus.DBusInfo{
+		"com.deepin.api.Logger",
+		"/com/deepin/api/Logger",
+		"com.deepin.api.Logger",
+	}
 }
 
 // NewLogger register a new logger source with name, and return a
 // uniquely id which will be used in following operator.
 func (logger *Logger) NewLogger(name string) (id string, err error) {
-        id = randString(len(selfID))
-        logger.Names[id] = name
-        logger.doLog(id, "NEW", fmt.Sprintf("id=%s", id))
-        return
+	id = randString(len(selfID))
+	logger.Names[id] = name
+	logger.doLog(id, "NEW", fmt.Sprintf("id=%s", id))
+	return
 }
 
 func randString(n int) string {
-        const alphanum = "0123456789abcdef"
-        var bytes = make([]byte, n)
-        rand.Read(bytes)
-        for i, b := range bytes {
-                bytes[i] = alphanum[b%byte(len(alphanum))]
-        }
-        return string(bytes)
+	const alphanum = "0123456789abcdef"
+	var bytes = make([]byte, n)
+	rand.Read(bytes)
+	for i, b := range bytes {
+		bytes[i] = alphanum[b%byte(len(alphanum))]
+	}
+	return string(bytes)
 }
 
 func (logger *Logger) getName(id string) (name string) {
-        if id == selfID {
-                name = selfName
-                return
-        }
-        name = logger.Names[id]
-        if len(name) == 0 {
-                name = unknownName
-        }
-        return
+	if id == selfID {
+		name = selfName
+		return
+	}
+	name = logger.Names[id]
+	if len(name) == 0 {
+		name = unknownName
+	}
+	return
 }
 
 func (logger *Logger) doLog(id string, level, msg string) {
-        now := time.Now()
-        date := fmt.Sprintf("%d-%d-%d %d:%d:%d", now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second())
-        prefix := fmt.Sprintf("%s %s %s: [%s] ", id, date, logger.getName(id), level)
-        fmtMsg := prefix + msg
-        fmtMsg = strings.Replace(fmtMsg, "\n", "\n"+prefix, -1) // format multi-lines message
-        logimpl.Println(fmtMsg)
-        return
+	now := time.Now()
+	date := fmt.Sprintf("%d-%d-%d %d:%d:%d.%d", now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second(), now.Nanosecond())
+	prefix := fmt.Sprintf("%s %s %s: [%s] ", id, date, logger.getName(id), level)
+	fmtMsg := prefix + msg
+	fmtMsg = strings.Replace(fmtMsg, "\n", "\n"+prefix, -1) // format multi-lines message
+	logimpl.Println(fmtMsg)
+	return
 }
 
 // Debug write a log message with 'DEBUG' as prefix.
 func (logger *Logger) Debug(id string, msg string) {
-        logger.doLog(id, "DEBUG", msg)
+	logger.doLog(id, "DEBUG", msg)
 }
 
 // Info write a log message with 'INFO' as prefix.
 func (logger *Logger) Info(id string, msg string) {
-        logger.doLog(id, "INFO", msg)
+	logger.doLog(id, "INFO", msg)
 }
 
 // Warning write a log message with 'WARNING' as prefix.
 func (logger *Logger) Warning(id string, msg string) {
-        logger.doLog(id, "WARNING", msg)
+	logger.doLog(id, "WARNING", msg)
 }
 
 // Error write a log message with 'ERROR' as prefix.
 func (logger *Logger) Error(id string, msg string) {
-        logger.doLog(id, "ERROR", msg)
+	logger.doLog(id, "ERROR", msg)
 }
 
 // Fatal write a log message with 'FATAL' as prefix.
 func (logger *Logger) Fatal(id string, msg string) {
-        logger.doLog(id, "FATAL", msg)
+	logger.doLog(id, "FATAL", msg)
 }
 
 // GetLog return all log messages that wrote by target ID.
 func (logger *Logger) GetLog(id string) (msg string) {
-        // get all deepin log files
-        logfiles, err := filepath.Glob(logfile + "*")
-        if err != nil {
-                msg = "get log files failed"
-                golog.Println(msg)
-                return
-        }
+	// get all deepin log files
+	logfiles, err := filepath.Glob(logfile + "*")
+	if err != nil {
+		msg = "get log files failed"
+		golog.Println(msg)
+		return
+	}
 
-        // open log file in order
-        sort.Sort(sort.Reverse(sort.StringSlice(logfiles)))
-        for _, f := range logfiles {
-                m, err := logger.doGetLog(id, f)
-                if err != nil {
-                        golog.Println(err)
-                        continue
-                }
-                if len(m) != 0 {
-                        msg = msg + m
-                }
-        }
-        return
+	// open log file in order
+	sort.Sort(sort.Reverse(sort.StringSlice(logfiles)))
+	for _, f := range logfiles {
+		m, err := logger.doGetLog(id, f)
+		if err != nil {
+			golog.Println(err)
+			continue
+		}
+		if len(m) != 0 {
+			msg = msg + m
+		}
+	}
+	return
 }
 
 func (logger *Logger) doGetLog(id string, file string) (msg string, err error) {
-        fileContent, err := ioutil.ReadFile(file)
-        if err != nil {
-                return
-        }
+	fileContent, err := ioutil.ReadFile(file)
+	if err != nil {
+		return
+	}
 
-        s := bufio.NewScanner(strings.NewReader(string(fileContent)))
-        s.Split(bufio.ScanLines)
-        for s.Scan() {
-                line := s.Text()
-                if strings.HasPrefix(line, id) {
-                        msg = msg + line + "\n"
-                }
-        }
+	s := bufio.NewScanner(strings.NewReader(string(fileContent)))
+	s.Split(bufio.ScanLines)
+	for s.Scan() {
+		line := s.Text()
+		if strings.HasPrefix(line, id) {
+			msg = msg + line + "\n"
+		}
+	}
 
-        return
+	return
 }
 
 func main() {
-        defer func() {
-                if err := recover(); err != nil {
-                        golog.Fatal(err)
-                }
-        }()
+	defer func() {
+		if err := recover(); err != nil {
+			golog.Fatal(err)
+		}
+	}()
 
-        if !dlib.UniqueOnSystem("com.deepin.api.Logger") {
-                golog.Println("There already has an Logger daemon running.")
-                return
-        }
+	if !dlib.UniqueOnSystem("com.deepin.api.Logger") {
+		golog.Println("There already has an Logger daemon running.")
+		return
+	}
 
-        // open log file
-        f, err := os.OpenFile(logfile, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
-        if err != nil {
-                panic(err)
-        }
-        defer f.Close()
+	// open log file
+	f, err := os.OpenFile(logfile, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
 
-        logimpl = golog.New(f, "", 0)
-        logger := NewLogger()
-        err = dbus.InstallOnSystem(logger)
-        if err != nil {
-                golog.Printf("register dbus interface failed: %v\n", err)
-                os.Exit(1)
-        }
-        dbus.DealWithUnhandledMessage()
+	logimpl = golog.New(f, "", 0)
+	logger := NewLogger()
+	err = dbus.InstallOnSystem(logger)
+	if err != nil {
+		golog.Printf("register dbus interface failed: %v\n", err)
+		os.Exit(1)
+	}
+	dbus.DealWithUnhandledMessage()
 
-        if err := dbus.Wait(); err != nil {
-                golog.Printf("lost dbus session: %v\n", err)
-                os.Exit(1)
-        } else {
-                os.Exit(0)
-        }
+	if err := dbus.Wait(); err != nil {
+		golog.Printf("lost dbus session: %v\n", err)
+		os.Exit(1)
+	} else {
+		os.Exit(0)
+	}
 }
