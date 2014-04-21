@@ -34,8 +34,8 @@ import (
 
 type coordinateRange struct {
         X1      int32
-        X2      int32
         Y1      int32
+        X2      int32
         Y2      int32
 }
 

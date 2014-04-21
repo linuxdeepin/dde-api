@@ -66,6 +66,36 @@ var (
         }()
 )
 
+func (op *Manager) RegisterArea(x1, y1, x2, y2, flag int32) int32 {
+        cookie := genID()
+        logger.Info("ID: ", cookie)
+
+        info := &coordinateInfo{}
+        info.areas = []coordinateRange{coordinateRange{x1, y1, x2, y2}}
+        info.moveIntoFlag = false
+        info.buttonFlag = false
+        info.keyFlag = false
+        info.motionFlag = false
+        if flag >= 0 && flag <= 7 {
+                if flag%2 == 1 {
+                        info.motionFlag = true
+                }
+
+                flag = flag >> 1
+                if flag%2 == 1 {
+                        info.buttonFlag = true
+                }
+
+                flag = flag >> 1
+                if flag%2 == 1 {
+                        info.keyFlag = true
+                }
+        }
+        idRangeMap[cookie] = info
+
+        return cookie
+}
+
 /*
  * flags:
  *      motionFlag: 001
@@ -73,12 +103,9 @@ var (
  *      keyFlag:    100
  *      allFlag:    111
  */
-func (op *Manager) RegisterArea(area []coordinateRange, flag int32) int32 {
+func (op *Manager) RegisterAreas(area []coordinateRange, flag int32) int32 {
         cookie := genID()
         logger.Info("ID: ", cookie)
-        for _, a := range area {
-                logger.Info("\t", a)
-        }
 
         info := &coordinateInfo{}
         info.areas = area
