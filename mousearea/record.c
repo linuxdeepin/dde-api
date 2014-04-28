@@ -32,19 +32,19 @@
 #define MOUSE_AREA_IFC  "com.deepin.dde.api.MouseArea"
 
 typedef struct _RecordEventInfo {
-    Display *ctrl_disp;
-    Display *data_disp;
-    XRecordRange *range;
-    XRecordContext context;
+	Display *ctrl_disp;
+	Display *data_disp;
+	XRecordRange *range;
+	XRecordContext context;
 } RecordEventInfo;
 
 typedef union {
-    unsigned char type;
-    xEvent xe;
-    /*xResourceReq req;*/
-    /*xGenericReply reply;*/
-    /*xError error;*/
-    /*xConnSetupPrefix setup;*/
+	unsigned char type;
+	xEvent xe;
+	/*xResourceReq req;*/
+	/*xGenericReply reply;*/
+	/*xError error;*/
+	/*xConnSetupPrefix setup;*/
 } RecordDate;
 
 static void record_event_cb (XPointer user_data, XRecordInterceptData *hook);
@@ -56,163 +56,165 @@ static gboolean user_activity_flag = FALSE;
 void
 record_init ()
 {
-    grab_info = g_new0 (RecordEventInfo, 1);
+	grab_info = g_new0 (RecordEventInfo, 1);
 
-    if ( !grab_info ) {
-        g_warning ("Alloc RecordEventInfo memory failed...");
-        record_finalize ();
-    }
+	if ( !grab_info ) {
+		g_warning ("Alloc RecordEventInfo memory failed...");
+		record_finalize ();
+	}
 
-    grab_info->ctrl_disp = XOpenDisplay (NULL);
-    grab_info->data_disp = XOpenDisplay (NULL);
+	grab_info->ctrl_disp = XOpenDisplay (NULL);
+	grab_info->data_disp = XOpenDisplay (NULL);
 
-    if ( !grab_info->ctrl_disp || !grab_info->data_disp ) {
-        g_warning ("Unable to connect to X server...");
-        record_finalize ();
-    }
+	if ( !grab_info->ctrl_disp || !grab_info->data_disp ) {
+		g_warning ("Unable to connect to X server...");
+		record_finalize ();
+	}
 
-    gint dummy;
+	gint dummy;
 
-    if ( !XQueryExtension (grab_info->ctrl_disp, "XTEST",
-                           &dummy, &dummy, &dummy) ) {
-        g_warning ("XTest extension missing...");
-        record_finalize ();
-    }
+	if ( !XQueryExtension (grab_info->ctrl_disp, "XTEST",
+	                       &dummy, &dummy, &dummy) ) {
+		g_warning ("XTest extension missing...");
+		record_finalize ();
+	}
 
-    if ( !XRecordQueryVersion (grab_info->ctrl_disp, &dummy, &dummy) ) {
-        g_warning ("Failed to obtain xrecord version...");
-        record_finalize ();
-    }
+	if ( !XRecordQueryVersion (grab_info->ctrl_disp, &dummy, &dummy) ) {
+		g_warning ("Failed to obtain xrecord version...");
+		record_finalize ();
+	}
 
-    grab_info->range = XRecordAllocRange ();
+	grab_info->range = XRecordAllocRange ();
 
-    if ( !grab_info->range ) {
-        g_warning ("Alloc XRecordRange memory failed...");
-        record_finalize ();
-    }
+	if ( !grab_info->range ) {
+		g_warning ("Alloc XRecordRange memory failed...");
+		record_finalize ();
+	}
 
-    grab_info->range->device_events.first = KeyPress;
-    grab_info->range->device_events.last = MotionNotify;
+	grab_info->range->device_events.first = KeyPress;
+	grab_info->range->device_events.last = MotionNotify;
 
-    XRecordClientSpec spec = XRecordAllClients;
-    grab_info->context = XRecordCreateContext (
-                             grab_info->data_disp, 0, &spec, 1, &grab_info->range, 1);
+	XRecordClientSpec spec = XRecordAllClients;
+	grab_info->context = XRecordCreateContext (
+	                         grab_info->data_disp, 0, &spec, 1, &grab_info->range, 1);
 
-    if ( !grab_info->context ) {
-        g_warning ("Unable to create context...");
-        record_finalize();
-    }
+	if ( !grab_info->context ) {
+		g_warning ("Unable to create context...");
+		record_finalize();
+	}
 
-    XSynchronize (grab_info->ctrl_disp, TRUE);
-    XFlush (grab_info->ctrl_disp);
+	XSynchronize (grab_info->ctrl_disp, TRUE);
+	XFlush (grab_info->ctrl_disp);
 
-    GThread *thrd = g_thread_new ("enable context",
-                                  (GThreadFunc)enable_ctx_thread, NULL);
+	GThread *thrd = g_thread_new ("enable context",
+	                              (GThreadFunc)enable_ctx_thread, NULL);
 
-    if ( !thrd ) {
-        g_warning ("Unable to create thread...");
-        record_finalize ();
-    }
+	if ( !thrd ) {
+		g_warning ("Unable to create thread...");
+		record_finalize ();
+	}
 }
 
 void
 record_finalize ()
 {
-    if (!grab_info) {
-        return;
-    }
+	if (!grab_info) {
+		return;
+	}
 
-    if (grab_info->context) {
-        XRecordDisableContext(grab_info->data_disp, grab_info->context);
-        XRecordFreeContext(grab_info->data_disp, grab_info->context);
-    }
+	if (grab_info->context) {
+		XRecordDisableContext(grab_info->data_disp, grab_info->context);
+		XRecordFreeContext(grab_info->data_disp, grab_info->context);
+	}
 
-    if (grab_info->range) {
-        XFree(grab_info->range);
-        grab_info->range = NULL;
-    }
+	if (grab_info->range) {
+		XFree(grab_info->range);
+		grab_info->range = NULL;
+	}
 
-    if (grab_info->ctrl_disp) {
-        XCloseDisplay (grab_info->ctrl_disp);
-        grab_info->ctrl_disp = NULL;
-    }
+	if (grab_info->ctrl_disp) {
+		XCloseDisplay (grab_info->ctrl_disp);
+		grab_info->ctrl_disp = NULL;
+	}
 
-    if (grab_info->data_disp) {
-        XCloseDisplay (grab_info->data_disp);
-        grab_info->data_disp = NULL;
-    }
+	if (grab_info->data_disp) {
+		XCloseDisplay (grab_info->data_disp);
+		grab_info->data_disp = NULL;
+	}
 
-    if (grab_info) {
-        g_free (grab_info);
-        grab_info = NULL;
-    }
+	if (grab_info) {
+		g_free (grab_info);
+		grab_info = NULL;
+	}
 }
 
 static gpointer
 enable_ctx_thread (gpointer user_data)
 {
-    if ( !XRecordEnableContext (grab_info->data_disp, grab_info->context,
-                                record_event_cb, NULL) ) {
-        g_warning ("Unable to enable context...");
-        record_finalize ();
-    }
+	if ( !XRecordEnableContext (grab_info->data_disp, grab_info->context,
+	                            record_event_cb, NULL) ) {
+		g_warning ("Unable to enable context...");
+		record_finalize ();
+	}
 
-    g_thread_exit (NULL);
+	g_thread_exit (NULL);
 
-    return NULL;
+	return NULL;
 }
 
 static void
 record_event_cb (XPointer user_data, XRecordInterceptData *hook)
 {
-    if ( hook->category != XRecordFromServer ) {
-        XRecordFreeData(hook);
-        g_warning ("Data not from X server...");
-        return;
-    }
+	if ( hook->category != XRecordFromServer ) {
+		XRecordFreeData(hook);
+		g_warning ("Data not from X server...");
+		return;
+	}
 
-    RecordDate *data = (RecordDate *)hook->data;
-    int detail = data->xe.u.u.detail;
-    int event_type = data->type;
-    int rootX = data->xe.u.keyButtonPointer.rootX;
-    int rootY = data->xe.u.keyButtonPointer.rootY;
-    /*int time = hook->server_time;*/
+	RecordDate *data = (RecordDate *)hook->data;
+	int detail = data->xe.u.u.detail;
+	int event_type = data->type;
+	int rootX = data->xe.u.keyButtonPointer.rootX;
+	int rootY = data->xe.u.keyButtonPointer.rootY;
+	/*int time = hook->server_time;*/
 
-    switch (event_type) {
-        case KeyPress:
-            parseKeyboardEvent(detail, KEY_PRESS, rootX, rootY);
-            /*KeySym sym = XKeycodeToKeysym(grab_info->data_disp, detail, 0);*/
-            break;
+	switch (event_type) {
+	case KeyPress:
+		parseKeyboardEvent(detail, KEY_PRESS, rootX, rootY);
+		/*KeySym sym = XKeycodeToKeysym(grab_info->data_disp, detail, 0);*/
+		break;
 
-        case KeyRelease:
-            parseKeyboardEvent(detail, KEY_RELEASE, rootX, rootY);
-            break;
+	case KeyRelease:
+		parseKeyboardEvent(detail, KEY_RELEASE, rootX, rootY);
+		break;
 
-        case MotionNotify:
-            parseMotionEvent(rootX, rootY);
-            break;
+	case MotionNotify:
+		parseMotionEvent(rootX, rootY);
+		break;
 
-        case ButtonPress:
-            parseButtonEvent(detail,BUTTON_PRESS, rootX, rootY);
-            break;
+	case ButtonPress:
+		/*g_print("Detail: %d\n", detail);*/
+		parseButtonEvent(detail,BUTTON_PRESS, rootX, rootY);
+		break;
 
-        case ButtonRelease:
-            parseButtonEvent(detail, BUTTON_RELEASE, rootX, rootY);
-            break;
+	case ButtonRelease:
+		/*g_print("Detail: %d\n", detail);*/
+		parseButtonEvent(detail, BUTTON_RELEASE, rootX, rootY);
+		break;
 
-        default:
-            break;
-    }
+	default:
+		break;
+	}
 
-    XRecordFreeData(hook);
+	XRecordFreeData(hook);
 }
 
 void
 simulate_user_activity(int flag)
 {
-    if (flag == 1 ) {
-        user_activity_flag = TRUE;
-    } else {
-        user_activity_flag = FALSE;
-    }
+	if (flag == 1 ) {
+		user_activity_flag = TRUE;
+	} else {
+		user_activity_flag = FALSE;
+	}
 }
