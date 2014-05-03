@@ -25,7 +25,8 @@ import (
 	"dlib"
 	"dlib/dbus"
 	Logger "dlib/logger"
-	"time"
+	"os"
+	//"time"
 )
 
 var (
@@ -44,6 +45,11 @@ func main() {
 	}
 	dbus.DealWithUnhandledMessage()
 
-	<-time.After(time.Second * 30)
-	//select {}
+	//<-time.After(time.Second * 30)
+	if err := dbus.Wait(); err != nil {
+		logObj.Warning("Lost Session DBus")
+		os.Exit(-1)
+	} else {
+		os.Exit(0)
+	}
 }

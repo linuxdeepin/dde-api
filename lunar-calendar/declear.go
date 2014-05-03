@@ -22,28 +22,28 @@
 package main
 
 type lunarYearInfo struct {
-	leapMonth     int //闰月所在月，0为没有闰月
-	zhengMonth    int //正月初一对应公历月
-	zhengDay      int //正月初一对应公历日
-	lunarMonthNum int //农历每月的天数的数组(需转换为二进制,得到每月大小，0=小月(29日),1=大月(30日))
+	leapMonth     int32 //闰月所在月，0为没有闰月
+	zhengMonth    int32 //正月初一对应公历月
+	zhengDay      int32 //正月初一对应公历日
+	lunarMonthNum int32 //农历每月的天数的数组(需转换为二进制,得到每月大小，0=小月(29日),1=大月(30日))
 }
 
 type caDayInfo struct {
-	index int
-	days  int
+	index int32
+	days  int32
 }
 
-type caYearInfo struct {
-	Year  int
-	Month int
-	Day   int
+type CaYearInfo struct {
+	Year  int32
+	Month int32
+	Day   int32
 }
 
 type caLunarDayInfo struct {
-	LunarYear      int
-	LunarMonth     int
-	LunarDay       int
-	LunarLeapMonth int
+	LunarYear      int32
+	LunarMonth     int32
+	LunarDay       int32
+	LunarLeapMonth int32
 	LunarMonthName string
 	LunarDayName   string
 	GanZhiYear     string
@@ -53,28 +53,28 @@ type caLunarDayInfo struct {
 	Term           string
 	SolarFestival  string
 	LunarFestival  string
-	Worktime       int
+	Worktime       int32
 }
 
 type caSolarMonthInfo struct {
-	FirstDayWeek int
-	Days         int
-	Datas        []caYearInfo
+	FirstDayWeek int32
+	Days         int32
+	Datas        []CaYearInfo
 }
 
 type caLunarMonthInfo struct {
-	FirstDayWeek int
-	Days         int
+	FirstDayWeek int32
+	Days         int32
 	Datas        []caLunarDayInfo
 }
 
 type cacheUtil struct {
-	current int
+	current int32
 }
 
 var (
-	MinYear  = 1890 //最小年限
-	MaxYear  = 2100 //最大年限
+	MinYear  = int32(1890) //最小年限
+	MaxYear  = int32(2100) //最大年限
 	cacheMap = make(map[string]interface{})
 	cacheObj = newCache()
 
@@ -423,11 +423,11 @@ var (
 	 * 二十四节气数据，节气点时间（单位是分钟）
 	 * 从0小寒起算
 	 */
-	termInfo = []int{0, 21208, 42467, 63836, 85337, 107014, 128867, 150921, 173149, 195551, 218072, 240693, 263343, 285989, 308563, 331033, 353350, 375494, 397447, 419210, 440795, 462224, 483532, 504758}
+	termInfo = []int32{0, 21208, 42467, 63836, 85337, 107014, 128867, 150921, 173149, 195551, 218072, 240693, 263343, 285989, 308563, 331033, 353350, 375494, 397447, 419210, 440795, 462224, 483532, 504758}
 
 	//中国节日放假安排，外部设置，0无特殊安排，1工作，2放假
-	worktimeYearMap = map[string]map[string]int{
-		"y2013": map[string]int{
+	worktimeYearMap = map[string]map[string]int32{
+		"y2013": map[string]int32{
 			"d0101": 2,
 			"d0102": 2,
 			"d0103": 2,
@@ -470,7 +470,7 @@ var (
 			"d1007": 2,
 			"d1012": 1,
 		},
-		"y2014": map[string]int{
+		"y2014": map[string]int32{
 			"d0101": 2,
 			"d0126": 1,
 			"d0131": 2,

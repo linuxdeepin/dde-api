@@ -33,23 +33,23 @@ const (
 	LUNAR_IFC  = "com.deepin.api.LunarCalendar"
 )
 
-func (op *Manager) GetLunarDateBySolar(year, month, day int) (caYearInfo, bool) {
+func (op *Manager) GetLunarDateBySolar(year, month, day int32) (CaYearInfo, bool) {
 	if info, ok := getLunarDateBySolar(year, month, day); !ok {
-		return caYearInfo{}, false
+		return CaYearInfo{}, false
 	} else {
 		return info, true
 	}
 }
 
-func (op *Manager) GetSolarDateByLunar(year, month, day int) (caYearInfo, bool) {
+func (op *Manager) GetSolarDateByLunar(year, month, day int32) (CaYearInfo, bool) {
 	if info, ok := lunarToSolar(year, month, day); !ok {
-		return caYearInfo{}, false
+		return CaYearInfo{}, false
 	} else {
 		return info, true
 	}
 }
 
-func (op *Manager) GetLunarInfoBySolar(year, month, day int) (caLunarDayInfo, bool) {
+func (op *Manager) GetLunarInfoBySolar(year, month, day int32) (caLunarDayInfo, bool) {
 	if info, ok := solarToLunar(year, month, day); !ok {
 		return caLunarDayInfo{}, false
 	} else {
@@ -57,7 +57,7 @@ func (op *Manager) GetLunarInfoBySolar(year, month, day int) (caLunarDayInfo, bo
 	}
 }
 
-func (op *Manager) GetSolarMonthCalendar(year, month int, fill bool) (caSolarMonthInfo, bool) {
+func (op *Manager) GetSolarMonthCalendar(year, month int32, fill bool) (caSolarMonthInfo, bool) {
 	if info, ok := getSolarCalendar(year, month, fill); !ok {
 		return caSolarMonthInfo{}, false
 	} else {
@@ -65,7 +65,7 @@ func (op *Manager) GetSolarMonthCalendar(year, month int, fill bool) (caSolarMon
 	}
 }
 
-func (op *Manager) GetLunarMonthCalendar(year, month int, fill bool) (caLunarMonthInfo, bool) {
+func (op *Manager) GetLunarMonthCalendar(year, month int32, fill bool) (caLunarMonthInfo, bool) {
 	if info, ok := getLunarCalendar(year, month, fill); !ok {
 		return caLunarMonthInfo{}, false
 	} else {
