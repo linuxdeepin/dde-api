@@ -40,9 +40,10 @@ type coordinateRange struct {
 }
 
 //export parseMotionEvent
-func parseMotionEvent(_x, _y int32) {
+func parseMotionEvent(_x, _y, _press int32) {
 	coorX := int32(_x)
 	coorY := int32(_y)
+	pressFlag := int32(_press)
 
 	inList, outList := getIDList(coorX, coorY)
 	for _, cookie := range inList {
@@ -50,7 +51,9 @@ func parseMotionEvent(_x, _y int32) {
 			/* moveIntoFlag == true : mouse move in area */
 			if !array.moveIntoFlag {
 				array.moveIntoFlag = true
-				opMouse.MotionInto(coorX, coorY, cookie)
+				if pressFlag != 1 {
+					opMouse.MotionInto(coorX, coorY, cookie)
+				}
 			}
 
 			if array.motionFlag {
