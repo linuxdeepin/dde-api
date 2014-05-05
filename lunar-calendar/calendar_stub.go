@@ -33,15 +33,37 @@ const (
 	LUNAR_IFC  = "com.deepin.api.LunarCalendar"
 )
 
-func (op *Manager) GetLunarDateBySolar(year, month, day int32) (CaYearInfo, bool) {
-	if info, ok := getLunarDateBySolar(year, month, day); !ok {
-		return CaYearInfo{}, false
-	} else {
-		return info, true
+func (op *Manager) GetLunarDateBySolar(year, month, day int32) (CaYearInfo, bool, bool) {
+	info, ok := getLunarDateBySolar(year, month, day)
+	if !ok {
+		return CaYearInfo{}, false, false
 	}
+	leapMonth, _ := getLunarLeapYear(year)
+	isLeapMonth := false
+	if leapMonth > 0 && leapMonth == info.Month {
+		isLeapMonth = true
+	} else if leapMonth > 0 && leapMonth > info.Month {
+		info.Month += 1
+	} else if leapMonth <= 0 {
+		info.Month += 1
+	}
+
+	logObj.Infof("Date: %d - %d - %d\n\tIsLeapMonth: %v",
+		info.Year, info.Month, info.Day, isLeapMonth)
+
+	return info, isLeapMonth, true
 }
 
-func (op *Manager) GetSolarDateByLunar(year, month, day int32) (CaYearInfo, bool) {
+func (op *Manager) GetSolarDateByLunar(year, month, day int32, isLeapMonth bool) (CaYearInfo, bool) {
+	leapMonth, _ := getLunarLeapYear(year)
+	if leapMonth <= 0 {
+		isLeapMonth = false
+	}
+	if (leapMonth > 0 && month > leapMonth) || isLeapMonth {
+		month = month
+	} else {
+		month -= 1
+	}
 	if info, ok := lunarToSolar(year, month, day); !ok {
 		return CaYearInfo{}, false
 	} else {

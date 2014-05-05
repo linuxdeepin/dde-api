@@ -100,7 +100,8 @@ func getLunarYearDays(year int32) ([]caDayInfo, int32, bool) {
 		//t -= 1
 		//}
 		//tmp.index = t
-		tmp.index = int32(i) + 1
+		tmp.index = int32(i)
+		//tmp.index = int32(i) + 1
 		monthDayInfos = append(monthDayInfos, tmp)
 	}
 
@@ -413,9 +414,9 @@ func solarToLunar(year, month, day int32) (caLunarDayInfo, bool) {
 	lunarDate, _ := getLunarDateBySolar(year, month, day)
 	lunarLeapMonth, _ := getLunarLeapYear(lunarDate.Year)
 	lunarMonthName := ""
-	if lunarLeapMonth > 0 && lunarLeapMonth+1 == lunarDate.Month {
-		lunarMonthName = "闰" + lunarData["monthCn"][lunarDate.Month-2] + "月"
-	} else if lunarLeapMonth > 0 && lunarLeapMonth >= lunarDate.Month {
+	if lunarLeapMonth > 0 && lunarLeapMonth == lunarDate.Month {
+		lunarMonthName = "闰" + lunarData["monthCn"][lunarDate.Month-1] + "月"
+	} else if lunarLeapMonth > 0 && lunarLeapMonth < lunarDate.Month {
 		lunarMonthName = lunarData["monthCn"][lunarDate.Month-1] + "月"
 	} else {
 		lunarMonthName = lunarData["monthCn"][lunarDate.Month] + "月"
@@ -446,9 +447,6 @@ func solarToLunar(year, month, day int32) (caLunarDayInfo, bool) {
 	dayName, _ := getLunarDayName(year, month, day)
 	resInfo.GanZhiDay = dayName
 	resInfo.Term = termList[formatDayD4(month, day)]
-	resInfo.LunarYear = lunarDate.Year
-	resInfo.LunarMonth = lunarDate.Month
-	resInfo.LunarDay = lunarDate.Day
 	resInfo.LunarMonthName = lunarMonthName
 	resInfo.LunarDayName = lunarData["dateCn"][lunarDate.Day-1]
 	resInfo.LunarLeapMonth = lunarLeapMonth
