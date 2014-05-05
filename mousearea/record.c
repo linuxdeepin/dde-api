@@ -52,6 +52,8 @@ static gpointer enable_ctx_thread (gpointer user_data);
 
 static RecordEventInfo *grab_info = NULL;
 static gboolean user_activity_flag = FALSE;
+static gboolean key_press_flag = FALSE;
+static gboolean button_press_flag = FALSE;
 
 void
 record_init ()
@@ -180,24 +182,31 @@ record_event_cb (XPointer user_data, XRecordInterceptData *hook)
 
 	switch (event_type) {
 	case KeyPress:
+		key_press_flag = TRUE;
 		parseKeyboardEvent(detail, KEY_PRESS, rootX, rootY);
 		/*KeySym sym = XKeycodeToKeysym(grab_info->data_disp, detail, 0);*/
 		break;
 
 	case KeyRelease:
+		key_press_flag = FALSE;
 		parseKeyboardEvent(detail, KEY_RELEASE, rootX, rootY);
 		break;
 
 	case MotionNotify:
+		if (button_press_flag || key_press_flag) {
+			break;
+		}
 		parseMotionEvent(rootX, rootY);
 		break;
 
 	case ButtonPress:
 		/*g_print("Detail: %d\n", detail);*/
+		button_press_flag = TRUE;
 		parseButtonEvent(detail,BUTTON_PRESS, rootX, rootY);
 		break;
 
 	case ButtonRelease:
+		button_press_flag = FALSE;
 		/*g_print("Detail: %d\n", detail);*/
 		parseButtonEvent(detail, BUTTON_RELEASE, rootX, rootY);
 		break;
