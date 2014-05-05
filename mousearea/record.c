@@ -192,12 +192,14 @@ record_event_cb (XPointer user_data, XRecordInterceptData *hook)
 		parseKeyboardEvent(detail, KEY_RELEASE, rootX, rootY);
 		break;
 
-	case MotionNotify:
+	case MotionNotify: {
+		int press_flag = 0;
 		if (button_press_flag || key_press_flag) {
-			break;
+			press_flag = 1;
 		}
-		parseMotionEvent(rootX, rootY);
+		parseMotionEvent(rootX, rootY, press_flag);
 		break;
+	}
 
 	case ButtonPress:
 		/*g_print("Detail: %d\n", detail);*/
