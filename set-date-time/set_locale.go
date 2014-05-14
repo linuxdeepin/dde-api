@@ -44,6 +44,6 @@ func (op *SetDateTime) GenLocale(locale string) {
 			op.GenLocaleStatus(false, err.Error())
 			return
 		}
-		op.GenLocaleStatus(true, "Locale Generate Success")
+		op.GenLocaleStatus(true, locale)
 	}()
 }
