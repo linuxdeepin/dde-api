@@ -36,10 +36,31 @@ import (
 	"sync"
 )
 
-var (
-	logger = dlogger.NewLogger("dde-api/mousearea")
-	X      *xgbutil.XUtil
+const (
+	MotionFlag = int32(1 << 0)
+	ButtonFlag = int32(1 << 1)
+	KeyFlag    = int32(1 << 2)
+	AllFlag    = int32(MotionFlag | ButtonFlag | KeyFlag)
 )
+
+var (
+	logger     = dlogger.NewLogger("dde-api/mousearea")
+	X          *xgbutil.XUtil
+	opMouse    *Manager
+	idRangeMap map[int32]*coordinateInfo
+)
+
+var genID = func() func() int32 {
+	var lock sync.Mutex
+	id := int32(0)
+	return func() int32 {
+		lock.Lock()
+		tmp := id
+		id += 1
+		lock.Unlock()
+		return tmp
+	}
+}()
 
 type coordinateInfo struct {
 	areas        []coordinateRange
@@ -49,22 +70,27 @@ type coordinateInfo struct {
 	keyFlag      bool
 }
 
-var (
-	opMouse    *Manager
-	lock       sync.Mutex
-	idRangeMap map[int32]*coordinateInfo
+func getEventFlags(flag int32) (bool, bool, bool) {
+	motionFlag := false
+	buttonFlag := false
+	keyFlag := false
 
-	genID = func() func() int32 {
-		id := int32(0)
-		return func() int32 {
-			lock.Lock()
-			tmp := id
-			id += 1
-			lock.Unlock()
-			return tmp
+	if flag >= 0 && flag <= int32(AllFlag) {
+		if (flag & MotionFlag) == MotionFlag {
+			motionFlag = true
 		}
-	}()
-)
+
+		if (flag & ButtonFlag) == ButtonFlag {
+			buttonFlag = true
+		}
+
+		if (flag & KeyFlag) == KeyFlag {
+			keyFlag = true
+		}
+	}
+
+	return motionFlag, buttonFlag, keyFlag
+}
 
 func (op *Manager) RegisterArea(x1, y1, x2, y2, flag int32) int32 {
 	cookie := genID()
@@ -73,36 +99,12 @@ func (op *Manager) RegisterArea(x1, y1, x2, y2, flag int32) int32 {
 	info := &coordinateInfo{}
 	info.areas = []coordinateRange{coordinateRange{x1, y1, x2, y2}}
 	info.moveIntoFlag = false
-	info.buttonFlag = false
-	info.keyFlag = false
-	info.motionFlag = false
-	if flag >= 0 && flag <= 7 {
-		if flag%2 == 1 {
-			info.motionFlag = true
-		}
-
-		flag = flag >> 1
-		if flag%2 == 1 {
-			info.buttonFlag = true
-		}
-
-		flag = flag >> 1
-		if flag%2 == 1 {
-			info.keyFlag = true
-		}
-	}
+	info.motionFlag, info.buttonFlag, info.keyFlag = getEventFlags(flag)
 	idRangeMap[cookie] = info
 
 	return cookie
 }
 
-/*
- * flags:
- *      motionFlag: 001
- *      buttonFlag: 010
- *      keyFlag:    100
- *      allFlag:    111
- */
 func (op *Manager) RegisterAreas(area []coordinateRange, flag int32) int32 {
 	cookie := genID()
 	logger.Info("ID: ", cookie)
@@ -110,24 +112,7 @@ func (op *Manager) RegisterAreas(area []coordinateRange, flag int32) int32 {
 	info := &coordinateInfo{}
 	info.areas = area
 	info.moveIntoFlag = false
-	info.buttonFlag = false
-	info.keyFlag = false
-	info.motionFlag = false
-	if flag >= 0 && flag <= 7 {
-		if flag%2 == 1 {
-			info.motionFlag = true
-		}
-
-		flag = flag >> 1
-		if flag%2 == 1 {
-			info.buttonFlag = true
-		}
-
-		flag = flag >> 1
-		if flag%2 == 1 {
-			info.keyFlag = true
-		}
-	}
+	info.motionFlag, info.buttonFlag, info.keyFlag = getEventFlags(flag)
 	idRangeMap[cookie] = info
 
 	return cookie

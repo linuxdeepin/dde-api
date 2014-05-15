@@ -45,7 +45,7 @@ typedef union {
 	/*xGenericReply reply;*/
 	/*xError error;*/
 	/*xConnSetupPrefix setup;*/
-} RecordDate;
+} RecordData;
 
 static void record_event_cb (XPointer user_data, XRecordInterceptData *hook);
 static gpointer enable_ctx_thread (gpointer user_data);
@@ -173,7 +173,7 @@ record_event_cb (XPointer user_data, XRecordInterceptData *hook)
 		return;
 	}
 
-	RecordDate *data = (RecordDate *)hook->data;
+	RecordData *data = (RecordData *)hook->data;
 	int detail = data->xe.u.u.detail;
 	int event_type = data->type;
 	int rootX = data->xe.u.keyButtonPointer.rootX;
