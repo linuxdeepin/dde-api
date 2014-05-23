@@ -63,6 +63,7 @@ func main() {
 	}
 
 	dbus.DealWithUnhandledMessage()
+	GetManager().cancelAllReigsterArea()
 	GetManager().CancelAllArea()
 
 	//select {}
