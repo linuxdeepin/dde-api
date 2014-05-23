@@ -41,202 +41,192 @@ type coordinateRange struct {
 }
 
 type Manager struct {
-	FullScreenId  int32
+	fullScreenId  int32
 	MotionInto    func(int32, int32, int32)
 	MotionOut     func(int32, int32, int32)
 	MotionMove    func(int32, int32, int32)
-	ButtonPress   func(string, int32, int32, int32)
-	ButtonRelease func(string, int32, int32, int32)
+	ButtonPress   func(int32, int32, int32, int32)
+	ButtonRelease func(int32, int32, int32, int32)
 	KeyPress      func(string, int32, int32, int32)
 	KeyRelease    func(string, int32, int32, int32)
-	CancelAllArea func(int32, int32, int32) //resolution changed
+	CancelAllArea func() //resolution changed
+	idRangeMap    map[int32]*coordinateInfo
 }
-
-var (
-	idRangeMap = make(map[int32]*coordinateInfo)
-)
 
 var _manager *Manager
 
 func GetManager() *Manager {
 	if _manager == nil {
 		_manager = &Manager{}
-		_manager.FullScreenId = -1
+		_manager.fullScreenId = -1
+		_manager.idRangeMap = make(map[int32]*coordinateInfo)
 	}
 	return _manager
 }
 
-func (m *Manager) handleMotionEvent(x, y int32, press bool) {
+func (obj *Manager) handleMotionEvent(x, y int32, press bool) {
 	press = !press
-	if m.MotionMove == nil {
+	if obj.MotionMove == nil {
 		return
 	}
 
 	//fmt.Println("X:", x, "Y:", y, "Press:", press)
-	inList, outList := getIDList(x, y)
+	inList, outList := obj.getIDList(x, y)
 	for _, cookie := range inList {
-		if array, ok := idRangeMap[cookie]; ok {
+		if array, ok := obj.idRangeMap[cookie]; ok {
 			/* moveIntoFlag == true : mouse move in area */
 			if !array.moveIntoFlag {
 				array.moveIntoFlag = true
 				if press {
-					m.MotionInto(x, y, cookie)
+					obj.MotionInto(x, y, cookie)
 				}
 			}
 
 			if array.motionFlag {
-				m.MotionMove(x, y, cookie)
+				obj.MotionMove(x, y, cookie)
 			}
 		}
 	}
 	for _, cookie := range outList {
-		if array, ok := idRangeMap[cookie]; ok {
+		if array, ok := obj.idRangeMap[cookie]; ok {
 			/* moveIntoFlag == false : mouse move out area */
 			if array.moveIntoFlag {
 				array.moveIntoFlag = false
-				m.MotionOut(x, y, cookie)
+				obj.MotionOut(x, y, cookie)
 			}
 		}
 	}
 
-	if m.FullScreenId != -1 {
-		m.MotionMove(x, y, m.FullScreenId)
+	if obj.fullScreenId != -1 {
+		obj.MotionMove(x, y, obj.fullScreenId)
 	}
 }
 
-func (m *Manager) handleButtonEvent(button int32, press bool, x, y int32) {
-	if m.ButtonPress == nil {
+func (obj *Manager) handleButtonEvent(button int32, press bool, x, y int32) {
+	if obj.ButtonPress == nil {
 		return
 	}
-	btnStr := buttonCode2str(button)
 
-	cookies, _ := getIDList(x, y)
+	cookies, _ := obj.getIDList(x, y)
 	for _, cookie := range cookies {
-		if array, ok := idRangeMap[cookie]; ok {
+		if array, ok := obj.idRangeMap[cookie]; ok {
 			if !array.buttonFlag {
 				continue
 			}
 			if press {
-				m.ButtonPress(btnStr, x, y, cookie)
+				obj.ButtonPress(button, x, y, cookie)
 			} else {
-				m.ButtonRelease(btnStr, x, y, cookie)
+				obj.ButtonRelease(button, x, y, cookie)
 			}
 		}
 	}
 
-	if m.FullScreenId != -1 {
+	if obj.fullScreenId != -1 {
 		if press {
-			m.ButtonPress(btnStr, x, y, m.FullScreenId)
+			obj.ButtonPress(button, x, y, obj.fullScreenId)
 		} else {
-			m.ButtonRelease(btnStr, x, y, m.FullScreenId)
+			obj.ButtonRelease(button, x, y, obj.fullScreenId)
 		}
 	}
 }
 
-func (m *Manager) handleKeyboardEvent(code int32, press bool, x, y int32) {
-	if m.KeyPress == nil {
+func (obj *Manager) handleKeyboardEvent(code int32, press bool, x, y int32) {
+	if obj.KeyPress == nil {
 		return
 	}
-	cookies, _ := getIDList(x, y)
+	cookies, _ := obj.getIDList(x, y)
 	for _, cookie := range cookies {
-		if array, ok := idRangeMap[cookie]; ok {
+		if array, ok := obj.idRangeMap[cookie]; ok {
 			if !array.keyFlag {
 				continue
 			}
 			if press {
-				m.KeyPress(keyCode2Str(code), x, y, cookie)
+				obj.KeyPress(keyCode2Str(code), x, y, cookie)
 			} else {
-				m.KeyRelease(keyCode2Str(code), x, y, cookie)
+				obj.KeyRelease(keyCode2Str(code), x, y, cookie)
 			}
 		}
 	}
 
-	if m.FullScreenId != -1 {
+	if obj.fullScreenId != -1 {
 		if press {
-			m.KeyPress(keyCode2Str(code), x, y, m.FullScreenId)
+			obj.KeyPress(keyCode2Str(code), x, y, obj.fullScreenId)
 		} else {
-			m.KeyRelease(keyCode2Str(code), x, y, m.FullScreenId)
+			obj.KeyRelease(keyCode2Str(code), x, y, obj.fullScreenId)
 		}
 	}
 }
 
-func (m *Manager) cancelAllReigsterArea() {
-	list := []int32{}
+func (obj *Manager) cancelAllReigsterArea() {
+	obj.idRangeMap = make(map[int32]*coordinateInfo)
+	obj.fullScreenId = -1
 
-	for id, _ := range idRangeMap {
-		list = append(list, id)
-		delete(idRangeMap, id)
-	}
-
-	m.FullScreenId = -1
-
-	println("map len:", len(idRangeMap))
-	for _, cookie := range list {
-		m.CancelAllArea(1365, 767, cookie)
-	}
+	obj.CancelAllArea()
 }
 
-/*
- * flags:
- *      motionFlag: 001
- *      buttonFlag: 010
- *      keyFlag:    100
- *      allFlag:    111
- */
-func (op *Manager) RegisterArea(x1, y1, x2, y2, flag int32) int32 {
-	return op.RegisterAreas([]coordinateRange{coordinateRange{x1, y1, x2, y2}}, flag)
+func (obj *Manager) RegisterArea(x1, y1, x2, y2, flag int32) int32 {
+	return obj.RegisterAreas([]coordinateRange{coordinateRange{x1, y1, x2, y2}}, flag)
 }
 
-func (op *Manager) RegisterAreas(areas []coordinateRange, flag int32) int32 {
+func (obj *Manager) RegisterAreas(areas []coordinateRange, flag int32) int32 {
 	cookie := genID()
 	Logger.Debug("ID: ", cookie)
 
 	info := &coordinateInfo{}
 	info.areas = areas
 	info.moveIntoFlag = false
-	info.buttonFlag = false
-	info.keyFlag = false
-	info.motionFlag = false
-	if flag >= 0 && flag <= 7 {
-		if flag%2 == 1 {
-			info.motionFlag = true
-		}
-
-		flag = flag >> 1
-		if flag%2 == 1 {
-			info.buttonFlag = true
-		}
-
-		flag = flag >> 1
-		if flag%2 == 1 {
-			info.keyFlag = true
-		}
-	}
-	idRangeMap[cookie] = info
+	info.buttonFlag = hasButtonFlag(flag)
+	info.keyFlag = hasKeyFlag(flag)
+	info.motionFlag = hasMotionFlag(flag)
+	obj.idRangeMap[cookie] = info
 
 	return cookie
 }
 
-func (op *Manager) RegisterFullScreen() int32 {
-	if op.FullScreenId == -1 {
+func (obj *Manager) RegisterFullScreen() int32 {
+	if obj.fullScreenId == -1 {
 		cookie := genID()
-		op.FullScreenId = cookie
+		obj.fullScreenId = cookie
 	}
-	Logger.Debug("ID: ", op.FullScreenId)
+	Logger.Debug("ID: ", obj.fullScreenId)
 
-	return op.FullScreenId
+	return obj.fullScreenId
 }
 
-func (op *Manager) UnregisterArea(cookie int32) {
-	if _, ok := idRangeMap[cookie]; ok {
-		delete(idRangeMap, cookie)
+func (obj *Manager) UnregisterArea(cookie int32) {
+	if _, ok := obj.idRangeMap[cookie]; ok {
+		delete(obj.idRangeMap, cookie)
 	}
-	if cookie == op.FullScreenId {
-		op.FullScreenId = -1
+	if cookie == obj.fullScreenId {
+		obj.fullScreenId = -1
 	}
 }
 
-func (m *Manager) GetDBusInfo() dbus.DBusInfo {
+func (obj *Manager) getIDList(x, y int32) ([]int32, []int32) {
+	inList := []int32{}
+	outList := []int32{}
+
+	for id, array := range obj.idRangeMap {
+		inFlag := false
+		for _, area := range array.areas {
+			if isInArea(x, y, area) {
+				inFlag = true
+				if !isInIDList(id, inList) {
+					inList = append(inList, id)
+				}
+			}
+		}
+		if !inFlag {
+			if !isInIDList(id, outList) {
+				outList = append(outList, id)
+			}
+		}
+	}
+
+	return inList, outList
+}
+
+func (obj *Manager) GetDBusInfo() dbus.DBusInfo {
 	return dbus.DBusInfo{
 		MouseAreaDest,
 		"/com/deepin/api/XMouseArea",

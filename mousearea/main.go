@@ -63,6 +63,8 @@ func main() {
 	}
 
 	dbus.DealWithUnhandledMessage()
+	GetManager().CancelAllArea()
+
 	//select {}
 	if err = dbus.Wait(); err != nil {
 		Logger.Error("lost dbus session:", err)
