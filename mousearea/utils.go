@@ -8,14 +8,12 @@ import (
 	"sync"
 )
 
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
-}
+const (
+	MotionFlag = int32(1 << 0)
+	ButtonFlag = int32(1 << 1)
+	KeyFlag    = int32(1 << 2)
+	AllFlag    = MotionFlag | ButtonFlag | KeyFlag
+)
 
 var genID = func() func() int32 {
 	var lock sync.Mutex
@@ -29,28 +27,55 @@ var genID = func() func() int32 {
 	}
 }()
 
-func getIDList(x, y int32) ([]int32, []int32) {
-	inList := []int32{}
-	outList := []int32{}
-
-	for id, array := range idRangeMap {
-		inFlag := false
-		for _, area := range array.areas {
-			if isInArea(x, y, area) {
-				inFlag = true
-				if !isInIDList(id, inList) {
-					inList = append(inList, id)
-				}
-			}
+var hasMotionFlag = func() func(int32) bool {
+	return func(flag int32) bool {
+		if flag < 0 || flag > AllFlag {
+			return false
 		}
-		if !inFlag {
-			if !isInIDList(id, outList) {
-				outList = append(outList, id)
-			}
+
+		if flag&MotionFlag == MotionFlag {
+			return true
+		}
+
+		return false
+	}
+}()
+
+var hasButtonFlag = func() func(int32) bool {
+	return func(flag int32) bool {
+		if flag < 0 || flag > AllFlag {
+			return false
+		}
+
+		if flag&ButtonFlag == ButtonFlag {
+			return true
+		}
+
+		return false
+	}
+}()
+
+var hasKeyFlag = func() func(int32) bool {
+	return func(flag int32) bool {
+		if flag < 0 || flag > AllFlag {
+			return false
+		}
+
+		if flag&KeyFlag == KeyFlag {
+			return true
+		}
+
+		return false
+	}
+}()
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
 		}
 	}
-
-	return inList, outList
+	return false
 }
 
 func isInArea(x, y int32, area coordinateRange) bool {
@@ -88,19 +113,3 @@ var keyCode2Str = func() func(int32) string {
 		return keyStr
 	}
 }()
-
-func buttonCode2str(code int32) string {
-	switch code {
-	case 1:
-		return "LeftButton"
-	case 2:
-		return "Middlebutton"
-	case 3:
-		return "Rightbutton"
-	case 4:
-		return "RollForward"
-	case 5:
-		return "RollBack"
-	}
-	return "unknow button"
-}
