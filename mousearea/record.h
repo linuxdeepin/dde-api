@@ -33,13 +33,4 @@ int start_listen();
 
 int xi_mask_is_set(unsigned char*ptr, char mask);
 
-//remove this;
-void print_deviceevent(XIDeviceEvent* event);
-void print_devicechangedevent(Display *dpy, XIDeviceChangedEvent *event);
-void print_hierarchychangedevent(XIHierarchyEvent *event);
-void print_rawevent(XIRawEvent *event);
-void print_enterleave(XILeaveEvent* event);
-void print_propertyevent(Display *display, XIPropertyEvent* event);
-const char* type_to_name(int evtype);
-
 #endif
