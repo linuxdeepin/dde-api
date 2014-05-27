@@ -3,6 +3,7 @@
  *               2011 ~ 2013 jouyouyun
  *
  * Author:      jouyouyun <jouyouwen717@gmail.com>
+ * 	        snyh <snyh@snyh.org>
  * Maintainer:  jouyouyun <jouyouwen717@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,9 +20,10 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  **/
 
+#include <X11/X.h>
 #include <X11/extensions/XInput.h>
 
-#include "record.h"
+#include "xinput.h"
 #include "_cgo_export.h"
 
 #include <stdio.h>
@@ -66,30 +68,33 @@ int xinput_version(Display *display)
 
     return vers;
 }
-
-
-void select_events(Display* display)
-{
+ void select_events(Display* display)
+ {
     XIEventMask m;
-    m.deviceid = XIAllDevices;
-    m.mask_len = XIMaskLen(7);
+    m.deviceid = XIAllMasterDevices;
+    m.mask_len = XIMaskLen(XI_LASTEVENT);
     m.mask = calloc(m.mask_len, sizeof(char));
-    XISetMask(m.mask, XI_ButtonPress);
-    XISetMask(m.mask, XI_ButtonRelease);
-    XISetMask(m.mask, XI_KeyPress);
-    XISetMask(m.mask, XI_KeyRelease);
-    XISetMask(m.mask, XI_Motion);
-    XISetMask(m.mask, XI_TouchBegin);
-    XISetMask(m.mask, XI_TouchEnd);
+    XISetMask(m.mask, XI_RawKeyPress);
+    XISetMask(m.mask, XI_RawKeyRelease);
+    XISetMask(m.mask, XI_RawButtonPress);
+    XISetMask(m.mask, XI_RawButtonRelease);
+    XISetMask(m.mask, XI_RawMotion);
+    XISetMask(m.mask, XI_RawTouchBegin);
+    XISetMask(m.mask, XI_RawTouchUpdate);
+    XISetMask(m.mask, XI_RawTouchEnd);
 
     XISelectEvents(display, DefaultRootWindow(display), &m, 1);
-    free(m.mask);
 
-    XSync(display, False);
-}
+    free(m.mask);
+     XSync(display, False);
+ }
 
 int listen(Display *display)
 {
+    Window root = DefaultRootWindow(display);
+    int root_x, root_y, nouse;
+    Window noused_window;
+    unsigned int mask;
     while(1)
     {
 	XEvent ev;
@@ -102,29 +107,19 @@ int listen(Display *display)
 	{
 	    switch (cookie->evtype)
 	    {
-		case XI_DeviceChanged:
-		    break;
-		case XI_HierarchyChanged:
-		    break;
-		case XI_RawKeyPress:
-		case XI_RawKeyRelease:
 		case XI_RawButtonPress:
 		case XI_RawButtonRelease:
 		case XI_RawMotion:
+		case XI_RawKeyPress:
+		case XI_RawKeyRelease:
 		case XI_RawTouchBegin:
 		case XI_RawTouchUpdate:
 		case XI_RawTouchEnd:
-		    break;
-		case XI_Enter:
-		case XI_Leave:
-		case XI_FocusIn:
-		case XI_FocusOut:
-		    break;
-		case XI_PropertyEvent:
-		    break;
+		    {
+		    XQueryPointer(display, root, &noused_window, &noused_window, &root_x, &root_y, &nouse, &nouse, &mask);
+		    go_handle_raw_event(cookie->evtype, cookie->data, root_x, root_y, mask);
+		    }
 
-		default:
-		    go_handle_device_event(cookie->evtype, cookie->data);
 		    break;
 	    }
 	}
