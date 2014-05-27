@@ -2,33 +2,36 @@ package main
 
 // #cgo CFLAGS: -g -Wall
 // #cgo pkg-config: x11 xi
-// #include "record.h"
+// #include "xinput.h"
 import "C"
 
 func init() {
 	go C.start_listen()
 }
 
-//export go_handle_device_event
-func go_handle_device_event(evt_type int, event *C.XIDeviceEvent) {
+//export go_handle_raw_event
+func go_handle_raw_event(evt_type int, event *C.XIRawEvent, x, y, mask int32) {
 	switch event.evtype {
-	case C.XI_KeyPress:
-		GetManager().handleKeyboardEvent(int32(event.detail), true, int32(event.root_x), int32(event.root_y))
-	case C.XI_KeyRelease:
-		GetManager().handleKeyboardEvent(int32(event.detail), false, int32(event.root_x), int32(event.root_y))
-	case C.XI_TouchBegin:
-		GetManager().handleButtonEvent(1, true, int32(event.root_x), int32(event.root_y))
-	case C.XI_ButtonPress:
-		GetManager().handleButtonEvent(int32(event.detail), true, int32(event.root_x), int32(event.root_y))
-	case C.XI_TouchEnd:
-		GetManager().handleButtonEvent(1, false, int32(event.root_x), int32(event.root_y))
-	case C.XI_ButtonRelease:
-		GetManager().handleButtonEvent(int32(event.detail), false, int32(event.root_x), int32(event.root_y))
-	case C.XI_Motion:
-		if len(getButtonState(event)) > 0 {
-			GetManager().handleMotionEvent(int32(event.root_x), int32(event.root_y), true)
+	case C.XI_RawKeyPress:
+		GetManager().handleKeyboardEvent(int32(event.detail), true, x, y)
+	case C.XI_RawKeyRelease:
+		GetManager().handleKeyboardEvent(int32(event.detail), false, x, y)
+	case C.XI_RawTouchBegin:
+		GetManager().handleButtonEvent(1, true, x, y)
+	case C.XI_RawButtonPress:
+		GetManager().handleButtonEvent(int32(event.detail), true, x, y)
+	case C.XI_RawTouchEnd:
+		GetManager().handleButtonEvent(1, false, x, y)
+	case C.XI_RawButtonRelease:
+		GetManager().handleButtonEvent(int32(event.detail), false, x, y)
+
+	case C.XI_RawTouchUpdate:
+		GetManager().handleMotionEvent(x, y, false)
+	case C.XI_RawMotion:
+		if mask != 0 {
+			GetManager().handleMotionEvent(x, y, true)
 		} else {
-			GetManager().handleMotionEvent(int32(event.root_x), int32(event.root_y), false)
+			GetManager().handleMotionEvent(x, y, false)
 		}
 	}
 }
