@@ -165,6 +165,15 @@ func (graphic *Graphic) ResizeImage(srcfile, dstfile string, newWidth, newHeight
 	return
 }
 
+// ThumbnailImage scale target image with limited maximum width and height.
+func (graphic *Graphic) ThumbnailImage(srcfile, dstfile string, maxWidth, maxHeight uint32, format string) (err error) {
+	err = libgraphic.ThumbnailImage(srcfile, dstfile, uint(maxWidth), uint(maxHeight), libgraphic.Format(format))
+	if err != nil {
+		logger.Errorf("%v", err)
+	}
+	return
+}
+
 // RotateImageLeft rotate image to left side, and save to target image
 // format which could be "png" or "jpeg".
 func (graphic *Graphic) RotateImageLeft(srcfile, dstfile string, format string) (err error) {
