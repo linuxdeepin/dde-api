@@ -241,6 +241,7 @@ func getTermDate(year, n int32) (CaYearInfo, bool) {
  * 返回key:日期，value:节气中文名
  */
 func getYearTerm(year int32) map[string]string {
+	logObj.Infof("YEAR: %v", year)
 	res := make(map[string]string)
 	month := int32(0)
 	for i := int32(0); i < 24; i++ {
@@ -252,6 +253,8 @@ func getYearTerm(year int32) map[string]string {
 			res[formatDayD4(month, info.Day)] = lunarData["solarTerm"][i]
 		}
 	}
+
+	//logObj.Infof("TermList: %v", res)
 
 	return res
 }
@@ -424,19 +427,25 @@ func solarToLunar(year, month, day int32) (caLunarDayInfo, bool) {
 
 	//农历节日判断
 	lunarFtv := ""
+	lunarTerm := ""
 	lunarMonthInfos, _, _ := getLunarYearDays(lunarDate.Year)
 	lunarMonthLen := int32(len(lunarMonthInfos))
 	//除夕
 	if int32(lunarDate.Month) == (lunarMonthLen-1) && lunarDate.Day == lunarMonthInfos[lunarMonthLen-1].days {
 		lunarFtv = lunarFestival["d0100"]
-	} else if lunarLeapMonth > 0 && lunarDate.Month > lunarLeapMonth {
-		lunarFtv = lunarFestival[formatDayD4(lunarDate.Month-1, lunarDate.Day)]
-	} else {
+		lunarTerm = termList["d0100"]
+	} else if lunarLeapMonth > 0 && lunarDate.Month >= lunarLeapMonth {
 		lunarFtv = lunarFestival[formatDayD4(lunarDate.Month, lunarDate.Day)]
+		lunarTerm = termList[formatDayD4(lunarDate.Month, lunarDate.Day)]
+	} else {
+		lunarFtv = lunarFestival[formatDayD4(lunarDate.Month+1, lunarDate.Day)]
+		lunarTerm = termList[formatDayD4(lunarDate.Month+1, lunarDate.Day)]
 	}
+	//logObj.Infof("Lunar Festival: %v, Term: %v", lunarFtv, resInfo.Term)
 
 	// 返回结果
 	resInfo := caLunarDayInfo{}
+
 	//logObj.Info("GanZhiYear: ", ganZhiYear)
 	zodiac, _ := getYearZodiac(ganZhiYear)
 	resInfo.Zodiac = zodiac
@@ -446,18 +455,15 @@ func solarToLunar(year, month, day int32) (caLunarDayInfo, bool) {
 	resInfo.GanZhiMonth = monthName
 	dayName, _ := getLunarDayName(year, month, day)
 	resInfo.GanZhiDay = dayName
-	resInfo.Term = termList[formatDayD4(month, day)]
+	resInfo.Term = lunarTerm
 	resInfo.LunarMonthName = lunarMonthName
 	resInfo.LunarDayName = lunarData["dateCn"][lunarDate.Day-1]
 	resInfo.LunarLeapMonth = lunarLeapMonth
 	resInfo.SolarFestival = solarFestival[formatDayD4(month, day)]
 	resInfo.LunarFestival = lunarFtv
 	resInfo.Worktime = 0
-	//logObj.Infof("*** Date: %v - %v - %v\n", year, month, day)
 	if m, ok := worktimeYearMap[fmt.Sprintf("y%d", year)]; ok {
-		//logObj.Infof("--- get %d worktime\n", year)
 		if v, ok := m[formatDayD4(month, day)]; ok {
-			//logObj.Infof("--- get %d - %d worktime\n", month, day)
 			resInfo.Worktime = v
 		}
 	}

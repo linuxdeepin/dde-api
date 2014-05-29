@@ -80,17 +80,21 @@ func (op *Manager) GetLunarInfoBySolar(year, month, day int32) (caLunarDayInfo, 
 }
 
 func (op *Manager) GetSolarMonthCalendar(year, month int32, fill bool) (caSolarMonthInfo, bool) {
+	logObj.Infof("SOLAR DATE: %v- %v- %v", year, month, fill)
 	if info, ok := getSolarCalendar(year, month, fill); !ok {
 		return caSolarMonthInfo{}, false
 	} else {
+		logObj.Infof("Solar Month Data: %v", info)
 		return info, true
 	}
 }
 
 func (op *Manager) GetLunarMonthCalendar(year, month int32, fill bool) (caLunarMonthInfo, bool) {
+	logObj.Infof("LUNAR DATE: %v- %v- %v", year, month, fill)
 	if info, ok := getLunarCalendar(year, month, fill); !ok {
 		return caLunarMonthInfo{}, false
 	} else {
+		logObj.Infof("Lunar Month Data: %v", info)
 		return info, true
 	}
 }
