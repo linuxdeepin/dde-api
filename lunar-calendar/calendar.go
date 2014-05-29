@@ -28,7 +28,7 @@ import (
 
 func isYearValid(year int32) bool {
 	if year > MaxYear || year < MinYear {
-		logObj.Infof("Invalid Year: %d. Year Range(%d - %d)\n",
+		logObj.Errorf("Invalid Year: %d. Year Range(%d - %d)\n",
 			year, MinYear, MaxYear)
 		return false
 	}
@@ -116,7 +116,7 @@ func getLunarDateByBetween(year, between int32) (CaYearInfo, bool) {
 	day := int32(-1)
 	monthDayInfos, yearDays, ok := getLunarYearDays(year)
 	if !ok {
-		logObj.Info("Get Year Days Failed For Year: ", year)
+		logObj.Error("Get Year Days Failed For Year: ", year)
 		return CaYearInfo{year, month, day}, false
 	}
 
@@ -126,7 +126,7 @@ func getLunarDateByBetween(year, between int32) (CaYearInfo, bool) {
 	if between > 0 {
 		end = between
 	} else {
-		end = yearDays - between
+		end = yearDays + between
 	}
 	//logObj.Info("Between: ", end)
 	tmpDays := int32(0)
@@ -158,7 +158,7 @@ func getLunarDateBySolar(year, month, day int32) (CaYearInfo, bool) {
 	between, _ := getDaysBetweenSolar(year, zengMonth, zengDay,
 		year, month, day)
 	if between == 0 { //正月初一
-		return CaYearInfo{year, 1, 1}, true
+		return CaYearInfo{year, 0, 1}, true
 	} else if between < 0 {
 		year -= 1
 	}
@@ -183,7 +183,7 @@ func getDaysBetweenSolar(year, month, day, year1, month1, day1 int32) (int64, bo
 func getDaysBetweenZheng(year, month, day int32) (int32, bool) {
 	monthDayInfos, _, ok := getLunarYearDays(year)
 	if !ok {
-		logObj.Info("Get Year Days Failed For Year: ", year)
+		logObj.Error("Get Year Days Failed For Year: ", year)
 		return -1, false
 	}
 
@@ -241,7 +241,6 @@ func getTermDate(year, n int32) (CaYearInfo, bool) {
  * 返回key:日期，value:节气中文名
  */
 func getYearTerm(year int32) map[string]string {
-	logObj.Infof("YEAR: %v", year)
 	res := make(map[string]string)
 	month := int32(0)
 	for i := int32(0); i < 24; i++ {
@@ -253,8 +252,6 @@ func getYearTerm(year int32) map[string]string {
 			res[formatDayD4(month, info.Day)] = lunarData["solarTerm"][i]
 		}
 	}
-
-	//logObj.Infof("TermList: %v", res)
 
 	return res
 }
@@ -398,7 +395,7 @@ func solarToLunar(year, month, day int32) (caLunarDayInfo, bool) {
 	termList := v.(map[string]string)
 
 	//某月第一个节气开始日期
-	firstTerm, _ := getTermDate(year, month*2)
+	firstTerm, _ := getTermDate(year, month*2-1)
 	//干支所在年份
 	ganZhiYear := int32(0)
 	if month > 1 || (month == 1 && day >= term2.Day) {
