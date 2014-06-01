@@ -26,6 +26,7 @@ import (
 	"dlib/dbus"
 	liblogger "dlib/logger"
 	"os"
+	"time"
 )
 
 var logger = liblogger.NewLogger("dde-api/sound")
@@ -44,6 +45,8 @@ func main() {
 		logger.Errorf("register dbus interface failed: %v", err)
 		os.Exit(1)
 	}
+
+	dbus.SetAutoDestroyHandler(time.Second*1, nil)
 
 	dbus.DealWithUnhandledMessage()
 	if err := dbus.Wait(); err != nil {
