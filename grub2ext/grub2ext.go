@@ -19,29 +19,36 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  **/
 
+// This module is split from dde-daemon/grub2 to fix launch issue
+// through dbus-daemon for that system bus in root couldn't access
+// session bus interface.
+
 package main
 
 import (
-        "dlib"
-        "dlib/dbus"
-        liblogger "dlib/logger"
-        "os"
+	"dlib/dbus"
+	"dlib/graphic"
+	"io/ioutil"
+	"os"
+	"path"
 )
 
 const (
-        grubConfigFile = "/etc/default/grub"
-        grubUpdateExe  = "/usr/sbin/update-grub"
-        grubCacheFile  = "/var/cache/dde-daemon/grub2.json"
+	grubDest = "com.deepin.api.Grub2"
+	grubPath = "/com/deepin/api/Grub2"
+	grubIfs  = "com.deepin.api.Grub2"
 
-        themePath          = "/boot/grub/themes/deepin"
-        themeMainFile      = themePath + "/theme.txt"
-        themeJSONFile      = themePath + "/theme_tpl.json"
-        themeBgOrigSrcFile = themePath + "/background_origin_source"
-        themeBgSrcFile     = themePath + "/background_source"
-        themeBgFile        = themePath + "/background.png"
+	grubConfigFile = "/etc/default/grub"
+	grubUpdateExe  = "/usr/sbin/update-grub"
+	grubCacheFile  = "/var/cache/dde-daemon/grub2.json"
+
+	themePath          = "/boot/grub/themes/deepin"
+	themeMainFile      = themePath + "/theme.txt"
+	themeJSONFile      = themePath + "/theme_tpl.json"
+	themeBgOrigSrcFile = themePath + "/background_origin_source"
+	themeBgSrcFile     = themePath + "/background_source"
+	themeBgFile        = themePath + "/background.png"
 )
-
-var logger = liblogger.NewLogger("dde-api/grub2ext")
 
 // Grub2Ext is a dbus object, and is split from dde-daemon/grub2 to
 // fix launch issue through dbus-daemon for that system bus in root
@@ -50,37 +57,124 @@ type Grub2Ext struct{}
 
 // NewGrub2Ext create a Grub2Ext object.
 func NewGrub2Ext() *Grub2Ext {
-        grub := &Grub2Ext{}
-        return grub
+	grub := &Grub2Ext{}
+	return grub
 }
 
-func main() {
-        defer logger.EndTracing()
+// GetDBusInfo implement interface of dbus.DBusObject
+func (grub *Grub2Ext) GetDBusInfo() dbus.DBusInfo {
+	return dbus.DBusInfo{
+		grubDest,
+		grubPath,
+		grubIfs,
+	}
+}
 
-        if !dlib.UniqueOnSystem("com.deepin.api.Grub2") {
-                logger.Warning("There already has an Grub2 daemon running.")
-                return
-        }
+// DoWriteSettings write file content to "/etc/default/grub".
+func (grub *Grub2Ext) DoWriteSettings(fileContent string) (ok bool, err error) {
+	err = ioutil.WriteFile(grubConfigFile, []byte(fileContent), 0664)
+	if err != nil {
+		logger.Error(err.Error())
+		return false, err
+	}
+	return true, nil
+}
 
-        // configure logger
-        logger.SetRestartCommand("/usr/lib/deepin-api/grub2ext", "--debug")
-        if stringInSlice("-d", os.Args) || stringInSlice("--debug", os.Args) {
-                logger.SetLogLevel(liblogger.LEVEL_DEBUG)
-        }
+// DoWriteCacheConfig write file content to "/var/cache/dde-daemon/grub2.json".
+func (grub *Grub2Ext) DoWriteCacheConfig(fileContent string) (ok bool, err error) {
+	// ensure parent directory exists
+	if !isFileExists(grubCacheFile) {
+		os.MkdirAll(path.Dir(grubCacheFile), 0755)
+	}
+	err = ioutil.WriteFile(grubCacheFile, []byte(fileContent), 0644)
+	if err != nil {
+		logger.Error(err.Error())
+		return false, err
+	}
+	return true, nil
+}
 
-        grub := NewGrub2Ext()
-        err := dbus.InstallOnSystem(grub)
-        if err != nil {
-                logger.Errorf("register dbus interface failed: %v", err)
-                os.Exit(1)
-        }
+// DoGenerateGrubConfig execute command "/usr/sbin/update-grub" to
+// generate a new grub configuration.
+func (grub *Grub2Ext) DoGenerateGrubConfig() (ok bool, err error) {
+	logger.Info("start to generate a new grub configuration file")
+	_, stderr, err := execAndWait(30, grubUpdateExe)
+	logger.Infof("process output: %s", stderr)
+	if err != nil {
+		logger.Errorf("generate grub configuration failed: %v", err)
+		return false, err
+	}
+	logger.Info("generate grub configuration successful")
+	return true, nil
+}
 
-        dbus.DealWithUnhandledMessage()
+// DoSetThemeBackgroundSourceFile setup a new background source file
+// for deepin grub2 theme, and then generate the background depends on
+// screen resolution.
+func (grub *Grub2Ext) DoSetThemeBackgroundSourceFile(imageFile string, screenWidth, screenHeight uint16) (ok bool, err error) {
+	// if background source file is a symlink, just delete it
+	if isSymlink(themeBgSrcFile) {
+		os.Remove(themeBgSrcFile)
+	}
 
-        if err := dbus.Wait(); err != nil {
-                logger.Errorf("lost dbus session: %v", err)
-                os.Exit(1)
-        } else {
-                os.Exit(0)
-        }
+	// backup background source file
+	_, err = copyFile(imageFile, themeBgSrcFile)
+	if err != nil {
+		return false, err
+	}
+
+	// generate a new background
+	return grub.DoGenerateThemeBackground(screenWidth, screenHeight)
+}
+
+// DoGenerateThemeBackground generate the background for deepin grub2
+// theme depends on screen resolution.
+func (grub *Grub2Ext) DoGenerateThemeBackground(screenWidth, screenHeight uint16) (ok bool, err error) {
+	imgWidth, imgHeight, err := graphic.GetImageSize(themeBgSrcFile)
+	if err != nil {
+		logger.Error(err.Error())
+		return false, err
+	}
+	logger.Infof("source background size %dx%d", imgWidth, imgHeight)
+
+	x0, y0, x1, y1 := getImgClipRectByResolution(screenWidth, screenHeight, imgWidth, imgHeight)
+	logger.Infof("background clip rect (%d,%d), (%d,%d)", x0, y0, x1, y1)
+	logger.Infof("background size %dx%d", x1-x0, y1-y0)
+	err = graphic.ClipImage(themeBgSrcFile, themeBgFile, x0, y0, x1, y1, graphic.PNG)
+	if err != nil {
+		logger.Error(err.Error())
+		return false, err
+	}
+	return true, nil
+}
+
+// DoCustomTheme write file content to "/boot/grub/themes/deepin/theme.txt".
+func (grub *Grub2Ext) DoCustomTheme(fileContent string) (ok bool, err error) {
+	err = ioutil.WriteFile(themeMainFile, []byte(fileContent), 0664)
+	if err != nil {
+		logger.Error(err.Error())
+		return false, err
+	}
+	return true, nil
+}
+
+// DoWriteThemeJSON write file content to "/boot/grub/themes/deepin/theme_tpl.json".
+func (grub *Grub2Ext) DoWriteThemeJSON(fileContent string) (ok bool, err error) {
+	err = ioutil.WriteFile(themeJSONFile, []byte(fileContent), 0664)
+	if err != nil {
+		logger.Error(err.Error())
+		return false, err
+	}
+	return true, nil
+}
+
+// DoResetThemeBackground link background_origin_source to background_source
+func (grub *Grub2Ext) DoResetThemeBackground() (ok bool, err error) {
+	os.Remove(themeBgSrcFile)
+	err = os.Symlink(themeBgOrigSrcFile, themeBgSrcFile)
+	if err != nil {
+		logger.Error(err.Error())
+		return false, err
+	}
+	return true, nil
 }
