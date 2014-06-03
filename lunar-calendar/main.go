@@ -45,7 +45,9 @@ func main() {
 	}
 	dbus.DealWithUnhandledMessage()
 
-	<-time.After(time.Second * 30)
+	dbus.SetAutoDestroyHandler(time.Second*1, func() bool {
+		return true
+	})
 	if err := dbus.Wait(); err != nil {
 		logObj.Warning("Lost Session DBus")
 		os.Exit(-1)
