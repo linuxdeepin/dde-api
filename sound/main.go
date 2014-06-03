@@ -26,15 +26,17 @@ import (
 	"dlib/dbus"
 	liblogger "dlib/logger"
 	"os"
+	"sync"
 	"time"
 )
 
-var logger = liblogger.NewLogger("dde-api/sound")
+var logger = liblogger.NewLogger(soundDest)
+var wg sync.WaitGroup
 
 func main() {
 	defer logger.EndTracing()
 
-	if !dlib.UniqueOnSession("com.deepin.api.Sound") {
+	if !dlib.UniqueOnSession(soundDest) {
 		logger.Warning("There already has an Sound daemon running.")
 		return
 	}
@@ -46,7 +48,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	dbus.SetAutoDestroyHandler(time.Second*1, nil)
+	dbus.SetAutoDestroyHandler(time.Second*1, func() bool {
+		wg.Wait()
+		return true
+	})
 
 	dbus.DealWithUnhandledMessage()
 	if err := dbus.Wait(); err != nil {
