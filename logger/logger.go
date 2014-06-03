@@ -47,15 +47,11 @@ var logimpl *golog.Logger
 
 // A Logger represents an active logging object that will provides a
 // dbus service to write log message.
-type Logger struct {
-	Names map[string]string
-}
+type Logger struct{}
 
 // NewLogger creates a new Logger object.
 func NewLogger() *Logger {
 	logger := &Logger{}
-	logger.Names = make(map[string]string)
-	logger.Names[selfID] = selfName
 	return logger
 }
 
@@ -72,8 +68,7 @@ func (logger *Logger) GetDBusInfo() dbus.DBusInfo {
 // uniquely id which will be used in following operator.
 func (logger *Logger) NewLogger(name string) (id string, err error) {
 	id = randString(len(selfID))
-	logger.Names[id] = name
-	logger.doLog(id, "NEW", fmt.Sprintf("id=%s", id))
+	logger.doLog(id, name, "NEW", fmt.Sprintf("id=%s", id))
 	return
 }
 
@@ -87,22 +82,10 @@ func randString(n int) string {
 	return string(bytes)
 }
 
-func (logger *Logger) getName(id string) (name string) {
-	if id == selfID {
-		name = selfName
-		return
-	}
-	name = logger.Names[id]
-	if len(name) == 0 {
-		name = unknownName
-	}
-	return
-}
-
-func (logger *Logger) doLog(id string, level, msg string) {
+func (logger *Logger) doLog(id, name string, level, msg string) {
 	now := time.Now()
 	date := fmt.Sprintf("%02d-%02d-%02d %02d:%02d:%02d.%03d", now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second(), int(float64(now.Nanosecond())/float64(999999999)*1000))
-	prefix := fmt.Sprintf("%s %s %s: [%s] ", id, date, logger.getName(id), level)
+	prefix := fmt.Sprintf("%s %s %s: [%s] ", id, date, name, level)
 	fmtMsg := prefix + msg
 	fmtMsg = strings.Replace(fmtMsg, "\n", "\n"+prefix, -1) // format multi-lines message
 	logimpl.Println(fmtMsg)
@@ -110,28 +93,28 @@ func (logger *Logger) doLog(id string, level, msg string) {
 }
 
 // Debug write a log message with 'DEBUG' as prefix.
-func (logger *Logger) Debug(id string, msg string) {
-	logger.doLog(id, "DEBUG", msg)
+func (logger *Logger) Debug(id, name, msg string) {
+	logger.doLog(id, name, "DEBUG", msg)
 }
 
 // Info write a log message with 'INFO' as prefix.
-func (logger *Logger) Info(id string, msg string) {
-	logger.doLog(id, "INFO", msg)
+func (logger *Logger) Info(id, name, msg string) {
+	logger.doLog(id, name, "INFO", msg)
 }
 
 // Warning write a log message with 'WARNING' as prefix.
-func (logger *Logger) Warning(id string, msg string) {
-	logger.doLog(id, "WARNING", msg)
+func (logger *Logger) Warning(id, name, msg string) {
+	logger.doLog(id, name, "WARNING", msg)
 }
 
 // Error write a log message with 'ERROR' as prefix.
-func (logger *Logger) Error(id string, msg string) {
-	logger.doLog(id, "ERROR", msg)
+func (logger *Logger) Error(id, name, msg string) {
+	logger.doLog(id, name, "ERROR", msg)
 }
 
 // Fatal write a log message with 'FATAL' as prefix.
-func (logger *Logger) Fatal(id string, msg string) {
-	logger.doLog(id, "FATAL", msg)
+func (logger *Logger) Fatal(id, name, msg string) {
+	logger.doLog(id, name, "FATAL", msg)
 }
 
 // GetLog return all log messages that wrote by target ID.
@@ -204,6 +187,8 @@ func main() {
 		os.Exit(1)
 	}
 	dbus.DealWithUnhandledMessage()
+
+	dbus.SetAutoDestroyHandler(5*time.Second, nil)
 
 	if err := dbus.Wait(); err != nil {
 		golog.Printf("lost dbus session: %v\n", err)
