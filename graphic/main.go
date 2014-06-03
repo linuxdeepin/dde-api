@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2014 Deepin, Inc.
- *               2014 Xu FaSheng
+ * Copyright (c) 2013 ~ 2014 Deepin, Inc.
+ *               2013 ~ 2014 Xu FaSheng
  *
  * Author:      Xu FaSheng <fasheng.xu@gmail.com>
  * Maintainer:  Xu FaSheng <fasheng.xu@gmail.com>
@@ -25,36 +25,44 @@ import (
 	"dlib"
 	"dlib/dbus"
 	liblogger "dlib/logger"
+	"flag"
 	"os"
-	"sync"
 	"time"
 )
 
-var logger = liblogger.NewLogger(soundDest)
-var wg sync.WaitGroup
+var argDebug bool
 
 func main() {
 	logger.BeginTracing()
 	defer logger.EndTracing()
 
-	if !dlib.UniqueOnSession(soundDest) {
-		logger.Warning("There already has an Sound daemon running.")
+	if !dlib.UniqueOnSession(graphicDest) {
+		logger.Warning("There already has an Graphic daemon running.")
 		return
 	}
 
-	s := &Sound{}
-	err := dbus.InstallOnSession(s)
+	flag.BoolVar(&argDebug, "d", false, "debug mode")
+	flag.BoolVar(&argDebug, "debug", false, "debug mode")
+	flag.Parse()
+
+	// configure logger
+	logger.SetRestartCommand("/usr/lib/deepin-api/graphic", "--debug") // TODO: is still need?
+	if argDebug {
+		logger.Info("debug mode")
+		logger.SetLogLevel(liblogger.LEVEL_DEBUG)
+	}
+
+	graphic := &Graphic{}
+	err := dbus.InstallOnSession(graphic)
 	if err != nil {
 		logger.Errorf("register dbus interface failed: %v", err)
 		os.Exit(1)
 	}
-
-	dbus.SetAutoDestroyHandler(time.Second*1, func() bool {
-		wg.Wait()
-		return true
-	})
-
 	dbus.DealWithUnhandledMessage()
+
+	// FIXME: how long to wait
+	dbus.SetAutoDestroyHandler(30*time.Second, nil)
+
 	if err := dbus.Wait(); err != nil {
 		logger.Errorf("lost dbus session: %v", err)
 		os.Exit(1)
