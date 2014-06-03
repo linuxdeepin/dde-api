@@ -22,26 +22,28 @@
 package main
 
 import (
-	"dlib"
 	"dlib/dbus"
 	libgraphic "dlib/graphic"
 	liblogger "dlib/logger"
-	"os"
 )
 
-var logger = liblogger.NewLogger("dde-api/graphic")
+var logger = liblogger.NewLogger(graphicDest)
+
+const (
+	graphicDest = "com.deepin.api.Graphic"
+	graphicPath = "/com/deepin/api/Graphic"
+	graphicIfs  = "com.deepin.api.Graphic"
+)
 
 // Graphic is a dbus interface wrapper for dlib/graphic.
-type Graphic struct {
-	BlurPictChanged func(string, string)
-}
+type Graphic struct{}
 
 // GetDBusInfo implement interface of dbus.DBusObject
 func (graphic *Graphic) GetDBusInfo() dbus.DBusInfo {
 	return dbus.DBusInfo{
-		"com.deepin.api.Graphic",
-		"/com/deepin/api/Graphic",
-		"com.deepin.api.Graphic",
+		graphicDest,
+		graphicPath,
+		graphicIfs,
 	}
 }
 
@@ -192,45 +194,4 @@ func (graphic *Graphic) RotateImageRight(srcfile, dstfile string, format string)
 		logger.Errorf("%v", err)
 	}
 	return
-}
-
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
-}
-
-func main() {
-	defer logger.EndTracing()
-
-	if !dlib.UniqueOnSession("com.deepin.api.Graphic") {
-		logger.Warning("There already has an Graphic daemon running.")
-		return
-	}
-
-	// configure logger
-	logger.SetRestartCommand("/usr/lib/deepin-api/graphic", "--debug")
-	if stringInSlice("-d", os.Args) || stringInSlice("--debug", os.Args) {
-		logger.SetLogLevel(liblogger.LEVEL_DEBUG)
-	}
-
-	jobInHand = make(map[string]bool) // used by blur pict
-
-	graphic := &Graphic{}
-	err := dbus.InstallOnSession(graphic)
-	if err != nil {
-		logger.Errorf("register dbus interface failed: %v", err)
-		os.Exit(1)
-	}
-	dbus.DealWithUnhandledMessage()
-
-	if err := dbus.Wait(); err != nil {
-		logger.Errorf("lost dbus session: %v", err)
-		os.Exit(1)
-	} else {
-		os.Exit(0)
-	}
 }
