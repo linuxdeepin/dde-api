@@ -29,6 +29,11 @@ const (
 	LOCALE_GEN_CMD = "/usr/sbin/locale-gen"
 )
 
+var (
+	genLcStart = false
+	genLcEnd   = false
+)
+
 func (op *SetDateTime) GenLocale(locale string) {
 	if len(locale) < 1 {
 		logger.Warning("GenLocale Arg Error")
@@ -36,14 +41,18 @@ func (op *SetDateTime) GenLocale(locale string) {
 		return
 	}
 
+	genLcEnd = false
+	genLcStart = true
 	go func() {
 		err := exec.Command(LOCALE_GEN_CMD, locale).Run()
 		if err != nil {
 			logger.Warningf("locale-gen '%s' failed: %v\n",
 				locale, err)
 			op.GenLocaleStatus(false, err.Error())
-			return
+		} else {
+			op.GenLocaleStatus(true, locale)
 		}
-		op.GenLocaleStatus(true, locale)
+		genLcStart = false
+		genLcEnd = true
 	}()
 }
