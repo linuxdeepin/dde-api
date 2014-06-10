@@ -10,20 +10,20 @@ func init() {
 }
 
 //export go_handle_raw_event
-func go_handle_raw_event(evt_type int, event *C.XIRawEvent, x, y, mask int32) {
-	switch event.evtype {
+func go_handle_raw_event(evt_type int, detail int32, x, y, mask int32) {
+	switch evt_type {
 	case C.XI_RawKeyPress:
-		GetManager().handleKeyboardEvent(int32(event.detail), true, x, y)
+		GetManager().handleKeyboardEvent(detail, true, x, y)
 	case C.XI_RawKeyRelease:
-		GetManager().handleKeyboardEvent(int32(event.detail), false, x, y)
+		GetManager().handleKeyboardEvent(detail, false, x, y)
 	case C.XI_RawTouchBegin:
 		GetManager().handleButtonEvent(1, true, x, y)
 	case C.XI_RawButtonPress:
-		GetManager().handleButtonEvent(int32(event.detail), true, x, y)
+		GetManager().handleButtonEvent(detail, true, x, y)
 	case C.XI_RawTouchEnd:
 		GetManager().handleButtonEvent(1, false, x, y)
 	case C.XI_RawButtonRelease:
-		GetManager().handleButtonEvent(int32(event.detail), false, x, y)
+		GetManager().handleButtonEvent(detail, false, x, y)
 
 	case C.XI_RawTouchUpdate:
 		GetManager().handleMotionEvent(x, y, false)
