@@ -117,7 +117,8 @@ int listen(Display *display)
 		case XI_RawTouchEnd:
 		    {
 		    XQueryPointer(display, root, &noused_window, &noused_window, &root_x, &root_y, &nouse, &nouse, &mask);
-		    go_handle_raw_event(cookie->evtype, cookie->data, root_x, root_y, mask);
+		    XIRawEvent* event = cookie->data;
+		    go_handle_raw_event(cookie->evtype, event->detail, root_x, root_y, mask);
 		    }
 
 		    break;
