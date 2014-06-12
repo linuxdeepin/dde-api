@@ -62,7 +62,8 @@ func main() {
 
 	dbus.DealWithUnhandledMessage()
 
-	dbus.SetAutoDestroyHandler(300*time.Second, nil)
+	// TODO
+	// dbus.SetAutoDestroyHandler(300*time.Second, nil)
 
 	if err := dbus.Wait(); err != nil {
 		logger.Errorf("lost dbus session: %v", err)
