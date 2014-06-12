@@ -27,7 +27,6 @@ import (
 	liblogger "dlib/logger"
 	"flag"
 	"os"
-	"time"
 )
 
 var logger = liblogger.NewLogger(grubDest)
