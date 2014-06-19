@@ -6,7 +6,6 @@ all:
 	cd logger/ && $(run)
 	cd lunar-calendar/ && $(run)
 	cd mousearea/ && $(run)
-	cd pinyin-search/ && $(run)
 	cd set-date-time/ && $(run)
 	cd sound/ && $(run)
 
