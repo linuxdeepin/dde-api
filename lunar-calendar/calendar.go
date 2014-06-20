@@ -424,19 +424,15 @@ func solarToLunar(year, month, day int32) (caLunarDayInfo, bool) {
 
 	//农历节日判断
 	lunarFtv := ""
-	lunarTerm := ""
 	lunarMonthInfos, _, _ := getLunarYearDays(lunarDate.Year)
 	lunarMonthLen := int32(len(lunarMonthInfos))
 	//除夕
 	if int32(lunarDate.Month) == (lunarMonthLen-1) && lunarDate.Day == lunarMonthInfos[lunarMonthLen-1].days {
 		lunarFtv = lunarFestival["d0100"]
-		lunarTerm = termList["d0100"]
 	} else if lunarLeapMonth > 0 && lunarDate.Month >= lunarLeapMonth {
 		lunarFtv = lunarFestival[formatDayD4(lunarDate.Month, lunarDate.Day)]
-		lunarTerm = termList[formatDayD4(lunarDate.Month, lunarDate.Day)]
 	} else {
 		lunarFtv = lunarFestival[formatDayD4(lunarDate.Month+1, lunarDate.Day)]
-		lunarTerm = termList[formatDayD4(lunarDate.Month+1, lunarDate.Day)]
 	}
 	//logObj.Infof("Lunar Festival: %v, Term: %v", lunarFtv, resInfo.Term)
 
@@ -452,6 +448,7 @@ func solarToLunar(year, month, day int32) (caLunarDayInfo, bool) {
 	resInfo.GanZhiMonth = monthName
 	dayName, _ := getLunarDayName(year, month, day)
 	resInfo.GanZhiDay = dayName
+	lunarTerm := termList[formatDayD4(month, day)]
 	resInfo.Term = lunarTerm
 	resInfo.LunarMonthName = lunarMonthName
 	resInfo.LunarDayName = lunarData["dateCn"][lunarDate.Day-1]
