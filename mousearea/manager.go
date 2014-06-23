@@ -76,9 +76,9 @@ func (obj *Manager) handleMotionEvent(x, y int32, press bool) {
 		if array, ok := obj.idRangeMap[cookie]; ok {
 			/* moveIntoFlag == true : mouse move in area */
 			if !array.moveIntoFlag {
-				array.moveIntoFlag = true
 				if press {
 					obj.MotionInto(x, y, cookie)
+					array.moveIntoFlag = true
 				}
 			}
 
@@ -91,8 +91,8 @@ func (obj *Manager) handleMotionEvent(x, y int32, press bool) {
 		if array, ok := obj.idRangeMap[cookie]; ok {
 			/* moveIntoFlag == false : mouse move out area */
 			if array.moveIntoFlag {
-				array.moveIntoFlag = false
 				obj.MotionOut(x, y, cookie)
+				array.moveIntoFlag = false
 			}
 		}
 	}
