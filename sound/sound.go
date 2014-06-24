@@ -28,8 +28,8 @@ import "C"
 import "unsafe"
 
 import (
-	"dlib/dbus"
-	"dlib/gio-2.0"
+	"pkg.linuxdeepin.com/lib/dbus"
+	"pkg.linuxdeepin.com/lib/gio-2.0"
 )
 
 const (

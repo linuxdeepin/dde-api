@@ -22,10 +22,10 @@
 package main
 
 import (
-	"dlib"
-	"dlib/dbus"
-	liblogger "dlib/logger"
 	"os"
+	"pkg.linuxdeepin.com/lib"
+	"pkg.linuxdeepin.com/lib/dbus"
+	liblogger "pkg.linuxdeepin.com/lib/logger"
 	"sync"
 	"time"
 )
@@ -37,7 +37,7 @@ func main() {
 	logger.BeginTracing()
 	defer logger.EndTracing()
 
-	if !dlib.UniqueOnSession(soundDest) {
+	if !lib.UniqueOnSession(soundDest) {
 		logger.Warning("There already has an Sound daemon running.")
 		return
 	}

@@ -22,9 +22,9 @@
 package main
 
 import (
-	"dlib/dbus"
-	libgraphic "dlib/graphic"
-	liblogger "dlib/logger"
+	"pkg.linuxdeepin.com/lib/dbus"
+	libgraphic "pkg.linuxdeepin.com/lib/graphic"
+	liblogger "pkg.linuxdeepin.com/lib/logger"
 )
 
 var logger = liblogger.NewLogger(graphicDest)
@@ -35,7 +35,7 @@ const (
 	graphicIfs  = "com.deepin.api.Graphic"
 )
 
-// Graphic is a dbus interface wrapper for dlib/graphic.
+// Graphic is a dbus interface wrapper for pkg.linuxdeepin.com/lib/graphic.
 type Graphic struct{}
 
 // GetDBusInfo implement interface of dbus.DBusObject

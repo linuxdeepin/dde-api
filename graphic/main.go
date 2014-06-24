@@ -22,11 +22,11 @@
 package main
 
 import (
-	"dlib"
-	"dlib/dbus"
-	liblogger "dlib/logger"
 	"flag"
 	"os"
+	"pkg.linuxdeepin.com/lib"
+	"pkg.linuxdeepin.com/lib/dbus"
+	liblogger "pkg.linuxdeepin.com/lib/logger"
 	"time"
 )
 
@@ -36,7 +36,7 @@ func main() {
 	logger.BeginTracing()
 	defer logger.EndTracing()
 
-	if !dlib.UniqueOnSession(graphicDest) {
+	if !lib.UniqueOnSession(graphicDest) {
 		logger.Warning("There already has an Graphic daemon running.")
 		return
 	}

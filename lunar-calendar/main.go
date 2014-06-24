@@ -22,10 +22,10 @@
 package main
 
 import (
-	"dlib"
-	"dlib/dbus"
-	Logger "dlib/logger"
 	"os"
+	"pkg.linuxdeepin.com/lib"
+	"pkg.linuxdeepin.com/lib/dbus"
+	Logger "pkg.linuxdeepin.com/lib/logger"
 	"time"
 )
 
@@ -34,7 +34,7 @@ var (
 )
 
 func main() {
-	defer dlib.UniqueOnSession(LUNAR_DEST)
+	lib.UniqueOnSession(LUNAR_DEST)
 
 	logObj.SetRestartCommand("/usr/lib/deepin-api/lunar-calendar")
 
