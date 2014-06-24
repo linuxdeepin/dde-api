@@ -1,11 +1,11 @@
 package main
 
 import (
-	"dlib"
-	"dlib/dbus"
-	dlogger "dlib/logger"
 	"os"
 	"os/exec"
+	"pkg.linuxdeepin.com/lib"
+	"pkg.linuxdeepin.com/lib/dbus"
+	dlogger "pkg.linuxdeepin.com/lib/logger"
 	"strconv"
 	"time"
 )
@@ -116,7 +116,7 @@ func stringInSlice(a string, list []string) bool {
 func main() {
 	defer logger.EndTracing()
 
-	if !dlib.UniqueOnSystem(_SET_DATE_TIME_DEST) {
+	if !lib.UniqueOnSystem(_SET_DATE_TIME_DEST) {
 		logger.Warning("There already has an SetDateTime daemon running.")
 		return
 	}

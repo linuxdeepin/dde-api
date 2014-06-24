@@ -24,13 +24,13 @@ package main
 import (
 	"bufio"
 	"crypto/rand"
-	"dlib"
-	"dlib/dbus"
 	"fmt"
 	"io/ioutil"
 	golog "log"
 	"os"
 	"path/filepath"
+	"pkg.linuxdeepin.com/lib"
+	"pkg.linuxdeepin.com/lib/dbus"
 	"sort"
 	"strings"
 	"time"
@@ -167,7 +167,7 @@ func main() {
 		}
 	}()
 
-	if !dlib.UniqueOnSystem("com.deepin.api.Logger") {
+	if !lib.UniqueOnSystem("com.deepin.api.Logger") {
 		golog.Println("There already has an Logger daemon running.")
 		return
 	}

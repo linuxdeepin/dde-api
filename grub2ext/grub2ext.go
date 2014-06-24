@@ -26,8 +26,8 @@
 package main
 
 import (
-	"dlib/dbus"
-	"dlib/graphic"
+	"pkg.linuxdeepin.com/lib/dbus"
+	"pkg.linuxdeepin.com/lib/graphic"
 	"io/ioutil"
 	"os"
 	"path"

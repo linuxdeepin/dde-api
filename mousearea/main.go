@@ -22,10 +22,10 @@
 package main
 
 import (
-	"dlib"
-	"dlib/dbus"
-	"dlib/logger"
 	"os"
+	"pkg.linuxdeepin.com/lib"
+	"pkg.linuxdeepin.com/lib/dbus"
+	"pkg.linuxdeepin.com/lib/logger"
 )
 
 var (
@@ -39,7 +39,7 @@ const (
 func main() {
 	defer Logger.EndTracing()
 
-	if !dlib.UniqueOnSession(MouseAreaDest) {
+	if !lib.UniqueOnSession(MouseAreaDest) {
 		Logger.Warning("There already has an XMouseArea daemon running.")
 		return
 	}
