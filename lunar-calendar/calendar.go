@@ -28,7 +28,7 @@ import (
 
 func isYearValid(year int32) bool {
 	if year > MaxYear || year < MinYear {
-		logObj.Errorf("Invalid Year: %d. Year Range(%d - %d)\n",
+		logObj.Warningf("Invalid Year: %d. Year Range(%d - %d)\n",
 			year, MinYear, MaxYear)
 		return false
 	}
@@ -116,7 +116,7 @@ func getLunarDateByBetween(year, between int32) (CaYearInfo, bool) {
 	day := int32(-1)
 	monthDayInfos, yearDays, ok := getLunarYearDays(year)
 	if !ok {
-		logObj.Error("Get Year Days Failed For Year: ", year)
+		logObj.Warning("Get Year Days Failed For Year: ", year)
 		return CaYearInfo{year, month, day}, false
 	}
 
@@ -183,7 +183,7 @@ func getDaysBetweenSolar(year, month, day, year1, month1, day1 int32) (int64, bo
 func getDaysBetweenZheng(year, month, day int32) (int32, bool) {
 	monthDayInfos, _, ok := getLunarYearDays(year)
 	if !ok {
-		logObj.Error("Get Year Days Failed For Year: ", year)
+		logObj.Warning("Get Year Days Failed For Year: ", year)
 		return -1, false
 	}
 
