@@ -34,7 +34,10 @@ var (
 )
 
 func main() {
-	lib.UniqueOnSession(LUNAR_DEST)
+	if !lib.UniqueOnSession(LUNAR_DEST) {
+		logObj.Warning("There already has an lunar-calendar running.")
+		return
+	}
 
 	logObj.SetRestartCommand("/usr/lib/deepin-api/lunar-calendar")
 
@@ -45,9 +48,7 @@ func main() {
 	}
 	dbus.DealWithUnhandledMessage()
 
-	dbus.SetAutoDestroyHandler(time.Second*1, func() bool {
-		return true
-	})
+	dbus.SetAutoDestroyHandler(time.Second*1, nil)
 	if err := dbus.Wait(); err != nil {
 		logObj.Warning("Lost Session DBus")
 		os.Exit(-1)
