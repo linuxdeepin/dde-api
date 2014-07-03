@@ -25,7 +25,7 @@ import (
 	"os"
 	"path"
 	dutils "pkg.linuxdeepin.com/lib/utils"
-	"regexp"
+	"strings"
 )
 
 func (m *Manager) SetKbdLayout(group, layout string) {
@@ -34,6 +34,10 @@ func (m *Manager) SetKbdLayout(group, layout string) {
 	}
 
 	layout = formatLayout(layout)
+	if len(layout) < 1 {
+		return
+	}
+
 	filename := path.Join(CONFIG_DIR, CONFIG_NAME)
 	dutils.WriteKeyToKeyFile(filename, group, KEY_LAYOUT, layout)
 }
@@ -46,6 +50,10 @@ func (m *Manager) SetKbdLayoutList(group string, list []string) {
 	tmp := []string{}
 	for _, l := range list {
 		l = formatLayout(l)
+		if len(l) < 1 {
+			continue
+		}
+
 		tmp = append(tmp, l)
 	}
 	list = tmp
@@ -75,6 +83,16 @@ func checkConfigDirValid() bool {
 }
 
 func formatLayout(layout string) string {
-	reg := regexp.MustCompile(";")
-	return reg.ReplaceAllString(layout, "|")
+	strs := strings.Split(layout, ";")
+	if len(strs) != 2 {
+		return ""
+	}
+
+	if len(strs[1]) < 1 {
+		layout = strs[0]
+	} else {
+		layout = strs[0] + "\t" + strs[1]
+	}
+
+	return layout
 }
