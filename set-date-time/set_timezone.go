@@ -24,6 +24,7 @@ package main
 import (
 	"io/ioutil"
 	"os"
+	duitls "pkg.linuxdeepin.com/lib/utils"
 )
 
 const (
@@ -137,6 +138,10 @@ func getFileMode(file string) os.FileMode {
 }
 
 func fileIsRegular(file string) bool {
+	if !duitls.IsFileExist(file) {
+		return false
+	}
+
 	ok := getFileMode(file).IsRegular()
 	if !ok {
 		logger.Infof("'%s' is not regular", file)
@@ -147,6 +152,10 @@ func fileIsRegular(file string) bool {
 }
 
 func fileIsDir(file string) bool {
+	if !duitls.IsFileExist(file) {
+		return false
+	}
+
 	ok := getFileMode(file).IsDir()
 	if !ok {
 		logger.Infof("'%s' is not dir", file)
@@ -157,6 +166,10 @@ func fileIsDir(file string) bool {
 }
 
 func fileIsSymlink(file string) bool {
+	if !duitls.IsFileExist(file) {
+		return false
+	}
+
 	mode := getFileMode(file)
 	if mode == os.ModeSymlink {
 		logger.Infof("'%s' is symlink", file)
