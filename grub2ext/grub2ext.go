@@ -26,11 +26,11 @@
 package main
 
 import (
-	"pkg.linuxdeepin.com/lib/dbus"
-	"pkg.linuxdeepin.com/lib/graphic"
 	"io/ioutil"
 	"os"
 	"path"
+	"pkg.linuxdeepin.com/lib/dbus"
+	"pkg.linuxdeepin.com/lib/graphic"
 )
 
 const (
@@ -38,9 +38,9 @@ const (
 	grubPath = "/com/deepin/api/Grub2"
 	grubIfs  = "com.deepin.api.Grub2"
 
+	configFile     = "/var/cache/deepin/grub2.json"
 	grubConfigFile = "/etc/default/grub"
 	grubUpdateExe  = "/usr/sbin/update-grub"
-	grubCacheFile  = "/var/cache/dde-daemon/grub2.json"
 
 	themePath          = "/boot/grub/themes/deepin"
 	themeMainFile      = themePath + "/theme.txt"
@@ -70,6 +70,7 @@ func (grub *Grub2Ext) GetDBusInfo() dbus.DBusInfo {
 	}
 }
 
+// TODO rename to DoWriteGrubSettings
 // DoWriteSettings write file content to "/etc/default/grub".
 func (grub *Grub2Ext) DoWriteSettings(fileContent string) (ok bool, err error) {
 	err = ioutil.WriteFile(grubConfigFile, []byte(fileContent), 0664)
@@ -80,13 +81,14 @@ func (grub *Grub2Ext) DoWriteSettings(fileContent string) (ok bool, err error) {
 	return true, nil
 }
 
-// DoWriteCacheConfig write file content to "/var/cache/dde-daemon/grub2.json".
+// TODO rename to DoWriteConfig
+// DoWriteCacheConfig write file content to "/var/cache/deepin/grub2.json".
 func (grub *Grub2Ext) DoWriteCacheConfig(fileContent string) (ok bool, err error) {
 	// ensure parent directory exists
-	if !isFileExists(grubCacheFile) {
-		os.MkdirAll(path.Dir(grubCacheFile), 0755)
+	if !isFileExists(configFile) {
+		os.MkdirAll(path.Dir(configFile), 0755)
 	}
-	err = ioutil.WriteFile(grubCacheFile, []byte(fileContent), 0644)
+	err = ioutil.WriteFile(configFile, []byte(fileContent), 0644)
 	if err != nil {
 		logger.Error(err.Error())
 		return false, err
