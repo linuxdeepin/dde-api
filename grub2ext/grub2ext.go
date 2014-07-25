@@ -140,7 +140,7 @@ func (grub *Grub2Ext) DoGenerateThemeBackground(screenWidth, screenHeight uint16
 	logger.Infof("source background size %dx%d", imgWidth, imgHeight)
 	logger.Infof("background size %dx%d", screenWidth, screenHeight)
 	err = graphic.FillImage(themeBgSrcFile, themeBgFile, int(screenWidth), int(screenHeight),
-		graphic.FillProportionCenterScale, graphic.PNG)
+		graphic.FillProportionCenterScale, graphic.FormatPng)
 	if err != nil {
 		logger.Error(err.Error())
 		return false, err
