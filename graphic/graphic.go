@@ -23,6 +23,7 @@ package main
 
 import (
 	"pkg.linuxdeepin.com/lib/dbus"
+	libgdkpixbuf "pkg.linuxdeepin.com/lib/gdkpixbuf"
 	libgraphic "pkg.linuxdeepin.com/lib/graphic"
 	liblogger "pkg.linuxdeepin.com/lib/logger"
 )
@@ -49,7 +50,7 @@ func (graphic *Graphic) GetDBusInfo() dbus.DBusInfo {
 
 // BlurImage generate blur effect to an image.
 func (graphic *Graphic) BlurImage(srcfile, dstfile string, sigma, numsteps float64, format string) (err error) {
-	err = libgraphic.BlurImage(srcfile, dstfile, sigma, numsteps, libgraphic.Format(format))
+	err = libgdkpixbuf.BlurImage(srcfile, dstfile, sigma, numsteps, libgdkpixbuf.Format(format))
 	if err != nil {
 		logger.Errorf("%v", err)
 	}
@@ -57,10 +58,9 @@ func (graphic *Graphic) BlurImage(srcfile, dstfile string, sigma, numsteps float
 }
 
 // ClipImage clip any recognized format image to target format image
-// which could be "png" or "jpeg", for the rectangle to clip, (x0, y0)
-// means the left-top point, (x1, y1) means the right-bottom point.
-func (graphic *Graphic) ClipImage(srcfile, dstfile string, x0, y0, x1, y1 int32, format string) (err error) {
-	err = libgraphic.ClipImage(srcfile, dstfile, int(x0), int(y0), int(x1), int(y1), libgraphic.Format(format))
+// which could be "png" or "jpeg".
+func (graphic *Graphic) ClipImage(srcfile, dstfile string, x, y, w, h int32, format string) (err error) {
+	err = libgraphic.ClipImage(srcfile, dstfile, int(x), int(y), int(w), int(h), libgraphic.Format(format))
 	if err != nil {
 		logger.Errorf("%v", err)
 	}
@@ -160,7 +160,7 @@ func (graphic *Graphic) GetImageSize(imgfile string) (int32, int32, error) {
 // height created by resizing the given image, and save to target
 // image format which could be "png" or "jpeg".
 func (graphic *Graphic) ResizeImage(srcfile, dstfile string, newWidth, newHeight int32, format string) (err error) {
-	err = libgraphic.ResizeImage(srcfile, dstfile, int(newWidth), int(newHeight), libgraphic.Format(format))
+	err = libgraphic.ScaleImage(srcfile, dstfile, int(newWidth), int(newHeight), libgraphic.Format(format))
 	if err != nil {
 		logger.Errorf("%v", err)
 	}
