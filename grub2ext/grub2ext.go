@@ -30,7 +30,7 @@ import (
 	"os"
 	"path"
 	"pkg.linuxdeepin.com/lib/dbus"
-	"pkg.linuxdeepin.com/lib/gdkpixbuf"
+	graphic "pkg.linuxdeepin.com/lib/gdkpixbuf"
 )
 
 const (
@@ -132,14 +132,14 @@ func (grub *Grub2Ext) DoSetThemeBackgroundSourceFile(imageFile string, screenWid
 // DoGenerateThemeBackground generate the background for deepin grub2
 // theme depends on screen resolution.
 func (grub *Grub2Ext) DoGenerateThemeBackground(screenWidth, screenHeight uint16) (ok bool, err error) {
-	imgWidth, imgHeight, err := gdkpixbuf.GetImageSize(themeBgSrcFile)
+	imgWidth, imgHeight, err := graphic.GetImageSize(themeBgSrcFile)
 	if err != nil {
 		logger.Error(err.Error())
 		return false, err
 	}
 	logger.Infof("source background size %dx%d", imgWidth, imgHeight)
 	logger.Infof("background size %dx%d", screenWidth, screenHeight)
-	err = gdkpixbuf.ScaleImagePrefer(themeBgSrcFile, themeBgFile, int(screenWidth), int(screenHeight), gdkpixbuf.GDK_INTERP_HYPER, gdkpixbuf.FormatPng)
+	err = graphic.ScaleImagePrefer(themeBgSrcFile, themeBgFile, int(screenWidth), int(screenHeight), graphic.GDK_INTERP_HYPER, graphic.FormatPng)
 	if err != nil {
 		logger.Error(err.Error())
 		return false, err
