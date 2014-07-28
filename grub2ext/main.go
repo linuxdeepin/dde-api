@@ -26,10 +26,10 @@ import (
 	"os"
 	"pkg.linuxdeepin.com/lib"
 	"pkg.linuxdeepin.com/lib/dbus"
-	liblogger "pkg.linuxdeepin.com/lib/logger"
+	"pkg.linuxdeepin.com/lib/log"
 )
 
-var logger = liblogger.NewLogger(grubDest)
+var logger = log.NewLogger(grubDest)
 var argDebug bool
 
 func main() {
@@ -49,7 +49,7 @@ func main() {
 	logger.SetRestartCommand("/usr/lib/deepin-api/grub2ext", "--debug") // TODO: is still need?
 	if argDebug {
 		logger.Info("debug mode")
-		logger.SetLogLevel(liblogger.LEVEL_DEBUG)
+		logger.SetLogLevel(log.LEVEL_DEBUG)
 	}
 
 	grub := NewGrub2Ext()

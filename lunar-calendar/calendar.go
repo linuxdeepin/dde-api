@@ -28,7 +28,7 @@ import (
 
 func isYearValid(year int32) bool {
 	if year > MaxYear || year < MinYear {
-		logObj.Warningf("Invalid Year: %d. Year Range(%d - %d)\n",
+		logger.Warningf("Invalid Year: %d. Year Range(%d - %d)\n",
 			year, MinYear, MaxYear)
 		return false
 	}
@@ -47,10 +47,10 @@ func getLunarLeapYear(year int32) (int32, bool) {
 	}
 
 	info := lunarInfos[year-MinYear]
-	//logObj.Info("LeapMonth: ", info.leapMonth)
-	//logObj.Info("MonthNum: ", info.lunarMonthNum)
-	//logObj.Info("ZhengMonth: ", info.zhengMonth)
-	//logObj.Info("ZhengDay: ", info.zhengDay)
+	//logger.Info("LeapMonth: ", info.leapMonth)
+	//logger.Info("MonthNum: ", info.lunarMonthNum)
+	//logger.Info("ZhengMonth: ", info.zhengMonth)
+	//logger.Info("ZhengDay: ", info.zhengDay)
 	return info.leapMonth, true
 }
 
@@ -65,7 +65,7 @@ func getLunarYearDays(year int32) ([]caDayInfo, int32, bool) {
 	info := lunarInfos[year-MinYear]
 	leapMonth := info.leapMonth
 	monthData := fmt.Sprintf("%b", info.lunarMonthNum)
-	//logObj.Info("Month Bianry before insert: ", monthData)
+	//logger.Info("Month Bianry before insert: ", monthData)
 	tmp := ""
 	l := len(monthData)
 	//还原数据至16位,少于16位的在前面插入0（二进制存储时前面的0被忽略)
@@ -73,7 +73,7 @@ func getLunarYearDays(year int32) ([]caDayInfo, int32, bool) {
 		tmp += "0"
 	}
 	monthData = tmp + monthData
-	//logObj.Info("Month Bianry after insert: ", monthData)
+	//logger.Info("Month Bianry after insert: ", monthData)
 
 	monthNum := 0
 	if leapMonth > 0 {
@@ -116,7 +116,7 @@ func getLunarDateByBetween(year, between int32) (CaYearInfo, bool) {
 	day := int32(-1)
 	monthDayInfos, yearDays, ok := getLunarYearDays(year)
 	if !ok {
-		logObj.Warning("Get Year Days Failed For Year: ", year)
+		logger.Warning("Get Year Days Failed For Year: ", year)
 		return CaYearInfo{year, month, day}, false
 	}
 
@@ -128,11 +128,11 @@ func getLunarDateByBetween(year, between int32) (CaYearInfo, bool) {
 	} else {
 		end = yearDays + between
 	}
-	//logObj.Info("Between: ", end)
+	//logger.Info("Between: ", end)
 	tmpDays := int32(0)
 	for _, info := range monthDayInfos {
 		tmpDays += info.days
-		//logObj.Info("\tTmp: ", tmpDays)
+		//logger.Info("\tTmp: ", tmpDays)
 		if tmpDays > end {
 			month = info.index
 			tmpDays = tmpDays - info.days
@@ -183,7 +183,7 @@ func getDaysBetweenSolar(year, month, day, year1, month1, day1 int32) (int64, bo
 func getDaysBetweenZheng(year, month, day int32) (int32, bool) {
 	monthDayInfos, _, ok := getLunarYearDays(year)
 	if !ok {
-		logObj.Warning("Get Year Days Failed For Year: ", year)
+		logger.Warning("Get Year Days Failed For Year: ", year)
 		return -1, false
 	}
 
@@ -268,7 +268,7 @@ func getYearZodiac(year int32) (string, bool) {
 
 	// 1890 属虎
 	num := year - 1890 + 2 + 24 //参考干支纪年的计算，生肖对应地支
-	//logObj.Info("zodiac num: ", num)
+	//logger.Info("zodiac num: ", num)
 	return lunarData["zodiac"][num%12], true
 }
 
@@ -434,12 +434,12 @@ func solarToLunar(year, month, day int32) (caLunarDayInfo, bool) {
 	} else {
 		lunarFtv = lunarFestival[formatDayD4(lunarDate.Month+1, lunarDate.Day)]
 	}
-	//logObj.Infof("Lunar Festival: %v, Term: %v", lunarFtv, resInfo.Term)
+	//logger.Infof("Lunar Festival: %v, Term: %v", lunarFtv, resInfo.Term)
 
 	// 返回结果
 	resInfo := caLunarDayInfo{}
 
-	//logObj.Info("GanZhiYear: ", ganZhiYear)
+	//logger.Info("GanZhiYear: ", ganZhiYear)
 	zodiac, _ := getYearZodiac(ganZhiYear)
 	resInfo.Zodiac = zodiac
 	yearName, _ := getLunarYearName(ganZhiYear, 0)

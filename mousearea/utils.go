@@ -100,7 +100,7 @@ func isInIDList(id int32, list []int32) bool {
 var keyCode2Str = func() func(int32) string {
 	XU, err := xgbutil.NewConn()
 	if err != nil {
-		Logger.Error("Can't connect to Xserver")
+		logger.Error("Can't connect to Xserver")
 		return func(int32) string { return "" }
 	}
 	keybind.Initialize(XU)

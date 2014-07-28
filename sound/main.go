@@ -25,12 +25,12 @@ import (
 	"os"
 	"pkg.linuxdeepin.com/lib"
 	"pkg.linuxdeepin.com/lib/dbus"
-	liblogger "pkg.linuxdeepin.com/lib/logger"
+	"pkg.linuxdeepin.com/lib/log"
 	"sync"
 	"time"
 )
 
-var logger = liblogger.NewLogger(soundDest)
+var logger = log.NewLogger(soundDest)
 var wg sync.WaitGroup
 
 func main() {
