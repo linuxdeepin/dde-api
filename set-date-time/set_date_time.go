@@ -5,7 +5,7 @@ import (
 	"os/exec"
 	"pkg.linuxdeepin.com/lib"
 	"pkg.linuxdeepin.com/lib/dbus"
-	dlogger "pkg.linuxdeepin.com/lib/logger"
+	"pkg.linuxdeepin.com/lib/log"
 	"strconv"
 	"time"
 )
@@ -17,7 +17,7 @@ const (
 )
 
 var (
-	logger = dlogger.NewLogger("dde-api/set-date-time")
+	logger = log.NewLogger("dde-api/set-date-time")
 )
 
 type SetDateTime struct {
@@ -124,7 +124,7 @@ func main() {
 	// configure logger
 	logger.SetRestartCommand("/usr/lib/deepin-api/set-date-time", "--debug")
 	if stringInSlice("-d", os.Args) || stringInSlice("--debug", os.Args) {
-		logger.SetLogLevel(dlogger.LEVEL_DEBUG)
+		logger.SetLogLevel(log.LEVEL_DEBUG)
 	}
 
 	sdt := NewSetDateTime()

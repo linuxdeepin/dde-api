@@ -26,10 +26,11 @@ import (
 	"os"
 	"pkg.linuxdeepin.com/lib"
 	"pkg.linuxdeepin.com/lib/dbus"
-	liblogger "pkg.linuxdeepin.com/lib/logger"
+	"pkg.linuxdeepin.com/lib/log"
 	"time"
 )
 
+var logger = log.NewLogger(graphicDest)
 var argDebug bool
 
 func main() {
@@ -45,11 +46,11 @@ func main() {
 	flag.BoolVar(&argDebug, "debug", false, "debug mode")
 	flag.Parse()
 
-	// configure logger
+	// TODO configure logger
 	logger.SetRestartCommand("/usr/lib/deepin-api/graphic", "--debug") // TODO: is still need?
 	if argDebug {
 		logger.Info("debug mode")
-		logger.SetLogLevel(liblogger.LEVEL_DEBUG)
+		logger.SetLogLevel(log.LEVEL_DEBUG)
 	}
 
 	graphic := &Graphic{}
@@ -60,7 +61,7 @@ func main() {
 	}
 	dbus.DealWithUnhandledMessage()
 
-	// FIXME: how long to wait
+	// FIXME: how long should wait?
 	dbus.SetAutoDestroyHandler(30*time.Second, nil)
 
 	if err := dbus.Wait(); err != nil {

@@ -25,10 +25,7 @@ import (
 	"pkg.linuxdeepin.com/lib/dbus"
 	libgdkpixbuf "pkg.linuxdeepin.com/lib/gdkpixbuf"
 	libgraphic "pkg.linuxdeepin.com/lib/graphic"
-	liblogger "pkg.linuxdeepin.com/lib/logger"
 )
-
-var logger = liblogger.NewLogger(graphicDest)
 
 const (
 	graphicDest = "com.deepin.api.Graphic"

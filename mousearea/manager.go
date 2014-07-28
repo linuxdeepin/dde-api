@@ -170,7 +170,7 @@ func (obj *Manager) RegisterArea(x1, y1, x2, y2, flag int32) int32 {
 
 func (obj *Manager) RegisterAreas(areas []coordinateRange, flag int32) int32 {
 	cookie := genID()
-	Logger.Debug("ID: ", cookie)
+	logger.Debug("ID: ", cookie)
 
 	info := &coordinateInfo{}
 	info.areas = areas
@@ -188,7 +188,7 @@ func (obj *Manager) RegisterFullScreen() int32 {
 		cookie := genID()
 		obj.fullScreenId = cookie
 	}
-	Logger.Debug("ID: ", obj.fullScreenId)
+	logger.Debug("ID: ", obj.fullScreenId)
 
 	return obj.fullScreenId
 }

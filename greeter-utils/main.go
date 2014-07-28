@@ -25,33 +25,33 @@ import (
 	"os"
 	"pkg.linuxdeepin.com/lib"
 	"pkg.linuxdeepin.com/lib/dbus"
-	"pkg.linuxdeepin.com/lib/logger"
+	"pkg.linuxdeepin.com/lib/log"
 	"time"
 )
 
 var (
-	Logger = logger.NewLogger(DEST)
+	logger = log.NewLogger(DEST)
 )
 
 func main() {
-	Logger.BeginTracing()
-	defer Logger.EndTracing()
+	logger.BeginTracing()
+	defer logger.EndTracing()
 
 	if !lib.UniqueOnSystem(DEST) {
-		Logger.Warning("There already has an GreeterUtils running.")
+		logger.Warning("There already has an GreeterUtils running.")
 		return
 	}
 
 	m := &Manager{}
 	if err := dbus.InstallOnSystem(m); err != nil {
-		Logger.Fatal("Install DBus Error:", err)
+		logger.Fatal("Install DBus Error:", err)
 		return
 	}
 	dbus.DealWithUnhandledMessage()
 
 	dbus.SetAutoDestroyHandler(time.Second*5, nil)
 	if err := dbus.Wait(); err != nil {
-		Logger.Warning("Lost DBus...")
+		logger.Warning("Lost DBus...")
 		os.Exit(-1)
 	} else {
 		os.Exit(0)

@@ -25,40 +25,41 @@ import (
 	"os"
 	"pkg.linuxdeepin.com/lib"
 	"pkg.linuxdeepin.com/lib/dbus"
-	"pkg.linuxdeepin.com/lib/logger"
-)
-
-var (
-	Logger = logger.NewLogger("dde-api/mousearea")
+	"pkg.linuxdeepin.com/lib/log"
 )
 
 const (
 	MouseAreaDest = "com.deepin.api.XMouseArea"
 )
 
+var (
+	logger = log.NewLogger(MouseAreaDest)
+)
+
 func main() {
-	defer Logger.EndTracing()
+	logger.BeginTracing()
+	defer logger.EndTracing()
 
 	if !lib.UniqueOnSession(MouseAreaDest) {
-		Logger.Warning("There already has an XMouseArea daemon running.")
+		logger.Warning("There already has an XMouseArea daemon running.")
 		return
 	}
 
-	// configure logger
-	Logger.SetRestartCommand("/usr/lib/deepin-api/mousearea", "--debug")
+	// TODO configure logger
+	logger.SetRestartCommand("/usr/lib/deepin-api/mousearea", "--debug")
 	if stringInSlice("-d", os.Args) || stringInSlice("--debug", os.Args) {
-		Logger.SetLogLevel(logger.LEVEL_DEBUG)
+		logger.SetLogLevel(log.LEVEL_DEBUG)
 	}
 
 	var err error
 	if err != nil {
-		Logger.Warning("New XGB Connection Failed")
+		logger.Warning("New XGB Connection Failed")
 		return
 	}
 
 	err = dbus.InstallOnSession(GetManager())
 	if err != nil {
-		Logger.Error("Install DBus Session Failed:", err)
+		logger.Error("Install DBus Session Failed:", err)
 		panic(err)
 	}
 
@@ -68,7 +69,7 @@ func main() {
 
 	//select {}
 	if err = dbus.Wait(); err != nil {
-		Logger.Error("lost dbus session:", err)
+		logger.Error("lost dbus session:", err)
 		os.Exit(1)
 	} else {
 		os.Exit(0)

@@ -25,32 +25,32 @@ import (
 	"os"
 	"pkg.linuxdeepin.com/lib"
 	"pkg.linuxdeepin.com/lib/dbus"
-	Logger "pkg.linuxdeepin.com/lib/logger"
+	"pkg.linuxdeepin.com/lib/log"
 	"time"
 )
 
 var (
-	logObj = Logger.NewLogger("api/LunarCalendar")
+	logger = log.NewLogger("api/LunarCalendar")
 )
 
 func main() {
 	if !lib.UniqueOnSession(LUNAR_DEST) {
-		logObj.Warning("There already has an lunar-calendar running.")
+		logger.Warning("There already has an lunar-calendar running.")
 		return
 	}
 
-	logObj.SetRestartCommand("/usr/lib/deepin-api/lunar-calendar")
+	logger.SetRestartCommand("/usr/lib/deepin-api/lunar-calendar")
 
 	m := NewManager()
 	if err := dbus.InstallOnSession(m); err != nil {
-		logObj.Warning("LunarCalendar Install DBus Session Failed: ", err)
+		logger.Warning("LunarCalendar Install DBus Session Failed: ", err)
 		return
 	}
 	dbus.DealWithUnhandledMessage()
 
 	dbus.SetAutoDestroyHandler(time.Second*1, nil)
 	if err := dbus.Wait(); err != nil {
-		logObj.Warning("Lost Session DBus")
+		logger.Warning("Lost Session DBus")
 		os.Exit(-1)
 	} else {
 		os.Exit(0)
