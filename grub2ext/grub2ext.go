@@ -31,6 +31,7 @@ import (
 	"path"
 	"pkg.linuxdeepin.com/lib/dbus"
 	graphic "pkg.linuxdeepin.com/lib/gdkpixbuf"
+	"pkg.linuxdeepin.com/lib/utils"
 )
 
 const (
@@ -85,7 +86,7 @@ func (grub *Grub2Ext) DoWriteSettings(fileContent string) (ok bool, err error) {
 // DoWriteCacheConfig write file content to "/var/cache/deepin/grub2.json".
 func (grub *Grub2Ext) DoWriteCacheConfig(fileContent string) (ok bool, err error) {
 	// ensure parent directory exists
-	if !isFileExists(configFile) {
+	if !utils.IsFileExist(configFile) {
 		os.MkdirAll(path.Dir(configFile), 0755)
 	}
 	err = ioutil.WriteFile(configFile, []byte(fileContent), 0644)
@@ -100,7 +101,7 @@ func (grub *Grub2Ext) DoWriteCacheConfig(fileContent string) (ok bool, err error
 // generate a new grub configuration.
 func (grub *Grub2Ext) DoGenerateGrubConfig() (ok bool, err error) {
 	logger.Info("start to generate a new grub configuration file")
-	_, stderr, err := execAndWait(30, grubUpdateExe)
+	_, stderr, err := utils.ExecAndWait(30, grubUpdateExe)
 	logger.Infof("process output: %s", stderr)
 	if err != nil {
 		logger.Errorf("generate grub configuration failed: %v", err)
@@ -115,12 +116,12 @@ func (grub *Grub2Ext) DoGenerateGrubConfig() (ok bool, err error) {
 // screen resolution.
 func (grub *Grub2Ext) DoSetThemeBackgroundSourceFile(imageFile string, screenWidth, screenHeight uint16) (ok bool, err error) {
 	// if background source file is a symlink, just delete it
-	if isSymlink(themeBgSrcFile) {
+	if utils.IsSymlink(themeBgSrcFile) {
 		os.Remove(themeBgSrcFile)
 	}
 
 	// backup background source file
-	_, err = copyFile(imageFile, themeBgSrcFile)
+	err = utils.CopyFile(imageFile, themeBgSrcFile)
 	if err != nil {
 		return false, err
 	}
