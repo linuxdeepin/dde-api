@@ -4,7 +4,4 @@ test-*
 test_*
 *.*~
 */*.test
-graphic/graphic
-logger/logger
-grub2ext/grub2ext
-sound/sound
+_*
