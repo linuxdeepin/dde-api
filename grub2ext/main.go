@@ -27,6 +27,7 @@ import (
 	"pkg.linuxdeepin.com/lib"
 	"pkg.linuxdeepin.com/lib/dbus"
 	"pkg.linuxdeepin.com/lib/log"
+	"time"
 )
 
 var logger = log.NewLogger(grubDest)
@@ -61,8 +62,7 @@ func main() {
 
 	dbus.DealWithUnhandledMessage()
 
-	// TODO
-	// dbus.SetAutoDestroyHandler(300*time.Second, nil)
+	dbus.SetAutoDestroyHandler(10*time.Second, nil)
 
 	if err := dbus.Wait(); err != nil {
 		logger.Errorf("lost dbus session: %v", err)
