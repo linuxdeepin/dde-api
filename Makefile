@@ -3,7 +3,6 @@ PREFIX = /usr
 BINARIES =  \
     graphic \
     greeter-utils \
-    grub2ext \
     logger \
     lunar-calendar \
     mousearea \
