@@ -1,0 +1,55 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+PROXYER = /usr/lib/go/bin/dbus-proxyer-gen
+ARCH = $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+%:
+	dh $@ 
+override_dh_auto_build:
+	#dh_auto_build
+	#for i in $$(find . -mindepth 1 -maxdepth 1 -type d | grep -v 'debian' | grep -v 'data');do \
+		#echo "Starting Building $$i" && cd $$i &&  go build  &&  cd ..; \
+	#done
+
+override_dh_auto_install:
+	mkdir -p $(CURDIR)/debian/tmp
+	make DESTDIR=$(CURDIR)/debian/tmp install
+	#mkdir -p debian/dde-api/usr/lib/deepin-api
+	#mkdir -p debian/dde-api/usr/share/dbus-1/system-services
+	#mkdir -p debian/dde-api/usr/share/glib-2.0/schemas/
+	#mkdir -p debian/dde-api/usr/share/dbus-1/services
+	#mkdir -p debian/dde-api/etc/dbus-1/system.d/
+	#for i in $$(ls data/system-service | grep '.service');do cp data/system-service/$$i debian/dde-api/usr/share/dbus-1/system-services/;done
+	#for i in $$(ls data/service | grep '.service');do cp data/service/$$i debian/dde-api/usr/share/dbus-1/services/;done
+	#for i in $$(ls data/conf | grep '.conf');do cp data/conf/$$i debian/dde-api/etc/dbus-1/system.d/;done
+	#for i in $$(ls data/schemas | grep '.xml');do cp data/schemas/$$i debian/dde-api/usr/share/glib-2.0/schemas/;done
+	# fix logrotate.d
+	#mkdir -p debian/dde-api/etc/logrotate.d/
+	#cp -a data/logrotate.d/* debian/dde-api/etc/logrotate.d/
+#	echo $(QML)
+#	mkdir -p debian/dde-api/$(QML)
+#
+#	# generate qml file
+#	cd data/dbus && \
+#		for i in $$(ls | grep '.in.json'); do $(PROXYER) -in $$i -target QML -out $${i%.in.json};done
+#	cd data/dbus && \
+#		for i in $$(ls | grep '.in.json'); do cd $${i%.in.json} && make && cd ..; done
+#
+#
+#	cd data/dbus && \
+#		for i in $$(ls | grep '.in.json'); do module=$$(head -n 1 $${i%.in.json}/lib/qmldir)  &&  mkdir -p  $(CURDIR)/debian/dde-api/$(QML)/$${module#module } && cp $${i%.in.json}/lib/* $(CURDIR)/debian/dde-api/$(QML)/$${module#module }/; done
+#	find debian/dde-api/$(QML) -name qmldir -exec  sed -i 's/^module\ /module\ Deepin.Daemon./' \{\} \;
+	# fix me
+	#rm -rf data 
+	#find . -mindepth 2 -type f | grep -v 'debian' |  grep -v '\.go$$' | grep -v '\.c$$' | grep -v '\.h$$' | grep -v 'makefile' | grep -v '\.txt$$' | xargs -i cp -ar {} debian/dde-api/usr/lib/deepin-api
+
+override_dh_strip:

@@ -1,0 +1,26 @@
+Source: dde-api
+Section: devel
+Priority: extra
+Maintainer: Deepin Packages Builder <packages@linuxdeepin.com>
+Build-Depends: debhelper (>= 8.0.0),
+ golang,
+ go-dlib,
+ libglib2.0-dev,
+ libgtk-3-dev,
+ dde-go-dbus-factory,
+ libgnome-desktop-3-dev,
+ libpulse-dev,
+ go-xgb,
+ go-xgbutil,
+ libx11-dev,
+ libxi-dev,
+ libxtst-dev,
+ libcanberra-dev,
+Standards-Version: 3.9.4
+Homepage: http://www.linuxdeepin.com
+
+Package: dde-api
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+Description: Go-lang bingdings for dde-daemon
+ Go-lang bindings for dde-daemon
