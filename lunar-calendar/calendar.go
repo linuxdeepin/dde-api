@@ -226,21 +226,44 @@ func formatDayD4(month, day int32) string {
  * 由于农历24节气交节时刻采用近似算法，可能存在少量误差(30分钟内)
  */
 func getTermDate(year, n int32) (CaYearInfo, bool) {
-	if !isYearValid(year) {
+	if n < 0 || n > 23 {
 		return CaYearInfo{}, false
 	}
 
-	offset := 31556925974/1000*(int64(year)-1890) + int64(termInfo[n])*60 + time.Date(1890, 1, 5, 16, 2, 31, 0, time.UTC).Unix()
-	y, m, d := time.Unix(offset, 0).Date()
+	if v, ok := lunarTermInfosMap[year]; ok {
+		m := n/2 + 1
+		d := v[n]
+		return CaYearInfo{year, m, d}, true
+	}
+
+	return CaYearInfo{}, false
+}
+
+/*
+func getTermDate(year, n int32) (CaYearInfo, bool) {
+	if n < 0 || n > 23 {
+		return CaYearInfo{}, false
+	}
+
+	offset := int64((31556925974.7*float64(year-1890)+float64(termInfo[n])*60000)*1000000) + time.Date(1890, 1, 5, 16, 2, 31, 0, time.Local).UnixNano()
+
+	sec := offset / 1000000000
+	nsec := offset % 1000000000
+	y, m, d := time.Unix(sec, nsec).UTC().Date()
 
 	return CaYearInfo{int32(y), int32(m), int32(d)}, true
 }
+*/
 
 /**
  * 获取公历年一年的二十四节气
  * 返回key:日期，value:节气中文名
  */
 func getYearTerm(year int32) map[string]string {
+	if !isYearValid(year) {
+		return nil
+	}
+
 	res := make(map[string]string)
 	month := int32(0)
 	for i := int32(0); i < 24; i++ {
@@ -560,3 +583,24 @@ func getMonthDatas(year, month, length, start int32) []CaYearInfo {
 
 	return monthDatas
 }
+
+/*
+//rewrite time.Unix(sec, nsec int64)
+func timeUnix(sec, nsec int64, local *time.Location) time.Time {
+	if nsec < 0 || nsec >= 1e9 {
+		n := nsec / 1e9
+		sec += n
+		nsec -= n * 1e9
+		if nsec < 0 {
+			nsec += 1e9
+			sec--
+		}
+	}
+
+	secondsPerHour := 60 * 60
+	secondsPerDay := 24 * secondsPerHour
+	unixToInternal := int64((1969*365 + 1969/4 - 1969/100 + 1969/400) * secondsPerDay)
+
+	return time.Time{sec + unixToInternal, uintptr(nsec), local}
+}
+*/
