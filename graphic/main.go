@@ -22,7 +22,6 @@
 package main
 
 import (
-	"flag"
 	"os"
 	"pkg.linuxdeepin.com/lib"
 	"pkg.linuxdeepin.com/lib/dbus"
@@ -30,27 +29,15 @@ import (
 	"time"
 )
 
-var logger = log.NewLogger(graphicDest)
-var argDebug bool
+var logger = log.NewLogger(dbusGraphicDest)
 
 func main() {
 	logger.BeginTracing()
 	defer logger.EndTracing()
 
-	if !lib.UniqueOnSession(graphicDest) {
+	if !lib.UniqueOnSession(dbusGraphicDest) {
 		logger.Warning("There already has an Graphic daemon running.")
 		return
-	}
-
-	flag.BoolVar(&argDebug, "d", false, "debug mode")
-	flag.BoolVar(&argDebug, "debug", false, "debug mode")
-	flag.Parse()
-
-	// TODO configure logger
-	logger.SetRestartCommand("/usr/lib/deepin-api/graphic", "--debug") // TODO: is still need?
-	if argDebug {
-		logger.Info("debug mode")
-		logger.SetLogLevel(log.LEVEL_DEBUG)
 	}
 
 	graphic := &Graphic{}

@@ -28,9 +28,9 @@ import (
 )
 
 const (
-	graphicDest = "com.deepin.api.Graphic"
-	graphicPath = "/com/deepin/api/Graphic"
-	graphicIfs  = "com.deepin.api.Graphic"
+	dbusGraphicDest = "com.deepin.api.Graphic"
+	dbusGraphicPath = "/com/deepin/api/Graphic"
+	dbusGraphicIfs  = "com.deepin.api.Graphic"
 )
 
 // Graphic is a dbus interface wrapper for pkg.linuxdeepin.com/lib/graphic.
@@ -39,9 +39,9 @@ type Graphic struct{}
 // GetDBusInfo implement interface of dbus.DBusObject
 func (graphic *Graphic) GetDBusInfo() dbus.DBusInfo {
 	return dbus.DBusInfo{
-		graphicDest,
-		graphicPath,
-		graphicIfs,
+		dbusGraphicDest,
+		dbusGraphicPath,
+		dbusGraphicIfs,
 	}
 }
 
