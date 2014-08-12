@@ -45,12 +45,7 @@ func main() {
 		return
 	}
 
-	// TODO configure logger
-	logger.SetRestartCommand("/usr/lib/deepin-api/mousearea", "--debug")
-	if stringInSlice("-d", os.Args) || stringInSlice("--debug", os.Args) {
-		logger.SetLogLevel(log.LEVEL_DEBUG)
-	}
-
+	// TODO
 	var err error
 	if err != nil {
 		logger.Warning("New XGB Connection Failed")

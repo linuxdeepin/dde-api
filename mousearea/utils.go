@@ -69,15 +69,6 @@ var hasKeyFlag = func() func(int32) bool {
 	}
 }()
 
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
-}
-
 func isInArea(x, y int32, area coordinateRange) bool {
 	if (x >= area.X1 && x <= area.X2) &&
 		(y >= area.Y1 && y <= area.Y2) {

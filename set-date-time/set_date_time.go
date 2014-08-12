@@ -17,7 +17,7 @@ const (
 )
 
 var (
-	logger = log.NewLogger("dde-api/set-date-time")
+	logger = log.NewLogger(_SET_DATE_TIME_DEST)
 )
 
 type SetDateTime struct {
@@ -104,27 +104,12 @@ func GetDateTimeAny(t *time.Time) (dStr, tStr string) {
 	return dStr, tStr
 }
 
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
-}
-
 func main() {
 	defer logger.EndTracing()
 
 	if !lib.UniqueOnSystem(_SET_DATE_TIME_DEST) {
 		logger.Warning("There already has an SetDateTime daemon running.")
 		return
-	}
-
-	// configure logger
-	logger.SetRestartCommand("/usr/lib/deepin-api/set-date-time", "--debug")
-	if stringInSlice("-d", os.Args) || stringInSlice("--debug", os.Args) {
-		logger.SetLogLevel(log.LEVEL_DEBUG)
 	}
 
 	sdt := NewSetDateTime()
