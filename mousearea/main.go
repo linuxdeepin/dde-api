@@ -45,14 +45,7 @@ func main() {
 		return
 	}
 
-	// TODO
-	var err error
-	if err != nil {
-		logger.Warning("New XGB Connection Failed")
-		return
-	}
-
-	err = dbus.InstallOnSession(GetManager())
+	err := dbus.InstallOnSession(GetManager())
 	if err != nil {
 		logger.Error("Install DBus Session Failed:", err)
 		panic(err)
@@ -62,7 +55,6 @@ func main() {
 	GetManager().cancelAllReigsterArea()
 	GetManager().CancelAllArea()
 
-	//select {}
 	if err = dbus.Wait(); err != nil {
 		logger.Error("lost dbus session:", err)
 		os.Exit(1)
