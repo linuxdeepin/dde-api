@@ -91,9 +91,6 @@ func setTimezone(tz string) bool {
 	}
 
 	/* Modify /etc/timezone */
-	if !fileIsRegular(ETC_TIMEZONE) {
-		return false
-	}
 	err := ioutil.WriteFile(ETC_TIMEZONE, []byte(tz),
 		os.FileMode(ETC_PERM))
 	if err != nil {
