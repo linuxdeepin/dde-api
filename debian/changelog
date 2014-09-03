@@ -1,3 +1,10 @@
+dde-api (0.0.2+20140804213041~4d37d42799+nmu1) UNRELEASED; urgency=medium
+
+  * Non-maintainer upload.
+  * golang库依赖名字变更
+
+ -- 宋文武 <songwenwu@linuxdeepin.com>  Wed, 03 Sep 2014 16:30:38 +0800
+
 dde-api (0.0.2+20140804213041~4d37d42799) trusty; urgency=low
 
   * Build from git 4d37d427991b755ad8c9bc1fa45a27beb9979662
