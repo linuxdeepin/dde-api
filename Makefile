@@ -3,7 +3,6 @@ PREFIX = /usr
 BINARIES =  \
     graphic \
     greeter-utils \
-    logger \
     lunar-calendar \
     mousearea \
     set-date-time \
@@ -28,9 +27,6 @@ install: build
 
 	mkdir -pv ${DESTDIR}${PREFIX}/share/dbus-1/system-services
 	cp -v data/system-services/*.service ${DESTDIR}${PREFIX}/share/dbus-1/system-services/
-
-	mkdir -pv ${DESTDIR}/etc/logrotate.d
-	cp -v data/logrotate.d/* ${DESTDIR}/etc/logrotate.d/
 
 clean:
 	rm -rf out/bin

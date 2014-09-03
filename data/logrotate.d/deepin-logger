@@ -1,6 +1,0 @@
-/var/log/deepin.log {
-       daily
-       rotate 7
-       nocompress
-       create 0644 deepin-daemon deepin-daemon
-}
