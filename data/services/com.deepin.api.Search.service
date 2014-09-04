@@ -1,3 +1,0 @@
-[D-BUS Service]
-Name=com.deepin.api.Search
-Exec=/usr/lib/deepin-api/pinyin-search
