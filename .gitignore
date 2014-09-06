@@ -5,3 +5,4 @@ test_*
 *.*~
 */*.test
 _*
+sound/dev_test.go
