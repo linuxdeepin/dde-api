@@ -23,11 +23,12 @@ package main
 
 // #cgo pkg-config: glib-2.0 libcanberra
 // #include <stdlib.h>
-// #include "canberra_wrapper.h"
+// #include "wrap.h"
 import "C"
 import "unsafe"
 
 import (
+	"fmt"
 	"pkg.linuxdeepin.com/lib/dbus"
 	"pkg.linuxdeepin.com/lib/gio-2.0"
 )
@@ -57,47 +58,71 @@ func (s *Sound) PlaySystemSound(event string) (err error) {
 	return s.PlayThemeSound(s.getCurrentSoundTheme(), event)
 }
 
+// PlaySystemSound play a target event sound, such as "bell".
+func (s *Sound) PlaySystemSoundWithDevice(event, device string) (err error) {
+	return s.PlayThemeSoundWithDevice(s.getCurrentSoundTheme(), event, device)
+}
+
 func (s *Sound) getCurrentSoundTheme() string {
 	return personSettings.GetString(gkeyCurrentSoundTheme)
 }
 
 // PlayThemeSound play a target theme's event sound.
 func (s *Sound) PlayThemeSound(theme, event string) (err error) {
+	return s.PlayThemeSoundWithDevice(theme, event, "")
+}
+
+// PlayThemeSound play a target theme's event sound.
+func (s *Sound) PlayThemeSoundWithDevice(theme, event, device string) (err error) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		s.doPlayThemeSound(theme, event)
+		s.doPlayThemeSound(theme, event, device)
 	}()
 	return
 }
-func (s *Sound) doPlayThemeSound(theme, event string) (err error) {
+
+func (s *Sound) doPlayThemeSound(theme, event, device string) (err error) {
 	ctheme := C.CString(theme)
 	defer C.free(unsafe.Pointer(ctheme))
 	cevent := C.CString(event)
 	defer C.free(unsafe.Pointer(cevent))
-	ret := C.canberra_play_system_sound(ctheme, cevent)
+	cdevice := C.CString(device)
+	defer C.free(unsafe.Pointer(cdevice))
+	ret := C.canberra_play_system_sound(ctheme, cevent, cdevice)
 	if ret != 0 {
-		logger.Errorf("play system sound failed: theme=%s, event=%s, %s",
-			theme, event, C.GoString(C.ca_strerror(ret)))
+		err = fmt.Errorf("Play sound theme failed: theme: %s, event: %s, device: %s, error: %s",
+			theme, event, device, C.GoString(C.ca_strerror(ret)))
+		logger.Error(err)
 	}
 	return
 }
 
 // PlaySoundFile play a target sound file.
 func (s *Sound) PlaySoundFile(file string) (err error) {
+	return s.PlaySoundFileWithDevice(file, "")
+}
+
+// PlaySoundFile play a target sound file.
+func (s *Sound) PlaySoundFileWithDevice(file, device string) (err error) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		s.doPlaySoundFile(file)
+		s.doPlaySoundFile(file, device)
 	}()
 	return
 }
-func (s *Sound) doPlaySoundFile(file string) (err error) {
+
+func (s *Sound) doPlaySoundFile(file, device string) (err error) {
 	cfile := C.CString(file)
 	defer C.free(unsafe.Pointer(cfile))
-	ret := C.canberra_play_sound_file(cfile)
+	cdevice := C.CString(device)
+	defer C.free(unsafe.Pointer(cdevice))
+	ret := C.canberra_play_sound_file(cfile, cdevice)
 	if ret != 0 {
-		logger.Errorf("play sound file failed: %s, %s", file, C.GoString(C.ca_strerror(ret)))
+		err = fmt.Errorf("Play sound file: %s failed: %s",
+			file, C.GoString(C.ca_strerror(ret)))
+		logger.Error(err)
 	}
 	return
 }
