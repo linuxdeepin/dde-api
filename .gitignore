@@ -6,3 +6,4 @@ test_*
 */*.test
 _*
 sound/dev_test.go
+graphic/testdata/test_*

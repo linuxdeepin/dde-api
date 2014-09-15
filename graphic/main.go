@@ -48,9 +48,7 @@ func main() {
 	}
 	dbus.DealWithUnhandledMessage()
 
-	// FIXME: how long should wait?
 	dbus.SetAutoDestroyHandler(30*time.Second, nil)
-
 	if err := dbus.Wait(); err != nil {
 		logger.Errorf("lost dbus session: %v", err)
 		os.Exit(1)

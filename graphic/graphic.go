@@ -105,7 +105,7 @@ func (graphic *Graphic) GetDominantColorOfImage(imgfile string) (h, s, v float64
 
 // FillImage generate a new image in target width and height through
 // source image, there are many fill sytles to choice from, such as
-// "tile", "center", "stretch", "scalestretch".
+// "tile", "center".
 func (graphic *Graphic) FillImage(srcfile, dstfile string, width, height int32, style, format string) (err error) {
 	err = libgraphic.FillImage(srcfile, dstfile, int(width), int(height), libgraphic.FillStyle(style), libgraphic.Format(format))
 	if err != nil {
