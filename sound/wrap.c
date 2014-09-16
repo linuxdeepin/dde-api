@@ -22,6 +22,7 @@
 #include <glib.h>
 #include <locale.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "wrap.h"
 
@@ -36,7 +37,7 @@ canberra_play_system_sound(char *theme, char *event_id, char *device)
 	ca_context *co;
 	ca_context_create(&co);
 
-	if (device != NULL) {
+	if (device != NULL && strlen(device) > 0) {
 		ret = ca_context_change_device(co, device);
 		if (ret != CA_SUCCESS) {
 			g_warning("canberra change device failed: %s\n",
@@ -49,7 +50,7 @@ canberra_play_system_sound(char *theme, char *event_id, char *device)
 	ret = ca_context_open(co);
 	if (ret != CA_SUCCESS) {
 		g_warning("canberra open failed: %s\n",
-		          ca_strerror(ret));
+			  ca_strerror(ret));
 		ca_context_destroy(co);
 		return ret;
 	}
@@ -82,7 +83,7 @@ canberra_play_sound_file(char *file, char *device)
 	ca_context *co;
 	ca_context_create(&co);
 
-	if (device != NULL) {
+	if (device != NULL && strlen(device) > 0) {
 		ret = ca_context_change_device(co, device);
 		if (ret != CA_SUCCESS) {
 			g_warning("canberra change device failed: %s\n",
