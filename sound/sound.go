@@ -23,7 +23,7 @@ package main
 
 // #cgo pkg-config: glib-2.0 libcanberra
 // #include <stdlib.h>
-// #include "wrap.h"
+// #include "sound.h"
 import "C"
 import "unsafe"
 
