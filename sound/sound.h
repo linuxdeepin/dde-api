@@ -19,8 +19,8 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  **/
 
-#ifndef __WRAP_H__
-#define __WRAP_H__
+#ifndef __SOUND_H__
+#define __SOUND_H__
 
 #include <canberra.h>
 

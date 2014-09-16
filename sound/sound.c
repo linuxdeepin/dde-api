@@ -1,9 +1,9 @@
 /**
- * Copyright (c) 2014 Deepin, Inc.
- *               2014 Xu FaSheng
+ * Copyright (c) 2011 ~ 2014 Deepin, Inc.
+ *               2013 ~ 2014 jouyouyun
  *
- * Author:      Xu FaSheng <fasheng.xu@gmail.com>
- * Maintainer:  Xu FaSheng <fasheng.xu@gmail.com>
+ * Author:      jouyouyun <jouyouwen717@gmail.com>
+ * Maintainer:  jouyouyun <jouyouwen717@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "wrap.h"
+#include "sound.h"
 
 static uint32_t id = 0;
 
