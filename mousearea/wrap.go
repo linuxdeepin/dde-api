@@ -26,7 +26,7 @@ func go_handle_raw_event(evt_type int, detail int32, x, y, mask int32) {
 		GetManager().handleButtonEvent(detail, false, x, y)
 
 	case C.XI_RawTouchUpdate:
-		GetManager().handleMotionEvent(x, y, false)
+		GetManager().handleCursorEvent(x, y, false)
 	case C.XI_RawMotion:
 		/**
 		* mouse left press: mask = 256
@@ -34,9 +34,9 @@ func go_handle_raw_event(evt_type int, detail int32, x, y, mask int32) {
 		* mouse middle press: mask = 1024
 		**/
 		if mask >= 256 {
-			GetManager().handleMotionEvent(x, y, true)
+			GetManager().handleCursorEvent(x, y, true)
 		} else {
-			GetManager().handleMotionEvent(x, y, false)
+			GetManager().handleCursorEvent(x, y, false)
 		}
 	}
 }

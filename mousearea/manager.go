@@ -22,7 +22,9 @@
 package main
 
 import (
+	"fmt"
 	"pkg.linuxdeepin.com/lib/dbus"
+	dutils "pkg.linuxdeepin.com/lib/utils"
 )
 
 type coordinateInfo struct {
@@ -41,16 +43,19 @@ type coordinateRange struct {
 }
 
 type Manager struct {
-	fullScreenId  int32
-	MotionInto    func(int32, int32, int32)
-	MotionOut     func(int32, int32, int32)
-	MotionMove    func(int32, int32, int32)
-	ButtonPress   func(int32, int32, int32, int32)
-	ButtonRelease func(int32, int32, int32, int32)
-	KeyPress      func(string, int32, int32, int32)
-	KeyRelease    func(string, int32, int32, int32)
+	CursorInto    func(int32, int32, string)
+	CursorOut     func(int32, int32, string)
+	CursorMove    func(int32, int32, string)
+	ButtonPress   func(int32, int32, int32, string)
+	ButtonRelease func(int32, int32, int32, string)
+	KeyPress      func(string, int32, int32, string)
+	KeyRelease    func(string, int32, int32, string)
+
+	CancelArea    func(string)
 	CancelAllArea func() //resolution changed
-	idRangeMap    map[int32]*coordinateInfo
+
+	fullScreenId string
+	md5RangeMap  map[string]*coordinateInfo
 }
 
 var _manager *Manager
@@ -58,119 +63,129 @@ var _manager *Manager
 func GetManager() *Manager {
 	if _manager == nil {
 		_manager = &Manager{}
-		_manager.fullScreenId = -1
-		_manager.idRangeMap = make(map[int32]*coordinateInfo)
+		_manager.fullScreenId = ""
+		_manager.md5RangeMap = make(map[string]*coordinateInfo)
 	}
 	return _manager
 }
 
-func (obj *Manager) handleMotionEvent(x, y int32, press bool) {
+func (m *Manager) handleCursorEvent(x, y int32, press bool) {
 	press = !press
-	if obj.MotionMove == nil {
+	if m.CursorMove == nil {
 		return
 	}
 
 	//fmt.Println("X:", x, "Y:", y, "Press:", press)
-	inList, outList := obj.getIDList(x, y)
-	for _, cookie := range inList {
-		if array, ok := obj.idRangeMap[cookie]; ok {
+	inList, outList := m.getMd5List(x, y)
+	for _, md5Str := range inList {
+		if array, ok := m.md5RangeMap[md5Str]; ok {
 			/* moveIntoFlag == true : mouse move in area */
 			if !array.moveIntoFlag {
 				if press {
-					obj.MotionInto(x, y, cookie)
+					m.CursorInto(x, y, md5Str)
 					array.moveIntoFlag = true
 				}
 			}
 
 			if array.motionFlag {
-				obj.MotionMove(x, y, cookie)
+				m.CursorMove(x, y, md5Str)
 			}
 		}
 	}
-	for _, cookie := range outList {
-		if array, ok := obj.idRangeMap[cookie]; ok {
+	for _, md5Str := range outList {
+		if array, ok := m.md5RangeMap[md5Str]; ok {
 			/* moveIntoFlag == false : mouse move out area */
 			if array.moveIntoFlag {
-				obj.MotionOut(x, y, cookie)
+				m.CursorOut(x, y, md5Str)
 				array.moveIntoFlag = false
 			}
 		}
 	}
 
-	if obj.fullScreenId != -1 {
-		obj.MotionMove(x, y, obj.fullScreenId)
+	if len(m.fullScreenId) > 0 {
+		m.CursorMove(x, y, m.fullScreenId)
 	}
 }
 
-func (obj *Manager) handleButtonEvent(button int32, press bool, x, y int32) {
-	if obj.ButtonPress == nil {
+func (m *Manager) handleButtonEvent(button int32, press bool, x, y int32) {
+	if m.ButtonPress == nil {
 		return
 	}
 
-	cookies, _ := obj.getIDList(x, y)
-	for _, cookie := range cookies {
-		if array, ok := obj.idRangeMap[cookie]; ok {
+	list, _ := m.getMd5List(x, y)
+	for _, md5Str := range list {
+		if array, ok := m.md5RangeMap[md5Str]; ok {
 			if !array.buttonFlag {
 				continue
 			}
 			if press {
-				obj.ButtonPress(button, x, y, cookie)
+				m.ButtonPress(button, x, y, md5Str)
 			} else {
-				obj.ButtonRelease(button, x, y, cookie)
+				m.ButtonRelease(button, x, y, md5Str)
 			}
 		}
 	}
 
-	if obj.fullScreenId != -1 {
+	if len(m.fullScreenId) > 0 {
 		if press {
-			obj.ButtonPress(button, x, y, obj.fullScreenId)
+			m.ButtonPress(button, x, y, m.fullScreenId)
 		} else {
-			obj.ButtonRelease(button, x, y, obj.fullScreenId)
+			m.ButtonRelease(button, x, y, m.fullScreenId)
 		}
 	}
 }
 
-func (obj *Manager) handleKeyboardEvent(code int32, press bool, x, y int32) {
-	if obj.KeyPress == nil {
+func (m *Manager) handleKeyboardEvent(code int32, press bool, x, y int32) {
+	if m.KeyPress == nil {
 		return
 	}
-	cookies, _ := obj.getIDList(x, y)
-	for _, cookie := range cookies {
-		if array, ok := obj.idRangeMap[cookie]; ok {
+
+	list, _ := m.getMd5List(x, y)
+	for _, md5Str := range list {
+		if array, ok := m.md5RangeMap[md5Str]; ok {
 			if !array.keyFlag {
 				continue
 			}
 			if press {
-				obj.KeyPress(keyCode2Str(code), x, y, cookie)
+				m.KeyPress(keyCode2Str(code), x, y, md5Str)
 			} else {
-				obj.KeyRelease(keyCode2Str(code), x, y, cookie)
+				m.KeyRelease(keyCode2Str(code), x, y, md5Str)
 			}
 		}
 	}
 
-	if obj.fullScreenId != -1 {
+	if len(m.fullScreenId) > 0 {
 		if press {
-			obj.KeyPress(keyCode2Str(code), x, y, obj.fullScreenId)
+			m.KeyPress(keyCode2Str(code), x, y, m.fullScreenId)
 		} else {
-			obj.KeyRelease(keyCode2Str(code), x, y, obj.fullScreenId)
+			m.KeyRelease(keyCode2Str(code), x, y, m.fullScreenId)
 		}
 	}
 }
 
-func (obj *Manager) cancelAllReigsterArea() {
-	obj.idRangeMap = make(map[int32]*coordinateInfo)
-	obj.fullScreenId = -1
+func (m *Manager) cancelAllReigsterArea() {
+	m.md5RangeMap = make(map[string]*coordinateInfo)
+	m.fullScreenId = ""
 
-	obj.CancelAllArea()
+	m.CancelAllArea()
 }
 
-func (obj *Manager) RegisterArea(x1, y1, x2, y2, flag int32) int32 {
-	return obj.RegisterAreas([]coordinateRange{coordinateRange{x1, y1, x2, y2}}, flag)
+func (m *Manager) RegisterArea(dbusMsg dbus.DMessage, x1, y1, x2, y2, flag int32) (string, error) {
+	return m.RegisterAreas(dbusMsg,
+		[]coordinateRange{coordinateRange{x1, y1, x2, y2}}, flag)
 }
 
-func (obj *Manager) RegisterAreas(areas []coordinateRange, flag int32) int32 {
-	cookie := genID()
-	logger.Debug("ID: ", cookie)
+func (m *Manager) RegisterAreas(dbusMsg dbus.DMessage, areas []coordinateRange, flag int32) (md5Str string, err error) {
+	var ok bool
+	if md5Str, ok = m.sumAreasMd5(areas, flag, dbusMsg.GetSenderPID()); !ok {
+		err = fmt.Errorf("sumAreasMd5 failed:", areas)
+		return
+	}
+
+	logger.Debug("md5Str:", md5Str)
+	if _, ok := m.md5RangeMap[md5Str]; ok {
+		return md5Str, nil
+	}
 
 	info := &coordinateInfo{}
 	info.areas = areas
@@ -178,47 +193,49 @@ func (obj *Manager) RegisterAreas(areas []coordinateRange, flag int32) int32 {
 	info.buttonFlag = hasButtonFlag(flag)
 	info.keyFlag = hasKeyFlag(flag)
 	info.motionFlag = hasMotionFlag(flag)
-	obj.idRangeMap[cookie] = info
+	m.md5RangeMap[md5Str] = info
 
-	return cookie
+	return md5Str, nil
 }
 
-func (obj *Manager) RegisterFullScreen() int32 {
-	if obj.fullScreenId == -1 {
-		cookie := genID()
-		obj.fullScreenId = cookie
+func (m *Manager) RegisterFullScreen() (md5Str string) {
+	if len(m.fullScreenId) < 1 {
+		m.fullScreenId, _ = dutils.SumStrMd5("")
 	}
-	logger.Debug("ID: ", obj.fullScreenId)
+	logger.Debug("fullScreenId: ", m.fullScreenId)
 
-	return obj.fullScreenId
+	return m.fullScreenId
 }
 
-func (obj *Manager) UnregisterArea(cookie int32) {
-	if _, ok := obj.idRangeMap[cookie]; ok {
-		delete(obj.idRangeMap, cookie)
+func (m *Manager) UnregisterArea(md5Str string) {
+	if _, ok := m.md5RangeMap[md5Str]; ok {
+		delete(m.md5RangeMap, md5Str)
+		m.CancelArea(md5Str)
 	}
-	if cookie == obj.fullScreenId {
-		obj.fullScreenId = -1
+
+	if md5Str == m.fullScreenId {
+		m.fullScreenId = ""
+		m.CancelArea(md5Str)
 	}
 }
 
-func (obj *Manager) getIDList(x, y int32) ([]int32, []int32) {
-	inList := []int32{}
-	outList := []int32{}
+func (m *Manager) getMd5List(x, y int32) ([]string, []string) {
+	inList := []string{}
+	outList := []string{}
 
-	for id, array := range obj.idRangeMap {
+	for md5Str, array := range m.md5RangeMap {
 		inFlag := false
 		for _, area := range array.areas {
 			if isInArea(x, y, area) {
 				inFlag = true
-				if !isInIDList(id, inList) {
-					inList = append(inList, id)
+				if !isInMd5List(md5Str, inList) {
+					inList = append(inList, md5Str)
 				}
 			}
 		}
 		if !inFlag {
-			if !isInIDList(id, outList) {
-				outList = append(outList, id)
+			if !isInMd5List(md5Str, outList) {
+				outList = append(outList, md5Str)
 			}
 		}
 	}
@@ -226,10 +243,31 @@ func (obj *Manager) getIDList(x, y int32) ([]int32, []int32) {
 	return inList, outList
 }
 
-func (obj *Manager) GetDBusInfo() dbus.DBusInfo {
+func (m *Manager) GetDBusInfo() dbus.DBusInfo {
 	return dbus.DBusInfo{
 		MouseAreaDest,
 		"/com/deepin/api/XMouseArea",
 		"com.deepin.api.XMouseArea",
 	}
+}
+
+func (m *Manager) sumAreasMd5(areas []coordinateRange, flag int32,
+	pid uint32) (md5Str string, ok bool) {
+	if len(areas) < 1 {
+		return
+	}
+
+	content := ""
+	for _, area := range areas {
+		if len(content) > 1 {
+			content += "-"
+		}
+		content += fmt.Sprintf("%v-%v-%v-%v", area.X1, area.Y1, area.X2, area.Y2)
+	}
+	content += fmt.Sprintf("-%v-%v", flag, pid)
+
+	logger.Debug("areas content:", content)
+	md5Str, ok = dutils.SumStrMd5(content)
+
+	return
 }

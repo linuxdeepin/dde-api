@@ -5,7 +5,6 @@ import (
 	"github.com/BurntSushi/xgbutil"
 	"github.com/BurntSushi/xgbutil/keybind"
 	"strings"
-	"sync"
 )
 
 const (
@@ -14,18 +13,6 @@ const (
 	KeyFlag    = int32(1 << 2)
 	AllFlag    = MotionFlag | ButtonFlag | KeyFlag
 )
-
-var genID = func() func() int32 {
-	var lock sync.Mutex
-	id := int32(0)
-	return func() int32 {
-		lock.Lock()
-		tmp := id
-		id += 1
-		lock.Unlock()
-		return tmp
-	}
-}()
 
 var hasMotionFlag = func() func(int32) bool {
 	return func(flag int32) bool {
@@ -78,9 +65,9 @@ func isInArea(x, y int32, area coordinateRange) bool {
 	return false
 }
 
-func isInIDList(id int32, list []int32) bool {
+func isInMd5List(md5Str string, list []string) bool {
 	for _, v := range list {
-		if id == v {
+		if md5Str == v {
 			return true
 		}
 	}
