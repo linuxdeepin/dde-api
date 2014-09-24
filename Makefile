@@ -1,5 +1,12 @@
 PREFIX = /usr
 
+ifndef USE_GCCGO
+    GOBUILD = go build
+else
+    LDFLAGS = $(shell pkg-config --libs gio-2.0 gdk-3.0 gdk-pixbuf-xlib-2.0 x11 xi libcanberra)
+    GOBUILD = go build -compiler gccgo -gccgoflags "${LDFLAGS}"
+endif
+
 BINARIES =  \
     graphic \
     greeter-utils \
@@ -11,7 +18,7 @@ BINARIES =  \
 all: build
 
 out/bin/%:
-	(cd ${@F}; go build -o ../$@)
+	(cd ${@F}; ${GOBUILD} -o ../$@)
 
 build: $(addprefix out/bin/, ${BINARIES})
 
