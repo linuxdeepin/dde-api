@@ -65,7 +65,7 @@ func isInArea(x, y int32, area coordinateRange) bool {
 	return false
 }
 
-func isInMd5List(md5Str string, list []string) bool {
+func isInIdList(md5Str string, list []string) bool {
 	for _, v := range list {
 		if md5Str == v {
 			return true

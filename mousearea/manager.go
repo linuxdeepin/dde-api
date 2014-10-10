@@ -25,7 +25,10 @@ import (
 	"fmt"
 	"pkg.linuxdeepin.com/lib/dbus"
 	dutils "pkg.linuxdeepin.com/lib/utils"
+	"sync"
 )
+
+const _FullscreenId = "d41d8cd98f00b204e9800998ecf8427e"
 
 type coordinateInfo struct {
 	areas        []coordinateRange
@@ -54,8 +57,10 @@ type Manager struct {
 	CancelArea    func(string)
 	CancelAllArea func() //resolution changed
 
-	fullScreenId string
-	md5RangeMap  map[string]*coordinateInfo
+	idAreaInfoMap   map[string]*coordinateInfo
+	idReferCountMap map[string]int32
+
+	countLock sync.Mutex
 }
 
 var _manager *Manager
@@ -63,8 +68,8 @@ var _manager *Manager
 func GetManager() *Manager {
 	if _manager == nil {
 		_manager = &Manager{}
-		_manager.fullScreenId = ""
-		_manager.md5RangeMap = make(map[string]*coordinateInfo)
+		_manager.idAreaInfoMap = make(map[string]*coordinateInfo)
+		_manager.idReferCountMap = make(map[string]int32)
 	}
 	return _manager
 }
@@ -75,36 +80,44 @@ func (m *Manager) handleCursorEvent(x, y int32, press bool) {
 		return
 	}
 
-	//fmt.Println("X:", x, "Y:", y, "Press:", press)
-	inList, outList := m.getMd5List(x, y)
-	for _, md5Str := range inList {
-		if array, ok := m.md5RangeMap[md5Str]; ok {
-			/* moveIntoFlag == true : mouse move in area */
-			if !array.moveIntoFlag {
-				if press {
-					m.CursorInto(x, y, md5Str)
-					array.moveIntoFlag = true
-				}
-			}
+	inList, outList := m.getIdList(x, y)
+	for _, id := range inList {
+		array, ok := m.idAreaInfoMap[id]
+		if !ok {
+			continue
+		}
 
-			if array.motionFlag {
-				m.CursorMove(x, y, md5Str)
+		/* moveIntoFlag == true : mouse move in area */
+		if !array.moveIntoFlag {
+			if press {
+				m.CursorInto(x, y, id)
+				array.moveIntoFlag = true
 			}
 		}
+
+		if array.motionFlag {
+			m.CursorMove(x, y, id)
+		}
 	}
-	for _, md5Str := range outList {
-		if array, ok := m.md5RangeMap[md5Str]; ok {
-			/* moveIntoFlag == false : mouse move out area */
-			if array.moveIntoFlag {
-				m.CursorOut(x, y, md5Str)
-				array.moveIntoFlag = false
-			}
+	for _, id := range outList {
+		array, ok := m.idAreaInfoMap[id]
+		if !ok {
+			continue
+		}
+
+		/* moveIntoFlag == false : mouse move out area */
+		if array.moveIntoFlag {
+			m.CursorOut(x, y, id)
+			array.moveIntoFlag = false
 		}
 	}
 
-	if len(m.fullScreenId) > 0 {
-		m.CursorMove(x, y, m.fullScreenId)
+	_, ok := m.idReferCountMap[_FullscreenId]
+	if !ok {
+		return
 	}
+
+	m.CursorMove(x, y, _FullscreenId)
 }
 
 func (m *Manager) handleButtonEvent(button int32, press bool, x, y int32) {
@@ -112,26 +125,29 @@ func (m *Manager) handleButtonEvent(button int32, press bool, x, y int32) {
 		return
 	}
 
-	list, _ := m.getMd5List(x, y)
-	for _, md5Str := range list {
-		if array, ok := m.md5RangeMap[md5Str]; ok {
-			if !array.buttonFlag {
-				continue
-			}
-			if press {
-				m.ButtonPress(button, x, y, md5Str)
-			} else {
-				m.ButtonRelease(button, x, y, md5Str)
-			}
+	list, _ := m.getIdList(x, y)
+	for _, id := range list {
+		array, ok := m.idAreaInfoMap[id]
+		if !ok || !array.buttonFlag {
+			continue
+		}
+
+		if press {
+			m.ButtonPress(button, x, y, id)
+		} else {
+			m.ButtonRelease(button, x, y, id)
 		}
 	}
 
-	if len(m.fullScreenId) > 0 {
-		if press {
-			m.ButtonPress(button, x, y, m.fullScreenId)
-		} else {
-			m.ButtonRelease(button, x, y, m.fullScreenId)
-		}
+	_, ok := m.idReferCountMap[_FullscreenId]
+	if !ok {
+		return
+	}
+
+	if press {
+		m.ButtonPress(button, x, y, _FullscreenId)
+	} else {
+		m.ButtonRelease(button, x, y, _FullscreenId)
 	}
 }
 
@@ -140,51 +156,59 @@ func (m *Manager) handleKeyboardEvent(code int32, press bool, x, y int32) {
 		return
 	}
 
-	list, _ := m.getMd5List(x, y)
-	for _, md5Str := range list {
-		if array, ok := m.md5RangeMap[md5Str]; ok {
-			if !array.keyFlag {
-				continue
-			}
-			if press {
-				m.KeyPress(keyCode2Str(code), x, y, md5Str)
-			} else {
-				m.KeyRelease(keyCode2Str(code), x, y, md5Str)
-			}
+	list, _ := m.getIdList(x, y)
+	for _, id := range list {
+		array, ok := m.idAreaInfoMap[id]
+		if !ok || !array.keyFlag {
+			continue
+		}
+
+		if press {
+			m.KeyPress(keyCode2Str(code), x, y, id)
+		} else {
+			m.KeyRelease(keyCode2Str(code), x, y, id)
 		}
 	}
 
-	if len(m.fullScreenId) > 0 {
-		if press {
-			m.KeyPress(keyCode2Str(code), x, y, m.fullScreenId)
-		} else {
-			m.KeyRelease(keyCode2Str(code), x, y, m.fullScreenId)
-		}
+	_, ok := m.idReferCountMap[_FullscreenId]
+	if !ok {
+		return
+	}
+
+	if press {
+		m.KeyPress(keyCode2Str(code), x, y, _FullscreenId)
+	} else {
+		m.KeyRelease(keyCode2Str(code), x, y, _FullscreenId)
 	}
 }
 
 func (m *Manager) cancelAllReigsterArea() {
-	m.md5RangeMap = make(map[string]*coordinateInfo)
-	m.fullScreenId = ""
+	m.idAreaInfoMap = make(map[string]*coordinateInfo)
+	m.idReferCountMap = make(map[string]int32)
 
 	m.CancelAllArea()
 }
 
-func (m *Manager) RegisterArea(dbusMsg dbus.DMessage, x1, y1, x2, y2, flag int32) (string, error) {
-	return m.RegisterAreas(dbusMsg,
-		[]coordinateRange{coordinateRange{x1, y1, x2, y2}}, flag)
+func (m *Manager) RegisterArea(x1, y1, x2, y2, flag int32) (string, error) {
+	return m.RegisterAreas(
+		[]coordinateRange{coordinateRange{x1, y1, x2, y2}},
+		flag)
 }
 
-func (m *Manager) RegisterAreas(dbusMsg dbus.DMessage, areas []coordinateRange, flag int32) (md5Str string, err error) {
-	var ok bool
-	if md5Str, ok = m.sumAreasMd5(areas, flag, dbusMsg.GetSenderPID()); !ok {
+func (m *Manager) RegisterAreas(areas []coordinateRange, flag int32) (id string, err error) {
+	md5Str, ok := m.sumAreasMd5(areas, flag)
+	if !ok {
 		err = fmt.Errorf("sumAreasMd5 failed:", areas)
 		return
 	}
+	id = md5Str
 
-	logger.Debug("md5Str:", md5Str)
-	if _, ok := m.md5RangeMap[md5Str]; ok {
-		return md5Str, nil
+	m.countLock.Lock()
+	defer m.countLock.Unlock()
+	_, ok = m.idReferCountMap[id]
+	if ok {
+		m.idReferCountMap[id] += 1
+		return id, nil
 	}
 
 	info := &coordinateInfo{}
@@ -193,49 +217,59 @@ func (m *Manager) RegisterAreas(dbusMsg dbus.DMessage, areas []coordinateRange, 
 	info.buttonFlag = hasButtonFlag(flag)
 	info.keyFlag = hasKeyFlag(flag)
 	info.motionFlag = hasMotionFlag(flag)
-	m.md5RangeMap[md5Str] = info
 
-	return md5Str, nil
+	m.idAreaInfoMap[id] = info
+	m.idReferCountMap[id] = 1
+
+	return id, nil
 }
 
-func (m *Manager) RegisterFullScreen() (md5Str string) {
-	if len(m.fullScreenId) < 1 {
-		m.fullScreenId, _ = dutils.SumStrMd5("")
+func (m *Manager) RegisterFullScreen() (id string) {
+	m.countLock.Lock()
+	defer m.countLock.Unlock()
+	_, ok := m.idReferCountMap[_FullscreenId]
+	if !ok {
+		m.idReferCountMap[_FullscreenId] = 1
+	} else {
+		m.idReferCountMap[_FullscreenId] += 1
 	}
-	logger.Debug("fullScreenId: ", m.fullScreenId)
 
-	return m.fullScreenId
+	return _FullscreenId
 }
 
-func (m *Manager) UnregisterArea(md5Str string) {
-	if _, ok := m.md5RangeMap[md5Str]; ok {
-		delete(m.md5RangeMap, md5Str)
-		m.CancelArea(md5Str)
+func (m *Manager) UnregisterArea(dbusMsg dbus.DMessage, id string) {
+	_, ok := m.idReferCountMap[id]
+	if !ok {
+		return
 	}
 
-	if md5Str == m.fullScreenId {
-		m.fullScreenId = ""
-		m.CancelArea(md5Str)
+	m.countLock.Lock()
+	defer m.countLock.Unlock()
+	m.idReferCountMap[id] -= 1
+	if m.idReferCountMap[id] == 0 {
+		delete(m.idReferCountMap, id)
+		delete(m.idAreaInfoMap, id)
 	}
+	m.CancelArea(fmt.Sprintf("%v", dbusMsg.GetSenderPID()))
 }
 
-func (m *Manager) getMd5List(x, y int32) ([]string, []string) {
+func (m *Manager) getIdList(x, y int32) ([]string, []string) {
 	inList := []string{}
 	outList := []string{}
 
-	for md5Str, array := range m.md5RangeMap {
+	for id, array := range m.idAreaInfoMap {
 		inFlag := false
 		for _, area := range array.areas {
 			if isInArea(x, y, area) {
 				inFlag = true
-				if !isInMd5List(md5Str, inList) {
-					inList = append(inList, md5Str)
+				if !isInIdList(id, inList) {
+					inList = append(inList, id)
 				}
 			}
 		}
 		if !inFlag {
-			if !isInMd5List(md5Str, outList) {
-				outList = append(outList, md5Str)
+			if !isInIdList(id, outList) {
+				outList = append(outList, id)
 			}
 		}
 	}
@@ -251,8 +285,7 @@ func (m *Manager) GetDBusInfo() dbus.DBusInfo {
 	}
 }
 
-func (m *Manager) sumAreasMd5(areas []coordinateRange, flag int32,
-	pid uint32) (md5Str string, ok bool) {
+func (m *Manager) sumAreasMd5(areas []coordinateRange, flag int32) (md5Str string, ok bool) {
 	if len(areas) < 1 {
 		return
 	}
@@ -264,7 +297,7 @@ func (m *Manager) sumAreasMd5(areas []coordinateRange, flag int32,
 		}
 		content += fmt.Sprintf("%v-%v-%v-%v", area.X1, area.Y1, area.X2, area.Y2)
 	}
-	content += fmt.Sprintf("-%v-%v", flag, pid)
+	content += fmt.Sprintf("-%v", flag)
 
 	logger.Debug("areas content:", content)
 	md5Str, ok = dutils.SumStrMd5(content)
