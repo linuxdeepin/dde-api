@@ -23,6 +23,7 @@ package main
 
 import (
 	"os/exec"
+	"pkg.linuxdeepin.com/lib/dbus"
 )
 
 const (
@@ -37,7 +38,7 @@ var (
 func (op *SetDateTime) GenLocale(locale string) {
 	if len(locale) < 1 {
 		logger.Warning("GenLocale Arg Error")
-		op.GenLocaleStatus(false, "Arg Error")
+		dbus.Emit(op, "GenLocaleStatus", false, "Arg Error")
 		return
 	}
 
@@ -48,9 +49,9 @@ func (op *SetDateTime) GenLocale(locale string) {
 		if err != nil {
 			logger.Warningf("locale-gen '%s' failed: %v\n",
 				locale, err)
-			op.GenLocaleStatus(false, err.Error())
+			dbus.Emit(op, "GenLocaleStatus", false, err.Error())
 		} else {
-			op.GenLocaleStatus(true, locale)
+			dbus.Emit(op, "GenLocaleStatus", true, locale)
 		}
 		genLcStart = false
 		genLcEnd = true
