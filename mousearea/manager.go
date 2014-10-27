@@ -76,9 +76,6 @@ func GetManager() *Manager {
 
 func (m *Manager) handleCursorEvent(x, y int32, press bool) {
 	press = !press
-	if m.CursorMove == nil {
-		return
-	}
 
 	inList, outList := m.getIdList(x, y)
 	for _, id := range inList {
@@ -90,13 +87,13 @@ func (m *Manager) handleCursorEvent(x, y int32, press bool) {
 		/* moveIntoFlag == true : mouse move in area */
 		if !array.moveIntoFlag {
 			if press {
-				m.CursorInto(x, y, id)
+				dbus.Emit(m, "CursorInto", x, y, id)
 				array.moveIntoFlag = true
 			}
 		}
 
 		if array.motionFlag {
-			m.CursorMove(x, y, id)
+			dbus.Emit(m, "CursorMove", x, y, id)
 		}
 	}
 	for _, id := range outList {
@@ -107,7 +104,7 @@ func (m *Manager) handleCursorEvent(x, y int32, press bool) {
 
 		/* moveIntoFlag == false : mouse move out area */
 		if array.moveIntoFlag {
-			m.CursorOut(x, y, id)
+			dbus.Emit(m, "CursorOut", x, y, id)
 			array.moveIntoFlag = false
 		}
 	}
@@ -117,13 +114,10 @@ func (m *Manager) handleCursorEvent(x, y int32, press bool) {
 		return
 	}
 
-	m.CursorMove(x, y, _FullscreenId)
+	dbus.Emit(m, "CursorMove", x, y, _FullscreenId)
 }
 
 func (m *Manager) handleButtonEvent(button int32, press bool, x, y int32) {
-	if m.ButtonPress == nil {
-		return
-	}
 
 	list, _ := m.getIdList(x, y)
 	for _, id := range list {
@@ -133,9 +127,9 @@ func (m *Manager) handleButtonEvent(button int32, press bool, x, y int32) {
 		}
 
 		if press {
-			m.ButtonPress(button, x, y, id)
+			dbus.Emit(m, "ButtonPress", x, y, id)
 		} else {
-			m.ButtonRelease(button, x, y, id)
+			dbus.Emit(m, "ButtonRelease", x, y, id)
 		}
 	}
 
@@ -145,17 +139,13 @@ func (m *Manager) handleButtonEvent(button int32, press bool, x, y int32) {
 	}
 
 	if press {
-		m.ButtonPress(button, x, y, _FullscreenId)
+		dbus.Emit(m, "ButtonPress", button, x, y, _FullscreenId)
 	} else {
-		m.ButtonRelease(button, x, y, _FullscreenId)
+		dbus.Emit(m, "ButtonRelease", button, x, y, _FullscreenId)
 	}
 }
 
 func (m *Manager) handleKeyboardEvent(code int32, press bool, x, y int32) {
-	if m.KeyPress == nil {
-		return
-	}
-
 	list, _ := m.getIdList(x, y)
 	for _, id := range list {
 		array, ok := m.idAreaInfoMap[id]
@@ -164,9 +154,9 @@ func (m *Manager) handleKeyboardEvent(code int32, press bool, x, y int32) {
 		}
 
 		if press {
-			m.KeyPress(keyCode2Str(code), x, y, id)
+			dbus.Emit(m, "KeyPress", keyCode2Str(code), x, y, id)
 		} else {
-			m.KeyRelease(keyCode2Str(code), x, y, id)
+			dbus.Emit(m, "KeyRelease", keyCode2Str(code), x, y, id)
 		}
 	}
 
@@ -176,9 +166,9 @@ func (m *Manager) handleKeyboardEvent(code int32, press bool, x, y int32) {
 	}
 
 	if press {
-		m.KeyPress(keyCode2Str(code), x, y, _FullscreenId)
+		dbus.Emit(m, "KeyPress", keyCode2Str(code), x, y, _FullscreenId)
 	} else {
-		m.KeyRelease(keyCode2Str(code), x, y, _FullscreenId)
+		dbus.Emit(m, "KeyRelease", keyCode2Str(code), x, y, _FullscreenId)
 	}
 }
 
@@ -186,7 +176,7 @@ func (m *Manager) cancelAllReigsterArea() {
 	m.idAreaInfoMap = make(map[string]*coordinateInfo)
 	m.idReferCountMap = make(map[string]int32)
 
-	m.CancelAllArea()
+	dbus.Emit(m, "CancelAllArea")
 }
 
 func (m *Manager) RegisterArea(x1, y1, x2, y2, flag int32) (string, error) {
@@ -250,7 +240,7 @@ func (m *Manager) UnregisterArea(dbusMsg dbus.DMessage, id string) {
 		delete(m.idReferCountMap, id)
 		delete(m.idAreaInfoMap, id)
 	}
-	m.CancelArea(fmt.Sprintf("%v", dbusMsg.GetSenderPID()))
+	dbus.Emit(m, "CancelArea", fmt.Sprintf("%v", dbusMsg.GetSenderPID()))
 }
 
 func (m *Manager) getIdList(x, y int32) ([]string, []string) {
