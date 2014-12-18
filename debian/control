@@ -15,5 +15,6 @@ Homepage: http://www.linuxdeepin.com
 Package: dde-api
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
+ rfkill,
 Description: Go-lang bingdings for dde-daemon
  Go-lang bindings for dde-daemon
