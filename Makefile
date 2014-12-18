@@ -8,6 +8,7 @@ else
 endif
 
 BINARIES =  \
+    device \
     graphic \
     greeter-utils \
     lunar-calendar \

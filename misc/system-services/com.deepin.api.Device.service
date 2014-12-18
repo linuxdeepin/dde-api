@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=com.deepin.api.Device
+Exec=/usr/lib/deepin-api/device
+User=root
