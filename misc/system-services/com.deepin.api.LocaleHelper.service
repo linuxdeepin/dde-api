@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=com.deepin.api.LocaleHelper
+Exec=/usr/lib/deepin-api/locale-helper
+User=root
