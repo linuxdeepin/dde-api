@@ -11,6 +11,7 @@ BINARIES =  \
     device \
     graphic \
     greeter-utils \
+    locale-helper \
     lunar-calendar \
     mousearea \
     set-date-time \
