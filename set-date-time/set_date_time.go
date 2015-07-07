@@ -3,9 +3,9 @@ package main
 import (
 	"os"
 	"os/exec"
-	"pkg.linuxdeepin.com/lib"
-	"pkg.linuxdeepin.com/lib/dbus"
-	"pkg.linuxdeepin.com/lib/log"
+	"pkg.deepin.io/lib"
+	"pkg.deepin.io/lib/dbus"
+	"pkg.deepin.io/lib/log"
 	"strconv"
 	"time"
 )

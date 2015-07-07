@@ -23,8 +23,8 @@ package main
 
 import (
 	"fmt"
-	"pkg.linuxdeepin.com/lib/dbus"
-	dutils "pkg.linuxdeepin.com/lib/utils"
+	"pkg.deepin.io/lib/dbus"
+	dutils "pkg.deepin.io/lib/utils"
 	"sync"
 )
 

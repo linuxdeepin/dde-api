@@ -23,7 +23,7 @@ package main
 
 import (
 	C "launchpad.net/gocheck"
-	"pkg.linuxdeepin.com/lib/utils"
+	"pkg.deepin.io/lib/utils"
 	"testing"
 )
 
