@@ -22,9 +22,9 @@
 package main
 
 import (
-	"pkg.linuxdeepin.com/lib/dbus"
-	libgdkpixbuf "pkg.linuxdeepin.com/lib/gdkpixbuf"
-	libgraphic "pkg.linuxdeepin.com/lib/graphic"
+	"pkg.deepin.io/lib/dbus"
+	libgdkpixbuf "pkg.deepin.io/lib/gdkpixbuf"
+	libgraphic "pkg.deepin.io/lib/graphic"
 )
 
 const (
@@ -33,7 +33,7 @@ const (
 	dbusGraphicIfs  = "com.deepin.api.Graphic"
 )
 
-// Graphic is a dbus interface wrapper for pkg.linuxdeepin.com/lib/graphic.
+// Graphic is a dbus interface wrapper for pkg.deepin.io/lib/graphic.
 type Graphic struct{}
 
 // GetDBusInfo implement interface of dbus.DBusObject

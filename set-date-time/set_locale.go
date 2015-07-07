@@ -23,7 +23,7 @@ package main
 
 import (
 	"os/exec"
-	"pkg.linuxdeepin.com/lib/dbus"
+	"pkg.deepin.io/lib/dbus"
 )
 
 const (

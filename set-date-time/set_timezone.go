@@ -24,7 +24,7 @@ package main
 import (
 	"io/ioutil"
 	"os"
-	duitls "pkg.linuxdeepin.com/lib/utils"
+	duitls "pkg.deepin.io/lib/utils"
 )
 
 const (
