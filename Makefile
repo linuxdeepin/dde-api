@@ -22,6 +22,13 @@ all: build
 out/bin/%:
 	(cd ${@F}; ${GOBUILD} -o ../$@)
 
+# Install go packages
+build-dep:
+	go get github.com/BurntSushi/xgb
+	go get github.com/BurntSushi/xgbutil
+	go get github.com/howeyc/fsnotify
+	go get launchpad.net/gocheck
+
 build: $(addprefix out/bin/, ${BINARIES})
 
 install: build
