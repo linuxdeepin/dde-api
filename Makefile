@@ -21,6 +21,7 @@ BINARIES =  \
     mousearea \
     set-date-time \
     thumbnailer \
+    mime-helper \
     sound
 
 all: build
@@ -56,6 +57,9 @@ install-binary: build
 
 	mkdir -pv ${DESTDIR}${PREFIX}/share/dbus-1/system-services
 	cp -v misc/system-services/*.service ${DESTDIR}${PREFIX}/share/dbus-1/system-services/
+
+	mkdir -pv ${DESTDIR}${PREFIX}/share
+	cp -R misc/dde-api ${DESTDIR}${PREFIX}/share
 
 build/lib/%:
 	env GOPATH="${GOPATH}:${CURDIR}/${GOPATH_DIR}" ${GOBUILD} ${GOPKG_PREFIX}/${@F}
