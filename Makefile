@@ -1,4 +1,6 @@
 PREFIX = /usr
+GOPATH_DIR = gopath
+GOPKG_PREFIX = pkg.deepin.io/dde/api
 
 ifndef USE_GCCGO
     GOBUILD = go build
@@ -15,21 +17,29 @@ BINARIES =  \
     lunar-calendar \
     mousearea \
     set-date-time \
+	thumbnailer \
     sound
 
 all: build
 
+prepare:
+	@if [ ! -d ${GOPATH_DIR}/src/${GOPKG_PREFIX} ]; then \
+		mkdir -p ${GOPATH_DIR}/src/$(dir ${GOPKG_PREFIX}); \
+		ln -sf ../../../.. ${GOPATH_DIR}/src/${GOPKG_PREFIX}; \
+	fi
+
 out/bin/%:
-	(cd ${@F}; ${GOBUILD} -o ../$@)
+	env GOPATH="${GOPATH}:${CURDIR}/${GOPATH_DIR}" ${GOBUILD} -o $@  ${GOPKG_PREFIX}/${@F}
 
 # Install go packages
 build-dep:
+	go get github.com/disintegration/imaging
 	go get github.com/BurntSushi/xgb
 	go get github.com/BurntSushi/xgbutil
 	go get github.com/howeyc/fsnotify
 	go get launchpad.net/gocheck
 
-build: $(addprefix out/bin/, ${BINARIES})
+build: prepare $(addprefix out/bin/, ${BINARIES})
 
 install: build
 	mkdir -pv ${DESTDIR}${PREFIX}/lib/deepin-api
