@@ -9,6 +9,9 @@ else
     GOBUILD = go build -compiler gccgo -gccgoflags "${LDFLAGS}"
 endif
 
+LIBRARIES = \
+    thumbnails
+
 BINARIES =  \
     device \
     graphic \
@@ -17,7 +20,7 @@ BINARIES =  \
     lunar-calendar \
     mousearea \
     set-date-time \
-	thumbnailer \
+    thumbnailer \
     sound
 
 all: build
@@ -53,6 +56,17 @@ install: build
 
 	mkdir -pv ${DESTDIR}${PREFIX}/share/dbus-1/system-services
 	cp -v misc/system-services/*.service ${DESTDIR}${PREFIX}/share/dbus-1/system-services/
+
+build/lib/%:
+	env GOPATH="${GOPATH}:${CURDIR}/${GOPATH_DIR}" ${GOBUILD} ${GOPKG_PREFIX}/${@F}
+
+build-dev: prepare $(addprefix build/lib/, ${LIBRARIES})
+
+install/lib/%:
+	mkdir -pv ${DESTDIR}${PREFIX}/share/gocode/src/${GOPKG_PREFIX}
+	cp -R ${CURDIR}/${GOPATH_DIR}/src/${GOPKG_PREFIX}/${@F} ${DESTDIR}${PREFIX}/share/gocode/src/${GOPKG_PREFIX}
+
+install-dev: build-dev ${addprefix install/lib/, ${LIBRARIES}}
 
 clean:
 	rm -rf out/bin
