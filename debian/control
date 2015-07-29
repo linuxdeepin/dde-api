@@ -8,6 +8,11 @@ Build-Depends: debhelper (>= 9),
  golang-xgb-dev,
  golang-xgbutil-dev,
  libxi-dev,
+ libgtk-3-dev,
+ libgdk-pixbuf2.0-dev,
+ libcairo2-dev,
+ librsvg2-dev,
+ golang-imaging.disintegration-dev,
  libcanberra-dev
 Standards-Version: 3.9.5
 Homepage: http://www.linuxdeepin.com

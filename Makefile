@@ -1,4 +1,6 @@
 PREFIX = /usr
+GOPATH_DIR = gopath
+GOPKG_PREFIX = pkg.deepin.io/dde/api
 
 ifndef USE_GCCGO
     GOBUILD = go build
@@ -6,6 +8,9 @@ else
     LDFLAGS = $(shell pkg-config --libs gio-2.0 gdk-3.0 gdk-pixbuf-xlib-2.0 x11 xi libcanberra)
     GOBUILD = go build -compiler gccgo -gccgoflags "${LDFLAGS}"
 endif
+
+LIBRARIES = \
+    thumbnails
 
 BINARIES =  \
     device \
@@ -15,21 +20,29 @@ BINARIES =  \
     lunar-calendar \
     mousearea \
     set-date-time \
+    thumbnailer \
     sound
 
 all: build
 
+prepare:
+	@if [ ! -d ${GOPATH_DIR}/src/${GOPKG_PREFIX} ]; then \
+		mkdir -p ${GOPATH_DIR}/src/$(dir ${GOPKG_PREFIX}); \
+		ln -sf ../../../.. ${GOPATH_DIR}/src/${GOPKG_PREFIX}; \
+	fi
+
 out/bin/%:
-	(cd ${@F}; ${GOBUILD} -o ../$@)
+	env GOPATH="${GOPATH}:${CURDIR}/${GOPATH_DIR}" ${GOBUILD} -o $@  ${GOPKG_PREFIX}/${@F}
 
 # Install go packages
 build-dep:
+	go get github.com/disintegration/imaging
 	go get github.com/BurntSushi/xgb
 	go get github.com/BurntSushi/xgbutil
 	go get github.com/howeyc/fsnotify
 	go get launchpad.net/gocheck
 
-build: $(addprefix out/bin/, ${BINARIES})
+build: prepare $(addprefix out/bin/, ${BINARIES})
 
 install: build
 	mkdir -pv ${DESTDIR}${PREFIX}/lib/deepin-api
@@ -43,6 +56,17 @@ install: build
 
 	mkdir -pv ${DESTDIR}${PREFIX}/share/dbus-1/system-services
 	cp -v misc/system-services/*.service ${DESTDIR}${PREFIX}/share/dbus-1/system-services/
+
+build/lib/%:
+	env GOPATH="${GOPATH}:${CURDIR}/${GOPATH_DIR}" ${GOBUILD} ${GOPKG_PREFIX}/${@F}
+
+build-dev: prepare $(addprefix build/lib/, ${LIBRARIES})
+
+install/lib/%:
+	mkdir -pv ${DESTDIR}${PREFIX}/share/gocode/src/${GOPKG_PREFIX}
+	cp -R ${CURDIR}/${GOPATH_DIR}/src/${GOPKG_PREFIX}/${@F} ${DESTDIR}${PREFIX}/share/gocode/src/${GOPKG_PREFIX}
+
+install-dev: build-dev ${addprefix install/lib/, ${LIBRARIES}}
 
 clean:
 	rm -rf out/bin
