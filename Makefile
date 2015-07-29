@@ -44,7 +44,7 @@ build-dep:
 
 build: prepare $(addprefix out/bin/, ${BINARIES})
 
-install: build
+install-binary: build
 	mkdir -pv ${DESTDIR}${PREFIX}/lib/deepin-api
 	cp out/bin/* ${DESTDIR}${PREFIX}/lib/deepin-api/
 
@@ -67,6 +67,8 @@ install/lib/%:
 	cp -R ${CURDIR}/${GOPATH_DIR}/src/${GOPKG_PREFIX}/${@F} ${DESTDIR}${PREFIX}/share/gocode/src/${GOPKG_PREFIX}
 
 install-dev: build-dev ${addprefix install/lib/, ${LIBRARIES}}
+
+install: install-binary install-dev
 
 clean:
 	rm -rf out/bin
