@@ -11,7 +11,7 @@ import (
 
 func init() {
 	for _, ty := range SupportedTypes() {
-		Register(ty, GenThumbnail)
+		Register(ty, genGtkThumbnail)
 	}
 }
 
@@ -30,6 +30,10 @@ func GenThumbnail(src, bg string, width, height int) (string, error) {
 		return "", fmt.Errorf("Unspported mime: %s", ty)
 	}
 
+	return genGtkThumbnail(src, bg, width, height)
+}
+
+func genGtkThumbnail(src, bg string, width, height int) (string, error) {
 	dest, err := GetThumbnailDest(src, width, height)
 	if err != nil {
 		return "", err

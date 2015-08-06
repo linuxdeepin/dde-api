@@ -19,7 +19,12 @@ const (
 
 func init() {
 	for _, ty := range SupportedTypes() {
-		Register(ty, GenThumbnail)
+		switch ty {
+		case ImageTypeSvg:
+			Register(ty, genSvgThumbnail)
+		default:
+			Register(ty, genImageThumbnail)
+		}
 	}
 }
 
@@ -34,7 +39,7 @@ func SupportedTypes() []string {
 	}
 }
 
-func GenThumbnail(src, bg string, width, height int) (string, error) {
+func GenThumbnail(src string, width, height int) (string, error) {
 	ty, err := mime.Query(src)
 	if err != nil {
 		return "", err
@@ -44,6 +49,25 @@ func GenThumbnail(src, bg string, width, height int) (string, error) {
 		return "", fmt.Errorf("No supported type: %v", ty)
 	}
 
+	switch ty {
+	case ImageTypeSvg:
+		return genSvgThumbnail(src, "", width, height)
+	}
+
+	return genImageThumbnail(src, "", width, height)
+}
+
+func genSvgThumbnail(src, bg string, width, height int) (string, error) {
+	tmp := GetTmpImage()
+	err := svgToPng(src, tmp)
+	if err != nil {
+		return "", err
+	}
+
+	return genImageThumbnail(tmp, bg, width, height)
+}
+
+func genImageThumbnail(src, bg string, width, height int) (string, error) {
 	src = dutils.DecodeURI(src)
 	dest, err := GetThumbnailDest(src, width, height)
 	if err != nil {
@@ -51,16 +75,6 @@ func GenThumbnail(src, bg string, width, height int) (string, error) {
 	}
 	if dutils.IsFileExist(dest) {
 		return dest, nil
-	}
-
-	switch ty {
-	case ImageTypeSvg:
-		tmp := GetTmpImage()
-		err := svgToPng(src, tmp)
-		if err != nil {
-			return "", err
-		}
-		src = tmp
 	}
 
 	err = Scale(src, dest, width, height)

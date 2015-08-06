@@ -8,6 +8,7 @@ import (
 	"path"
 	"pkg.deepin.io/dde/api/thumbnails/images"
 	"pkg.deepin.io/dde/api/thumbnails/loader"
+	"runtime/debug"
 )
 
 const (
@@ -25,6 +26,8 @@ const (
 )
 
 func doGenThumbnail(dir, dest, bg string, width, height int) (string, error) {
+	defer debug.FreeOSMemory()
+
 	tmp := loader.GetTmpImage()
 	err := compositeImages(bg, tmp, getCursorIcons(dir))
 	os.RemoveAll(xcur2pngCache)

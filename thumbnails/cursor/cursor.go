@@ -33,15 +33,20 @@ func GenThumbnail(src, bg string, width, height int) (string, error) {
 		return "", fmt.Errorf("Not supported type: %v", ty)
 	}
 
-	src = dutils.DecodeURI(src)
-	dir := path.Dir(src)
+	return genCursorThumbnail(src, bg, width, height)
+}
+
+func genCursorThumbnail(src, bg string, width, height int) (string, error) {
+	dir := path.Dir(dutils.DecodeURI(src))
 	dest, err := GetThumbnailDest(path.Join(dir, "cursors", "left_ptr"),
 		width, height)
 	if err != nil {
 		return "", err
 	}
+	dest = path.Join(path.Dir(dest), "cursor-"+path.Base(dest))
 	if dutils.IsFileExist(dest) {
 		return dest, nil
 	}
+
 	return doGenThumbnail(dir, dest, dutils.DecodeURI(bg), width, height)
 }

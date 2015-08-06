@@ -7,6 +7,7 @@ import (
 	"path"
 	"pkg.deepin.io/dde/api/thumbnails/images"
 	"pkg.deepin.io/dde/api/thumbnails/loader"
+	"runtime/debug"
 	"strings"
 )
 
@@ -26,6 +27,8 @@ const (
 )
 
 func doGenThumbnail(dir, dest, bg string, width, height int) (string, error) {
+	defer debug.FreeOSMemory()
+
 	tmp := loader.GetTmpImage()
 	err := compositeImages(bg, tmp, getIconFiles(path.Base(dir)))
 	if err != nil {
@@ -59,8 +62,7 @@ func convertSvgFiles(files []string) []string {
 			ret = append(ret, file)
 			continue
 		}
-		tmp, err := images.GenThumbnail(file, loader.GetTmpImage(),
-			defaultIconSize, defaultIconSize)
+		tmp, err := images.GenThumbnail(file, defaultIconSize, defaultIconSize)
 		if err != nil {
 			return nil
 		}
