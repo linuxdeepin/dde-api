@@ -17,7 +17,7 @@ const (
 
 func init() {
 	for _, ty := range SupportedTypes() {
-		Register(ty, GenThumbnail)
+		Register(ty, genTextThumbnail)
 	}
 }
 
@@ -30,7 +30,7 @@ func SupportedTypes() []string {
 	}
 }
 
-func GenThumbnail(src, bg string, width, height int) (string, error) {
+func GenThumbnail(src string, width, height int) (string, error) {
 	ty, err := mime.Query(src)
 	if err != nil {
 		return "", err
@@ -40,7 +40,10 @@ func GenThumbnail(src, bg string, width, height int) (string, error) {
 		return "", fmt.Errorf("Not supported type: %v", ty)
 	}
 
-	src = dutils.DecodeURI(src)
+	return genTextThumbnail(src, "", width, height)
+}
+
+func genTextThumbnail(src, bg string, width, height int) (string, error) {
 	dest, err := GetThumbnailDest(src, width, height)
 	if err != nil {
 		return "", err
@@ -49,5 +52,5 @@ func GenThumbnail(src, bg string, width, height int) (string, error) {
 		return dest, nil
 	}
 
-	return doGenThumbnail(src, dest, width, height)
+	return doGenThumbnail(dutils.DecodeURI(src), dest, width, height)
 }

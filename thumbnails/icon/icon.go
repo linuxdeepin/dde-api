@@ -3,7 +3,6 @@ package icon
 
 import (
 	"fmt"
-	"path"
 	. "pkg.deepin.io/dde/api/thumbnails/loader"
 	"pkg.deepin.io/lib/mime"
 	dutils "pkg.deepin.io/lib/utils"
@@ -11,7 +10,7 @@ import (
 
 func init() {
 	for _, ty := range SupportedTypes() {
-		Register(ty, GenThumbnail)
+		Register(ty, genIconThumbnail)
 	}
 }
 
@@ -33,7 +32,10 @@ func GenThumbnail(src, bg string, width, height int) (string, error) {
 		return "", fmt.Errorf("Not supported type: %v", ty)
 	}
 
-	src = dutils.DecodeURI(src)
+	return genIconThumbnail(src, bg, width, height)
+}
+
+func genIconThumbnail(src, bg string, width, height int) (string, error) {
 	dest, err := GetThumbnailDest(src, width, height)
 	if err != nil {
 		return "", err
@@ -41,5 +43,6 @@ func GenThumbnail(src, bg string, width, height int) (string, error) {
 	if dutils.IsFileExist(dest) {
 		return dest, nil
 	}
-	return doGenThumbnail(path.Dir(src), dest, dutils.DecodeURI(bg), width, height)
+	return doGenThumbnail(dutils.DecodeURI(src), dest,
+		dutils.DecodeURI(bg), width, height)
 }
