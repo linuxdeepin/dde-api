@@ -94,6 +94,7 @@ func doGenThumbnail(src, dest string, width, height int) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return dest, nil
 }
 

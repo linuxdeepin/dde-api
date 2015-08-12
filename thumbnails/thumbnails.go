@@ -3,6 +3,7 @@ package thumbnails
 import (
 	"fmt"
 	_ "pkg.deepin.io/dde/api/thumbnails/cursor"
+	_ "pkg.deepin.io/dde/api/thumbnails/font"
 	_ "pkg.deepin.io/dde/api/thumbnails/gtk"
 	_ "pkg.deepin.io/dde/api/thumbnails/icon"
 	_ "pkg.deepin.io/dde/api/thumbnails/images"

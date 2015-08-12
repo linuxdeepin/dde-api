@@ -22,6 +22,10 @@ func SupportedTypes() []string {
 }
 
 func GenThumbnail(src, bg string, width, height int) (string, error) {
+	if width <= 0 || height <= 0 {
+		return "", fmt.Errorf("Invalid width or height")
+	}
+
 	ty, err := mime.Query(src)
 	if err != nil {
 		return "", err

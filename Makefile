@@ -5,7 +5,7 @@ GOPKG_PREFIX = pkg.deepin.io/dde/api
 ifndef USE_GCCGO
     GOBUILD = go build
 else
-    LDFLAGS = $(shell pkg-config --libs gio-2.0 gdk-3.0 gdk-pixbuf-xlib-2.0 x11 xi libcanberra)
+    LDFLAGS = $(shell pkg-config --libs gio-2.0 gdk-3.0 gdk-pixbuf-xlib-2.0 x11 xi libcanberra cairo-ft poppler-glib)
     GOBUILD = go build -compiler gccgo -gccgoflags "${LDFLAGS}"
 endif
 
