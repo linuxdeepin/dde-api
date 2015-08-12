@@ -13,7 +13,11 @@ Build-Depends: debhelper (>= 9),
  libcairo2-dev,
  librsvg2-dev,
  golang-imaging.disintegration-dev,
- libcanberra-dev
+ libcanberra-dev,
+ golang-kingpin.v2-dev,
+ libfreetype6-dev,
+ libpoppler-glib-dev,
+ libmetacity-dev
 Standards-Version: 3.9.5
 Homepage: http://www.linuxdeepin.com
 

@@ -1,5 +1,4 @@
-// Text thumbnail generator
-package text
+package font
 
 import (
 	"fmt"
@@ -9,24 +8,20 @@ import (
 )
 
 const (
-	TextTypeText = "text/plain"
-	TextTypeC    = "text/x-c"
-	TextTypeCpp  = "text/x-cpp"
-	TextTypeGo   = "text/x-go"
+	FontTypeTTF = "application/x-font-ttf"
+	FontTypeOTF = "application/vnd.ms-opentype"
 )
 
 func init() {
 	for _, ty := range SupportedTypes() {
-		Register(ty, genTextThumbnail)
+		Register(ty, genFontThumbnail)
 	}
 }
 
 func SupportedTypes() []string {
 	return []string{
-		TextTypeText,
-		TextTypeC,
-		TextTypeCpp,
-		TextTypeGo,
+		FontTypeOTF,
+		FontTypeTTF,
 	}
 }
 
@@ -44,10 +39,10 @@ func GenThumbnail(src string, width, height int) (string, error) {
 		return "", fmt.Errorf("Not supported type: %v", ty)
 	}
 
-	return genTextThumbnail(src, "", width, height)
+	return genFontThumbnail(src, "", width, height)
 }
 
-func genTextThumbnail(src, bg string, width, height int) (string, error) {
+func genFontThumbnail(src, bg string, width, height int) (string, error) {
 	dest, err := GetThumbnailDest(src, width, height)
 	if err != nil {
 		return "", err

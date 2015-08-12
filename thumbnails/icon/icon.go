@@ -23,6 +23,10 @@ func SupportedTypes() []string {
 // GenThumbnail generate icon theme thumbnail
 // src: the uri of icon theme index.theme
 func GenThumbnail(src, bg string, width, height int) (string, error) {
+	if width <= 0 || height <= 0 {
+		return "", fmt.Errorf("Invalid width or height")
+	}
+
 	ty, err := mime.Query(src)
 	if err != nil {
 		return "", err
