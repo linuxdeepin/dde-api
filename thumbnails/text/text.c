@@ -1,18 +1,12 @@
 #include <gdk/gdk.h>
+#include "text.h"
 
-#define PIC_SIZE 256
+#define FONT_NAME "monospace"
 
-#define FONT_SIZE 12
-#define FONT_NAME "sans-serif"
-
-#define TEXT_START_X 15
-#define TEXT_START_Y 15
-#define TEXT_DELTA_Y (FONT_SIZE+FONT_SIZE/3)
-
-static void do_show_text(cairo_t* cr, char** text);
+static void do_show_text(cairo_t* cr, char** text, ThumbInfo* info);
 
 int
-do_gen_thumbnail(char** text, char* dest)
+do_gen_thumbnail(char** text, char* dest, ThumbInfo* info)
 {
 	if (!gdk_init_check(NULL, NULL)) {
 		g_warning("Init gdk failed");
@@ -20,7 +14,7 @@ do_gen_thumbnail(char** text, char* dest)
 	}
 
 	cairo_surface_t* surface = cairo_image_surface_create(
-			CAIRO_FORMAT_ARGB32, PIC_SIZE, PIC_SIZE);
+	    CAIRO_FORMAT_ARGB32, info->width, info->height);
 	if (!surface) {
 		g_warning("Create surface failed");
 		return -1;
@@ -33,10 +27,10 @@ do_gen_thumbnail(char** text, char* dest)
 		return -1;
 	}
 
-	//background color: gray
-	cairo_set_source_rgb(cr, 0.22, 0.22, 0.22);
+	//background color: gray (216, 216, 216)
+	cairo_set_source_rgb(cr, 216.0 / 255.0, 216.0 / 255.0, 216.0 / 255.0);
 	cairo_paint(cr);
-	do_show_text(cr, text);
+	do_show_text(cr, text, info);
 
 	cairo_status_t status = cairo_surface_write_to_png(
 			cairo_get_target(cr),
@@ -51,25 +45,27 @@ do_gen_thumbnail(char** text, char* dest)
 }
 
 static void
-do_show_text(cairo_t* cr, char** text)
+do_show_text(cairo_t* cr, char** text, ThumbInfo* info)
 {
 	cairo_select_font_face(cr, FONT_NAME, 
 	                       CAIRO_FONT_SLANT_NORMAL,
 	                       CAIRO_FONT_WEIGHT_BOLD);
-	cairo_set_font_size(cr, FONT_SIZE);
+
+	cairo_set_font_size(cr, info->fontSize);
 
 	// text color: black
-	cairo_set_source_rgb(cr, 1, 1, 1);
+	cairo_set_source_rgb(cr, 0, 0, 0);
 
 	int i = 0;
-	int height = TEXT_START_Y;
+	int y_pos = info->yborder;
 	while (text[i]) {
-		if (height > PIC_SIZE - TEXT_START_Y) {
+		if (y_pos > info->canvasHeight) {
 			break;
 		}
-		cairo_move_to(cr, TEXT_START_X, height);
+
+		cairo_move_to(cr, info->xborder, y_pos);
 		cairo_show_text(cr, text[i]);
-		height += TEXT_DELTA_Y;
+		y_pos += info->fontSize;
 		i++;
 	}
 }

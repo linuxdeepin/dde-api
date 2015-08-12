@@ -7,25 +7,85 @@ package text
 import "C"
 
 import (
+	"bufio"
 	"fmt"
-	"io/ioutil"
-	"path"
+	"os"
 	"pkg.deepin.io/dde/api/thumbnails/images"
-	"strings"
+	"pkg.deepin.io/dde/api/thumbnails/loader"
 	"unsafe"
 )
 
+type thumbInfo struct {
+	width        int
+	height       int
+	xborder      int
+	yborder      int
+	canvasWidth  int
+	canvasHeight int
+	pixelsize    int
+	fontsize     int
+}
+
+const (
+	defaultDPI   int = 96
+	defaultScale     = 1
+)
+
+// refer to kde text thumbnail in kde-runtime
+func getThumbInfo(width, height int) *thumbInfo {
+	var info thumbInfo
+	// look good at width/height = 3/4
+	if height*3 > width*4 {
+		info.height = width * 4 / 3
+		info.width = width
+	} else {
+		info.width = height * 3 / 4
+		info.height = height
+	}
+
+	// one pixel for the rectangle, the rest. whitespace
+	info.xborder = 1 + info.width/16  //minimum x-border
+	info.yborder = 1 + info.height/16 //minimum y-border
+
+	// calculate a better border so that the text is centered
+	// kde: canvasWidth/canvasHeight = width/height - 2 * xborder / yborder
+	info.canvasWidth = info.width - info.xborder
+	info.canvasHeight = info.height - info.yborder
+
+	// this font is supposed to look good at small sizes
+	// pixelsize = Max(7, Min(10, (height - 2 * yborder) / 16))
+	tmpPixel := (info.height - info.yborder) / 16
+	if tmpPixel > 10 {
+		tmpPixel = 10
+	}
+	info.pixelsize = tmpPixel
+	// pixelsize = (fontsize * scale * dpi) / 72 from fontconfig
+	info.fontsize = info.pixelsize * 72 / (defaultDPI * defaultScale)
+
+	return &info
+}
 func doGenThumbnail(src, dest string, width, height int) (string, error) {
-	strv, err := readFileContent(src)
+	info := getThumbInfo(width, height)
+	strv, err := readFile(src, info)
 	if err != nil {
 		return "", err
 	}
 	defer freeCStrv(strv)
 
-	tmp := path.Join("/tmp", path.Base(src)+".png")
+	tmp := loader.GetTmpImage()
 	cTmp := C.CString(tmp)
 	defer C.free(unsafe.Pointer(cTmp))
-	ret := C.do_gen_thumbnail(&strv[0], cTmp)
+
+	var cinfo *C.ThumbInfo = &C.ThumbInfo{
+		width:        C.int(info.width),
+		height:       C.int(info.height),
+		xborder:      C.int(info.xborder),
+		yborder:      C.int(info.yborder),
+		canvasWidth:  C.int(info.canvasWidth),
+		canvasHeight: C.int(info.canvasHeight),
+		fontSize:     C.int(info.fontsize),
+	}
+	ret := C.do_gen_thumbnail(&strv[0], cTmp, cinfo)
 	if ret != 0 {
 		return "", fmt.Errorf("Draw text on image failed")
 	}
@@ -37,38 +97,55 @@ func doGenThumbnail(src, dest string, width, height int) (string, error) {
 	return dest, nil
 }
 
-func readFileContent(file string) ([]*C.char, error) {
-	content, err := ioutil.ReadFile(file)
+func readFile(file string, info *thumbInfo) ([]*C.char, error) {
+	fr, err := os.Open(file)
 	if err != nil {
 		return nil, err
 	}
+	defer fr.Close()
 
-	lines := strings.Split(string(content), "\n")
-	length := len(lines)
-	var strv []*C.char
-	for i, line := range lines {
-		if i == length-1 && len(line) == 0 {
-			continue
+	var (
+		cnt   int
+		lines []string
+	)
+	scanner := bufio.NewScanner(fr)
+	numLines := info.height / info.pixelsize
+	for scanner.Scan() {
+		if cnt >= numLines {
+			break
 		}
+		lines = append(lines, scanner.Text())
+		cnt += 1
+	}
 
+	bytesPerLine := info.width / info.pixelsize * 2
+	return strvToCStrv(lines, bytesPerLine), nil
+}
+
+func strvToCStrv(strv []string, bytesPerLine int) []*C.char {
+	var cstrv []*C.char
+	for _, str := range strv {
 		var tmp string
-		for _, ch := range line {
-			// tab: 4 space
+		for _, ch := range str {
+			if len(tmp) > bytesPerLine {
+				cstrv = append(cstrv, C.CString(tmp))
+				tmp = ""
+			}
+			// convert 'tab' to 4 space
 			if ch == '\t' {
 				tmp += "    "
 				continue
 			}
 			tmp += string(ch)
 		}
-		strv = append(strv, C.CString(tmp))
+		cstrv = append(cstrv, C.CString(tmp))
 	}
-	strv = append(strv, nil)
-
-	return strv, nil
+	cstrv = append(cstrv, nil)
+	return cstrv
 }
 
 func freeCStrv(strv []*C.char) {
-	for _, s := range strv {
-		C.free(unsafe.Pointer(s))
+	for _, str := range strv {
+		C.free(unsafe.Pointer(str))
 	}
 }
