@@ -36,7 +36,7 @@ func init() {
 // * First char of username bust be in lower case.
 // * Username can only contain lower letters(a~z), numbers(0~9), dash(-) and
 //   userscore(_).
-// * Username cannot already be userd others or by system.
+// * Username cannot be used by others or by system.
 func (validator *Validator) ValidateUsername(username string) (int, string) {
 	if len(username) == 0 {
 		return UsernameEmpty, "Username can not be empty."
