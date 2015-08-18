@@ -7,6 +7,7 @@ import (
 	_ "pkg.deepin.io/dde/api/thumbnails/icon"
 	_ "pkg.deepin.io/dde/api/thumbnails/images"
 	"pkg.deepin.io/dde/api/thumbnails/loader"
+	_ "pkg.deepin.io/dde/api/thumbnails/pdf"
 	_ "pkg.deepin.io/dde/api/thumbnails/text"
 	"pkg.deepin.io/lib/mime"
 )
