@@ -33,7 +33,7 @@ static void destroy_ft_library(FT_Library library);
 static gchar* build_fallback_thumbstr(FT_Face face);
 
 int
-gen_thumbnail(char* file, char* dest, int size)
+font_thumbnail(char* file, char* dest, int size)
 {
         gchar* contents;
         gsize length = read_file(file, &contents);

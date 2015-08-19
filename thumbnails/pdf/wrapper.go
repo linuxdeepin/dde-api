@@ -18,7 +18,7 @@ func doGenThumbnail(uri, dest string, width, height int) (string, error) {
 	defer C.free(unsafe.Pointer(cTmp))
 	cUri := C.CString(uri)
 	defer C.free(unsafe.Pointer(cUri))
-	ret := C.gen_thumbnail(cUri, cTmp)
+	ret := C.pdf_thumbnail(cUri, cTmp)
 	if ret == -1 {
 		return "", fmt.Errorf("Gen thumbnail failed")
 	}

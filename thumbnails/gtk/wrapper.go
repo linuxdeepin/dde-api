@@ -41,7 +41,7 @@ func doGenThumbnail(name, dest, bg string, w, h int) (string, error) {
 	cBg := C.CString(bg)
 	defer C.free(unsafe.Pointer(cBg))
 
-	ret := C.generate_thumbnail(cName, cDest, cBg, C.int(w), C.int(h))
+	ret := C.gtk_thumbnail(cName, cDest, cBg, C.int(w), C.int(h))
 	if ret == -1 {
 		return "", fmt.Errorf("MetaTheme load failed for '%s'", name)
 	}

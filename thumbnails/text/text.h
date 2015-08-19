@@ -12,6 +12,6 @@ typedef struct _THUMB_INFO
     int fontSize;
 } ThumbInfo;
 
-int do_gen_thumbnail(char** text, char* dest, ThumbInfo* info);
+int text_thumbnail(char** text, char* dest, ThumbInfo* info);
 
 #endif

@@ -22,7 +22,7 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-int generate_thumbnail(const char *theme, const char *dest, const char *bg, 
+int gtk_thumbnail(const char *theme, const char *dest, const char *bg,
 		int width, int height);
 
 int try_init();
