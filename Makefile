@@ -10,7 +10,8 @@ else
 endif
 
 LIBRARIES = \
-    thumbnails
+    thumbnails \
+    themes
 
 BINARIES =  \
     device \
