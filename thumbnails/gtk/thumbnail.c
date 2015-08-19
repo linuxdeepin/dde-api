@@ -47,7 +47,7 @@ try_init()
 }
 
 int
-generate_thumbnail(const char* name, const char* dest, const char* bg,
+gtk_thumbnail(const char* name, const char* dest, const char* bg,
                    int width, int height)
 {
 	if (!name || !dest) {

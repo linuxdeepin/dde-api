@@ -6,7 +6,7 @@
 static void do_show_text(cairo_t* cr, char** text, ThumbInfo* info);
 
 int
-do_gen_thumbnail(char** text, char* dest, ThumbInfo* info)
+text_thumbnail(char** text, char* dest, ThumbInfo* info)
 {
 	if (!gdk_init_check(NULL, NULL)) {
 		g_warning("Init gdk failed");

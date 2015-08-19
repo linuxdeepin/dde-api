@@ -19,7 +19,7 @@ func doGenThumbnail(file, dest string, width, height int) (string, error) {
 	tmp := GetTmpImage()
 	cTmp := C.CString(tmp)
 	defer C.free(unsafe.Pointer(cTmp))
-	ret := C.gen_thumbnail(cFile, cTmp, C.int(getThumbSize(width, height)))
+	ret := C.font_thumbnail(cFile, cTmp, C.int(getThumbSize(width, height)))
 	if ret == -1 {
 		return "", fmt.Errorf("Gen thumbnail for '%s' failed", file)
 	}

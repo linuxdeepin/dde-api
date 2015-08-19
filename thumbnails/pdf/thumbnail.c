@@ -14,7 +14,7 @@ static gint save_thumbnail(cairo_surface_t* surface, gchar* dest);
 static cairo_surface_t* get_thumbnail_surface_from_page(PopplerPage* page);
 
 int
-gen_thumbnail(char* uri, char* dest)
+pdf_thumbnail(char* uri, char* dest)
 {
         PopplerDocument* doc = create_poppler_document(uri);
         if (!doc) {

@@ -85,7 +85,7 @@ func doGenThumbnail(src, dest string, width, height int) (string, error) {
 		canvasHeight: C.int(info.canvasHeight),
 		fontSize:     C.int(info.fontsize),
 	}
-	ret := C.do_gen_thumbnail(&strv[0], cTmp, cinfo)
+	ret := C.text_thumbnail(&strv[0], cTmp, cinfo)
 	if ret != 0 {
 		return "", fmt.Errorf("Draw text on image failed")
 	}
