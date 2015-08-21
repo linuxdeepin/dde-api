@@ -31,29 +31,26 @@ func ListCursorTheme(uri string) ([]string, error) {
 }
 
 func IsGtkTheme(uri string) bool {
-	ty, err := mime.Query(uri)
+	ty, _ := mime.Query(uri)
 	if ty == mime.MimeTypeGtk {
 		return true
 	}
-	fmt.Printf("%s not gtk theme: %v\n", uri, err)
 	return false
 }
 
 func IsIconTheme(uri string) bool {
-	ty, err := mime.Query(uri)
+	ty, _ := mime.Query(uri)
 	if ty == mime.MimeTypeIcon {
 		return true
 	}
-	fmt.Printf("%s not icon theme: %v\n", uri, err)
 	return false
 }
 
 func IsCursorTheme(uri string) bool {
-	ty, err := mime.Query(uri)
+	ty, _ := mime.Query(uri)
 	if ty == mime.MimeTypeCursor {
 		return true
 	}
-	fmt.Printf("%s not cursor theme: %v\n", uri, err)
 	return false
 }
 

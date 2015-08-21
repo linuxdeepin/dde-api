@@ -23,6 +23,10 @@ const (
 	xsKeyCursorName = "gtk-cursor-theme-name"
 )
 
+func init() {
+	C.init_gtk()
+}
+
 func SetGtkTheme(name string) error {
 	if !IsThemeInList(name, ListGtkTheme()) {
 		return fmt.Errorf("Invalid theme '%s'", name)
