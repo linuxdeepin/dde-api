@@ -1,14 +1,10 @@
 package cursor
 
 import (
-	"github.com/disintegration/imaging"
-	"image"
-	"image/color"
 	"os"
 	"path"
-	"pkg.deepin.io/dde/api/thumbnails/images"
 	"pkg.deepin.io/dde/api/thumbnails/loader"
-	"runtime/debug"
+	"pkg.deepin.io/lib/graphic"
 )
 
 const (
@@ -26,8 +22,6 @@ const (
 )
 
 func doGenThumbnail(dir, dest, bg string, width, height int) (string, error) {
-	defer debug.FreeOSMemory()
-
 	tmp := loader.GetTmpImage()
 	err := compositeImages(bg, tmp, getCursorIcons(dir))
 	os.RemoveAll(xcur2pngCache)
@@ -35,7 +29,7 @@ func doGenThumbnail(dir, dest, bg string, width, height int) (string, error) {
 		return "", err
 	}
 
-	err = images.Scale(tmp, dest, width, height)
+	err = graphic.ThumbnailImage(tmp, dest, width, height, graphic.FormatPng)
 	if err != nil {
 		return "", err
 	}
@@ -62,31 +56,18 @@ func getCursorIcons(dir string) []string {
 }
 
 func compositeImages(bg, dest string, files []string) error {
-	var dst image.Image
-	if len(bg) != 0 {
-		img, err := imaging.Open(bg)
-		if err != nil {
-			return err
-		}
-		dst = imaging.Fit(img, defaultWidth, defaultHeight,
-			imaging.Lanczos)
-	} else {
-		dst = imaging.New(defaultWidth, defaultHeight,
-			color.NRGBA{1, 1, 1, 1})
-	}
-
 	var (
-		x = defaultPointX
-		y = defaultPointY
+		x   = defaultPointX
+		y   = defaultPointY
+		tmp = bg
 	)
 	for _, file := range files {
-		img, err := imaging.Open(file)
+		err := graphic.CompositeImage(tmp, file, dest, x, y, graphic.FormatPng)
 		if err != nil {
 			return err
 		}
-
-		dst = imaging.Paste(dst, img, image.Pt(x, y))
+		tmp = dest
 		x += defaultPointX + defaultIconSize
 	}
-	return imaging.Save(dst, dest)
+	return nil
 }

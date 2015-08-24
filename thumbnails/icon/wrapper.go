@@ -15,7 +15,7 @@ func GetIconFile(theme, name string) string {
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
 
-	cFile := C.lookup_icon(cTheme, cName)
+	cFile := C.lookup_icon(cTheme, cName, C.int(defaultIconSize))
 	defer C.free(unsafe.Pointer(cFile))
 
 	return C.GoString(cFile)
