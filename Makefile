@@ -23,7 +23,8 @@ BINARIES =  \
     set-date-time \
     thumbnailer \
     mime-helper \
-    sound
+    sound \
+    hans2pinyin
 
 all: build
 
