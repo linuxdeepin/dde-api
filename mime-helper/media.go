@@ -13,10 +13,12 @@ const (
 )
 
 const (
-	mediaSchema     = "org.gnome.desktop.media-handling"
-	gsKeyIgnore     = "autorun-x-content-ignore"
-	gsKeyOpenFolder = "autorun-x-content-open-folder"
-	gsKeyStartSoft  = "autorun-x-content-start-app"
+	mediaSchema        = "org.gnome.desktop.media-handling"
+	gsKeyAutoMount     = "automount"
+	gsKeyAutoMountOpen = "automount-open"
+	gsKeyIgnore        = "autorun-x-content-ignore"
+	gsKeyOpenFolder    = "autorun-x-content-open-folder"
+	gsKeyStartSoft     = "autorun-x-content-start-app"
 )
 
 const (
@@ -24,6 +26,8 @@ const (
 )
 
 type Media struct {
+	AutoOpen bool
+
 	setting *gio.Settings
 }
 
@@ -68,6 +72,7 @@ func NewMedia() (*Media, error) {
 	var media = Media{
 		setting: s,
 	}
+	media.setPropAutoOpen(media.isAutoOpen())
 	return &media, nil
 }
 
@@ -128,17 +133,22 @@ func (media *Media) SetDefaultApp(ty, id string) error {
 // ret0: the app desktop id list and media actions
 func (media *Media) ListApps(ty string) string {
 	infos := GetAppInfos(ty)
-	// idRunSoft == nautilusRunSoft
-	infos = infos.Delete(nautilusRunSoft)
 
 	infos = append(infos, AppInfos{
 		idIgnore.GetAppInfo(),
 		idOpenFolder.GetAppInfo(),
-		idRunSoft.GetAppInfo(),
 	}...)
 
 	content, _ := marshal(infos)
 	return content
+}
+
+func (media *Media) EnableAutoOpen(enabled bool) {
+	if enabled {
+		media.setting.SetBoolean(gsKeyAutoMount, enabled)
+	}
+	media.setting.SetBoolean(gsKeyAutoMountOpen, enabled)
+	media.setPropAutoOpen(media.isAutoOpen())
 }
 
 func (media *Media) GetDBusInfo() dbus.DBusInfo {
@@ -147,6 +157,24 @@ func (media *Media) GetDBusInfo() dbus.DBusInfo {
 		ObjectPath: mediaPath,
 		Interface:  mediaIFC,
 	}
+}
+
+func (media *Media) setPropAutoOpen(enabled bool) {
+	if media.AutoOpen == enabled {
+		return
+	}
+
+	media.AutoOpen = enabled
+	dbus.NotifyChange(media, "AutoOpen")
+}
+
+func (media *Media) isAutoOpen() bool {
+	if media.setting.GetBoolean(gsKeyAutoMount) &&
+		media.setting.GetBoolean(gsKeyAutoMountOpen) {
+		return true
+	}
+
+	return false
 }
 
 func (media *Media) isInIgnoreList(ty string) bool {
