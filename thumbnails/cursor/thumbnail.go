@@ -4,7 +4,6 @@ import (
 	"os"
 	"path"
 	"pkg.deepin.io/dde/api/thumbnails/loader"
-	"pkg.deepin.io/lib/graphic"
 )
 
 const (
@@ -17,19 +16,18 @@ const (
 	defaultWidth    = 128
 	defaultHeight   = 72
 	defaultIconSize = 24
-	defaultPointX   = (defaultWidth - defaultIconSize*3) / 4
-	defaultPointY   = (defaultHeight - defaultIconSize) / 2
 )
 
 func doGenThumbnail(dir, dest, bg string, width, height int) (string, error) {
 	tmp := loader.GetTmpImage()
-	err := compositeImages(bg, tmp, getCursorIcons(dir))
+	err := loader.CompositeIcons(getCursorIcons(dir), bg, tmp,
+		defaultIconSize, defaultWidth, defaultHeight)
 	os.RemoveAll(xcur2pngCache)
 	if err != nil {
 		return "", err
 	}
 
-	err = graphic.ThumbnailImage(tmp, dest, width, height, graphic.FormatPng)
+	err = loader.ThumbnailImage(tmp, dest, width, height)
 	if err != nil {
 		return "", err
 	}
@@ -53,21 +51,4 @@ func getCursorIcons(dir string) []string {
 		files = append(files, tmp)
 	}
 	return files
-}
-
-func compositeImages(bg, dest string, files []string) error {
-	var (
-		x   = defaultPointX
-		y   = defaultPointY
-		tmp = bg
-	)
-	for _, file := range files {
-		err := graphic.CompositeImage(tmp, file, dest, x, y, graphic.FormatPng)
-		if err != nil {
-			return err
-		}
-		tmp = dest
-		x += defaultPointX + defaultIconSize
-	}
-	return nil
 }

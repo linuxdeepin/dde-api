@@ -3,6 +3,7 @@ package icon
 
 import (
 	"fmt"
+	"path"
 	. "pkg.deepin.io/dde/api/thumbnails/loader"
 	"pkg.deepin.io/lib/mime"
 	dutils "pkg.deepin.io/lib/utils"
@@ -40,6 +41,7 @@ func GenThumbnail(src, bg string, width, height int) (string, error) {
 }
 
 func genIconThumbnail(src, bg string, width, height int) (string, error) {
+	src = dutils.DecodeURI(src)
 	dest, err := GetThumbnailDest(src, width, height)
 	if err != nil {
 		return "", err
@@ -47,6 +49,6 @@ func genIconThumbnail(src, bg string, width, height int) (string, error) {
 	if dutils.IsFileExist(dest) {
 		return dest, nil
 	}
-	return doGenThumbnail(dutils.DecodeURI(src), dest,
+	return doGenThumbnail(path.Dir(src), dest,
 		dutils.DecodeURI(bg), width, height)
 }

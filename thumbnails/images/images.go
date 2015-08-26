@@ -81,7 +81,7 @@ func genImageThumbnail(src, bg string, width, height int) (string, error) {
 		return dest, nil
 	}
 
-	err = Scale(src, dest, width, height)
+	err = ThumbnailImage(src, dest, width, height)
 	if err != nil {
 		return "", err
 	}

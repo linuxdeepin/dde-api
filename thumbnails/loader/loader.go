@@ -67,6 +67,11 @@ func GetHandler(ty string) (HandleType, error) {
 	return handler, nil
 }
 
+func ThumbnailImage(src, dest string, width, height int) error {
+	return graphic.ThumbnailImage(src, dest, width, height,
+		graphic.FormatPng)
+}
+
 func GetThumbnailDest(uri string, width, height int) (string, error) {
 	md5, ok := dutils.SumFileMd5(dutils.DecodeURI(uri))
 	if !ok {
@@ -90,6 +95,38 @@ func GetThumbnailDest(uri string, width, height int) (string, error) {
 	return path.Join(dir, md5+".png"), nil
 }
 
+func CompositeIcons(icons []string, bg, dest string,
+	iconSize, width, height int) error {
+	iconNum := len(icons)
+	if iconNum == 0 {
+		return fmt.Errorf("No icon files")
+	}
+
+	var err error
+	if !dutils.IsFileExist(bg) {
+		bg, err = GetBackground(width, height)
+		if err != nil {
+			return err
+		}
+	}
+
+	deltaX := (width - iconSize*iconNum) / (iconNum + 1)
+	deltaY := (height - iconSize) / 2
+
+	xPoint := deltaX
+	yPoint := deltaY
+	for _, icon := range icons {
+		err = graphic.CompositeImage(bg, icon, dest,
+			xPoint, yPoint, graphic.FormatPng)
+		if err != nil {
+			return err
+		}
+		bg = dest
+		xPoint += deltaX + iconSize
+	}
+	return nil
+}
+
 func GetBackground(width, height int) (string, error) {
 	var dest = GetTmpImage()
 	err := graphic.NewImageWithColor(dest, int(width), int(height),
@@ -97,7 +134,6 @@ func GetBackground(width, height int) (string, error) {
 		uint8(250), uint8(250), uint8(250), uint8(0),
 		graphic.FormatPng)
 	if err != nil {
-		fmt.Println("Create bg failed:", err)
 		return "", err
 	}
 

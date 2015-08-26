@@ -10,7 +10,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"pkg.deepin.io/dde/api/thumbnails/images"
 	"pkg.deepin.io/dde/api/thumbnails/loader"
 	"unsafe"
 )
@@ -90,7 +89,7 @@ func doGenThumbnail(src, dest string, width, height int) (string, error) {
 		return "", fmt.Errorf("Draw text on image failed")
 	}
 
-	err = images.Scale(tmp, dest, width, height)
+	err = loader.ThumbnailImage(tmp, dest, width, height)
 	if err != nil {
 		return "", err
 	}

@@ -41,13 +41,23 @@ func GenThumbnail(src, bg string, width, height int) (string, error) {
 }
 
 func genCursorThumbnail(src, bg string, width, height int) (string, error) {
+	var (
+		dest string
+		err  error
+	)
+
 	dir := path.Dir(dutils.DecodeURI(src))
-	dest, err := GetThumbnailDest(path.Join(dir, "cursors", "left_ptr"),
-		width, height)
+	if dutils.IsFileExist(src) {
+		dest, err = GetThumbnailDest(src, width, height)
+	} else {
+		dest, err = GetThumbnailDest(path.Join(dir, "cursors", "left_ptr"),
+			width, height)
+		dest = path.Join(path.Dir(dest), "cursor-"+path.Base(dest))
+	}
 	if err != nil {
 		return "", err
 	}
-	dest = path.Join(path.Dir(dest), "cursor-"+path.Base(dest))
+
 	if dutils.IsFileExist(dest) {
 		return dest, nil
 	}
