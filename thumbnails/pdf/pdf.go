@@ -24,7 +24,7 @@ func SupportedTypes() []string {
 	}
 }
 
-func GenThumbnail(uri string, width, height int) (string, error) {
+func GenThumbnail(uri string, width, height int, force bool) (string, error) {
 	if width <= 0 || height <= 0 {
 		return "", fmt.Errorf("Invalid width or height")
 	}
@@ -38,16 +38,16 @@ func GenThumbnail(uri string, width, height int) (string, error) {
 		return "", fmt.Errorf("Not supported type: %s", ty)
 	}
 
-	return genPDFThumbnail(uri, "", width, height)
+	return genPDFThumbnail(uri, "", width, height, force)
 }
 
-func genPDFThumbnail(uri, bg string, width, height int) (string, error) {
+func genPDFThumbnail(uri, bg string, width, height int, force bool) (string, error) {
 	dest, err := GetThumbnailDest(uri, width, height)
 	if err != nil {
 		return "", err
 	}
 
-	if dutils.IsFileExist(dest) {
+	if !force && dutils.IsFileExist(dest) {
 		return dest, nil
 	}
 

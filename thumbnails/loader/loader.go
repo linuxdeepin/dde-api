@@ -19,9 +19,9 @@ const (
 	SizeFlagSmall      = 64
 )
 
-// args: src, bg, width, height
+// args: src, bg, width, height, force
 // rets: dest, error
-type HandleType func(string, string, int, int) (string, error)
+type HandleType func(string, string, int, int, bool) (string, error)
 
 type Manager struct {
 	handlers map[string]HandleType

@@ -23,7 +23,7 @@ func SupportedTypes() []string {
 
 // GenThumbnail generate cursor theme thumbnail
 // src: the uri of cursor theme index.theme
-func GenThumbnail(src, bg string, width, height int) (string, error) {
+func GenThumbnail(src, bg string, width, height int, force bool) (string, error) {
 	if width <= 0 || height <= 0 {
 		return "", fmt.Errorf("Invalid width or height")
 	}
@@ -37,10 +37,10 @@ func GenThumbnail(src, bg string, width, height int) (string, error) {
 		return "", fmt.Errorf("Not supported type: %v", ty)
 	}
 
-	return genCursorThumbnail(src, bg, width, height)
+	return genCursorThumbnail(src, bg, width, height, force)
 }
 
-func genCursorThumbnail(src, bg string, width, height int) (string, error) {
+func genCursorThumbnail(src, bg string, width, height int, force bool) (string, error) {
 	var (
 		dest string
 		err  error
@@ -58,7 +58,7 @@ func genCursorThumbnail(src, bg string, width, height int) (string, error) {
 		return "", err
 	}
 
-	if dutils.IsFileExist(dest) {
+	if !force && dutils.IsFileExist(dest) {
 		return dest, nil
 	}
 
