@@ -21,7 +21,7 @@ func SupportedTypes() []string {
 	}
 }
 
-func GenThumbnail(src, bg string, width, height int) (string, error) {
+func GenThumbnail(src, bg string, width, height int, force bool) (string, error) {
 	if width <= 0 || height <= 0 {
 		return "", fmt.Errorf("Invalid width or height")
 	}
@@ -34,15 +34,15 @@ func GenThumbnail(src, bg string, width, height int) (string, error) {
 		return "", fmt.Errorf("Unspported mime: %s", ty)
 	}
 
-	return genGtkThumbnail(src, bg, width, height)
+	return genGtkThumbnail(src, bg, width, height, force)
 }
 
-func genGtkThumbnail(src, bg string, width, height int) (string, error) {
+func genGtkThumbnail(src, bg string, width, height int, force bool) (string, error) {
 	dest, err := GetThumbnailDest(src, width, height)
 	if err != nil {
 		return "", err
 	}
-	if dutils.IsFileExist(dest) {
+	if !force && dutils.IsFileExist(dest) {
 		return dest, nil
 	}
 

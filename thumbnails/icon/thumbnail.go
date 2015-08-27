@@ -55,7 +55,7 @@ func convertSvgFiles(files []string) []string {
 			ret = append(ret, file)
 			continue
 		}
-		tmp, err := images.GenThumbnail(file, defaultIconSize, defaultIconSize)
+		tmp, err := images.GenThumbnail(file, defaultIconSize, defaultIconSize, true)
 		if err != nil {
 			return nil
 		}

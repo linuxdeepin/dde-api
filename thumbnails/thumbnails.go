@@ -36,5 +36,5 @@ func GenThumbnailWithMime(uri, ty string, size int) (string, error) {
 		return "", err
 	}
 
-	return handler(uri, "", size, size)
+	return handler(uri, "", size, size, false)
 }

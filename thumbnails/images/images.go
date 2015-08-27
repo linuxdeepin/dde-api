@@ -39,7 +39,7 @@ func SupportedTypes() []string {
 	}
 }
 
-func GenThumbnail(src string, width, height int) (string, error) {
+func GenThumbnail(src string, width, height int, force bool) (string, error) {
 	if width <= 0 || height <= 0 {
 		return "", fmt.Errorf("Invalid width or height")
 	}
@@ -55,29 +55,29 @@ func GenThumbnail(src string, width, height int) (string, error) {
 
 	switch ty {
 	case ImageTypeSvg:
-		return genSvgThumbnail(src, "", width, height)
+		return genSvgThumbnail(src, "", width, height, force)
 	}
 
-	return genImageThumbnail(src, "", width, height)
+	return genImageThumbnail(src, "", width, height, force)
 }
 
-func genSvgThumbnail(src, bg string, width, height int) (string, error) {
+func genSvgThumbnail(src, bg string, width, height int, force bool) (string, error) {
 	tmp := GetTmpImage()
 	err := svgToPng(src, tmp)
 	if err != nil {
 		return "", err
 	}
 
-	return genImageThumbnail(tmp, bg, width, height)
+	return genImageThumbnail(tmp, bg, width, height, force)
 }
 
-func genImageThumbnail(src, bg string, width, height int) (string, error) {
+func genImageThumbnail(src, bg string, width, height int, force bool) (string, error) {
 	src = dutils.DecodeURI(src)
 	dest, err := GetThumbnailDest(src, width, height)
 	if err != nil {
 		return "", err
 	}
-	if dutils.IsFileExist(dest) {
+	if !force && dutils.IsFileExist(dest) {
 		return dest, nil
 	}
 
