@@ -125,6 +125,9 @@ func (media *Media) SetDefaultApp(ty, id string) error {
 		return media.addToRunList(ty)
 	}
 
+	media.delFromIgnoreList(ty)
+	media.delFromOpenList(ty)
+	media.delFromRunList(ty)
 	return SetAppInfo(ty, id)
 }
 
