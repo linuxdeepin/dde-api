@@ -34,14 +34,13 @@ import (
 )
 
 const (
-	soundDest             = "com.deepin.api.Sound"
-	soundPath             = "/com/deepin/api/Sound"
-	soundObj              = "com.deepin.api.Sound"
-	personalizationID     = "com.deepin.dde.personalization"
-	gkeyCurrentSoundTheme = "current-sound-theme"
-)
+	soundDest = "com.deepin.api.Sound"
+	soundPath = "/com/deepin/api/Sound"
+	soundObj  = "com.deepin.api.Sound"
 
-var personSettings = gio.NewSettings(personalizationID)
+	appearanceId   = "com.deepin.dde.appearance"
+	gkeySoundTheme = "sound-theme"
+)
 
 type Sound struct{}
 
@@ -64,7 +63,10 @@ func (s *Sound) PlaySystemSoundWithDevice(event, device string) (err error) {
 }
 
 func (s *Sound) getCurrentSoundTheme() string {
-	return personSettings.GetString(gkeyCurrentSoundTheme)
+	var themeSettings = gio.NewSettings(appearanceId)
+	defer themeSettings.Unref()
+
+	return themeSettings.GetString(gkeySoundTheme)
 }
 
 // PlayThemeSound play a target theme's event sound.

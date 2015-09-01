@@ -26,5 +26,6 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  rfkill,
  locales,
+ libcanberra-pulse,
 Description: Go-lang bingdings for dde-daemon
  Go-lang bindings for dde-daemon
