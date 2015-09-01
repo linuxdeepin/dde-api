@@ -26,6 +26,8 @@
 
 #include "sound.h"
 
+static ca_context* connect_canberra_context(char* device);
+
 static uint32_t id = 0;
 
 int
@@ -34,28 +36,12 @@ canberra_play_system_sound(char *theme, char *event_id, char *device)
 	int ret;
 	int curid = ++id;
 	setlocale(LC_ALL, "");
-	ca_context *co;
-	ca_context_create(&co);
-
-	if (device != NULL && strlen(device) > 0) {
-		ret = ca_context_change_device(co, device);
-		if (ret != CA_SUCCESS) {
-			g_warning("canberra change device failed: %s\n",
-			          ca_strerror(ret));
-			ca_context_destroy(co);
-			return ret;
-		}
+	ca_context *ca = connect_canberra_context(device);
+	if (ca == NULL) {
+		return -1;
 	}
 
-	ret = ca_context_open(co);
-	if (ret != CA_SUCCESS) {
-		g_warning("canberra open failed: %s\n",
-			  ca_strerror(ret));
-		ca_context_destroy(co);
-		return ret;
-	}
-
-	ret = ca_context_play(co, curid,
+	ret = ca_context_play(ca, curid,
 	                      CA_PROP_CANBERRA_XDG_THEME_NAME, theme,
 	                      CA_PROP_EVENT_ID, event_id, NULL);
 
@@ -63,10 +49,10 @@ canberra_play_system_sound(char *theme, char *event_id, char *device)
 	int playing;
 	do {
 		g_usleep(500000); // sleep 0.5s
-		ret = ca_context_playing(co, curid, &playing);
+		ret = ca_context_playing(ca, curid, &playing);
 	} while (playing > 0);
 
-	ca_context_destroy(co);
+	ca_context_destroy(ca);
 	if (ret != CA_SUCCESS) {
 		g_warning("play: id=%d %s\n",
 		          curid, ca_strerror(ret));
@@ -80,41 +66,58 @@ canberra_play_sound_file(char *file, char *device)
 	int ret;
 	int curid = ++id;
 	setlocale(LC_ALL, "");
-	ca_context *co;
-	ca_context_create(&co);
-
-	if (device != NULL && strlen(device) > 0) {
-		ret = ca_context_change_device(co, device);
-		if (ret != CA_SUCCESS) {
-			g_warning("canberra change device failed: %s\n",
-			          ca_strerror(ret));
-			ca_context_destroy(co);
-			return ret;
-		}
+	ca_context *ca = connect_canberra_context(device);
+	if (ca == NULL) {
+		return -1;
 	}
 
-	ret = ca_context_open(co);
-	if (ret != CA_SUCCESS) {
-		g_warning("canberra open failed: %s\n",
-		          ca_strerror(ret));
-		ca_context_destroy(co);
-		return ret;
-	}
-
-	ret = ca_context_play(co, curid,
+	ret = ca_context_play(ca, curid,
 	                      CA_PROP_MEDIA_FILENAME, file, NULL);
 
 	// wait for end
 	int playing;
 	do {
 		g_usleep(500000); // sleep 0.5s
-		ret = ca_context_playing(co, curid, &playing);
+		ret = ca_context_playing(ca, curid, &playing);
 	} while (playing > 0);
 
-	ca_context_destroy(co);
+	ca_context_destroy(ca);
 	if (ret != CA_SUCCESS) {
 		g_warning("play (by filename): id=%d %s\n",
 		          curid, ca_strerror(ret));
 	}
 	return ret;
+}
+
+static ca_context*
+connect_canberra_context(char* device)
+{
+	ca_context* ca = NULL;
+	if (ca_context_create(&ca) != 0) {
+		g_warning("Create canberra context failed");
+		return NULL;
+	}
+
+	// set backend driver to 'pulse'
+	if (ca_context_set_driver(ca, "pulse") != 0) {
+		g_warning("Set 'pulse' as backend driver failed");
+		ca_context_destroy(ca);
+		return NULL;
+	}
+
+	if ((device != NULL) && (strlen(device) > 0)) {
+		if (ca_context_change_device(ca, device) != 0) {
+			g_warning("Set '%s' as backend device failed");
+			ca_context_destroy(ca);
+			return NULL;
+		}
+	}
+
+	if (ca_context_open(ca) != 0) {
+		g_warning("Connect the context to sound system failed");
+		ca_context_destroy(ca);
+		return NULL;
+	}
+
+	return ca;
 }
