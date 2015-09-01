@@ -11,7 +11,8 @@ endif
 
 LIBRARIES = \
     thumbnails \
-    themes
+    themes \
+    dxinput
 
 BINARIES =  \
     device \
