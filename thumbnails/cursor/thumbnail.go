@@ -27,6 +27,7 @@ func doGenThumbnail(dir, dest, bg string, width, height int) (string, error) {
 		return "", err
 	}
 
+	defer os.Remove(tmp)
 	err = loader.ThumbnailImage(tmp, dest, width, height)
 	if err != nil {
 		return "", err

@@ -89,6 +89,7 @@ func doGenThumbnail(src, dest string, width, height int) (string, error) {
 		return "", fmt.Errorf("Draw text on image failed")
 	}
 
+	defer os.Remove(tmp)
 	err = loader.ThumbnailImage(tmp, dest, width, height)
 	if err != nil {
 		return "", err

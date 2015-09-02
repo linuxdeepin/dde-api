@@ -1,6 +1,7 @@
 package icon
 
 import (
+	"os"
 	"path"
 	"pkg.deepin.io/dde/api/thumbnails/images"
 	"pkg.deepin.io/dde/api/thumbnails/loader"
@@ -28,6 +29,7 @@ func doGenThumbnail(dir, dest, bg string, width, height int) (string, error) {
 		return "", err
 	}
 
+	defer os.Remove(tmp)
 	err = loader.ThumbnailImage(tmp, dest, width, height)
 	if err != nil {
 		return "", err
