@@ -7,6 +7,7 @@ import "C"
 
 import (
 	"fmt"
+	"os"
 	. "pkg.deepin.io/dde/api/thumbnails/loader"
 	"unsafe"
 )
@@ -22,6 +23,7 @@ func doGenThumbnail(uri, dest string, width, height int) (string, error) {
 		return "", fmt.Errorf("Gen thumbnail failed")
 	}
 
+	defer os.Remove(tmp)
 	err := ThumbnailImage(tmp, dest, width, height)
 	if err != nil {
 		return "", err

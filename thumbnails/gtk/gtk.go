@@ -3,6 +3,7 @@ package gtk
 
 import (
 	"fmt"
+	"os"
 	"path"
 	. "pkg.deepin.io/dde/api/thumbnails/loader"
 	"pkg.deepin.io/lib/mime"
@@ -51,6 +52,7 @@ func genGtkThumbnail(src, bg string, width, height int, force bool) (string, err
 		if err != nil {
 			return "", err
 		}
+		defer os.Remove(bg)
 	} else {
 		dutils.DecodeURI(bg)
 	}

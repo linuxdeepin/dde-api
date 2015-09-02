@@ -3,6 +3,7 @@ package images
 
 import (
 	"fmt"
+	"os"
 	. "pkg.deepin.io/dde/api/thumbnails/loader"
 	"pkg.deepin.io/lib/mime"
 	dutils "pkg.deepin.io/lib/utils"
@@ -68,6 +69,7 @@ func genSvgThumbnail(src, bg string, width, height int, force bool) (string, err
 		return "", err
 	}
 
+	defer os.Remove(tmp)
 	return genImageThumbnail(tmp, bg, width, height, force)
 }
 

@@ -108,6 +108,7 @@ func CompositeIcons(icons []string, bg, dest string,
 		if err != nil {
 			return err
 		}
+		defer os.Remove(bg)
 	}
 
 	deltaX := (width - iconSize*iconNum) / (iconNum + 1)
