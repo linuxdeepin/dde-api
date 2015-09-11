@@ -23,6 +23,7 @@ func GenThumbnail(uri string, size int) (string, error) {
 		return "", err
 	}
 
+	size = correctSize(size)
 	return GenThumbnailWithMime(uri, ty, size)
 }
 
@@ -36,5 +37,16 @@ func GenThumbnailWithMime(uri, ty string, size int) (string, error) {
 		return "", err
 	}
 
+	size = correctSize(size)
 	return handler(uri, "", size, size, false)
+}
+
+func correctSize(size int) int {
+	if size < loader.SizeFlagNormal {
+		return loader.SizeFlagSmall
+	} else if size >= loader.SizeFlagLarge {
+		return loader.SizeFlagLarge
+	} else {
+		return loader.SizeFlagNormal
+	}
 }
