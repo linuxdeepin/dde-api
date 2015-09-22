@@ -27,8 +27,7 @@ text_thumbnail(char** text, char* dest, ThumbInfo* info)
 		return -1;
 	}
 
-	//background color: gray (216, 216, 216)
-	cairo_set_source_rgb(cr, 216.0 / 255.0, 216.0 / 255.0, 216.0 / 255.0);
+	cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0);
 	cairo_paint(cr);
 	do_show_text(cr, text, info);
 
