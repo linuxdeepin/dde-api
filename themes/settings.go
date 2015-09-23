@@ -16,6 +16,7 @@ import (
 
 const (
 	wmSchema        = "com.deepin.wrap.gnome.desktop.wm.preferences"
+	metacitySchema  = "com.deepin.wrap.gnome.metacity"
 	xsettingsSchema = "com.deepin.xsettings"
 
 	xsKeyTheme      = "theme-name"
@@ -115,6 +116,12 @@ func setXSettingsKey(key, value string) bool {
 }
 
 func setWMTheme(name string) bool {
+	meta, _ := dutils.CheckAndNewGSettings(metacitySchema)
+	if meta != nil {
+		defer meta.Unref()
+		meta.SetString("theme", name)
+	}
+
 	wm, err := dutils.CheckAndNewGSettings(wmSchema)
 	if err != nil {
 		return false
