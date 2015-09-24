@@ -18,13 +18,21 @@ const (
 	dbusIFC  = "com.deepin.api.Manager"
 )
 
+const (
+	stateResetStart int = iota + 1
+	stateResetFinished
+)
+
 type Manager struct {
 	media *Media
+
+	resetState int
 }
 
 func NewManager() *Manager {
 	m := new(Manager)
 	m.initConfigData()
+	m.resetState = stateResetFinished
 	return m
 }
 
@@ -54,10 +62,19 @@ func (m *Manager) doInitConfigData() error {
 
 // Reset reset mimes default app
 func (m *Manager) Reset() {
-	err := m.doInitConfigData()
-	if err != nil {
-		logger.Warning("Init mime config file failed", err)
+	if m.resetState == stateResetStart {
+		return
 	}
+
+	m.resetState = stateResetStart
+	go func() {
+		err := m.doInitConfigData()
+		if err != nil {
+			logger.Warning("Init mime config file failed", err)
+		}
+		m.resetState = stateResetFinished
+	}()
+
 	resetTerminal()
 }
 

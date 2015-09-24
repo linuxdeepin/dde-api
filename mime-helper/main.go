@@ -41,7 +41,13 @@ func main() {
 	}
 
 	dbus.DealWithUnhandledMessage()
-	dbus.SetAutoDestroyHandler(time.Second*5, nil)
+	dbus.SetAutoDestroyHandler(time.Second*5, func() bool {
+		if m.resetState != stateResetFinished {
+			return false
+		}
+
+		return true
+	})
 
 	err = dbus.Wait()
 	if err != nil {
