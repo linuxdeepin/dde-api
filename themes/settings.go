@@ -38,6 +38,9 @@ func SetGtkTheme(name string) error {
 		return nil
 	}
 
+	setGtk2Theme(name)
+	setGtk3Theme(name)
+
 	if !setXSettingsKey(xsKeyTheme, name) {
 		return fmt.Errorf("Set theme to '%s' by xsettings failed",
 			name)
@@ -66,6 +69,9 @@ func SetIconTheme(name string) error {
 		return nil
 	}
 
+	setGtk2Icon(name)
+	setGtk3Icon(name)
+
 	if !setXSettingsKey(xsKeyIconTheme, name) {
 		return fmt.Errorf("Set theme to '%s' by xsettings failed",
 			name)
@@ -82,6 +88,9 @@ func SetCursorTheme(name string) error {
 	if old == name {
 		return nil
 	}
+
+	setGtk2Cursor(name)
+	setGtk3Cursor(name)
 
 	if !setXSettingsKey(xsKeyCursorName, name) {
 		return fmt.Errorf("Set theme to '%s' by xsettings failed",
