@@ -1,17 +1,12 @@
 // Theme settings.
 package themes
 
-// #cgo pkg-config: x11 xcursor xfixes gtk+-3.0
-// #include <stdlib.h>
-// #include "cursor.h"
-import "C"
-
 import (
 	"fmt"
+	"os"
 	"path"
 	"pkg.deepin.io/lib/glib-2.0"
 	dutils "pkg.deepin.io/lib/utils"
-	"unsafe"
 )
 
 const (
@@ -23,10 +18,6 @@ const (
 	xsKeyIconTheme  = "icon-theme-name"
 	xsKeyCursorName = "gtk-cursor-theme-name"
 )
-
-func init() {
-	C.init_gtk()
-}
 
 func SetGtkTheme(name string) error {
 	if !IsThemeInList(name, ListGtkTheme()) {
@@ -97,13 +88,13 @@ func SetCursorTheme(name string) error {
 			name)
 	}
 
-	if !setQtCursor(name) {
-		setXSettingsKey(xsKeyCursorName, name)
-		return fmt.Errorf("Set qt theme to '%s' failed", name)
-	}
+	setDefaultCursor(name)
 
-	handleGtkCursorChanged()
 	return nil
+}
+
+func GetCursorTheme() string {
+	return getXSettingsValue(xsKeyCursorName)
 }
 
 func getXSettingsValue(key string) string {
@@ -152,17 +143,11 @@ func setQt4Theme(config string) bool {
 	return dutils.WriteKeyToKeyFile(config, "Qt", "style", "GTK+")
 }
 
-func setQtCursor(name string) bool {
-	cName := C.CString(name)
-	defer C.free(unsafe.Pointer(cName))
-
-	ret := C.set_qt_cursor(cName)
-	if ret != 0 {
-		return false
+func setDefaultCursor(name string) bool {
+	file := path.Join(os.Getenv("HOME"), ".icons", "default", "index.theme")
+	value, _ := dutils.ReadKeyFromKeyFile(file, "Icon Theme", "Inherits", "")
+	if value == name {
+		return true
 	}
-	return true
-}
-
-func handleGtkCursorChanged() {
-	C.handle_gtk_cursor_changed()
+	return dutils.WriteKeyToKeyFile(file, "Icon Theme", "Inherits", name)
 }

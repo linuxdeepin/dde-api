@@ -36,6 +36,13 @@ handle_gtk_cursor_changed()
 	gtk_main();
 }
 
+void
+set_gtk_cursor(char* name)
+{
+	GtkSettings* s = gtk_settings_get_default();
+	g_object_set(G_OBJECT(s), "gtk-cursor-theme-name", name, NULL);
+}
+
 static void
 update_gtk_cursor()
 {
