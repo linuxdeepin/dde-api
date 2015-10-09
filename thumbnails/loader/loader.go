@@ -68,7 +68,7 @@ func GetHandler(ty string) (HandleType, error) {
 }
 
 func ThumbnailImage(src, dest string, width, height int) error {
-	return graphic.ThumbnailImage(src, dest, width, height,
+	return graphic.ScaleImage(src, dest, width, height,
 		graphic.FormatPng)
 }
 
