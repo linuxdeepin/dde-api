@@ -2,6 +2,7 @@ package themes
 
 import (
 	. "github.com/smartystreets/goconvey/convey"
+	"os"
 	dutils "pkg.deepin.io/lib/utils"
 	"testing"
 )
@@ -20,5 +21,9 @@ func TestGtk3Prop(t *testing.T) {
 			kfile), ShouldEqual, true)
 		So(isGtk3PropEqual("test-list", "1;2;3;",
 			kfile), ShouldEqual, true)
+
+		err = setGtk3Prop("test-gtk3", "test", "testdata/tmp-gtk3")
+		defer os.Remove("testdata/tmp-gtk3")
+		So(err, ShouldBeNil)
 	})
 }

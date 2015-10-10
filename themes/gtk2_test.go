@@ -8,8 +8,7 @@ import (
 
 func TestGtk2Infos(t *testing.T) {
 	Convey("Test gtk2 infos", t, func() {
-		infos, err := gtk2FileReader("testdata/gtkrc-2.0")
-		So(err, ShouldBeNil)
+		infos := gtk2FileReader("testdata/gtkrc-2.0")
 		So(len(infos), ShouldEqual, 16)
 
 		info := infos.Get("gtk-theme-name")
@@ -23,7 +22,7 @@ func TestGtk2Infos(t *testing.T) {
 	})
 
 	Convey("Test nil infos", t, func() {
-		var infos gtk2ConfInfos
+		var infos = gtk2FileReader("testdata/xxx")
 		infos = infos.Add("gtk2-test", "test")
 		So(len(infos), ShouldEqual, 1)
 		info := infos.Get("gtk2-test")

@@ -37,6 +37,14 @@ func setGtk3Cursor(name string) error {
 func setGtk3Prop(key, value, file string) error {
 	gtk3Locker.Lock()
 	defer gtk3Locker.Unlock()
+
+	if !dutils.IsFileExist(file) {
+		err := dutils.CreateFile(file)
+		if err != nil {
+			return err
+		}
+	}
+
 	kfile, err := dutils.NewKeyFileFromFile(file)
 	if kfile == nil {
 		return err
@@ -47,7 +55,7 @@ func setGtk3Prop(key, value, file string) error {
 		return nil
 	}
 
-	return doSetGtk3Prop(key, value, kfile)
+	return doSetGtk3Prop(key, value, file, kfile)
 }
 
 func isGtk3PropEqual(key, value string, kfile *glib.KeyFile) bool {
@@ -58,11 +66,11 @@ func isGtk3PropEqual(key, value string, kfile *glib.KeyFile) bool {
 	return false
 }
 
-func doSetGtk3Prop(key, value string, kfile *glib.KeyFile) error {
+func doSetGtk3Prop(key, value, file string, kfile *glib.KeyFile) error {
 	kfile.SetString(gtk3GroupSettings, key, value)
 	_, content, err := kfile.ToData()
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(gtk3ConfFile, []byte(content), 0644)
+	return ioutil.WriteFile(file, []byte(content), 0644)
 }
