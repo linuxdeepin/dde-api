@@ -32,7 +32,9 @@ import (
 )
 
 func doGenThumbnail(name, dest, bg string, w, h int) (string, error) {
-	C.try_init()
+	if C.try_init() != 0 {
+		return "", fmt.Errorf("Init gtk environment failed")
+	}
 
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))

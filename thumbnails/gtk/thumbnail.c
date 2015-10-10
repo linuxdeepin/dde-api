@@ -147,12 +147,14 @@ capture(GtkOffscreenWindow* w, GdkEvent* ev, gpointer user_data)
 
 	cairo_t* cairo = cairo_create(surface);
 	GdkPixbuf* pbuf = gtk_offscreen_window_get_pixbuf(w);
+        if (pbuf) {
+                gdk_cairo_set_source_pixbuf(cairo, pbuf, -15, 15);
+                cairo_paint(cairo);
+                cairo_surface_write_to_png(surface, dest);
 
-	gdk_cairo_set_source_pixbuf(cairo, pbuf, -15, 15);
-	cairo_paint(cairo);
-	cairo_surface_write_to_png(surface, dest);
+                g_object_unref(G_OBJECT(pbuf));
+        }
 
-	g_object_unref(G_OBJECT(pbuf));
 	cairo_destroy(cairo);
 	cairo_surface_destroy(surface);
 
