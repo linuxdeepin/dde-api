@@ -42,11 +42,7 @@ func setGtk2Prop(key, value, file string) error {
 	gtk2Locker.Lock()
 	defer gtk2Locker.Unlock()
 
-	infos, err := gtk2FileReader(file)
-	if err != nil {
-		return err
-	}
-
+	infos := gtk2FileReader(file)
 	info := infos.Get(key)
 	if info == nil {
 		infos = infos.Add(key, value)
@@ -56,7 +52,7 @@ func setGtk2Prop(key, value, file string) error {
 		}
 		info.value = value
 	}
-	return gtk2FileWriter(infos, gtk2ConfFile)
+	return gtk2FileWriter(infos, file)
 }
 
 func (infos gtk2ConfInfos) Get(key string) *gtk2ConfInfo {
@@ -95,13 +91,13 @@ func gtk2FileWriter(infos gtk2ConfInfos, file string) error {
 	return ioutil.WriteFile(file, []byte(content), 0644)
 }
 
-func gtk2FileReader(file string) (gtk2ConfInfos, error) {
+func gtk2FileReader(file string) gtk2ConfInfos {
+	var infos gtk2ConfInfos
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
-		return nil, err
+		return infos
 	}
 
-	var infos gtk2ConfInfos
 	var lines = strings.Split(string(content), "\n")
 	for _, line := range lines {
 		if len(line) == 0 {
@@ -118,5 +114,5 @@ func gtk2FileReader(file string) (gtk2ConfInfos, error) {
 			value: array[1],
 		})
 	}
-	return infos, nil
+	return infos
 }
