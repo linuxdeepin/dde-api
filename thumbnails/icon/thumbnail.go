@@ -3,9 +3,11 @@ package icon
 import (
 	"os"
 	"path"
+	"strings"
+
 	"pkg.deepin.io/dde/api/thumbnails/images"
 	"pkg.deepin.io/dde/api/thumbnails/loader"
-	"strings"
+	dutils "pkg.deepin.io/lib/utils"
 )
 
 const (
@@ -21,16 +23,31 @@ const (
 	defaultIconSize = 24
 )
 
-func doGenThumbnail(dir, dest, bg string, width, height int) (string, error) {
+func doGenThumbnail(src, bg string, width, height int, force, theme bool) (string, error) {
+	src = dutils.DecodeURI(src)
+	dest, err := getThumbDest(src, width, height, theme)
+	if err != nil {
+		return "", err
+	}
+
+	if !force && dutils.IsFileExist(dest) {
+		return dest, nil
+	}
+
+	dir := path.Dir(src)
 	tmp := loader.GetTmpImage()
-	err := loader.CompositeIcons(getIconFiles(path.Base(dir)), bg, tmp,
+	err = loader.CompositeIcons(getIconFiles(path.Base(dir)), bg, tmp,
 		defaultIconSize, defaultWidth, defaultHeight)
 	if err != nil {
 		return "", err
 	}
 
 	defer os.Remove(tmp)
-	err = loader.ThumbnailImage(tmp, dest, width, height)
+	if !theme {
+		err = loader.ThumbnailImage(tmp, dest, width, height)
+	} else {
+		err = loader.ScaleImage(tmp, dest, width, height)
+	}
 	if err != nil {
 		return "", err
 	}

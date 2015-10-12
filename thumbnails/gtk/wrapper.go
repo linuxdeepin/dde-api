@@ -28,14 +28,34 @@ import "C"
 
 import (
 	"fmt"
+	"os"
+	"path"
 	"unsafe"
+
+	"pkg.deepin.io/dde/api/thumbnails/loader"
+	dutils "pkg.deepin.io/lib/utils"
 )
 
-func doGenThumbnail(name, dest, bg string, w, h int) (string, error) {
+func doGenThumbnail(name, dest, bg string, w, h int, force bool) (string, error) {
+	if !force && dutils.IsFileExist(dest) {
+		return dest, nil
+	}
+
+	bg = dutils.DecodeURI(bg)
+	if len(bg) == 0 {
+		tmp, err := loader.GetBackground(w, h)
+		if err != nil {
+			return "", err
+		}
+		bg = tmp
+		defer os.Remove(bg)
+	}
+
 	if C.try_init() != 0 {
 		return "", fmt.Errorf("Init gtk environment failed")
 	}
 
+	os.MkdirAll(path.Dir(dest), 0755)
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
 	cDest := C.CString(dest)

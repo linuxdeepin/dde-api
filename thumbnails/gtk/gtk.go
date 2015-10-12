@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"os"
 	"path"
+
 	. "pkg.deepin.io/dde/api/thumbnails/loader"
 	"pkg.deepin.io/lib/mime"
-	dutils "pkg.deepin.io/lib/utils"
 )
+
+var themeThumbDir = path.Join(os.Getenv("HOME"),
+	".cache", "thumbnails", "appearance")
 
 func init() {
 	for _, ty := range SupportedTypes() {
@@ -38,25 +41,38 @@ func GenThumbnail(src, bg string, width, height int, force bool) (string, error)
 	return genGtkThumbnail(src, bg, width, height, force)
 }
 
+func ThumbnailForTheme(src, bg string, width, height int, force bool) (string, error) {
+	if width <= 0 || height <= 0 {
+		return "", fmt.Errorf("Invalid width or height")
+	}
+
+	dest, err := getThumbDest(src, width, height, true)
+	if err != nil {
+		return "", err
+	}
+
+	return doGenThumbnail(path.Base(path.Dir(src)), dest, bg,
+		width, height, force)
+}
+
 func genGtkThumbnail(src, bg string, width, height int, force bool) (string, error) {
+	dest, err := getThumbDest(src, width, height, false)
+	if err != nil {
+		return "", err
+	}
+
+	return doGenThumbnail(path.Base(path.Dir(src)), dest, bg,
+		width, height, force)
+}
+
+func getThumbDest(src string, width, height int, theme bool) (string, error) {
 	dest, err := GetThumbnailDest(src, width, height)
 	if err != nil {
 		return "", err
 	}
-	if !force && dutils.IsFileExist(dest) {
-		return dest, nil
-	}
 
-	if len(bg) == 0 {
-		bg, err = GetBackground(width, height)
-		if err != nil {
-			return "", err
-		}
-		defer os.Remove(bg)
-	} else {
-		dutils.DecodeURI(bg)
+	if theme {
+		dest = path.Join(themeThumbDir, "gtk-"+path.Base(dest))
 	}
-
-	return doGenThumbnail(path.Base(path.Dir(src)), dest, bg,
-		width, height)
+	return dest, nil
 }
