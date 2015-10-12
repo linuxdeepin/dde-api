@@ -6,11 +6,12 @@ import (
 	"math/rand"
 	"os"
 	"path"
+	"sync"
+	"time"
+
 	"pkg.deepin.io/lib/glib-2.0"
 	"pkg.deepin.io/lib/graphic"
 	dutils "pkg.deepin.io/lib/utils"
-	"sync"
-	"time"
 )
 
 const (
@@ -68,7 +69,20 @@ func GetHandler(ty string) (HandleType, error) {
 }
 
 func ThumbnailImage(src, dest string, width, height int) error {
-	return graphic.ScaleImage(src, dest, width, height,
+	err := os.MkdirAll(path.Dir(dest), 0755)
+	if err != nil {
+		return err
+	}
+	return graphic.ThumbnailImage(src, dest, width, height,
+		graphic.FormatPng)
+}
+
+func ScaleImage(src, dest string, width, height int) error {
+	err := os.MkdirAll(path.Dir(dest), 0755)
+	if err != nil {
+		return err
+	}
+	return graphic.ScaleImagePrefer(src, dest, width, height,
 		graphic.FormatPng)
 }
 

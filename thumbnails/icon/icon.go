@@ -3,11 +3,16 @@ package icon
 
 import (
 	"fmt"
+	"os"
 	"path"
+
 	. "pkg.deepin.io/dde/api/thumbnails/loader"
 	"pkg.deepin.io/lib/mime"
 	dutils "pkg.deepin.io/lib/utils"
 )
+
+var themeThumbDir = path.Join(os.Getenv("HOME"),
+	".cache", "thumbnails", "appearance")
 
 func init() {
 	for _, ty := range SupportedTypes() {
@@ -40,15 +45,26 @@ func GenThumbnail(src, bg string, width, height int, force bool) (string, error)
 	return genIconThumbnail(src, bg, width, height, force)
 }
 
+func ThumbnailForTheme(src, bg string, width, height int, force bool) (string, error) {
+	if width <= 0 || height <= 0 {
+		return "", fmt.Errorf("Invalid width or height")
+	}
+
+	return doGenThumbnail(src, dutils.DecodeURI(bg), width, height, force, true)
+}
+
 func genIconThumbnail(src, bg string, width, height int, force bool) (string, error) {
-	src = dutils.DecodeURI(src)
+	return doGenThumbnail(src, dutils.DecodeURI(bg), width, height, force, false)
+}
+
+func getThumbDest(src string, width, height int, theme bool) (string, error) {
 	dest, err := GetThumbnailDest(src, width, height)
 	if err != nil {
 		return "", err
 	}
-	if !force && dutils.IsFileExist(dest) {
-		return dest, nil
+
+	if theme {
+		dest = path.Join(themeThumbDir, "icon-"+path.Base(dest))
 	}
-	return doGenThumbnail(path.Dir(src), dest,
-		dutils.DecodeURI(bg), width, height)
+	return dest, nil
 }

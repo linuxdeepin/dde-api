@@ -4,6 +4,8 @@ package images
 import (
 	"fmt"
 	"os"
+	"path"
+
 	. "pkg.deepin.io/dde/api/thumbnails/loader"
 	"pkg.deepin.io/lib/mime"
 	dutils "pkg.deepin.io/lib/utils"
@@ -17,6 +19,9 @@ const (
 	ImageTypeTiff        = "image/tiff"
 	ImageTypeSvg         = "image/svg+xml"
 )
+
+var themeThumbDir = path.Join(os.Getenv("HOME"),
+	".cache", "thumbnails", "appearance")
 
 func init() {
 	for _, ty := range SupportedTypes() {
@@ -62,6 +67,14 @@ func GenThumbnail(src string, width, height int, force bool) (string, error) {
 	return genImageThumbnail(src, "", width, height, force)
 }
 
+func ThumbnailForTheme(src string, width, height int, force bool) (string, error) {
+	if width <= 0 || height <= 0 {
+		return "", fmt.Errorf("Invalid width or height")
+	}
+
+	return doGenThumbnail(src, "", width, height, force, true)
+}
+
 func genSvgThumbnail(src, bg string, width, height int, force bool) (string, error) {
 	tmp := GetTmpImage()
 	err := svgToPng(src, tmp)
@@ -74,8 +87,12 @@ func genSvgThumbnail(src, bg string, width, height int, force bool) (string, err
 }
 
 func genImageThumbnail(src, bg string, width, height int, force bool) (string, error) {
+	return doGenThumbnail(src, bg, width, height, force, false)
+}
+
+func doGenThumbnail(src, bg string, width, height int, force, theme bool) (string, error) {
 	src = dutils.DecodeURI(src)
-	dest, err := GetThumbnailDest(src, width, height)
+	dest, err := getThumbDest(src, width, height, theme)
 	if err != nil {
 		return "", err
 	}
@@ -83,9 +100,24 @@ func genImageThumbnail(src, bg string, width, height int, force bool) (string, e
 		return dest, nil
 	}
 
-	err = ThumbnailImage(src, dest, width, height)
+	if !theme {
+		err = ThumbnailImage(src, dest, width, height)
+	} else {
+		err = ScaleImage(src, dest, width, height)
+	}
 	if err != nil {
 		return "", err
+	}
+	return dest, nil
+}
+
+func getThumbDest(src string, width, height int, theme bool) (string, error) {
+	dest, err := GetThumbnailDest(src, width, height)
+	if err != nil {
+		return "", err
+	}
+	if theme {
+		dest = path.Join(themeThumbDir, "bg-"+path.Base(dest))
 	}
 	return dest, nil
 }

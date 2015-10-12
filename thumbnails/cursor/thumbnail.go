@@ -3,7 +3,9 @@ package cursor
 import (
 	"os"
 	"path"
+
 	"pkg.deepin.io/dde/api/thumbnails/loader"
+	dutils "pkg.deepin.io/lib/utils"
 )
 
 const (
@@ -18,9 +20,20 @@ const (
 	defaultIconSize = 24
 )
 
-func doGenThumbnail(dir, dest, bg string, width, height int) (string, error) {
+func doGenThumbnail(src, bg string, width, height int, force, theme bool) (string, error) {
+	src = dutils.DecodeURI(src)
+	dest, err := getThumbDest(src, width, height, theme)
+	if err != nil {
+		return "", err
+	}
+
+	if !force && dutils.IsFileExist(dest) {
+		return dest, nil
+	}
+
+	dir := path.Dir(src)
 	tmp := loader.GetTmpImage()
-	err := loader.CompositeIcons(getCursorIcons(dir), bg, tmp,
+	err = loader.CompositeIcons(getCursorIcons(dir), bg, tmp,
 		defaultIconSize, defaultWidth, defaultHeight)
 	os.RemoveAll(xcur2pngCache)
 	if err != nil {
@@ -28,7 +41,11 @@ func doGenThumbnail(dir, dest, bg string, width, height int) (string, error) {
 	}
 
 	defer os.Remove(tmp)
-	err = loader.ThumbnailImage(tmp, dest, width, height)
+	if !theme {
+		err = loader.ThumbnailImage(tmp, dest, width, height)
+	} else {
+		err = loader.ScaleImage(tmp, dest, width, height)
+	}
 	if err != nil {
 		return "", err
 	}

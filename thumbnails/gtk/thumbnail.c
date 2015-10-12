@@ -43,7 +43,7 @@ static void capture(GtkOffscreenWindow* w, GdkEvent* ev, gpointer user_data);
 int
 try_init()
 {
-    return gtk_init_check(NULL, NULL);
+    return gtk_init_check(NULL, NULL)?0:-1;
 }
 
 int
