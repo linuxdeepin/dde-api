@@ -20,11 +20,11 @@ BINARIES =  \
     locale-helper \
     lunar-calendar \
     mousearea \
-    set-date-time \
     thumbnailer \
     mime-helper \
     sound \
-    hans2pinyin
+    hans2pinyin \
+	cursor-helper
 
 all: build
 
