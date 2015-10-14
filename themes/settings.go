@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+
 	"pkg.deepin.io/lib/glib-2.0"
 	dutils "pkg.deepin.io/lib/utils"
 )
@@ -145,6 +146,11 @@ func setQt4Theme(config string) bool {
 
 func setDefaultCursor(name string) bool {
 	file := path.Join(os.Getenv("HOME"), ".icons", "default", "index.theme")
+	err := os.MkdirAll(path.Dir(file), 0755)
+	if err != nil {
+		return false
+	}
+
 	value, _ := dutils.ReadKeyFromKeyFile(file, "Icon Theme", "Inherits", "")
 	if value == name {
 		return true
