@@ -4,9 +4,10 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"sync"
+
 	"pkg.deepin.io/lib/glib-2.0"
 	dutils "pkg.deepin.io/lib/utils"
-	"sync"
 )
 
 const (
@@ -39,7 +40,12 @@ func setGtk3Prop(key, value, file string) error {
 	defer gtk3Locker.Unlock()
 
 	if !dutils.IsFileExist(file) {
-		err := dutils.CreateFile(file)
+		err := os.MkdirAll(path.Dir(file), 0755)
+		if err != nil {
+			return err
+		}
+
+		err = dutils.CreateFile(file)
 		if err != nil {
 			return err
 		}

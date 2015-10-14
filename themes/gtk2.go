@@ -88,6 +88,11 @@ func gtk2FileWriter(infos gtk2ConfInfos, file string) error {
 			content += "\n"
 		}
 	}
+
+	err := os.MkdirAll(path.Dir(file), 0755)
+	if err != nil {
+		return err
+	}
 	return ioutil.WriteFile(file, []byte(content), 0644)
 }
 
