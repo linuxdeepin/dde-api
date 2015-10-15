@@ -2,6 +2,7 @@
 package gtk
 
 import (
+	"dbus/com/deepin/api/gtkthumbnailer"
 	"fmt"
 	"os"
 	"path"
@@ -51,7 +52,7 @@ func ThumbnailForTheme(src, bg string, width, height int, force bool) (string, e
 		return "", err
 	}
 
-	return doGenThumbnail(path.Base(path.Dir(src)), dest, bg,
+	return doGenThumbnail(path.Base(path.Dir(src)), bg, dest,
 		width, height, force)
 }
 
@@ -61,7 +62,7 @@ func genGtkThumbnail(src, bg string, width, height int, force bool) (string, err
 		return "", err
 	}
 
-	return doGenThumbnail(path.Base(path.Dir(src)), dest, bg,
+	return doGenThumbnail(path.Base(path.Dir(src)), bg, dest,
 		width, height, force)
 }
 
@@ -73,6 +74,22 @@ func getThumbDest(src string, width, height int, theme bool) (string, error) {
 
 	if theme {
 		dest = path.Join(themeThumbDir, "gtk-"+path.Base(dest))
+	}
+	return dest, nil
+}
+
+func doGenThumbnail(name, bg, dest string, width, height int, force bool) (string, error) {
+	thumbnailer, err := gtkthumbnailer.NewGtkThumbnailer(
+		"com.deepin.api.GtkThumbnailer",
+		"/com/deepin/api/GtkThumbnailer",
+	)
+	if err != nil {
+		return "", err
+	}
+
+	err = thumbnailer.Thumbnail(name, bg, dest, int32(width), int32(height), force)
+	if err != nil {
+		return "", err
 	}
 	return dest, nil
 }

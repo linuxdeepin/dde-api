@@ -19,7 +19,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  **/
 
-package gtk
+package main
 
 // #cgo pkg-config: libmetacity-private
 // #include <stdlib.h>
@@ -36,23 +36,26 @@ import (
 	dutils "pkg.deepin.io/lib/utils"
 )
 
-func doGenThumbnail(name, dest, bg string, w, h int, force bool) (string, error) {
+func initGtkEnv() error {
+	if C.try_init() != 0 {
+		return fmt.Errorf("Init gtk environment failed")
+	}
+	return nil
+}
+
+func doGenThumbnail(name, bg, dest string, w, h int, force bool) error {
 	if !force && dutils.IsFileExist(dest) {
-		return dest, nil
+		return nil
 	}
 
 	bg = dutils.DecodeURI(bg)
 	if len(bg) == 0 {
 		tmp, err := loader.GetBackground(w, h)
 		if err != nil {
-			return "", err
+			return err
 		}
 		bg = tmp
 		defer os.Remove(bg)
-	}
-
-	if C.try_init() != 0 {
-		return "", fmt.Errorf("Init gtk environment failed")
 	}
 
 	os.MkdirAll(path.Dir(dest), 0755)
@@ -65,7 +68,7 @@ func doGenThumbnail(name, dest, bg string, w, h int, force bool) (string, error)
 
 	ret := C.gtk_thumbnail(cName, cDest, cBg, C.int(w), C.int(h))
 	if ret == -1 {
-		return "", fmt.Errorf("MetaTheme load failed for '%s'", name)
+		return fmt.Errorf("MetaTheme load failed for '%s'", name)
 	}
-	return dest, nil
+	return nil
 }
