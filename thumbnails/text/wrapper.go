@@ -10,8 +10,9 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"pkg.deepin.io/dde/api/thumbnails/loader"
 	"unsafe"
+
+	"pkg.deepin.io/dde/api/thumbnails/loader"
 )
 
 type thumbInfo struct {
@@ -115,8 +116,15 @@ func readFile(file string, info *thumbInfo) ([]*C.char, error) {
 		if cnt >= numLines {
 			break
 		}
-		lines = append(lines, scanner.Text())
+		line := scanner.Text()
+		if len(line) == 0 {
+			continue
+		}
+		lines = append(lines, line)
 		cnt += 1
+	}
+	if len(lines) == 0 {
+		return nil, fmt.Errorf("Empty file")
 	}
 
 	bytesPerLine := info.width / info.pixelsize * 2
