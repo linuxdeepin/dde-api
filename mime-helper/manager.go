@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path"
+
 	"pkg.deepin.io/lib/dbus"
 	"pkg.deepin.io/lib/glib-2.0"
 	dutils "pkg.deepin.io/lib/utils"
@@ -24,6 +25,8 @@ const (
 )
 
 type Manager struct {
+	Change func()
+
 	media *Media
 
 	resetState int
@@ -73,6 +76,7 @@ func (m *Manager) Reset() {
 			logger.Warning("Init mime config file failed", err)
 		}
 		m.resetState = stateResetFinished
+		dbus.Emit(m, "Change")
 	}()
 
 	resetTerminal()
