@@ -13,12 +13,12 @@ const (
 )
 
 const (
-	mediaSchema        = "org.gnome.desktop.media-handling"
-	gsKeyAutoMount     = "automount"
-	gsKeyAutoMountOpen = "automount-open"
-	gsKeyIgnore        = "autorun-x-content-ignore"
-	gsKeyOpenFolder    = "autorun-x-content-open-folder"
-	gsKeyStartSoft     = "autorun-x-content-start-app"
+	mediaSchema     = "org.gnome.desktop.media-handling"
+	gsKeyAutoMount  = "automount"
+	gsKeyRunNever   = "autorun-never"
+	gsKeyIgnore     = "autorun-x-content-ignore"
+	gsKeyOpenFolder = "autorun-x-content-open-folder"
+	gsKeyStartSoft  = "autorun-x-content-start-app"
 )
 
 const (
@@ -82,9 +82,12 @@ func (media *Media) destroy() {
 
 // Reset reset media mime action
 func (media *Media) Reset() {
+	media.setting.Reset(gsKeyAutoMount)
+	media.setting.Reset(gsKeyRunNever)
 	media.setting.Reset(gsKeyIgnore)
 	media.setting.Reset(gsKeyOpenFolder)
 	media.setting.Reset(gsKeyStartSoft)
+	media.setPropAutoOpen(media.isAutoOpen())
 }
 
 // GetDefaultApp get the default app id for the media mime
@@ -149,8 +152,10 @@ func (media *Media) ListApps(ty string) string {
 func (media *Media) EnableAutoOpen(enabled bool) {
 	if enabled {
 		media.setting.SetBoolean(gsKeyAutoMount, enabled)
+		media.setting.SetBoolean(gsKeyRunNever, false)
+	} else {
+		media.setting.SetBoolean(gsKeyRunNever, true)
 	}
-	media.setting.SetBoolean(gsKeyAutoMountOpen, enabled)
 	media.setPropAutoOpen(media.isAutoOpen())
 }
 
@@ -173,7 +178,7 @@ func (media *Media) setPropAutoOpen(enabled bool) {
 
 func (media *Media) isAutoOpen() bool {
 	if media.setting.GetBoolean(gsKeyAutoMount) &&
-		media.setting.GetBoolean(gsKeyAutoMountOpen) {
+		!media.setting.GetBoolean(gsKeyRunNever) {
 		return true
 	}
 
