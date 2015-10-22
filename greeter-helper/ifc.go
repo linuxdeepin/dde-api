@@ -21,20 +21,24 @@
 
 package main
 
-import (
-	"pkg.deepin.io/lib/dbus"
-)
+import "fmt"
 
-const (
-	DEST = "com.deepin.api.GreeterUtils"
-	PATH = "/com/deepin/api/GreeterUtils"
-	IFC  = "com.deepin.api.GreeterUtils"
-)
-
-func (m *Manager) GetDBusInfo() dbus.DBusInfo {
-	return dbus.DBusInfo{
-		DEST,
-		PATH,
-		IFC,
+func (m *Manager) SetLayout(user, layout string) error {
+	layout = formatLayout(layout)
+	if len(layout) == 0 {
+		return fmt.Errorf("Invalid layout: %s", layout)
 	}
+	return m.set(user, kfKeyLayout, layout)
+}
+
+func (m *Manager) SetLayoutList(user string, list []string) error {
+	ret := formatLayoutList(list)
+	if len(ret) == 0 {
+		return fmt.Errorf("Invalid layout list: %v", list)
+	}
+	return m.set(user, kfKeyLayoutList, ret)
+}
+
+func (m *Manager) SetTheme(user, theme string) error {
+	return m.set(user, kfKeyTheme, theme)
 }
