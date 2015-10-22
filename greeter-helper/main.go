@@ -23,37 +23,38 @@ package main
 
 import (
 	"os"
+	"time"
+
 	"pkg.deepin.io/lib"
 	"pkg.deepin.io/lib/dbus"
 	"pkg.deepin.io/lib/log"
-	"time"
 )
 
 var (
-	logger = log.NewLogger(DEST)
+	logger = log.NewLogger(dbusDest)
 )
 
 func main() {
-	logger.BeginTracing()
-	defer logger.EndTracing()
-
-	if !lib.UniqueOnSystem(DEST) {
-		logger.Warning("There already has an GreeterUtils running.")
+	if !lib.UniqueOnSystem(dbusDest) {
+		logger.Warning("There already has an greeter-helper running.")
 		return
 	}
 
-	m := &Manager{}
+	logger.BeginTracing()
+	defer logger.EndTracing()
+
+	var m = new(Manager)
 	if err := dbus.InstallOnSystem(m); err != nil {
 		logger.Fatal("Install DBus Error:", err)
 		return
 	}
 	dbus.DealWithUnhandledMessage()
-
 	dbus.SetAutoDestroyHandler(time.Second*5, nil)
-	if err := dbus.Wait(); err != nil {
+
+	err := dbus.Wait()
+	if err != nil {
 		logger.Warning("Lost DBus...")
 		os.Exit(-1)
-	} else {
-		os.Exit(0)
 	}
+	os.Exit(0)
 }
