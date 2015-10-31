@@ -20,6 +20,10 @@ const (
 	SizeFlagSmall      = 64
 )
 
+const (
+	thumbVersion = "0.1"
+)
+
 // args: src, bg, width, height, force
 // rets: dest, error
 type HandleType func(string, string, int, int, bool) (string, error)
@@ -87,7 +91,8 @@ func ScaleImage(src, dest string, width, height int) error {
 }
 
 func GetThumbnailDest(uri string, width, height int) (string, error) {
-	md5, ok := dutils.SumFileMd5(dutils.DecodeURI(uri))
+	file := dutils.DecodeURI(uri)
+	md5, ok := dutils.SumStrMd5(file+getFileModTime(file)+thumbVersion)
 	if !ok {
 		return "", fmt.Errorf("md5sum '%s' failed", uri)
 	}
@@ -195,4 +200,13 @@ func (m *Manager) Get(ty string) HandleType {
 	}
 
 	return handler
+}
+
+func getFileModTime(file string) string {
+	info, err := os.Stat(file)
+	if err != nil {
+		return ""
+	}
+
+	return fmt.Sprintf("%v", info.ModTime().Unix())
 }
