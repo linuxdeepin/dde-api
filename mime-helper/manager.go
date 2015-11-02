@@ -52,8 +52,6 @@ func (m *Manager) initConfigData() {
 }
 
 func (m *Manager) doInitConfigData() error {
-	os.Remove(path.Join(glib.GetUserConfigDir(), "mimeapps.list"))
-
 	var data = "data.json"
 	switch os.Getenv("LANGUAGE") {
 	case "zh_CN", "zh_TW", "zh_HK":
