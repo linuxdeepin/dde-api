@@ -46,15 +46,19 @@ type Sound struct{}
 
 func (s *Sound) GetDBusInfo() dbus.DBusInfo {
 	return dbus.DBusInfo{
-		soundDest,
-		soundPath,
-		soundObj,
+		Dest:       soundDest,
+		ObjectPath: soundPath,
+		Interface:  soundObj,
 	}
 }
 
 // PlaySystemSound play a target event sound, such as "bell".
 func (s *Sound) PlaySystemSound(event string) (err error) {
 	return s.PlayThemeSound(s.getCurrentSoundTheme(), event)
+}
+
+func (s *Sound) PlaySystemSoundSync(event string) error {
+	return s.doPlayThemeSoundSync(s.getCurrentSoundTheme(), event, "")
 }
 
 // PlaySystemSound play a target event sound, such as "bell".
@@ -74,6 +78,10 @@ func (s *Sound) PlayThemeSound(theme, event string) (err error) {
 	return s.PlayThemeSoundWithDevice(theme, event, "")
 }
 
+func (s *Sound) PlayThemeSoundSync(theme, event string) error {
+	return s.doPlayThemeSoundSync(theme, event, "")
+}
+
 // PlayThemeSound play a target theme's event sound.
 func (s *Sound) PlayThemeSoundWithDevice(theme, event, device string) (err error) {
 	wg.Add(1)
@@ -82,6 +90,10 @@ func (s *Sound) PlayThemeSoundWithDevice(theme, event, device string) (err error
 		s.doPlayThemeSound(theme, event, device)
 	}()
 	return
+}
+
+func (s *Sound) doPlayThemeSoundSync(theme, event, device string) error {
+	return s.doPlayThemeSound(theme, event, device)
 }
 
 func (s *Sound) doPlayThemeSound(theme, event, device string) (err error) {
