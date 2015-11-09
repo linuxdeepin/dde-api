@@ -49,7 +49,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	dbus.SetAutoDestroyHandler(time.Second*1, func() bool {
+	dbus.SetAutoDestroyHandler(time.Second*5, func() bool {
 		wg.Wait()
 		return true
 	})
