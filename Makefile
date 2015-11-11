@@ -23,7 +23,6 @@ BINARIES =  \
     mousearea \
     thumbnailer \
     mime-helper \
-    sound \
     hans2pinyin \
     cursor-helper \
     gtk-thumbnailer
