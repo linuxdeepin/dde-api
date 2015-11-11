@@ -1,6 +1,7 @@
 PREFIX = /usr
-GOPATH_DIR = gopath
+GOBUILD_DIR = gobuild
 GOPKG_PREFIX = pkg.deepin.io/dde/api
+GOSITE_DIR = ${PREFIX}/share/gocode
 
 ifndef USE_GCCGO
     GOBUILD = go build
@@ -30,13 +31,13 @@ BINARIES =  \
 all: build
 
 prepare:
-	@if [ ! -d ${GOPATH_DIR}/src/${GOPKG_PREFIX} ]; then \
-		mkdir -p ${GOPATH_DIR}/src/$(dir ${GOPKG_PREFIX}); \
-		ln -sf ../../../.. ${GOPATH_DIR}/src/${GOPKG_PREFIX}; \
+	@if [ ! -d ${GOBUILD_DIR}/src/${GOPKG_PREFIX} ]; then \
+		mkdir -p ${GOBUILD_DIR}/src/$(dir ${GOPKG_PREFIX}); \
+		ln -sf ../../../.. ${GOBUILD_DIR}/src/${GOPKG_PREFIX}; \
 	fi
 
 out/bin/%:
-	env GOPATH="${GOPATH}:${CURDIR}/${GOPATH_DIR}" ${GOBUILD} -o $@  ${GOPKG_PREFIX}/${@F}
+	env GOPATH="${GOPATH}:${CURDIR}/${GOBUILD_DIR}" ${GOBUILD} -o $@  ${GOPKG_PREFIX}/${@F}
 
 # Install go packages
 build-dep:
@@ -65,13 +66,13 @@ install-binary: build
 	cp -R misc/dde-api ${DESTDIR}${PREFIX}/share
 
 build/lib/%:
-	env GOPATH="${GOPATH}:${CURDIR}/${GOPATH_DIR}" ${GOBUILD} ${GOPKG_PREFIX}/${@F}
+	env GOPATH="${GOPATH}:${CURDIR}/${GOBUILD_DIR}" ${GOBUILD} ${GOPKG_PREFIX}/${@F}
 
 build-dev: prepare $(addprefix build/lib/, ${LIBRARIES})
 
 install/lib/%:
-	mkdir -pv ${DESTDIR}${PREFIX}/share/gocode/src/${GOPKG_PREFIX}
-	cp -R ${CURDIR}/${GOPATH_DIR}/src/${GOPKG_PREFIX}/${@F} ${DESTDIR}${PREFIX}/share/gocode/src/${GOPKG_PREFIX}
+	mkdir -pv ${DESTDIR}${GOSITE_DIR}/src/${GOPKG_PREFIX}
+	cp -R ${CURDIR}/${GOBUILD_DIR}/src/${GOPKG_PREFIX}/${@F} ${DESTDIR}${GOSITE_DIR}/src/${GOPKG_PREFIX}
 
 install-dev: build-dev ${addprefix install/lib/, ${LIBRARIES}}
 
