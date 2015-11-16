@@ -121,10 +121,14 @@ func (tpad *Touchpad) EnableTapToClick(enabled bool) error {
 		return err
 	}
 
-	if tpad.CanLeftHanded() {
-		values[4], values[5], values[6] = 3, 1, 2
+	if !enabled {
+		values[4], values[5], values[6] = 0, 0, 0
 	} else {
-		values[4], values[5], values[6] = 1, 3, 2
+		if tpad.CanLeftHanded() {
+			values[4], values[5], values[6] = 3, 1, 2
+		} else {
+			values[4], values[5], values[6] = 1, 3, 2
+		}
 	}
 
 	return utils.SetInt8Prop(tpad.Id, propTapAction, values)
