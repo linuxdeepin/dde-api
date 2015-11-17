@@ -13,7 +13,8 @@ endif
 LIBRARIES = \
     thumbnails \
     themes \
-    dxinput
+    dxinput \
+    soundutils
 
 BINARIES =  \
     device \
