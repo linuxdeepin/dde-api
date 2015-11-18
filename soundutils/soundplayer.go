@@ -1,8 +1,8 @@
 package soundutils
 
 import (
-	"dbus/com/deepin/daemon/soundplayer"
 	"pkg.deepin.io/lib/gio-2.0"
+	player "pkg.deepin.io/lib/sound"
 )
 
 const (
@@ -49,29 +49,11 @@ var soundEventMap = map[string]string{
 	KeyScreenshot:    "screen-capture",
 }
 
-var player *soundplayer.SoundPlayer
-
-func initPlayer() error {
-	if player != nil {
-		return nil
-	}
-
-	var err error
-	player, err = soundplayer.NewSoundPlayer(
-		"com.deepin.daemon.SoundPlayer",
-		"/com/deepin/daemon/SoundPlayer")
-	return err
-}
-
 func PlaySystemSound(event, device string, sync bool) error {
 	return PlayThemeSound(getSoundTheme(), event, device, sync)
 }
 
 func PlayThemeSound(theme, event, device string, sync bool) error {
-	if err := initPlayer(); err != nil {
-		return err
-	}
-
 	if len(theme) == 0 {
 		theme = soundThemeDeepin
 	}
@@ -82,23 +64,19 @@ func PlayThemeSound(theme, event, device string, sync bool) error {
 	event = queryEvent(event)
 
 	if sync {
-		return player.PlayThemeSoundSync(theme, event, device)
+		return player.PlayThemeSound(theme, event, device, "")
 	}
 
-	player.PlayThemeSound(theme, event, device)
+	go player.PlayThemeSound(theme, event, device, "")
 	return nil
 }
 
-func PlayThemeFile(file, device string, sync bool) error {
-	if err := initPlayer(); err != nil {
-		return err
-	}
-
+func PlaySoundFile(file, device string, sync bool) error {
 	if sync {
-		return player.PlayThemeFileSync(file, device)
+		return player.PlaySoundFile(file, device, "")
 	}
 
-	player.PlayThemeFile(file, device)
+	go player.PlaySoundFile(file, device, "")
 	return nil
 }
 
