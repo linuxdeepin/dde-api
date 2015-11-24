@@ -21,7 +21,7 @@
 
 package main
 
-// #cgo pkg-config: libmetacity-private
+// #cgo pkg-config: libdeepin-metacity-private
 // #include <stdlib.h>
 // #include "common.h"
 import "C"
