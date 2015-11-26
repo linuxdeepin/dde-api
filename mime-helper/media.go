@@ -150,8 +150,8 @@ func (media *Media) ListApps(ty string) string {
 }
 
 func (media *Media) EnableAutoOpen(enabled bool) {
+	media.setting.SetBoolean(gsKeyAutoMount, enabled)
 	if enabled {
-		media.setting.SetBoolean(gsKeyAutoMount, enabled)
 		media.setting.SetBoolean(gsKeyRunNever, false)
 	} else {
 		media.setting.SetBoolean(gsKeyRunNever, true)
