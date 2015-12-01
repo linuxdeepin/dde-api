@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"pkg.deepin.io/lib/dbus"
@@ -18,6 +19,17 @@ type Manager struct{}
 
 func (*Manager) Query(hans string) []string {
 	return queryPinyin(hans)
+}
+
+// Querylist query pinyin for hans list, return a json data.
+func (*Manager) QueryList(hansList []string) string {
+	var data = make(map[string][]string)
+	for _, hans := range hansList {
+		data[hans] = queryPinyin(hans)
+	}
+
+	content, _ := json.Marshal(data)
+	return string(content)
 }
 
 func (*Manager) GetDBusInfo() dbus.DBusInfo {
