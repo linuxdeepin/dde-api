@@ -27,7 +27,8 @@ BINARIES =  \
     mime-helper \
     hans2pinyin \
     cursor-helper \
-    gtk-thumbnailer
+    gtk-thumbnailer \
+    sound-theme-player
 
 all: build
 
