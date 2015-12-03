@@ -50,7 +50,7 @@ var soundEventMap = map[string]string{
 }
 
 func PlaySystemSound(event, device string, sync bool) error {
-	return PlayThemeSound(getSoundTheme(), event, device, sync)
+	return PlayThemeSound(GetSoundTheme(), event, device, sync)
 }
 
 func PlayThemeSound(theme, event, device string, sync bool) error {
@@ -58,10 +58,10 @@ func PlayThemeSound(theme, event, device string, sync bool) error {
 		theme = soundThemeDeepin
 	}
 
-	if !canPlayEvent(event) {
+	if !CanPlayEvent(event) {
 		return nil
 	}
-	event = queryEvent(event)
+	event = QueryEvent(event)
 
 	if sync {
 		return player.PlayThemeSound(theme, event, device, "")
@@ -80,7 +80,7 @@ func PlaySoundFile(file, device string, sync bool) error {
 	return nil
 }
 
-func canPlayEvent(event string) bool {
+func CanPlayEvent(event string) bool {
 	s := gio.NewSettings(soundEffectSchema)
 	defer s.Unref()
 	if !isItemInList(event, s.ListKeys()) {
@@ -90,8 +90,8 @@ func canPlayEvent(event string) bool {
 	return s.GetBoolean(event)
 }
 
-func queryEvent(key string) string {
-	if getSoundTheme() != soundThemeDeepin {
+func QueryEvent(key string) string {
+	if GetSoundTheme() != soundThemeDeepin {
 		return key
 	}
 
@@ -102,7 +102,7 @@ func queryEvent(key string) string {
 	return value
 }
 
-func getSoundTheme() string {
+func GetSoundTheme() string {
 	s := gio.NewSettings(appearanceSchema)
 	defer s.Unref()
 	return s.GetString(keySoundTheme)
