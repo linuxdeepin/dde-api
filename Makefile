@@ -3,6 +3,8 @@ GOBUILD_DIR = gobuild
 GOPKG_PREFIX = pkg.deepin.io/dde/api
 GOSITE_DIR = ${PREFIX}/share/gocode
 libdir = /lib
+SYSTEMD_LIB_DIR = ${libdir}
+SYSTEMD_SERVICE_DIR = ${SYSTEMD_LIB_DIR}/systemd/system/
 
 ifndef USE_GCCGO
     GOBUILD = go build
@@ -69,8 +71,8 @@ install-binary: build
 	mkdir -pv ${DESTDIR}${PREFIX}/share
 	cp -R misc/dde-api ${DESTDIR}${PREFIX}/share
 
-	mkdir -pv ${DESTDIR}${libdir}/systemd/system/
-	cp -R misc/systemd/system/*.service ${DESTDIR}${libdir}/systemd/system/
+	mkdir -pv ${DESTDIR}${SYSTEMD_SERVICE_DIR}
+	cp -R misc/systemd/system/*.service ${DESTDIR}${SYSTEMD_SERVICE_DIR}
 
 build/lib/%:
 	env GOPATH="${GOPATH}:${CURDIR}/${GOBUILD_DIR}" ${GOBUILD} ${GOPKG_PREFIX}/${@F}
