@@ -6,6 +6,24 @@ import (
 )
 
 const (
+	EventLogin         = "sys-login"
+	EventLogout        = "sys-logout"
+	EventShutdown      = "sys-shutdown"
+	EventWakeup        = "suspend-resume"
+	EventNotification  = "message-out"
+	EventUnableOperate = "app-error-critical"
+	EventEmptyTrash    = "trash-empty"
+	EventVolumeChanged = "audio-volume-change"
+	EventBatteryLow    = "power-unplug-battery-low"
+	EventPowerPlug     = "power-plug"
+	EventPowerUnplug   = "power-unplug"
+	EventDevicePlug    = "device-added"
+	EventDeviceUnplug  = "device-removed"
+	EventIconToDesktop = "send-to"
+	EventScreenshot    = "screen-capture"
+)
+
+const (
 	KeyLogin         = "login"
 	KeyShutdown      = "shutdown"
 	KeyLogout        = "logout"
@@ -30,23 +48,23 @@ const (
 	soundThemeDeepin  = "deepin"
 )
 
-// deepin sound theme 'key - event' map
+// deepin sound theme 'event - key' map
 var soundEventMap = map[string]string{
-	KeyLogin:         "sys-login",
-	KeyShutdown:      "sys-shutdown",
-	KeyLogout:        "sys-logout",
-	KeyWakeup:        "suspend-resume",
-	KeyNotification:  "message-out",
-	KeyUnableOperate: "app-error-critical",
-	KeyEmptyTrash:    "trash-empty",
-	KeyVolumeChange:  "audio-volume-change",
-	KeyBatteryLow:    "power-unplug-battery-low",
-	KeyPowerPlug:     "power-plug",
-	KeyPowerUnplug:   "power-unplug",
-	KeyDevicePlug:    "device-added",
-	KeyDeviceUnplug:  "device-removed",
-	KeyIconToDesktop: "send-to",
-	KeyScreenshot:    "screen-capture",
+	EventLogin:         KeyLogin,
+	EventLogout:        KeyLogout,
+	EventShutdown:      KeyShutdown,
+	EventWakeup:        KeyWakeup,
+	EventNotification:  KeyNotification,
+	EventUnableOperate: KeyUnableOperate,
+	EventEmptyTrash:    KeyEmptyTrash,
+	EventVolumeChanged: KeyVolumeChange,
+	EventBatteryLow:    KeyBatteryLow,
+	EventPowerPlug:     KeyPowerPlug,
+	EventPowerUnplug:   KeyPowerUnplug,
+	EventDevicePlug:    KeyDevicePlug,
+	EventDeviceUnplug:  KeyDeviceUnplug,
+	EventIconToDesktop: KeyIconToDesktop,
+	EventScreenshot:    KeyScreenshot,
 }
 
 func PlaySystemSound(event, device string, sync bool) error {
@@ -61,7 +79,6 @@ func PlayThemeSound(theme, event, device string, sync bool) error {
 	if !CanPlayEvent(event) {
 		return nil
 	}
-	event = QueryEvent(event)
 
 	if sync {
 		return player.PlayThemeSound(theme, event, device, "")
@@ -81,25 +98,18 @@ func PlaySoundFile(file, device string, sync bool) error {
 }
 
 func CanPlayEvent(event string) bool {
-	s := gio.NewSettings(soundEffectSchema)
-	defer s.Unref()
-	if !isItemInList(event, s.ListKeys()) {
+	key, ok := soundEventMap[event]
+	if !ok {
 		return true
 	}
 
-	return s.GetBoolean(event)
-}
-
-func QueryEvent(key string) string {
-	if GetSoundTheme() != soundThemeDeepin {
-		return key
+	s := gio.NewSettings(soundEffectSchema)
+	defer s.Unref()
+	if !isItemInList(key, s.ListKeys()) {
+		return true
 	}
 
-	value, ok := soundEventMap[key]
-	if !ok {
-		return key
-	}
-	return value
+	return s.GetBoolean(key)
 }
 
 func GetSoundTheme() string {

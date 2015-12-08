@@ -21,7 +21,7 @@ func main() {
 
 		canPlay = true
 		theme = "deepin"
-		event = soundutils.QueryEvent(soundutils.KeyShutdown)
+		event = soundutils.EventShutdown
 	}
 
 	if !canPlay {
