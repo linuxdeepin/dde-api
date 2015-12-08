@@ -6,21 +6,23 @@ import (
 )
 
 const (
-	EventLogin         = "sys-login"
-	EventLogout        = "sys-logout"
-	EventShutdown      = "sys-shutdown"
-	EventWakeup        = "suspend-resume"
-	EventNotification  = "message-out"
-	EventUnableOperate = "app-error-critical"
-	EventEmptyTrash    = "trash-empty"
-	EventVolumeChanged = "audio-volume-change"
-	EventBatteryLow    = "power-unplug-battery-low"
-	EventPowerPlug     = "power-plug"
-	EventPowerUnplug   = "power-unplug"
-	EventDevicePlug    = "device-added"
-	EventDeviceUnplug  = "device-removed"
-	EventIconToDesktop = "send-to"
-	EventScreenshot    = "screen-capture"
+	EventLogin               = "sys-login"
+	EventLogout              = "sys-logout"
+	EventShutdown            = "sys-shutdown"
+	EventWakeup              = "suspend-resume"
+	EventNotification        = "message-out"
+	EventUnableOperate       = "app-error-critical"
+	EventEmptyTrash          = "trash-empty"
+	EventVolumeChanged       = "audio-volume-change"
+	EventBatteryLow          = "power-unplug-battery-low"
+	EventPowerPlug           = "power-plug"
+	EventPowerUnplug         = "power-unplug"
+	EventDevicePlug          = "device-added"
+	EventDeviceUnplug        = "device-removed"
+	EventIconToDesktop       = "send-to"
+	EventCameraShutter       = "camera-shutter"
+	EventScreenCapture       = "screen-capture"
+	EventScreenCaptureFinish = "screen-capture-complete"
 )
 
 const (
@@ -38,7 +40,8 @@ const (
 	KeyDevicePlug    = "device-plug"
 	KeyDeviceUnplug  = "device-unplug"
 	KeyIconToDesktop = "icon-to-desktop"
-	KeyScreenshot    = "screenshot"
+	KeyCameraShutter = "camera-shutter"
+	KeyScreenCapture = "screenshot"
 )
 
 const (
@@ -50,21 +53,23 @@ const (
 
 // deepin sound theme 'event - key' map
 var soundEventMap = map[string]string{
-	EventLogin:         KeyLogin,
-	EventLogout:        KeyLogout,
-	EventShutdown:      KeyShutdown,
-	EventWakeup:        KeyWakeup,
-	EventNotification:  KeyNotification,
-	EventUnableOperate: KeyUnableOperate,
-	EventEmptyTrash:    KeyEmptyTrash,
-	EventVolumeChanged: KeyVolumeChange,
-	EventBatteryLow:    KeyBatteryLow,
-	EventPowerPlug:     KeyPowerPlug,
-	EventPowerUnplug:   KeyPowerUnplug,
-	EventDevicePlug:    KeyDevicePlug,
-	EventDeviceUnplug:  KeyDeviceUnplug,
-	EventIconToDesktop: KeyIconToDesktop,
-	EventScreenshot:    KeyScreenshot,
+	EventLogin:               KeyLogin,
+	EventLogout:              KeyLogout,
+	EventShutdown:            KeyShutdown,
+	EventWakeup:              KeyWakeup,
+	EventNotification:        KeyNotification,
+	EventUnableOperate:       KeyUnableOperate,
+	EventEmptyTrash:          KeyEmptyTrash,
+	EventVolumeChanged:       KeyVolumeChange,
+	EventBatteryLow:          KeyBatteryLow,
+	EventPowerPlug:           KeyPowerPlug,
+	EventPowerUnplug:         KeyPowerUnplug,
+	EventDevicePlug:          KeyDevicePlug,
+	EventDeviceUnplug:        KeyDeviceUnplug,
+	EventIconToDesktop:       KeyIconToDesktop,
+	EventCameraShutter:       KeyCameraShutter,
+	EventScreenCapture:       KeyScreenCapture,
+	EventScreenCaptureFinish: KeyScreenCapture,
 }
 
 func PlaySystemSound(event, device string, sync bool) error {
