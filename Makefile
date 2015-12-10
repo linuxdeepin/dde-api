@@ -29,7 +29,8 @@ BINARIES =  \
     hans2pinyin \
     cursor-helper \
     gtk-thumbnailer \
-    sound-theme-player
+    sound-theme-player \
+    deepin-shutdown-sound
 
 all: build
 
