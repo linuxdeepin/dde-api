@@ -108,8 +108,7 @@ func setTheme(name string) {
 		return
 	}
 
-	go doSetTheme(name)
-	C.handle_gtk_cursor_changed()
+	doSetTheme(name)
 }
 
 func doSetTheme(name string) {
