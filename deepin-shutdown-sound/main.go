@@ -12,8 +12,7 @@ import (
 var logger = log.NewLogger("api/shutdown-sound")
 
 func main() {
-	signal.Ignore(os.Kill)
-	signal.Ignore(os.Interrupt)
+	handleSignal()
 
 	canPlay, theme, event, err := soundutils.GetShutdownSound()
 	if err != nil {
@@ -32,6 +31,19 @@ func main() {
 	if err != nil {
 		logger.Error("Play shutdown sound failed:", theme, event, err)
 	}
+}
+
+func handleSignal() {
+	var sigs = make(chan os.Signal, 2)
+	signal.Notify(sigs, os.Kill, os.Interrupt)
+	go func() {
+		sig := <-sigs
+		switch sig {
+		case os.Kill, os.Interrupt:
+			// Nothing to do
+			logger.Debug("Recieve signal:", sig.String())
+		}
+	}()
 }
 
 func doPlayShutdwonSound(theme, event string) error {
