@@ -52,7 +52,9 @@ func doPlaySound(theme, event string) error {
 }
 
 func main() {
+	logger.Info("^^^^^^^^^^^^^^^^^^^Start sound player")
 	if len(os.Args) == 3 {
+		logger.Info("^^^^^^^^^^^^^^^^^Play cmd:", os.Args)
 		doPlaySound(os.Args[1], os.Args[2])
 		return
 	}
