@@ -1,7 +1,8 @@
 [Unit]
 Description=Deepin shutdown sound
-After=shutdown.target
-Before=umount.target
+Requisite=sound.target
+After=sound.target
+Before=local-fs.target shutdown.target
 DefaultDependencies=no
 
 [Service]
@@ -13,4 +14,4 @@ KillMode=none
 TimeoutStopSec=3s
 
 [Install]
-WantedBy=umount.target
+WantedBy=shutdown.target
