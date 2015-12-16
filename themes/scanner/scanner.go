@@ -69,7 +69,7 @@ func doListTheme(uri string, ty string, filter func(string) bool) ([]string, err
 		} else {
 			tmp = path.Join(subDir, "index.theme")
 		}
-		if !filter(tmp) {
+		if !filter(tmp) || isHidden(tmp, ty) {
 			continue
 		}
 		themes = append(themes, subDir)
@@ -104,4 +104,21 @@ func listSubDir(dir string) ([]string, error) {
 	}
 	return subDirs, nil
 
+}
+
+func isHidden(file, ty string) bool {
+	kf, err := dutils.NewKeyFileFromFile(file)
+	if err != nil {
+		return false
+	}
+	defer kf.Free()
+
+	var hidden bool = false
+	switch ty {
+	case themeTypeGtk:
+		hidden, _ = kf.GetBoolean("Desktop Entry", "Hidden")
+	case themeTypeIcon, themeTypeCursor:
+		hidden, _ = kf.GetBoolean("Icon Theme", "Hidden")
+	}
+	return hidden
 }
