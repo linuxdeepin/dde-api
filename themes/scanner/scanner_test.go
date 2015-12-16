@@ -38,3 +38,17 @@ func TestListCursorTheme(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 }
+
+func TestThemeHidden(t *testing.T) {
+	Convey("Test theme is hidden", t, func() {
+		So(isHidden("testdata/gtk_paper.theme", themeTypeGtk),
+			ShouldEqual, false)
+		So(isHidden("testdata/gtk_paper_hidden.theme", themeTypeGtk),
+			ShouldEqual, true)
+
+		So(isHidden("testdata/icon_deepin.theme", themeTypeIcon),
+			ShouldEqual, false)
+		So(isHidden("testdata/icon_deepin_hidden.theme", themeTypeIcon),
+			ShouldEqual, true)
+	})
+}
