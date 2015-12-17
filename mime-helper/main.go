@@ -39,8 +39,10 @@ func main() {
 			logger.Error("Install Media dbus failed:", err)
 		}
 	}
-
 	dbus.DealWithUnhandledMessage()
+
+	m.initConfigData()
+
 	dbus.SetAutoDestroyHandler(time.Second*5, func() bool {
 		if m.resetState != stateResetFinished {
 			return false

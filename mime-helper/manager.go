@@ -34,7 +34,6 @@ type Manager struct {
 
 func NewManager() *Manager {
 	m := new(Manager)
-	m.initConfigData()
 	m.resetState = stateResetFinished
 	return m
 }
