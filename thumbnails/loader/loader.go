@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"pkg.deepin.io/lib/glib-2.0"
+	"gir/glib-2.0"
 	"pkg.deepin.io/lib/graphic"
 	dutils "pkg.deepin.io/lib/utils"
 )
@@ -92,7 +92,7 @@ func ScaleImage(src, dest string, width, height int) error {
 
 func GetThumbnailDest(uri string, width, height int) (string, error) {
 	file := dutils.DecodeURI(uri)
-	md5, ok := dutils.SumStrMd5(file+getFileModTime(file)+thumbVersion)
+	md5, ok := dutils.SumStrMd5(file + getFileModTime(file) + thumbVersion)
 	if !ok {
 		return "", fmt.Errorf("md5sum '%s' failed", uri)
 	}
