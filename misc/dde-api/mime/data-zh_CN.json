@@ -20,7 +20,6 @@
 				"application/x-compress",
 				"application/x-compressed-tar",
 				"application/x-cpio",
-				"application/x-deb",
 				"application/x-ear",
 				"application/x-ms-dos-executable",
 				"application/x-gtar",
@@ -76,6 +75,7 @@
 			"AppId":"gdebi.desktop",
 			"AppType":"deb",
 			"SupportedType":[
+				"application/x-deb",
 				"application/vnd.debian.binary-package"
 			]
 		},
