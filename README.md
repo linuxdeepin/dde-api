@@ -18,6 +18,7 @@ DDE API provides some dbus interfaces that is used for screen zone detecting, th
 ### Runtime Dependencies
 
 * xcur2png
+* deepin-desktop-base
 
 ## Installation
 
