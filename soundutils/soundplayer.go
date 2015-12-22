@@ -11,7 +11,7 @@ const (
 	EventShutdown            = "sys-shutdown"
 	EventWakeup              = "suspend-resume"
 	EventNotification        = "message-out"
-	EventUnableOperate       = "app-error-critical"
+	EventUnableOperate       = "app-error"
 	EventEmptyTrash          = "trash-empty"
 	EventVolumeChanged       = "audio-volume-change"
 	EventBatteryLow          = "power-unplug-battery-low"
