@@ -6,7 +6,9 @@ import (
 )
 
 const (
-	propMidBtnEmulation string = "Evdev Middle Button Emulation"
+	propMidBtnEmulation      string = "Evdev Middle Button Emulation"
+	propWheelEmulation              = "Evdev Wheel Emulation"
+	propWheelEmulationButton        = "Evdev Wheel Emulation Button"
 )
 
 type Mouse struct {
@@ -76,6 +78,52 @@ func (m *Mouse) CanMiddleButtonEmulation() bool {
 	}
 
 	return (values[0] == 1)
+}
+
+/*
+ * Evdev Wheel Emulation
+ *    1 boolean value (8 bit, 0 or 1).
+ */
+func (m *Mouse) EnableWheelEmulation(enabled bool) error {
+	if enabled == m.CanWheelEmulation() {
+		return nil
+	}
+	var values []int8
+	if enabled {
+		values = []int8{1}
+	} else {
+		values = []int8{0}
+	}
+	return utils.SetInt8Prop(m.Id, propWheelEmulation, values)
+}
+
+func (m *Mouse) CanWheelEmulation() bool {
+	values, err := getInt8Prop(m.Id, propWheelEmulation, 1)
+	if err != nil {
+		return false
+	}
+	return (values[0] == 1)
+}
+
+/*
+ * Evdev Wheel Emulation Button
+ *    1 8-bit value, allowed range 0-32, 0 disables the button.
+ */
+func (m *Mouse) SetWheelEmulationButton(btnNum int8) error {
+	old, _ := m.GetWheelEmulationButton()
+	if btnNum == old {
+		return nil
+	}
+	return utils.SetInt8Prop(m.Id, propWheelEmulationButton,
+		[]int8{btnNum})
+}
+
+func (m *Mouse) GetWheelEmulationButton() (int8, error) {
+	values, err := getInt8Prop(m.Id, propWheelEmulationButton, 1)
+	if err != nil {
+		return -1, err
+	}
+	return values[0], nil
 }
 
 func (m *Mouse) EnableNaturalScroll(enabled bool) error {
