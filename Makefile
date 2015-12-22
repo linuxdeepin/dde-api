@@ -17,7 +17,9 @@ LIBRARIES = \
     thumbnails \
     themes \
     dxinput \
-    soundutils
+    soundutils \
+    lang_info \
+    i18n_dependent
 
 BINARIES =  \
     device \
