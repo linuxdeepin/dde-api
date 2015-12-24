@@ -43,21 +43,27 @@ func (id appIdType) GetAppInfo() *AppInfo {
 	switch id {
 	case idIgnore:
 		return &AppInfo{
-			Id:   string(id),
-			Name: Tr("Nothing"),
-			Exec: "",
+			Id:          string(id),
+			Name:        "Nothing",
+			DisplayName: Tr("Nothing"),
+			Description: Tr("Nothing"),
+			Exec:        "",
 		}
 	case idOpenFolder:
 		return &AppInfo{
-			Id:   string(id),
-			Name: Tr("Open Folder"),
-			Exec: "",
+			Id:          string(id),
+			Name:        "Open Folder",
+			DisplayName: Tr("Open Folder"),
+			Description: Tr("Open Folder"),
+			Exec:        "",
 		}
 	case idRunSoft:
 		return &AppInfo{
-			Id:   string(id),
-			Name: Tr("Run Software"),
-			Exec: "",
+			Id:          string(id),
+			Name:        "Run Software",
+			DisplayName: Tr("Run Software"),
+			Description: Tr("Run Software"),
+			Exec:        "",
 		}
 	}
 	return nil

@@ -4,21 +4,22 @@ import (
 	"os"
 	"path"
 
+	"gir/gio-2.0"
 	"pkg.deepin.io/lib/mime"
 	dutils "pkg.deepin.io/lib/utils"
-)
-
-const (
-	kfGroupDesktop = "Desktop Entry"
-	kfKeyName      = "Name"
-	kfKeyExec      = "Exec"
 )
 
 type AppInfo struct {
 	// Desktop id
 	Id string
-	// Display name
+	// App name
 	Name string
+	// Display name
+	DisplayName string
+	// Comment
+	Description string
+	// Icon
+	Icon string
 	// Commandline
 	Exec string
 }
@@ -30,7 +31,7 @@ func GetAppInfo(ty string) (*AppInfo, error) {
 		return nil, err
 	}
 
-	return newAppInfoById(id)
+	return newAppInfoById(id), nil
 }
 
 func (infos AppInfos) Delete(id string) AppInfos {
@@ -51,28 +52,28 @@ func SetAppInfo(ty, id string) error {
 func GetAppInfos(ty string) AppInfos {
 	var infos AppInfos
 	for _, id := range mime.GetAppList(ty) {
-		info, err := newAppInfoById(id)
-		if err != nil {
-			continue
-		}
-		infos = append(infos, info)
+		infos = append(infos, newAppInfoById(id))
 	}
 	return infos
 }
 
-func newAppInfoById(id string) (*AppInfo, error) {
-	kfile, err := dutils.NewKeyFileFromFile(
-		findFilePath(path.Join("applications", id)))
-	if err != nil {
-		return nil, err
+func newAppInfoById(id string) *AppInfo {
+	ginfo := gio.NewDesktopAppInfo(id)
+	defer ginfo.Unref()
+	var info = &AppInfo{
+		Id:          id,
+		Name:        ginfo.GetName(),
+		DisplayName: ginfo.GetGenericName(),
+		Description: ginfo.GetDescription(),
+		Exec:        ginfo.GetCommandline(),
 	}
-	defer kfile.Free()
+	iconObj := ginfo.GetIcon()
+	if iconObj != nil {
+		info.Icon = iconObj.ToString()
+		iconObj.Unref()
+	}
 
-	var info AppInfo
-	info.Id = id
-	info.Name, _ = kfile.GetLocaleString(kfGroupDesktop, kfKeyName, "\x00")
-	info.Exec, _ = kfile.GetString(kfGroupDesktop, kfKeyExec)
-	return &info, nil
+	return info
 }
 
 func findFilePath(file string) string {

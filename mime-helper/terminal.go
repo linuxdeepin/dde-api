@@ -2,18 +2,14 @@ package main
 
 import (
 	"fmt"
-	"path"
-	"strings"
-
 	"gir/gio-2.0"
-	dutils "pkg.deepin.io/lib/utils"
+	"strings"
 )
 
 const (
 	terminalSchema = "com.deepin.desktop.default-applications.terminal"
 	gsKeyExec      = "exec"
 
-	kfKeyCategory    = "Categories"
 	cateKeyTerminal  = "TerminalEmulator"
 	execKeyXTerminal = "x-terminal-emulator"
 )
@@ -66,33 +62,32 @@ func getTerminalInfos() AppInfos {
 			continue
 		}
 
-		list = append(list, &AppInfo{
-			Id:   info.GetId(),
-			Name: info.GetDisplayName(),
-			Exec: info.GetCommandline(),
-		})
+		var tmp = &AppInfo{
+			Id:          info.GetId(),
+			Name:        info.GetName(),
+			DisplayName: info.GetDisplayName(),
+			Description: info.GetDescription(),
+			Exec:        info.GetCommandline(),
+		}
+		iconObj := info.GetIcon()
+		if iconObj != nil {
+			tmp.Icon = iconObj.ToString()
+			iconObj.Unref()
+		}
+		list = append(list, tmp)
 	}
 	return list
 }
 
 func isTerminalApp(id string) bool {
-	kfile, err := dutils.NewKeyFileFromFile(
-		findFilePath(path.Join("applications", id)))
-	if err != nil {
-		return false
-	}
-	defer kfile.Free()
-
-	cates, _ := kfile.GetString(kfGroupDesktop, kfKeyCategory)
-	if err != nil {
-		return false
-	}
-
+	ginfo := gio.NewDesktopAppInfo(id)
+	defer ginfo.Unref()
+	cates := ginfo.GetCategories()
 	if !strings.Contains(cates, cateKeyTerminal) {
 		return false
 	}
 
-	exec, _ := kfile.GetString(kfGroupDesktop, kfKeyExec)
+	exec := ginfo.GetCommandline()
 	if strings.Contains(exec, execKeyXTerminal) {
 		return false
 	}
