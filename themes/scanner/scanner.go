@@ -10,27 +10,31 @@ import (
 )
 
 const (
-	themeTypeGtk    = "gtk"
-	themeTypeIcon   = "icon"
-	themeTypeCursor = "cursor"
+	ThemeTypeGtk    = "gtk"
+	ThemeTypeIcon   = "icon"
+	ThemeTypeCursor = "cursor"
 )
 
 // uri: ex "file:///usr/share/themes"
 func ListGtkTheme(uri string) ([]string, error) {
-	return doListTheme(uri, themeTypeGtk, IsGtkTheme)
+	return doListTheme(uri, ThemeTypeGtk, IsGtkTheme)
 }
 
 // uri: ex "file:///usr/share/icons"
 func ListIconTheme(uri string) ([]string, error) {
-	return doListTheme(uri, themeTypeIcon, IsIconTheme)
+	return doListTheme(uri, ThemeTypeIcon, IsIconTheme)
 }
 
 // uri: ex "file:///usr/share/icons"
 func ListCursorTheme(uri string) ([]string, error) {
-	return doListTheme(uri, themeTypeCursor, IsCursorTheme)
+	return doListTheme(uri, ThemeTypeCursor, IsCursorTheme)
 }
 
 func IsGtkTheme(uri string) bool {
+	if len(uri) == 0 {
+		return false
+	}
+
 	ty, _ := mime.Query(uri)
 	if ty == mime.MimeTypeGtk {
 		return true
@@ -39,6 +43,10 @@ func IsGtkTheme(uri string) bool {
 }
 
 func IsIconTheme(uri string) bool {
+	if len(uri) == 0 {
+		return false
+	}
+
 	ty, _ := mime.Query(uri)
 	if ty == mime.MimeTypeIcon {
 		return true
@@ -47,6 +55,10 @@ func IsIconTheme(uri string) bool {
 }
 
 func IsCursorTheme(uri string) bool {
+	if len(uri) == 0 {
+		return false
+	}
+
 	ty, _ := mime.Query(uri)
 	if ty == mime.MimeTypeCursor {
 		return true
@@ -64,7 +76,7 @@ func doListTheme(uri string, ty string, filter func(string) bool) ([]string, err
 	var themes []string
 	for _, subDir := range subDirs {
 		var tmp string
-		if ty == themeTypeCursor {
+		if ty == ThemeTypeCursor {
 			tmp = path.Join(subDir, "cursor.theme")
 		} else {
 			tmp = path.Join(subDir, "index.theme")
@@ -115,9 +127,9 @@ func isHidden(file, ty string) bool {
 
 	var hidden bool = false
 	switch ty {
-	case themeTypeGtk:
+	case ThemeTypeGtk:
 		hidden, _ = kf.GetBoolean("Desktop Entry", "Hidden")
-	case themeTypeIcon, themeTypeCursor:
+	case ThemeTypeIcon, ThemeTypeCursor:
 		hidden, _ = kf.GetBoolean("Icon Theme", "Hidden")
 	}
 	return hidden

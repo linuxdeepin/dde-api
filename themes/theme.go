@@ -2,7 +2,6 @@
 package themes
 
 import (
-	"fmt"
 	"os"
 	"path"
 	"pkg.deepin.io/dde/api/themes/scanner"
@@ -24,7 +23,10 @@ func IsThemeInList(theme string, list []string) bool {
 // Scan '/usr/share/themes' and '$HOME/.themes'
 func ListGtkTheme() []string {
 	return doListTheme(
-		[]string{path.Join(os.Getenv("HOME"), ".themes")},
+		[]string{
+			path.Join(os.Getenv("HOME"), ".local/share/themes"),
+			path.Join(os.Getenv("HOME"), ".themes"),
+		},
 		[]string{"/usr/share/themes"},
 		scanner.ListGtkTheme)
 }
@@ -34,7 +36,10 @@ func ListGtkTheme() []string {
 // Scan '/usr/share/icons' and '$HOME/.icons'
 func ListIconTheme() []string {
 	return doListTheme(
-		[]string{path.Join(os.Getenv("HOME"), ".icons")},
+		[]string{
+			path.Join(os.Getenv("HOME"), ".local/share/icons"),
+			path.Join(os.Getenv("HOME"), ".icons"),
+		},
 		[]string{"/usr/share/icons"},
 		scanner.ListIconTheme)
 }
@@ -44,7 +49,10 @@ func ListIconTheme() []string {
 // Scan '/usr/share/icons' and '$HOME/.icons'
 func ListCursorTheme() []string {
 	return doListTheme(
-		[]string{path.Join(os.Getenv("HOME"), ".icons")},
+		[]string{
+			path.Join(os.Getenv("HOME"), ".local/share/icons"),
+			path.Join(os.Getenv("HOME"), ".icons"),
+		},
 		[]string{"/usr/share/icons"},
 		scanner.ListCursorTheme)
 }
@@ -60,8 +68,6 @@ func scanThemeDirs(dirs []string, scanner func(string) ([]string, error)) []stri
 	for _, d := range dirs {
 		tmp, err := scanner(d)
 		if err != nil {
-			fmt.Printf("[Theme] Scan '%s' failed: %s\n",
-				d, err)
 			continue
 		}
 		list = append(list, tmp...)
