@@ -3,10 +3,10 @@ package themes
 
 import (
 	"fmt"
+	"gir/glib-2.0"
 	"os"
 	"path"
-
-	"gir/glib-2.0"
+	"pkg.deepin.io/dde/api/themes/scanner"
 	dutils "pkg.deepin.io/lib/utils"
 )
 
@@ -21,7 +21,7 @@ const (
 )
 
 func SetGtkTheme(name string) error {
-	if !IsThemeInList(name, ListGtkTheme()) {
+	if !scanner.IsGtkTheme(getThemePath(name, scanner.ThemeTypeGtk)) {
 		return fmt.Errorf("Invalid theme '%s'", name)
 	}
 
@@ -52,7 +52,7 @@ func SetGtkTheme(name string) error {
 }
 
 func SetIconTheme(name string) error {
-	if !IsThemeInList(name, ListIconTheme()) {
+	if !scanner.IsIconTheme(getThemePath(name, scanner.ThemeTypeIcon)) {
 		return fmt.Errorf("Invalid theme '%s'", name)
 	}
 
@@ -72,7 +72,7 @@ func SetIconTheme(name string) error {
 }
 
 func SetCursorTheme(name string) error {
-	if !IsThemeInList(name, ListCursorTheme()) {
+	if !scanner.IsCursorTheme(getThemePath(name, scanner.ThemeTypeCursor)) {
 		return fmt.Errorf("Invalid theme '%s'", name)
 	}
 
@@ -156,4 +156,30 @@ func setDefaultCursor(name string) bool {
 		return true
 	}
 	return dutils.WriteKeyToKeyFile(file, "Icon Theme", "Inherits", name)
+}
+
+func getThemePath(name, ty string) string {
+	var dirs = []string{
+		path.Join(os.Getenv("HOME"), ".local/share/themes"),
+		path.Join(os.Getenv("HOME"), ".themes"),
+		"/usr/local/share/themes",
+		"/usr/share/themes",
+	}
+
+	for _, dir := range dirs {
+		tmp := path.Join(dir, name)
+		if !dutils.IsFileExist(tmp) {
+			continue
+		}
+
+		switch ty {
+		case scanner.ThemeTypeGtk, scanner.ThemeTypeIcon:
+			return dutils.EncodeURI(path.Join(tmp, "index.theme"),
+				dutils.SCHEME_FILE)
+		case scanner.ThemeTypeCursor:
+			return dutils.EncodeURI(path.Join(tmp, "cursor.theme"),
+				dutils.SCHEME_FILE)
+		}
+	}
+	return ""
 }
