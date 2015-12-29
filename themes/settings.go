@@ -21,7 +21,7 @@ const (
 )
 
 func SetGtkTheme(name string) error {
-	if !scanner.IsGtkTheme(getThemePath(name, scanner.ThemeTypeGtk)) {
+	if !scanner.IsGtkTheme(getThemePath(name, scanner.ThemeTypeGtk, "themes")) {
 		return fmt.Errorf("Invalid theme '%s'", name)
 	}
 
@@ -52,7 +52,7 @@ func SetGtkTheme(name string) error {
 }
 
 func SetIconTheme(name string) error {
-	if !scanner.IsIconTheme(getThemePath(name, scanner.ThemeTypeIcon)) {
+	if !scanner.IsIconTheme(getThemePath(name, scanner.ThemeTypeIcon, "icons")) {
 		return fmt.Errorf("Invalid theme '%s'", name)
 	}
 
@@ -72,7 +72,7 @@ func SetIconTheme(name string) error {
 }
 
 func SetCursorTheme(name string) error {
-	if !scanner.IsCursorTheme(getThemePath(name, scanner.ThemeTypeCursor)) {
+	if !scanner.IsCursorTheme(getThemePath(name, scanner.ThemeTypeCursor, "icons")) {
 		return fmt.Errorf("Invalid theme '%s'", name)
 	}
 
@@ -158,12 +158,12 @@ func setDefaultCursor(name string) bool {
 	return dutils.WriteKeyToKeyFile(file, "Icon Theme", "Inherits", name)
 }
 
-func getThemePath(name, ty string) string {
+func getThemePath(name, ty, key string) string {
 	var dirs = []string{
-		path.Join(os.Getenv("HOME"), ".local/share/themes"),
-		path.Join(os.Getenv("HOME"), ".themes"),
-		"/usr/local/share/themes",
-		"/usr/share/themes",
+		path.Join(os.Getenv("HOME"), ".local/share/", key),
+		path.Join(os.Getenv("HOME"), "."+key),
+		path.Join("/usr/local/share", key),
+		path.Join("/usr/share", key),
 	}
 
 	for _, dir := range dirs {
