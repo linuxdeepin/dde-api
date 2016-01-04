@@ -16,11 +16,8 @@ func main() {
 
 	canPlay, theme, event, err := soundutils.GetShutdownSound()
 	if err != nil {
-		logger.Warning("[DEEPIN SHUTDOWN SOUND] get shutdown sound failed:", err)
-
-		canPlay = true
-		theme = "deepin"
-		event = soundutils.EventShutdown
+		logger.Warning("[DEEPIN SHUTDOWN SOUND] get shutdown sound info failed:", err)
+		return
 	}
 	logger.Info("[DEEPIN SHUTDOWN SOUND] can play:", canPlay, theme, event)
 
