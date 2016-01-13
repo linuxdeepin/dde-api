@@ -31,8 +31,13 @@ const (
 )
 
 func IsSupportedLocale(locale string) bool {
-	list, _ := getSupportedLocaleList(langSupportedFile)
-	return isItemInList(locale, list)
+	infos, err := GetSupportedLangInfos()
+	if err != nil {
+		return false
+	}
+
+	info, _ := infos.Get(locale)
+	return (info != nil)
 }
 
 func GetSupportedLangInfos() (LangInfos, error) {
@@ -43,7 +48,7 @@ func GetSupportedLangInfos() (LangInfos, error) {
 
 	list, err := getSupportedLocaleList(langSupportedFile)
 	if err != nil {
-		return nil, err
+		return allInfos, nil
 	}
 
 	var infos LangInfos
@@ -69,8 +74,8 @@ func getSupportedLocaleList(config string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	lines := strings.Split(string(content), "\n")
+
 	var list []string
 	for _, line := range lines {
 		if len(line) == 0 {

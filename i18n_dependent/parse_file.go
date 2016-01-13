@@ -37,13 +37,16 @@ type jsonDependentGroup struct {
 
 func (categories jsonDependentCategories) GetAllDependentInfos(locale string) DependentInfos {
 	var dependents DependentInfos
+	// tr: translations
 	dependents = append(dependents, categories.GetDependentInfos(
 		"tr", locale)...)
+	// wa: writing assistence
 	dependents = append(dependents, categories.GetDependentInfos(
 		"wa", locale)...)
-	// font
+	// fn: font
 	dependents = append(dependents, categories.GetDependentInfos(
 		"fn", locale)...)
+	// im: input method. Ignore
 	return dependents
 }
 
