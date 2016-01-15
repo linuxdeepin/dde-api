@@ -6,9 +6,13 @@ import (
 	"fmt"
 	"os"
 	"path"
-
 	. "pkg.deepin.io/dde/api/thumbnails/loader"
 	"pkg.deepin.io/lib/mime"
+	dutils "pkg.deepin.io/lib/utils"
+)
+
+const (
+	sysThemeThumbDir = "/var/cache/thumbnails/appearance"
 )
 
 var themeThumbDir = path.Join(os.Getenv("HOME"),
@@ -52,6 +56,11 @@ func ThumbnailForTheme(src, bg string, width, height int, force bool) (string, e
 		return "", err
 	}
 
+	thumb := path.Join(sysThemeThumbDir, path.Base(dest))
+	if !force && dutils.IsFileExist(thumb) {
+		return thumb, nil
+	}
+
 	return doGenThumbnail(path.Base(path.Dir(src)), bg, dest,
 		width, height, force)
 }
@@ -79,6 +88,10 @@ func getThumbDest(src string, width, height int, theme bool) (string, error) {
 }
 
 func doGenThumbnail(name, bg, dest string, width, height int, force bool) (string, error) {
+	if !force && dutils.IsFileExist(dest) {
+		return dest, nil
+	}
+
 	thumbnailer, err := gtkthumbnailer.NewGtkThumbnailer(
 		"com.deepin.api.GtkThumbnailer",
 		"/com/deepin/api/GtkThumbnailer",

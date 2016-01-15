@@ -23,20 +23,16 @@ const (
 	defaultIconSize = 24
 )
 
-func doGenThumbnail(src, bg string, width, height int, force, theme bool) (string, error) {
-	src = dutils.DecodeURI(src)
-	dest, err := getThumbDest(src, width, height, theme)
-	if err != nil {
-		return "", err
-	}
-
+func doGenThumbnail(src, bg, dest string, width, height int, force, theme bool) (string, error) {
 	if !force && dutils.IsFileExist(dest) {
 		return dest, nil
 	}
 
+	src = dutils.DecodeURI(src)
+	bg = dutils.DecodeURI(bg)
 	dir := path.Dir(src)
 	tmp := loader.GetTmpImage()
-	err = loader.CompositeIcons(getIconFiles(path.Base(dir)), bg, tmp,
+	err := loader.CompositeIcons(getIconFiles(path.Base(dir)), bg, tmp,
 		defaultIconSize, defaultWidth, defaultHeight)
 	if err != nil {
 		return "", err

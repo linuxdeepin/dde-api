@@ -11,6 +11,10 @@ import (
 	dutils "pkg.deepin.io/lib/utils"
 )
 
+const (
+	sysThemeThumbDir = "/var/cache/thumbnails/appearance"
+)
+
 var themeThumbDir = path.Join(os.Getenv("HOME"),
 	".cache", "thumbnails", "appearance")
 
@@ -50,11 +54,26 @@ func ThumbnailForTheme(src, bg string, width, height int, force bool) (string, e
 		return "", fmt.Errorf("Invalid width or height")
 	}
 
-	return doGenThumbnail(src, dutils.DecodeURI(bg), width, height, force, true)
+	dest, err := getThumbDest(src, width, height, true)
+	if err != nil {
+		return "", err
+	}
+
+	thumb := path.Join(sysThemeThumbDir, path.Base(dest))
+	if !force && dutils.IsFileExist(thumb) {
+		return thumb, nil
+	}
+
+	return doGenThumbnail(src, bg, dest, width, height, force, true)
 }
 
 func genIconThumbnail(src, bg string, width, height int, force bool) (string, error) {
-	return doGenThumbnail(src, dutils.DecodeURI(bg), width, height, force, false)
+	dest, err := getThumbDest(src, width, height, false)
+	if err != nil {
+		return "", err
+	}
+
+	return doGenThumbnail(src, bg, dest, width, height, force, false)
 }
 
 func getThumbDest(src string, width, height int, theme bool) (string, error) {
