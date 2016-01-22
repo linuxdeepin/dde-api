@@ -1,12 +1,12 @@
 package main
 
 import (
-	"os"
 	"path"
 
 	"gir/glib-2.0"
 	"pkg.deepin.io/lib/dbus"
 	dutils "pkg.deepin.io/lib/utils"
+	"sync"
 )
 
 const (
@@ -29,7 +29,8 @@ type Manager struct {
 
 	media *Media
 
-	resetState int
+	stateLocker sync.Mutex
+	resetState  int
 }
 
 func NewManager() *Manager {
@@ -51,18 +52,15 @@ func (m *Manager) initConfigData() {
 }
 
 func (m *Manager) doInitConfigData() error {
-	var data = "data.json"
-	switch os.Getenv("LANGUAGE") {
-	case "zh_CN", "zh_TW", "zh_HK":
-		data = "data-zh_CN.json"
-	}
 	return genMimeAppsFile(
-		findFilePath(path.Join("dde-api", "mime", data)))
+		findFilePath(path.Join("dde-api", "mime", "data.json")))
 }
 
 // Reset reset mimes default app
 func (m *Manager) Reset() {
+	m.stateLocker.Lock()
 	if m.resetState == stateResetStart {
+		m.stateLocker.Unlock()
 		return
 	}
 
@@ -73,6 +71,7 @@ func (m *Manager) Reset() {
 			logger.Warning("Init mime config file failed", err)
 		}
 		m.resetState = stateResetFinished
+		m.stateLocker.Unlock()
 		dbus.Emit(m, "Change")
 	}()
 

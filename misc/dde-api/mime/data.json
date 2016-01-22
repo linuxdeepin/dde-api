@@ -269,7 +269,7 @@
 			]
 		},
 		{
-			"AppId":"libreoffice-writer.desktop",
+			"AppId":"wps-office-wps.desktop",
 			"AppType":"word",
 			"SupportedType":[
 				"application/wps-office.wps",
@@ -286,7 +286,7 @@
 			]
 		},
 		{
-			"AppId":"libreoffice-calc.desktop",
+			"AppId":"wps-office-et.desktop",
 			"AppType":"excel",
 			"SupportedType":[
 				"application/wps-office.et",
@@ -301,7 +301,7 @@
 			]
 		},
 		{
-			"AppId":"libreoffice-impress.desktop",
+			"AppId":"wps-office-wpp.desktop",
 			"AppType":"ppt",
 			"SupportedType":[
 				"application/wps-office.dps",

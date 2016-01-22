@@ -42,12 +42,17 @@ func marshal(v interface{}) (string, error) {
 func genMimeAppsFile(data string) error {
 	table, err := unmarshal(data)
 	if err != nil {
+		logger.Warning("[genMimeAppsFile] unmarshal failed:", err)
 		return err
 	}
 
 	for _, info := range table.Apps {
 		for _, ty := range info.Types {
-			SetAppInfo(ty, info.AppId)
+			err := SetAppInfo(ty, info.AppId)
+			if err != nil {
+				logger.Warningf("[genMimeAppsFile] set '%s' to parse '%s' failed: %v\n",
+					info.AppId, ty, err)
+			}
 		}
 	}
 
