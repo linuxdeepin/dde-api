@@ -2,9 +2,9 @@
 package gtk
 
 import (
-	"dbus/com/deepin/api/gtkthumbnailer"
 	"fmt"
 	"os"
+	"os/exec"
 	"path"
 	. "pkg.deepin.io/dde/api/thumbnails/loader"
 	"pkg.deepin.io/lib/mime"
@@ -13,6 +13,8 @@ import (
 
 const (
 	sysThemeThumbDir = "/var/cache/thumbnails/appearance"
+
+	cmdGtkThumbnailer = "/usr/lib/deepin-api/gtk-thumbnailer"
 )
 
 var themeThumbDir = path.Join(os.Getenv("HOME"),
@@ -92,17 +94,14 @@ func doGenThumbnail(name, bg, dest string, width, height int, force bool) (strin
 		return dest, nil
 	}
 
-	thumbnailer, err := gtkthumbnailer.NewGtkThumbnailer(
-		"com.deepin.api.GtkThumbnailer",
-		"/com/deepin/api/GtkThumbnailer",
-	)
-	if err != nil {
-		return "", err
+	var cmd = cmdGtkThumbnailer
+	if force {
+		cmd += " -f "
 	}
-
-	err = thumbnailer.Thumbnail(name, bg, dest, int32(width), int32(height), force)
+	cmd = fmt.Sprintf("%s %s %s %s %d %d", cmd, name, bg, dest, width, height)
+	out, err := exec.Command("/bin/sh", "-c", cmd).CombinedOutput()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%s", string(out))
 	}
 	return dest, nil
 }

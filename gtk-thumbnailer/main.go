@@ -4,6 +4,7 @@ import (
 	"os"
 	"time"
 
+	"gopkg.in/alecthomas/kingpin.v2"
 	"pkg.deepin.io/lib"
 	"pkg.deepin.io/lib/dbus"
 	"pkg.deepin.io/lib/log"
@@ -15,7 +16,16 @@ const (
 	dbusIFC  = "com.deepin.api.GtkThumbnailer"
 )
 
-var logger = log.NewLogger("api/GtkThumbnailer")
+var (
+	logger = log.NewLogger("api/GtkThumbnailer")
+
+	_force  = kingpin.Flag("force", "Force to generate thumbnail").Short('f').Bool()
+	_src    = kingpin.Arg("src", "The source").String()
+	_bg     = kingpin.Arg("bg", "The background").String()
+	_dest   = kingpin.Arg("dest", "The dest").String()
+	_width  = kingpin.Arg("width", "The thumbnail width").Int()
+	_height = kingpin.Arg("height", "The thumbnail height").Int()
+)
 
 type Manager struct {
 	running bool
@@ -38,14 +48,24 @@ func (m *Manager) Thumbnail(name, bg, dest string, width, height int32, force bo
 }
 
 func main() {
-	if !lib.UniqueOnSession(dbusDest) {
-		logger.Warning("There already has a gtk thumbnailer running...")
-		return
-	}
-
 	err := initGtkEnv()
 	if err != nil {
 		logger.Error(err)
+		return
+	}
+
+	kingpin.Parse()
+	if len(os.Args) > 5 {
+		err := doGenThumbnail(*_src, *_bg, *_dest, *_width, *_height, *_force)
+		if err != nil {
+			logger.Error("Generate gtk thumbnail failed:", *_src, *_dest, err)
+		}
+		return
+	}
+
+	if !lib.UniqueOnSession(dbusDest) {
+		logger.Warning("There already has a gtk thumbnailer running...")
+		return
 	}
 
 	var m = new(Manager)
