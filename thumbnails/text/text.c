@@ -1,3 +1,12 @@
+/**
+ * Copyright (C) 2014 Deepin Technology Co., Ltd.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ **/
+
 #include <gdk/gdk.h>
 #include "text.h"
 
@@ -46,7 +55,7 @@ text_thumbnail(char** text, char* dest, ThumbInfo* info)
 static void
 do_show_text(cairo_t* cr, char** text, ThumbInfo* info)
 {
-	cairo_select_font_face(cr, FONT_NAME, 
+	cairo_select_font_face(cr, FONT_NAME,
 	                       CAIRO_FONT_SLANT_NORMAL,
 	                       CAIRO_FONT_WEIGHT_BOLD);
 

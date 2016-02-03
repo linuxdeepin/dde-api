@@ -1,3 +1,12 @@
+/**
+ * Copyright (C) 2014 Deepin Technology Co., Ltd.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ **/
+
 package utils
 
 import (
@@ -18,7 +27,7 @@ func ReadInt8(datas []byte, nitems int32) []int8 {
 	return array
 }
 
-func ReadInt32 (datas []byte, nitems int32) []int32 {
+func ReadInt32(datas []byte, nitems int32) []int32 {
 	reader := bytes.NewReader(datas)
 	var array []int32
 	for i := int32(0); i < nitems; i++ {
