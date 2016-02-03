@@ -1,26 +1,29 @@
 package dxinput
 
 import (
-	"pkg.deepin.io/dde/api/dxinput/utils"
-	"os/exec"
 	"fmt"
+	"os/exec"
+	"pkg.deepin.io/dde/api/dxinput/utils"
 )
 
 const (
 	cmdXSetWacom = "xsetwacom"
 
-	cmdKeyArea string = "Area"
-	cmdKeyMode = "mode"
-	cmdKeyButton = "Button"
-	cmdKeyRotate  = "Rotate"
-	cmdKeySuppress = "Suppress"
+	cmdKeyArea     string = "Area"
+	cmdKeyMode            = "mode"
+	cmdKeyButton          = "Button"
+	cmdKeyRotate          = "Rotate"
+	cmdKeySuppress        = "Suppress"
 	//(x1, y2, x2, y2) red(x1, y1), blue(x2, y2), green(Threshold)
 	cmdKeyPressureCurve = "PressureCurve"
-	cmdKeyThreshold = "Threshold"
+	cmdKeyThreshold     = "Threshold"
+	cmdKeyRawSample     = "RawSample"
+	// such as 'VGA1'
+	cmdKeyMapToOutput = "MapToOutput"
 )
 
 type Wacom struct {
-	Id int32
+	Id   int32
 	Name string
 }
 
@@ -35,7 +38,7 @@ func NewWacom(id int32) (*Wacom, error) {
 	}
 
 	return &Wacom{
-		Id: info.Id,
+		Id:   info.Id,
 		Name: info.Name,
 	}, nil
 }
@@ -153,6 +156,29 @@ func (w *Wacom) SetThreshold(thres int) error {
 
 	var cmd = fmt.Sprintf("%s set %v %s %v", cmdXSetWacom, w.Id,
 		cmdKeyThreshold, thres)
+	return doAction(cmd)
+}
+
+// The the window size for incoming input tool raw data points
+// Default: 4, range of 1 to 20
+func (w *Wacom) SetRawSample(sample uint32) error {
+	if sample == 0 {
+		return fmt.Errorf("Invalid raw sample: %v", sample)
+	}
+
+	var cmd = fmt.Sprintf("%s set %v %s %v", cmdXSetWacom, w.Id,
+		cmdKeyRawSample, sample)
+	return doAction(cmd)
+}
+
+// Mapping PC screen to tablet, such as "VGA1"
+func (w *Wacom) MapToOutput(output string) error {
+	if len(output) == 0 {
+		return nil
+	}
+
+	var cmd = fmt.Sprintf("%s set %v %s %s", cmdXSetWacom, w.Id,
+		cmdKeyMapToOutput, output)
 	return doAction(cmd)
 }
 
