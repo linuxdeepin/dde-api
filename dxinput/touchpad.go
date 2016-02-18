@@ -288,7 +288,7 @@ func (tpad *Touchpad) CanNaturalScroll() bool {
 }
 
 func (tpad *Touchpad) SetScrollDistance(vert, horiz int32) error {
-	oldVert, oldHoriz := tpad.GetScrollDistance()
+	oldVert, oldHoriz := tpad.ScrollDistance()
 	if oldVert == vert && oldHoriz == horiz {
 		return nil
 	}
@@ -302,7 +302,7 @@ func (tpad *Touchpad) SetScrollDistance(vert, horiz int32) error {
 		[]int32{vert, horiz})
 }
 
-func (tpad *Touchpad) GetScrollDistance() (int32, int32) {
+func (tpad *Touchpad) ScrollDistance() (int32, int32) {
 	values, err := getInt32Prop(tpad.Id, propScrollDistance, 2)
 	if err != nil {
 		return 0, 0
@@ -315,7 +315,7 @@ func (tpad *Touchpad) SetMotionAcceleration(accel float32) error {
 	return setMotionAcceleration(tpad.Id, accel)
 }
 
-func (tpad *Touchpad) GetMotionAcceleration() (float32, error) {
+func (tpad *Touchpad) MotionAcceleration() (float32, error) {
 	return getMotionAcceleration(tpad.Id)
 }
 
@@ -323,6 +323,14 @@ func (tpad *Touchpad) SetMotionThreshold(thres float32) error {
 	return setMotionThreshold(tpad.Id, thres)
 }
 
-func (tpad *Touchpad) GetMotionThreshold() (float32, error) {
+func (tpad *Touchpad) MotionThreshold() (float32, error) {
 	return getMotionThreshold(tpad.Id)
+}
+
+func (tpad *Touchpad) SetMotionScaling(scaling float32) error {
+	return setMotionScaling(tpad.Id, scaling)
+}
+
+func (tpad *Touchpad) MotionScaling() (float32, error) {
+	return getMotionScaling(tpad.Id)
 }

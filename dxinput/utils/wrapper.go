@@ -130,10 +130,23 @@ func SetInt8Prop(id int32, prop string, values []int8) error {
 	cdatas := byteArrayToUChar(WriteInt8(values))
 	cprop := C.CString(prop)
 	defer C.free(unsafe.Pointer(cprop))
-	ret := C.set_prop_bool(C.int(id), cprop, &(cdatas[0]),
-		C.int(len(values)))
+	ret := C.set_prop_int(C.int(id), cprop, &(cdatas[0]),
+		C.int(len(values)), 8)
 	if int(ret) == -1 {
-		return fmt.Errorf("[SetFloatBool] failed for: '%v -- %s -- %v'",
+		return fmt.Errorf("[SetPropInt8] failed for: '%v -- %s -- %v'",
+			id, prop, values)
+	}
+	return nil
+}
+
+func SetInt16Prop(id int32, prop string, values []int16) error {
+	cdatas := byteArrayToUChar(WriteInt16(values))
+	cprop := C.CString(prop)
+	defer C.free(unsafe.Pointer(cprop))
+	ret := C.set_prop_int(C.int(id), cprop, &(cdatas[0]),
+		C.int(len(values)), 16)
+	if int(ret) == -1 {
+		return fmt.Errorf("[SetPropInt16] failed for: '%v -- %s -- %v'",
 			id, prop, values)
 	}
 	return nil
@@ -143,10 +156,10 @@ func SetInt32Prop(id int32, prop string, values []int32) error {
 	cdatas := byteArrayToUChar(WriteInt32(values))
 	cprop := C.CString(prop)
 	defer C.free(unsafe.Pointer(cprop))
-	ret := C.set_prop_int32(C.int(id), cprop, &(cdatas[0]),
-		C.int(len(values)))
+	ret := C.set_prop_int(C.int(id), cprop, &(cdatas[0]),
+		C.int(len(values)), 32)
 	if int(ret) == -1 {
-		return fmt.Errorf("[SetFloatInt32] failed for: '%v -- %s -- %v'",
+		return fmt.Errorf("[SetPropInt32] failed for: '%v -- %s -- %v'",
 			id, prop, values)
 	}
 	return nil
@@ -159,7 +172,7 @@ func SetFloat32Prop(id int32, prop string, values []float32) error {
 	ret := C.set_prop_float(C.int(id), cprop, &(cdatas[0]),
 		C.int(len(values)))
 	if int(ret) == -1 {
-		return fmt.Errorf("[SetFloatProp] failed for: '%v -- %s -- %v'",
+		return fmt.Errorf("[SetPropFloat] failed for: '%v -- %s -- %v'",
 			id, prop, values)
 	}
 	return nil

@@ -18,6 +18,7 @@ const (
 	propDeviceEnabled        string = "Device Enabled"
 	propConstantDeceleration        = "Device Accel Constant Deceleration"
 	propAdaptiveDeceleration        = "Device Accel Adaptive Deceleration"
+	propVelocityScaling             = "Device Accel Velocity Scaling"
 )
 
 /**
@@ -65,7 +66,7 @@ func setMotionAcceleration(id int32, accel float32) error {
 		return err
 	}
 
-	if value == accel {
+	if accel > value-0.01 && accel < value+0.01 {
 		return nil
 	}
 
@@ -88,7 +89,7 @@ func setMotionThreshold(id int32, thres float32) error {
 		return err
 	}
 
-	if value == thres {
+	if thres > value-0.01 && thres < value+0.01 {
 		return nil
 	}
 
@@ -105,6 +106,26 @@ func getMotionThreshold(id int32) (float32, error) {
 	return values[0], nil
 }
 
+func setMotionScaling(id int32, scaling float32) error {
+	old, err := getMotionScaling(id)
+	if err != nil {
+		return err
+	}
+
+	if scaling > old-0.01 && scaling < old+0.01 {
+		return nil
+	}
+	return utils.SetFloat32Prop(id, propVelocityScaling, []float32{scaling})
+}
+
+func getMotionScaling(id int32) (float32, error) {
+	values, err := getFloat32Prop(id, propVelocityScaling, 1)
+	if err != nil {
+		return 0, err
+	}
+	return values[0], nil
+}
+
 func getInt8Prop(id int32, prop string, nitems int32) ([]int8, error) {
 	datas := utils.GetProperty(id, prop, nitems)
 	if len(datas) == 0 {
@@ -113,6 +134,16 @@ func getInt8Prop(id int32, prop string, nitems int32) ([]int8, error) {
 	}
 
 	return utils.ReadInt8(datas, nitems), nil
+}
+
+func getInt16Prop(id int32, prop string, nitems int32) ([]int16, error) {
+	datas := utils.GetProperty(id, prop, nitems)
+	if len(datas) == 0 {
+		return nil, fmt.Errorf("Get prop '%v -- %s' values failed",
+			id, prop)
+	}
+
+	return utils.ReadInt16(datas, nitems), nil
 }
 
 func getInt32Prop(id int32, prop string, nitems int32) ([]int32, error) {

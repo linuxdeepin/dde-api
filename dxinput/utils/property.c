@@ -72,15 +72,11 @@ get_prop(int id, const char* prop, int nitems)
     return data;
 }
 
-int set_prop_bool(int id, const char* prop, unsigned char* data, int nitems)
-{
-    return set_prop(id, prop, data, nitems, XA_INTEGER, 8);
-}
-
+// bit: range(8,16,32)
 int
-set_prop_int32(int id, const char* prop, unsigned char* data, int nitems)
+set_prop_int(int id, const char* prop, unsigned char* data, int nitems, int bit)
 {
-    return set_prop(id, prop, data, nitems, XA_INTEGER, 32);
+    return set_prop(id, prop, data, nitems, XA_INTEGER, bit);
 }
 
 int

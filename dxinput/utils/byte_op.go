@@ -27,6 +27,18 @@ func ReadInt8(datas []byte, nitems int32) []int8 {
 	return array
 }
 
+func ReadInt16(datas []byte, nitems int32) []int16 {
+	reader := bytes.NewReader(datas)
+	var array []int16
+	for i := int32(0); i < nitems; i++ {
+		var tmp int16
+		binary.Read(reader, machineEndian(), &tmp)
+		array = append(array, tmp)
+		tmp = 0
+	}
+	return array
+}
+
 func ReadInt32(datas []byte, nitems int32) []int32 {
 	reader := bytes.NewReader(datas)
 	var array []int32
@@ -52,6 +64,14 @@ func ReadFloat32(datas []byte, nitems int32) []float32 {
 }
 
 func WriteInt8(values []int8) []byte {
+	var writer = new(bytes.Buffer)
+	for i := 0; i < len(values); i++ {
+		binary.Write(writer, machineEndian(), values[i])
+	}
+	return writer.Bytes()
+}
+
+func WriteInt16(values []int16) []byte {
 	var writer = new(bytes.Buffer)
 	for i := 0; i < len(values); i++ {
 		binary.Write(writer, machineEndian(), values[i])
