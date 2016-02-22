@@ -19,7 +19,8 @@ LIBRARIES = \
     dxinput \
     soundutils \
     lang_info \
-    i18n_dependent
+    i18n_dependent \
+    session
 
 BINARIES =  \
     device \
