@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=com.deepin.api.Pinyin
+Exec=/usr/lib/deepin-api/hans2pinyin

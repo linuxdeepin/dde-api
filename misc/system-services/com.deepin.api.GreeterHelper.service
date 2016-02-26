@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=com.deepin.api.GreeterHelper
+Exec=/usr/lib/deepin-api/greeter-helper
+User=root
