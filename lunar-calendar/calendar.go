@@ -10,470 +10,26 @@
 package main
 
 import (
-	"fmt"
-	"time"
+	"pkg.deepin.io/lib/calendar"
+	"pkg.deepin.io/lib/calendar/util"
 )
 
-func isYearValid(year int32) bool {
-	if year > MaxYear || year < MinYear {
-		logger.Warningf("Invalid Year: %d. Year Range(%d - %d)\n",
-			year, MinYear, MaxYear)
-		return false
-	}
-
-	return true
+type DayInfo struct {
+	Year  int32
+	Month int32
+	Day   int32
 }
 
-/**
- * 判断农历年闰月数
- * @param {Number} year 农历年
- * return 闰月数 （月份从1开始）
- */
-func getLunarLeapYear(year int32) (int32, bool) {
-	if !isYearValid(year) {
-		return -1, false
-	}
-
-	info := lunarInfos[year-MinYear]
-	//logger.Info("LeapMonth: ", info.leapMonth)
-	//logger.Info("MonthNum: ", info.lunarMonthNum)
-	//logger.Info("ZhengMonth: ", info.zhengMonth)
-	//logger.Info("ZhengDay: ", info.zhengDay)
-	return info.leapMonth, true
+type LunarMonthInfo struct {
+	FirstDayWeek int32
+	Days         int32
+	Datas        []calendar.LunarDayInfo
 }
 
-/**
- * 获取农历年每月的天数及一年的总天数
- */
-func getLunarYearDays(year int32) ([]caDayInfo, int32, bool) {
-	if !isYearValid(year) {
-		return nil, -1, false
-	}
-
-	info := lunarInfos[year-MinYear]
-	leapMonth := info.leapMonth
-	monthData := fmt.Sprintf("%b", info.lunarMonthNum)
-	//logger.Info("Month Bianry before insert: ", monthData)
-	tmp := ""
-	l := len(monthData)
-	//还原数据至16位,少于16位的在前面插入0（二进制存储时前面的0被忽略)
-	for i := 0; i < 16-l; i++ {
-		tmp += "0"
-	}
-	monthData = tmp + monthData
-	//logger.Info("Month Bianry after insert: ", monthData)
-
-	monthNum := 0
-	if leapMonth > 0 {
-		monthNum = 13
-	} else {
-		monthNum = 12
-	}
-
-	yearDays := int32(0)
-	monthDayInfos := []caDayInfo{}
-	for i := 0; i < monthNum; i++ {
-		tmp := caDayInfo{}
-		if monthData[i] == '0' {
-			yearDays += 29
-			tmp.days = 29
-		} else {
-			yearDays += 30
-			tmp.days = 30
-		}
-		// 让月份从1开始，不从0开始
-		//t := i + 1
-		// 处理闰月
-		//if i >= leapMonth {
-		//t -= 1
-		//}
-		//tmp.index = t
-		tmp.index = int32(i)
-		//tmp.index = int32(i) + 1
-		monthDayInfos = append(monthDayInfos, tmp)
-	}
-
-	return monthDayInfos, yearDays, true
-}
-
-/**
- * 通过间隔天数查找农历日期
- */
-func getLunarDateByBetween(year, between int32) (CaYearInfo, bool) {
-	month := int32(-1)
-	day := int32(-1)
-	monthDayInfos, yearDays, ok := getLunarYearDays(year)
-	if !ok {
-		logger.Warning("Get Year Days Failed For Year: ", year)
-		return CaYearInfo{year, month, day}, false
-	}
-
-	//leapMonth, _ := getLunarLeapYear(year)
-
-	end := int32(0)
-	if between > 0 {
-		end = between
-	} else {
-		end = yearDays + between
-	}
-	//logger.Info("Between: ", end)
-	tmpDays := int32(0)
-	for _, info := range monthDayInfos {
-		tmpDays += info.days
-		//logger.Info("\tTmp: ", tmpDays)
-		if tmpDays > end {
-			month = info.index
-			tmpDays = tmpDays - info.days
-			break
-		}
-	}
-	day = end - tmpDays + 1
-
-	return CaYearInfo{year, month, day}, true
-}
-
-/**
- * 通过公历日期获取农历日期
- */
-func getLunarDateBySolar(year, month, day int32) (CaYearInfo, bool) {
-	if !isYearValid(year) {
-		return CaYearInfo{-1, -1, -1}, false
-	}
-
-	info := lunarInfos[year-MinYear]
-	zengMonth := info.zhengMonth
-	zengDay := info.zhengDay
-	between, _ := getDaysBetweenSolar(year, zengMonth, zengDay,
-		year, month, day)
-	if between == 0 { //正月初一
-		return CaYearInfo{year, 0, 1}, true
-	} else if between < 0 {
-		year -= 1
-	}
-	return getLunarDateByBetween(year, int32(between))
-}
-
-/**
- * 计算两个公历日期之间的天数
- */
-func getDaysBetweenSolar(year, month, day, year1, month1, day1 int32) (int64, bool) {
-	date := time.Date(int(year), time.Month(month), int(day),
-		0, 0, 0, 0, time.UTC).Unix()
-	date1 := time.Date(int(year1), time.Month(month1), int(day1),
-		0, 0, 0, 0, time.UTC).Unix()
-
-	return (date1 - date) / 86400, true
-}
-
-/**
- * 计算农历日期离正月初一有多少天
- */
-func getDaysBetweenZheng(year, month, day int32) (int32, bool) {
-	monthDayInfos, _, ok := getLunarYearDays(year)
-	if !ok {
-		logger.Warning("Get Year Days Failed For Year: ", year)
-		return -1, false
-	}
-
-	days := int32(0)
-	for _, info := range monthDayInfos {
-		if info.index < month {
-			days += info.days
-		} else {
-			break
-		}
-	}
-
-	return days + day - 1, true
-}
-
-func formatDayD4(month, day int32) string {
-	monStr := ""
-	dayStr := ""
-	if month < 10 {
-		monStr = fmt.Sprintf("0%d", month)
-	} else {
-		monStr = fmt.Sprintf("%d", month)
-	}
-
-	if day < 10 {
-		dayStr = fmt.Sprintf("0%d", day)
-	} else {
-		dayStr = fmt.Sprintf("%d", day)
-	}
-
-	return fmt.Sprintf("d%s%s", monStr, dayStr)
-}
-
-/**
- * 某年的第n个节气为几日
- * 31556925974.7为地球公转周期，是毫秒
- * 1890年的正小寒点：01-05 16:02:31，1890年为基准点
- * year 公历年
- * n 第几个节气，从0小寒起算
- * 由于农历24节气交节时刻采用近似算法，可能存在少量误差(30分钟内)
- */
-func getTermDate(year, n int32) (CaYearInfo, bool) {
-	if n < 0 || n > 23 {
-		return CaYearInfo{}, false
-	}
-
-	if v, ok := lunarTermInfosMap[year]; ok {
-		m := n/2 + 1
-		d := v[n]
-		return CaYearInfo{year, m, d}, true
-	}
-
-	return CaYearInfo{}, false
-}
-
-/*
-func getTermDate(year, n int32) (CaYearInfo, bool) {
-	if n < 0 || n > 23 {
-		return CaYearInfo{}, false
-	}
-
-	offset := int64((31556925974.7*float64(year-1890)+float64(termInfo[n])*60000)*1000000) + time.Date(1890, 1, 5, 16, 2, 31, 0, time.Local).UnixNano()
-
-	sec := offset / 1000000000
-	nsec := offset % 1000000000
-	y, m, d := time.Unix(sec, nsec).UTC().Date()
-
-	return CaYearInfo{int32(y), int32(m), int32(d)}, true
-}
-*/
-
-/**
- * 获取公历年一年的二十四节气
- * 返回key:日期，value:节气中文名
- */
-func getYearTerm(year int32) map[string]string {
-	if !isYearValid(year) {
-		return nil
-	}
-
-	res := make(map[string]string)
-	month := int32(0)
-	for i := int32(0); i < 24; i++ {
-		if info, ok := getTermDate(year, i); !ok {
-			continue
-		} else {
-			// 每个月中有两个节气
-			month = i/2 + 1
-			res[formatDayD4(month, info.Day)] = lunarData["solarTerm"][i]
-		}
-	}
-
-	return res
-}
-
-/**
- * 获取生肖
- * 十二生肖，即：鼠、牛、虎、兔、龙、蛇、马、羊、猴、鸡、狗、猪
- * year: 干支所在年(默认以立春前的公历年作为基数)
- */
-func getYearZodiac(year int32) (string, bool) {
-	if !isYearValid(year) {
-		return "", false
-	}
-
-	// 1890 属虎
-	num := year - 1890 + 2 + 24 //参考干支纪年的计算，生肖对应地支
-	//logger.Info("zodiac num: ", num)
-	return lunarData["zodiac"][num%12], true
-}
-
-/**
- * 计算天干地支
- * num 60进制中的位置(把60个天干地支，当成一个60进制的数)
- */
-func cyclical(num int32) (string, bool) {
-	return lunarData["heavenlyStems"][num%10] + lunarData["earthlyBranches"][num%12], true
-}
-
-/**
- * 获取干支纪年
- * year 干支所在年
- * offset 偏移量，默认为0，便于查询一个年跨两个干支纪年(以立春为分界线)
- */
-func getLunarYearName(year, offset int32) (string, bool) {
-	if !isYearValid(year) {
-		return "", false
-	}
-
-	offset = offset | 0
-	return cyclical(year - 1890 + 26 + offset)
-}
-
-/**
- * 获取干支纪月
- * year,month 公历年，干支所在月
- * offset 偏移量，默认为0，便于查询一个年跨两个干支纪年(以立春为分界线)
- */
-func getLunarMonthName(year, month, offset int32) (string, bool) {
-	if !isYearValid(year) {
-		return "", false
-	}
-
-	offset = offset | 0
-	return cyclical((year-1890)*12 + month + 12 + offset)
-}
-
-/**
- * 获取干支纪日
- * year,month,day 公历年，月，日
- */
-func getLunarDayName(year, month, day int32) (string, bool) {
-	if !isYearValid(year) {
-		return "", false
-	}
-
-	//当日与1890/1/1 相差天数
-	//1890/1/1与 1970/1/1 相差29219日, 1890/1/1 日柱为壬午日(60进制18)
-	date := time.Date(int(year), time.Month(month), int(day),
-		0, 0, 0, 0, time.UTC).Unix()
-	dayCyclical := date/86400 + 29219 + 18
-	return cyclical(int32(dayCyclical))
-}
-
-/**
- * 获取公历月份的天数
- */
-func getSolarMonthDays(year, month int32) (int32, bool) {
-	if !isYearValid(year) {
-		return -1, false
-	}
-
-	monthDays := []int32{}
-	if isLeapYear(year) {
-		monthDays = []int32{31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
-	} else {
-		monthDays = []int32{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
-	}
-
-	return monthDays[month-1], true
-}
-
-func isLeapYear(year int32) bool {
-	return (year%4 == 0 && year%100 == 0) || year%400 == 0
-}
-
-/**
- * 将农历转换为公历
- * year,month,day 农历年，月(1-13，有闰月)，日
- */
-func lunarToSolar(year, month, day int32) (CaYearInfo, bool) {
-	if !isYearValid(year) {
-		return CaYearInfo{-1, -1, -1}, false
-	}
-
-	between, _ := getDaysBetweenZheng(year, month, day)
-	info := lunarInfos[year-MinYear]
-	zengMonth := info.zhengMonth
-	zengDay := info.zhengDay
-
-	offDate := time.Date(int(year), time.Month(zengMonth), int(zengDay),
-		0, 0, 0, 0, time.UTC).Unix() + int64(between)*86400
-	newDate := time.Unix(offDate, 0)
-	y, m, d := newDate.Date()
-
-	return CaYearInfo{int32(y), int32(m), int32(d)}, true
-}
-
-/**
- * 将公历转换为农历
- */
-func solarToLunar(year, month, day int32) (caLunarDayInfo, bool) {
-	if !isYearValid(year) {
-		return caLunarDayInfo{}, false
-	}
-
-	cacheObj.setCurrent(year)
-	// 立春日期
-	v, ok := cacheObj.getCache("term2")
-	if !ok {
-		info, _ := getTermDate(year, 2)
-		v = cacheObj.setCache("term2", info)
-	}
-	term2 := v.(CaYearInfo)
-
-	// 二十四节气
-	v, ok = cacheObj.getCache("termList")
-	if !ok {
-		list := getYearTerm(year)
-		v = cacheObj.setCache("termList", list)
-	}
-	termList := v.(map[string]string)
-
-	//某月第一个节气开始日期
-	firstTerm, _ := getTermDate(year, month*2-1)
-	//干支所在年份
-	ganZhiYear := int32(0)
-	if month > 1 || (month == 1 && day >= term2.Day) {
-		ganZhiYear = year
-	} else {
-		ganZhiYear = year - 1
-	}
-	//干支所在月份（以节气为界）
-	ganZhiMonth := int32(0)
-	if day >= firstTerm.Day {
-		ganZhiMonth = month
-	} else {
-		ganZhiMonth = month - 1
-	}
-
-	lunarDate, _ := getLunarDateBySolar(year, month, day)
-	lunarLeapMonth, _ := getLunarLeapYear(lunarDate.Year)
-	lunarMonthName := ""
-	if lunarLeapMonth > 0 && lunarLeapMonth == lunarDate.Month {
-		lunarMonthName = "闰" + lunarData["monthCn"][lunarDate.Month-1] + "月"
-	} else if lunarLeapMonth > 0 && lunarLeapMonth < lunarDate.Month {
-		lunarMonthName = lunarData["monthCn"][lunarDate.Month-1] + "月"
-	} else {
-		lunarMonthName = lunarData["monthCn"][lunarDate.Month] + "月"
-	}
-
-	//农历节日判断
-	lunarFtv := ""
-	lunarMonthInfos, _, _ := getLunarYearDays(lunarDate.Year)
-	lunarMonthLen := int32(len(lunarMonthInfos))
-	//除夕
-	if int32(lunarDate.Month) == (lunarMonthLen-1) && lunarDate.Day == lunarMonthInfos[lunarMonthLen-1].days {
-		lunarFtv = lunarFestival["d0100"]
-	} else if lunarLeapMonth > 0 && lunarDate.Month >= lunarLeapMonth {
-		lunarFtv = lunarFestival[formatDayD4(lunarDate.Month, lunarDate.Day)]
-	} else {
-		lunarFtv = lunarFestival[formatDayD4(lunarDate.Month+1, lunarDate.Day)]
-	}
-	//logger.Infof("Lunar Festival: %v, Term: %v", lunarFtv, resInfo.Term)
-
-	// 返回结果
-	resInfo := caLunarDayInfo{}
-
-	//logger.Info("GanZhiYear: ", ganZhiYear)
-	zodiac, _ := getYearZodiac(ganZhiYear)
-	resInfo.Zodiac = zodiac
-	yearName, _ := getLunarYearName(ganZhiYear, 0)
-	resInfo.GanZhiYear = yearName
-	monthName, _ := getLunarMonthName(year, ganZhiMonth, 0)
-	resInfo.GanZhiMonth = monthName
-	dayName, _ := getLunarDayName(year, month, day)
-	resInfo.GanZhiDay = dayName
-	lunarTerm := termList[formatDayD4(month, day)]
-	resInfo.Term = lunarTerm
-	resInfo.LunarMonthName = lunarMonthName
-	resInfo.LunarDayName = lunarData["dateCn"][lunarDate.Day-1]
-	resInfo.LunarLeapMonth = lunarLeapMonth
-	resInfo.SolarFestival = solarFestival[formatDayD4(month, day)]
-	resInfo.LunarFestival = lunarFtv
-	resInfo.Worktime = 0
-	if m, ok := worktimeYearMap[fmt.Sprintf("y%d", year)]; ok {
-		if v, ok := m[formatDayD4(month, day)]; ok {
-			resInfo.Worktime = v
-		}
-	}
-
-	return resInfo, true
+type SolarMonthInfo struct {
+	FirstDayWeek int32
+	Days         int32
+	Datas        []DayInfo
 }
 
 /**
@@ -481,21 +37,17 @@ func solarToLunar(year, month, day int32) (caLunarDayInfo, bool) {
  * year,month 公历年，月
  * fill 是否用上下月数据补齐首尾空缺，首例数据从周日开始
  */
-func getLunarCalendar(year, month int32, fill bool) (caLunarMonthInfo, bool) {
-	if !isYearValid(year) {
-		return caLunarMonthInfo{}, false
+func getLunarMonthCalendar(year, month int, fill bool) (LunarMonthInfo, bool) {
+	solarMonth, _ := getSolarMonthCalendar(year, month, fill)
+	datas := []calendar.LunarDayInfo{}
+	for _, data := range solarMonth.Datas {
+		lunarDay, ok := calendar.SolarToLunar(int(data.Year), int(data.Month), int(data.Day))
+		if !ok {
+			return LunarMonthInfo{}, false
+		}
+		datas = append(datas, lunarDay)
 	}
-
-	solarData, _ := getSolarCalendar(year, month, fill)
-	l := len(solarData.Datas)
-	datas := []caLunarDayInfo{}
-	for i := 0; i < l; i++ {
-		data1 := solarData.Datas[i]
-		tmp, _ := solarToLunar(data1.Year, data1.Month, data1.Day)
-		datas = append(datas, tmp)
-	}
-
-	return caLunarMonthInfo{solarData.FirstDayWeek, solarData.Days, datas}, true
+	return LunarMonthInfo{solarMonth.FirstDayWeek, solarMonth.Days, datas}, true
 }
 
 /**
@@ -503,92 +55,57 @@ func getLunarCalendar(year, month int32, fill bool) (caLunarMonthInfo, bool) {
  * year,month 公历年，月
  * fill 是否用上下月数据补齐首尾空缺，首例数据从周日开始(7*6阵列)
  */
-func getSolarCalendar(year, month int32, fill bool) (caSolarMonthInfo, bool) {
-	if !isYearValid(year) {
-		return caSolarMonthInfo{}, false
-	}
 
-	date := time.Date(int(year), time.Month(month), 1, 0, 0, 0, 0, time.UTC)
-	week := int32(date.Weekday())
-	days, _ := getSolarMonthDays(year, month)
-	monthData := getMonthDatas(year, month, days, 1)
-
+func getSolarMonthCalendar(year, month int, fill bool) (SolarMonthInfo, bool) {
+	weekday := util.GetWeekday(year, month, 1)
+	days := util.GetSolarMonthDays(year, month)
+	// 本月的数据
+	daysData := getMonthDays(year, month, 1, days)
 	if fill {
-		if week > 0 { //前补
-			// 获取前一个月的日期
-			preYear := int32(0)
-			preMonth := int32(0)
-			if month-1 <= 0 {
-				preYear = year - 1
-				preMonth = 12
-			} else {
-				preMonth = month - 1
-				preYear = year
-			}
-
-			preDays, _ := getSolarMonthDays(preYear, preMonth)
-			preMonthData := getMonthDatas(preYear, preMonth,
-				week, preDays-week+1)
-			preMonthData = append(preMonthData, monthData...)
-			monthData = preMonthData
+		if weekday > 0 {
+			preYear, preMonth := getPreMonth(year, month)
+			// 前一个月的天数
+			preDays := util.GetSolarMonthDays(preYear, preMonth)
+			// 要补充上去的前一个月的数据
+			preDaysData := getMonthDays(preYear, preMonth, preDays-weekday+1, preDays)
+			daysData = append(preDaysData, daysData...)
 		}
-
-		if 7*6-len(monthData) != 0 { // 后补
-			// 获取前一个月的日期
-			nextYear := int32(0)
-			nextMonth := int32(0)
-			if month+1 > 12 {
-				nextYear = year + 1
-				nextMonth = 1
-			} else {
-				nextMonth = month + 1
-				nextYear = year
-			}
-
-			fillLen := int32(7*6 - len(monthData))
-			nextMonthData := getMonthDatas(nextYear, nextMonth,
-				fillLen, 1)
-			monthData = append(monthData, nextMonthData...)
-		}
+		nextYear, nextMonth := getNextMonth(year, month)
+		count := 6*7 - (weekday + days)
+		// 要补充上去的下一个月的数据
+		nextDaysData := getMonthDays(nextYear, nextMonth, 1, count)
+		daysData = append(daysData, nextDaysData...)
 	}
-
-	return caSolarMonthInfo{week, days, monthData}, true
+	return SolarMonthInfo{int32(weekday), int32(days), daysData}, true
 }
 
-func getMonthDatas(year, month, length, start int32) []CaYearInfo {
-	monthDatas := []CaYearInfo{}
-
-	if length < 1 {
-		return monthDatas
+func getMonthDays(year, month, start, end int) []DayInfo {
+	var list []DayInfo
+	for day := start; day <= end; day++ {
+		day := DayInfo{int32(year), int32(month), int32(day)}
+		list = append(list, day)
 	}
-
-	k := start | 0
-	for i := int32(0); i < length; i++ {
-		tmp := CaYearInfo{year, month, k}
-		monthDatas = append(monthDatas, tmp)
-		k++
-	}
-
-	return monthDatas
+	return list
 }
 
-/*
-//rewrite time.Unix(sec, nsec int64)
-func timeUnix(sec, nsec int64, local *time.Location) time.Time {
-	if nsec < 0 || nsec >= 1e9 {
-		n := nsec / 1e9
-		sec += n
-		nsec -= n * 1e9
-		if nsec < 0 {
-			nsec += 1e9
-			sec--
-		}
+func getPreMonth(year, month int) (preYear, preMonth int) {
+	if month == 1 {
+		preYear = year - 1
+		preMonth = 12
+		return
 	}
-
-	secondsPerHour := 60 * 60
-	secondsPerDay := 24 * secondsPerHour
-	unixToInternal := int64((1969*365 + 1969/4 - 1969/100 + 1969/400) * secondsPerDay)
-
-	return time.Time{sec + unixToInternal, uintptr(nsec), local}
+	preYear = year
+	preMonth = month - 1
+	return
 }
-*/
+
+func getNextMonth(year, month int) (nextYear, nextMonth int) {
+	if month == 12 {
+		nextYear = year + 1
+		nextMonth = 1
+		return
+	}
+	nextYear = year
+	nextMonth = month + 1
+	return
+}

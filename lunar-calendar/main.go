@@ -22,7 +22,7 @@ var (
 )
 
 func main() {
-	if !lib.UniqueOnSession(LUNAR_DEST) {
+	if !lib.UniqueOnSession(DBusDest) {
 		logger.Warning("There already has an lunar-calendar running.")
 		return
 	}
@@ -35,8 +35,7 @@ func main() {
 		return
 	}
 	dbus.DealWithUnhandledMessage()
-
-	dbus.SetAutoDestroyHandler(time.Second*1, nil)
+	dbus.SetAutoDestroyHandler(time.Second*100, nil)
 	if err := dbus.Wait(); err != nil {
 		logger.Warning("Lost Session DBus")
 		os.Exit(-1)
