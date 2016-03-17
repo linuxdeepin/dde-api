@@ -35,7 +35,8 @@ BINARIES =  \
     cursor-helper \
     gtk-thumbnailer \
     sound-theme-player \
-    deepin-shutdown-sound
+    deepin-shutdown-sound \
+    image-blur-helper
 
 all: build
 
