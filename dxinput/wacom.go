@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"os/exec"
 	"pkg.deepin.io/dde/api/dxinput/utils"
+	"strings"
 )
 
 const (
@@ -31,6 +32,13 @@ const (
 	cmdKeyMapToOutput = "MapToOutput"
 )
 
+const (
+	WacomTypeUnknown = iota
+	WacomTypeStylus
+	WacomTypeEraser
+	WacomTypePad
+)
+
 type Wacom struct {
 	Id   int32
 	Name string
@@ -47,9 +55,23 @@ func NewWacom(id int32) (*Wacom, error) {
 	}
 
 	return &Wacom{
-		Id:   info.Id,
+		Id:   id,
 		Name: info.Name,
 	}, nil
+}
+
+func (w *Wacom) QueryType() int {
+	nameLower := strings.ToLower(w.Name)
+	switch {
+	case strings.Contains(nameLower, "stylus"):
+		return WacomTypeStylus
+	case strings.Contains(nameLower, "eraser"):
+		return WacomTypeEraser
+	case strings.Contains(nameLower, "pad"):
+		return WacomTypePad
+	default:
+		return WacomTypeUnknown
+	}
 }
 
 // Area x1 y1 x2 y2
