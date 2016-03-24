@@ -52,7 +52,7 @@ func main() {
 
 	m.initConfigData()
 
-	dbus.SetAutoDestroyHandler(time.Second*5, func() bool {
+	dbus.SetAutoDestroyHandler(time.Second*60, func() bool {
 		if m.resetState != stateResetFinished {
 			return false
 		}
