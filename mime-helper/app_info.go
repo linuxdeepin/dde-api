@@ -10,10 +10,10 @@
 package main
 
 import (
+	"fmt"
+	"gir/gio-2.0"
 	"os"
 	"path"
-
-	"gir/gio-2.0"
 	"pkg.deepin.io/lib/mime"
 	dutils "pkg.deepin.io/lib/utils"
 )
@@ -40,7 +40,11 @@ func GetAppInfo(ty string) (*AppInfo, error) {
 		return nil, err
 	}
 
-	return newAppInfoById(id), nil
+	info, err := newAppInfoById(id)
+	if err != nil {
+		return nil, err
+	}
+	return info, nil
 }
 
 func (infos AppInfos) Delete(id string) AppInfos {
@@ -61,13 +65,26 @@ func SetAppInfo(ty, id string) error {
 func GetAppInfos(ty string) AppInfos {
 	var infos AppInfos
 	for _, id := range mime.GetAppList(ty) {
-		infos = append(infos, newAppInfoById(id))
+		appInfo, err := newAppInfoById(id)
+		if err != nil {
+			logger.Warning(err)
+			continue
+		}
+		infos = append(infos, appInfo)
 	}
 	return infos
 }
 
-func newAppInfoById(id string) *AppInfo {
+func newAppInfoById(id string) (*AppInfo, error) {
 	ginfo := gio.NewDesktopAppInfo(id)
+	if ginfo == nil {
+		id = "kde4-" + id
+		ginfo = gio.NewDesktopAppInfo(id)
+	}
+	if ginfo == nil {
+		return nil, fmt.Errorf("gio.NewDesktopAppInfo failed: id %v", id)
+	}
+
 	defer ginfo.Unref()
 	var info = &AppInfo{
 		Id:          id,
@@ -82,7 +99,7 @@ func newAppInfoById(id string) *AppInfo {
 		iconObj.Unref()
 	}
 
-	return info
+	return info, nil
 }
 
 func findFilePath(file string) string {
