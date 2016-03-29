@@ -22,6 +22,7 @@ const (
 	propWheelEmulationButton          = "Evdev Wheel Emulation Button"
 	propWheelEmulationTimeout         = "Evdev Wheel Emulation Timeout"
 	propWheelEmulationAxes            = "Evdev Wheel Emulation Axes"
+	propEvdevScrollDistance           = "Evdev Scrolling Distance"
 )
 
 type Mouse struct {
@@ -182,21 +183,22 @@ func (m *Mouse) EnableWheelHorizScroll(enabled bool) error {
 	if enabled == m.CanWheelHorizScroll() {
 		return nil
 	}
-	var values []int8
-	if enabled {
-		values = []int8{6, 7, 4, 5}
-	} else {
-		values = []int8{0, 0, 4, 5}
-	}
-	return utils.SetInt8Prop(m.Id, propWheelEmulationAxes, values)
+	return m.enableWheelHorizScroll(enabled, false)
 }
 
 func (m *Mouse) CanWheelHorizScroll() bool {
-	values, err := m.wheelEmulationAxes()
-	if err != nil {
-		return false
+	return m.canWheelHorizScroll(false)
+}
+
+func (m *Mouse) EnableWheelHorizNaturalScroll(enabled bool) error {
+	if enabled == m.CanWheelHorizNaturalScroll() {
+		return nil
 	}
-	return isInt8ArrayEqual(values, []int8{6, 7, 4, 5})
+	return m.enableWheelHorizScroll(enabled, true)
+}
+
+func (m *Mouse) CanWheelHorizNaturalScroll() bool {
+	return m.canWheelHorizScroll(true)
 }
 
 func (m *Mouse) EnableNaturalScroll(enabled bool) error {
@@ -204,38 +206,29 @@ func (m *Mouse) EnableNaturalScroll(enabled bool) error {
 		return nil
 	}
 
-	btnMap, err := utils.GetButtonMap(uint32(m.Id), m.Name)
+	values, err := getInt32Prop(m.Id, propEvdevScrollDistance, 3)
 	if err != nil {
 		return err
 	}
 
-	if len(btnMap) < 5 {
-		return fmt.Errorf("Invalid mouse device: button number < 5")
-	}
-
 	if enabled {
-		btnMap[3], btnMap[4] = 5, 4
+		values[0], values[1], values[2] = -absInt32(values[0]), -absInt32(values[1]), -absInt32(values[2])
 	} else {
-		btnMap[3], btnMap[4] = 4, 5
+		values[0], values[1], values[2] = absInt32(values[0]), absInt32(values[1]), absInt32(values[2])
 	}
 
-	return utils.SetButtonMap(uint32(m.Id), m.Name, btnMap)
+	return utils.SetInt32Prop(m.Id, propEvdevScrollDistance, values)
 }
 
 func (m *Mouse) CanNaturalScroll() bool {
-	btnMap, err := utils.GetButtonMap(uint32(m.Id), m.Name)
+	values, err := getInt32Prop(m.Id, propEvdevScrollDistance, 3)
 	if err != nil {
 		return false
 	}
 
-	if len(btnMap) < 5 {
-		return false
-	}
-
-	if btnMap[3] == 5 && btnMap[4] == 4 {
+	if values[0] < 0 || values[1] < 0 || values[2] < 0 {
 		return true
 	}
-
 	return false
 }
 
@@ -282,6 +275,32 @@ func (m *Mouse) wheelEmulationAxes() ([]int8, error) {
 		return nil, err
 	}
 	return values, nil
+}
+
+func (m *Mouse) enableWheelHorizScroll(enabled, natural bool) error {
+	var values []int8
+	if enabled {
+		if natural {
+			values = []int8{7, 6, 5, 4}
+		} else {
+			values = []int8{6, 7, 4, 5}
+		}
+	} else {
+		values = []int8{0, 0, 4, 5}
+	}
+	return utils.SetInt8Prop(m.Id, propWheelEmulationAxes, values)
+}
+
+func (m *Mouse) canWheelHorizScroll(natural bool) bool {
+	values, err := m.wheelEmulationAxes()
+	if err != nil {
+		return false
+	}
+
+	if natural {
+		return isInt8ArrayEqual(values, []int8{7, 6, 5, 4})
+	}
+	return isInt8ArrayEqual(values, []int8{6, 7, 4, 5})
 }
 
 func isInt8ArrayEqual(a1, a2 []int8) bool {
