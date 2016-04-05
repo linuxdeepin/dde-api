@@ -22,14 +22,14 @@
  * if 'float' must be convert to 'float*'
  **/
 unsigned char*
-get_prop(int id, const char* prop, int nitems)
+get_prop(int id, const char* prop, int* nitems)
 {
     if (!prop) {
         fprintf(stderr, "[get_prop] Empty property for %d\n", id);
         return NULL;
     }
 
-    if (nitems < 1) {
+    if (nitems == NULL) {
         fprintf(stderr, "[get_prop] Invalid item number for %d\n", id);
         return NULL;
     }
@@ -60,14 +60,7 @@ get_prop(int id, const char* prop, int nitems)
         return NULL;
     }
 
-    if (num_items != (unsigned long)nitems) {
-        XFree(data);
-        XCloseDisplay(disp);
-        fprintf(stderr, "[get_prop] Item number not match '%d - %d' for %d\n",
-                nitems, (int)num_items, id);
-        return NULL;
-    }
-
+    *nitems = (int)num_items;
     XCloseDisplay(disp);
     return data;
 }

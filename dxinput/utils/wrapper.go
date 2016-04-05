@@ -110,20 +110,21 @@ func IsPropertyExist(id int32, prop string) bool {
 	return true
 }
 
-func GetProperty(id int32, prop string, nitems int32) []byte {
+func GetProperty(id int32, prop string) ([]byte, int32) {
 	if len(prop) == 0 {
-		return nil
+		return nil, 0
 	}
 
 	cprop := C.CString(prop)
 	defer C.free(unsafe.Pointer(cprop))
-	cdatas := C.get_prop(C.int(id), cprop, C.int(nitems))
+	nitems := C.int(0)
+	cdatas := C.get_prop(C.int(id), cprop, &nitems)
 	if cdatas == nil {
-		return nil
+		return nil, 0
 	}
 
 	datas := ucharArrayToByte(cdatas, maxBufferLen)
-	return datas
+	return datas, int32(nitems)
 }
 
 func SetInt8Prop(id int32, prop string, values []int8) error {

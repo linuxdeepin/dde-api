@@ -127,8 +127,8 @@ func getMotionScaling(id int32) (float32, error) {
 }
 
 func getInt8Prop(id int32, prop string, nitems int32) ([]int8, error) {
-	datas := utils.GetProperty(id, prop, nitems)
-	if len(datas) == 0 {
+	datas, num := utils.GetProperty(id, prop)
+	if len(datas) == 0 || num != nitems {
 		return nil, fmt.Errorf("Get prop '%v -- %s' values failed",
 			id, prop)
 	}
@@ -137,8 +137,8 @@ func getInt8Prop(id int32, prop string, nitems int32) ([]int8, error) {
 }
 
 func getInt16Prop(id int32, prop string, nitems int32) ([]int16, error) {
-	datas := utils.GetProperty(id, prop, nitems)
-	if len(datas) == 0 {
+	datas, num := utils.GetProperty(id, prop)
+	if len(datas) == 0 || num != nitems {
 		return nil, fmt.Errorf("Get prop '%v -- %s' values failed",
 			id, prop)
 	}
@@ -147,8 +147,8 @@ func getInt16Prop(id int32, prop string, nitems int32) ([]int16, error) {
 }
 
 func getInt32Prop(id int32, prop string, nitems int32) ([]int32, error) {
-	datas := utils.GetProperty(id, prop, nitems)
-	if len(datas) == 0 {
+	datas, num := utils.GetProperty(id, prop)
+	if len(datas) == 0 || num != nitems {
 		return nil, fmt.Errorf("Get prop '%v -- %s' values failed",
 			id, prop)
 	}
@@ -157,13 +157,23 @@ func getInt32Prop(id int32, prop string, nitems int32) ([]int32, error) {
 }
 
 func getFloat32Prop(id int32, prop string, nitems int32) ([]float32, error) {
-	datas := utils.GetProperty(id, prop, nitems)
-	if len(datas) == 0 {
+	datas, num := utils.GetProperty(id, prop)
+	if len(datas) == 0 || num != nitems {
 		return nil, fmt.Errorf("Get prop '%v -- %s' values failed",
 			id, prop)
 	}
 
 	return utils.ReadFloat32(datas, nitems), nil
+}
+
+func getStringProp(id int32, prop string) (string, error) {
+	datas, num := utils.GetProperty(id, prop)
+	if len(datas) == 0 {
+		return "", fmt.Errorf("Get prop '%v -- %s' values failed",
+			id, prop)
+	}
+
+	return string(datas[:num]), nil
 }
 
 func absInt32(v int32) int32 {
