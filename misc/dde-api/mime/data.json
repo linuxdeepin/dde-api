@@ -68,7 +68,8 @@
 			"AppId":"org.gnome.gedit.desktop",
 			"AppType":"editor",
 			"SupportedType":[
-				"text/plain"
+				"text/plain",
+				"application/xml"
 			]
 		},
 		{
@@ -85,9 +86,7 @@
 			"SupportedType":[
 				"image/webp",
 				"text/html",
-				"text/xml",
 				"application/xhtml+xml",
-				"application/xml",
 				"application/rss+xml",
 				"application/rdf+xml",
 				"x-scheme-handler/http",
