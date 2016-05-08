@@ -60,7 +60,12 @@ func main() {
 		*sigma = defaultSigma
 	}
 	for _, image := range images {
-		err := blurImage(image, *sigma, getDestPath(image))
+		dest := getDestPath(image)
+		if !*force && dutils.IsFileExist(dest) {
+			continue
+		}
+
+		err := blurImage(image, *sigma, dest)
 		if err != nil {
 			fmt.Printf("Blur '%s' failed: %v\n", image, err)
 		}
