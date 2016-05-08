@@ -84,7 +84,6 @@ func blurImage(file string, sigma float64, dest string) error {
 }
 
 func getDestPath(src string) string {
-	info, _ := os.Stat(src)
-	id, _ := dutils.SumStrMd5(src + info.ModTime().String())
+	id, _ := dutils.SumStrMd5(src)
 	return destDir + id + path.Ext(src)
 }
