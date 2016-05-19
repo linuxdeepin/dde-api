@@ -13,6 +13,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"pkg.deepin.io/dde/api/lang_info"
+	"regexp"
 	"strings"
 )
 
@@ -111,39 +112,45 @@ func (info *jsonDependentInfo) GetPackages(locale string) []string {
 	case formatTypeNone:
 		pkgList = append(pkgList, info.PkgPull)
 	case formatTypeLC:
-		if len(codeInfo.LangCode) == 0 {
-			break
-		}
-		pkgList = append(pkgList, info.PkgPull+codeInfo.LangCode)
+		pkgList = append(pkgList, info.getPackagesByLangInfo(locale, codeInfo.LangCode,
+			"", "")...)
 	case formatTypeLCCC:
-		if len(codeInfo.LangCode) == 0 {
-			break
-		}
-		pkgList = append(pkgList, info.PkgPull+codeInfo.LangCode)
-
-		if len(codeInfo.CountryCode) == 0 {
-			break
-		}
-		pkgList = append(pkgList, info.PkgPull+codeInfo.LangCode+
-			"-"+strings.ToLower(codeInfo.CountryCode))
+		pkgList = append(pkgList, info.getPackagesByLangInfo(locale, codeInfo.LangCode,
+			codeInfo.CountryCode, "")...)
 	case formatTypeLCVA:
-		if len(codeInfo.LangCode) == 0 {
-			break
-		}
-		pkgList = append(pkgList, info.PkgPull+codeInfo.LangCode)
-
-		if len(codeInfo.CountryCode) != 0 {
-			pkgList = append(pkgList, info.PkgPull+
-				codeInfo.LangCode+
-				strings.ToLower(codeInfo.CountryCode))
-		}
-
-		if len(codeInfo.Variant) != 0 {
-			pkgList = append(pkgList, info.PkgPull+
-				codeInfo.LangCode+"-"+codeInfo.Variant)
-		}
+		pkgList = append(pkgList, info.getPackagesByLangInfo(locale, codeInfo.LangCode,
+			codeInfo.CountryCode, codeInfo.Variant)...)
 	}
 	return pkgList
+}
+
+var regUnderLine = regexp.MustCompile(`_`)
+
+func (info *jsonDependentInfo) getPackagesByLangInfo(locale, langCode, countryCode, variant string) []string {
+	var ret []string
+	tmp := strings.Split(locale, ".")[0]
+	tmp = strings.ToLower(tmp)
+	// Fix for firefox-l10n, calligra-l10n
+	ret = append(ret, info.PkgPull+regUnderLine.ReplaceAllString(tmp, "-"))
+	ret = append(ret, info.PkgPull+regUnderLine.ReplaceAllString(tmp, ""))
+
+	if len(langCode) == 0 {
+		return ret
+	}
+	ret = append(ret, info.PkgPull+langCode)
+
+	if len(countryCode) == 0 {
+		return ret
+	}
+	countryCode = strings.ToLower(countryCode)
+	ret = append(ret, info.PkgPull+langCode+"-"+countryCode)
+	ret = append(ret, info.PkgPull+langCode+countryCode)
+
+	if len(variant) == 0 {
+		return ret
+	}
+	ret = append(ret, langCode+"-"+variant)
+	return ret
 }
 
 func getDependentCategories(config string) (jsonDependentCategories, error) {
