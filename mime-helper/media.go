@@ -57,6 +57,7 @@ func (id appIdType) GetAppInfo() *AppInfo {
 			DisplayName: Tr("Nothing"),
 			Description: Tr("Nothing"),
 			Exec:        "",
+			Icon:        "media-autorun-nop",
 		}
 	case idOpenFolder:
 		return &AppInfo{
@@ -65,6 +66,7 @@ func (id appIdType) GetAppInfo() *AppInfo {
 			DisplayName: Tr("Open Folder"),
 			Description: Tr("Open Folder"),
 			Exec:        "",
+			Icon:        "media-autorun-open-folder",
 		}
 	case idRunSoft:
 		return &AppInfo{

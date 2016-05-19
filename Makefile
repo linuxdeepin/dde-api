@@ -78,6 +78,9 @@ install-binary: build
 	mkdir -pv ${DESTDIR}${SYSTEMD_SERVICE_DIR}
 	cp -R misc/systemd/system/*.service ${DESTDIR}${SYSTEMD_SERVICE_DIR}
 
+	mkdir -pv ${DESTDIR}${PREFIX}/share/icons/hicolor
+	cp -R misc/icons/* ${DESTDIR}${PREFIX}/share/icons/hicolor
+
 build/lib/%:
 	env GOPATH="${GOPATH}:${CURDIR}/${GOBUILD_DIR}" ${GOBUILD} ${GOPKG_PREFIX}/${@F}
 
