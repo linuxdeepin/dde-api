@@ -11,13 +11,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/disintegration/imaging"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"os"
 	"path"
+	"pkg.deepin.io/dde/api/blurimage"
 	"pkg.deepin.io/lib/graphic"
 	dutils "pkg.deepin.io/lib/utils"
-	"runtime/debug"
 )
 
 const (
@@ -65,27 +64,11 @@ func main() {
 			continue
 		}
 
-		err := blurImage(image, *sigma, dest)
+		err := blurimage.BlurImage(image, *sigma, dest)
 		if err != nil {
 			fmt.Printf("Blur '%s' failed: %v\n", image, err)
 		}
 	}
-}
-
-func blurImage(file string, sigma float64, dest string) error {
-	img, err := imaging.Open(file)
-	if err != nil {
-		return err
-	}
-	err = os.MkdirAll(path.Dir(dest), 0755)
-	if err != nil {
-		return err
-	}
-
-	defer debug.FreeOSMemory()
-
-	nrgb := imaging.Blur(img, sigma)
-	return imaging.Save(nrgb, dest)
 }
 
 func getDestPath(src string) string {
