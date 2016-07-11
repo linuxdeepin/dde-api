@@ -49,8 +49,9 @@ func doPlaySound(theme, event string) error {
 	}()
 
 	out, err := exec.Command("/usr/bin/pulseaudio", "--start").CombinedOutput()
+	logger.Debug("Launch pulseaudio output ", string(out))
 	if err != nil {
-		logger.Error("Launch pulseaudio failed:", string(out))
+		logger.Warningf("Launch pulseaudio failed: error: %v, output: %v", err, string(out))
 	}
 
 	err = sound.PlayThemeSound(theme, event, "", "pulse")
@@ -58,6 +59,15 @@ func doPlaySound(theme, event string) error {
 		logger.Errorf("Play '%s' '%s' failed: %v", theme, event, err)
 	}
 	return err
+}
+
+func (*Manager) Quit() {
+	logger.Info("Quit")
+	out, err := exec.Command("/usr/bin/pulseaudio", "--kill").CombinedOutput()
+	if err != nil {
+		logger.Warningf("quit pulseaudio failed: error: %v, output: %v", err, string(out))
+	}
+	os.Exit(0)
 }
 
 func main() {
