@@ -63,8 +63,8 @@ install-binary: build
 	mkdir -pv ${DESTDIR}${PREFIX}${libdir}/deepin-api
 	cp out/bin/* ${DESTDIR}${PREFIX}${libdir}/deepin-api/
 
-	mkdir -pv ${DESTDIR}/etc/dbus-1/system.d
-	cp misc/conf/*.conf ${DESTDIR}/etc/dbus-1/system.d/
+	mkdir -pv ${DESTDIR}${PREFIX}/share/dbus-1/system.d
+	cp misc/conf/*.conf ${DESTDIR}${PREFIX}/share/dbus-1/system.d/
 
 	mkdir -pv ${DESTDIR}${PREFIX}/share/dbus-1/services
 	cp -v misc/services/*.service ${DESTDIR}${PREFIX}/share/dbus-1/services/
