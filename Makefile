@@ -20,7 +20,8 @@ LIBRARIES = \
     soundutils \
     lang_info \
     i18n_dependent \
-    session
+    session \
+    powersupply
 
 BINARIES =  \
     device \
