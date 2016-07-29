@@ -65,6 +65,9 @@ func TestMarshal(t *testing.T) {
 		So(content, ShouldEqual,
 			"{\"Id\":\"gvim.desktop\","+
 				"\"Name\":\"gvim\","+
+				"\"DisplayName\":\"\","+
+				"\"Description\":\"\","+
+				"\"Icon\":\"\","+
 				"\"Exec\":\"gvim\"}")
 	})
 
@@ -85,9 +88,15 @@ func TestMarshal(t *testing.T) {
 		So(content, ShouldEqual, "["+
 			"{\"Id\":\"gvim.desktop\","+
 			"\"Name\":\"gvim\","+
+			"\"DisplayName\":\"\","+
+			"\"Description\":\"\","+
+			"\"Icon\":\"\","+
 			"\"Exec\":\"gvim\"},"+
 			"{\"Id\":\"firefox.desktop\","+
 			"\"Name\":\"Firefox\","+
+			"\"DisplayName\":\"\","+
+			"\"Description\":\"\","+
+			"\"Icon\":\"\","+
 			"\"Exec\":\"firefox\"}"+
 			"]")
 	})

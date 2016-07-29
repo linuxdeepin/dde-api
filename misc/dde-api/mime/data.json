@@ -57,7 +57,7 @@
 			]
 		},
 		{
-			"AppId":"org.gnome.Nautilus.desktop",
+			"AppId":"dde-file-manager.desktop",
 			"AppType":"file-manager",
 			"SupportedType":[
 				"inode/directory",
