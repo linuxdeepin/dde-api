@@ -86,6 +86,25 @@ is_property_exist(int deviceid, const char* prop)
 static int
 is_mouse_device(int deviceid)
 {
+    XIDeviceInfo* xinfo = get_xdevice_by_id(deviceid);
+    if (!xinfo) {
+        return 0;
+    }
+
+    if (xinfo->num_classes <= 0) {
+        XIFreeDeviceInfo(xinfo);
+        return 0;
+    }
+
+    for (int i = 0; i < xinfo->num_classes; i++) {
+        XIAnyClassInfo* any = xinfo->classes[i];
+        if (any->type == XIKeyClass) {
+            XIFreeDeviceInfo(xinfo);
+            return 0;
+        }
+    }
+
+    XIFreeDeviceInfo(xinfo);
     return is_property_exist(deviceid, "Button Labels");
 }
 
