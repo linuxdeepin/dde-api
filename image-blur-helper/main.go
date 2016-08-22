@@ -15,6 +15,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"pkg.deepin.io/dde/api/blurimage"
 	"pkg.deepin.io/lib/graphic"
 	dutils "pkg.deepin.io/lib/utils"
 )
@@ -22,14 +23,14 @@ import (
 const (
 	destDir = "/var/cache/image-blur/"
 
-	// defaultSigma float64 = 20.0
-	defaultRadius int8   = 9
-	defaultRounds uint64 = 10
+	defaultSigma  float64 = 20.0
+	defaultRadius int8    = 9
+	defaultRounds uint64  = 10
 )
 
 var (
-	force = kingpin.Flag("force", "Force to blur image").Short('f').Bool()
-	// sigma = kingpin.Flag("sigma", "The blur sigma").Short('s').Float64()
+	force  = kingpin.Flag("force", "Force to blur image").Short('f').Bool()
+	sigma  = kingpin.Flag("sigma", "The blur sigma").Short('s').Float64()
 	radius = kingpin.Flag("radius", "The radius, range: [3 - 19], must odd number").Short('r').Int8()
 	rounds = kingpin.Flag("rounds", "The number of round").Short('p').Uint64()
 	src    = kingpin.Arg("src", "The src file, may be directory").String()
@@ -59,6 +60,9 @@ func main() {
 		images = append(images, *src)
 	}
 
+	if *sigma <= 0.001 {
+		*sigma = defaultSigma
+	}
 	if *radius == 0 || *radius < 3 || *radius > 13 {
 		*radius = defaultRadius
 	}
@@ -75,7 +79,12 @@ func main() {
 		cmd := fmt.Sprintf("exec blur_image -b -r %v -p %v %q -o %s", *radius, *rounds, image, dest)
 		out, err := exec.Command("/bin/sh", "-c", cmd).CombinedOutput()
 		if err != nil {
-			fmt.Printf("Blur '%s' failed: %v\n", image, string(out))
+			fmt.Printf("Blur '%s' via 'blur_image' failed: %v, %v, try again...\n", image, string(out), err)
+			// fallback
+			err = blurimage.BlurImage(image, *sigma, dest)
+			if err != nil {
+				fmt.Printf("Blur '%s' via 'blurimage' failed: %s\n", image, err)
+			}
 		}
 	}
 }
