@@ -115,9 +115,9 @@ func (m *Manager) handleButtonEvent(button int32, press bool, x, y int32) {
 		}
 
 		if press {
-			dbus.Emit(m, "ButtonPress", x, y, id)
+			dbus.Emit(m, "ButtonPress", button, x, y, id)
 		} else {
-			dbus.Emit(m, "ButtonRelease", x, y, id)
+			dbus.Emit(m, "ButtonRelease", button, x, y, id)
 		}
 	}
 
@@ -176,7 +176,7 @@ func (m *Manager) RegisterArea(x1, y1, x2, y2, flag int32) (string, error) {
 func (m *Manager) RegisterAreas(areas []coordinateRange, flag int32) (id string, err error) {
 	md5Str, ok := m.sumAreasMd5(areas, flag)
 	if !ok {
-		err = fmt.Errorf("sumAreasMd5 failed:", areas)
+		err = fmt.Errorf("sumAreasMd5 failed: %v", areas)
 		return
 	}
 	id = md5Str
@@ -257,9 +257,9 @@ func (m *Manager) getIdList(x, y int32) ([]string, []string) {
 
 func (m *Manager) GetDBusInfo() dbus.DBusInfo {
 	return dbus.DBusInfo{
-		MouseAreaDest,
-		"/com/deepin/api/XMouseArea",
-		"com.deepin.api.XMouseArea",
+		Dest:       MouseAreaDest,
+		ObjectPath: "/com/deepin/api/XMouseArea",
+		Interface:  "com.deepin.api.XMouseArea",
 	}
 }
 
