@@ -22,18 +22,16 @@ import (
 
 const (
 	destDir = "/var/cache/image-blur/"
-
-	defaultSigma  float64 = 20.0
-	defaultRadius int8    = 9
-	defaultRounds uint64  = 10
 )
 
 var (
-	force  = kingpin.Flag("force", "Force to blur image").Short('f').Bool()
-	sigma  = kingpin.Flag("sigma", "The blur sigma").Short('s').Float64()
-	radius = kingpin.Flag("radius", "The radius, range: [3 - 19], must odd number").Short('r').Int8()
-	rounds = kingpin.Flag("rounds", "The number of round").Short('p').Uint64()
-	src    = kingpin.Arg("src", "The src file, may be directory").String()
+	force      = kingpin.Flag("force", "Force to blur image").Short('f').Default("false").Bool()
+	radius     = kingpin.Flag("radius", "The radius [3 - 49], must odd number(default 49)").Short('r').Default("49").Uint8()
+	rounds     = kingpin.Flag("rounds", "The number of round(default 10).").Short('p').Default("10").Uint64()
+	sigma      = kingpin.Flag("sigma", "The blur sigma(default 20.0).").Short('S').Default("20.0").Float64()
+	saturation = kingpin.Flag("saturation", "Multiple current saturation(default 2.0)").Short('s').Default("2.0").Float64()
+	lightness  = kingpin.Flag("lightness", "Multiple current lightness(HSL)(default 0.6)").Short('l').Default("0.6").Float64()
+	src        = kingpin.Arg("src", "The src file, may be directory").String()
 )
 
 func main() {
@@ -60,23 +58,13 @@ func main() {
 		images = append(images, *src)
 	}
 
-	if *sigma <= 0.001 {
-		*sigma = defaultSigma
-	}
-	if *radius == 0 || *radius < 3 || *radius > 13 {
-		*radius = defaultRadius
-	}
-	if *rounds == 0 {
-		*rounds = defaultRounds
-	}
-
 	for _, image := range images {
 		dest := getDestPath(image)
 		if !*force && dutils.IsFileExist(dest) {
 			continue
 		}
 
-		cmd := fmt.Sprintf("exec blur_image -b -r %v -p %v %q -o %s", *radius, *rounds, image, dest)
+		cmd := fmt.Sprintf("exec blur_image -b -l %v -s %v -r %v -p %v %q -o %s", *lightness, *saturation, *radius, *rounds, image, dest)
 		out, err := exec.Command("/bin/sh", "-c", cmd).CombinedOutput()
 		if err != nil {
 			fmt.Printf("Blur '%s' via 'blur_image' failed: %v, %v, try again...\n", image, string(out), err)
