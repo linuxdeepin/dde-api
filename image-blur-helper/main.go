@@ -26,7 +26,7 @@ const (
 
 var (
 	force      = kingpin.Flag("force", "Force to blur image").Short('f').Default("false").Bool()
-	radius     = kingpin.Flag("radius", "The radius [3 - 49], must odd number(default 49)").Short('r').Default("49").Uint8()
+	radius     = kingpin.Flag("radius", "The radius [3 - 49], must odd number(default 39)").Short('r').Default("39").Uint8()
 	rounds     = kingpin.Flag("rounds", "The number of round(default 10).").Short('p').Default("10").Uint64()
 	sigma      = kingpin.Flag("sigma", "The blur sigma(default 20.0).").Short('S').Default("20.0").Float64()
 	saturation = kingpin.Flag("saturation", "Multiple current saturation(default 2.0)").Short('s').Default("2.0").Float64()
@@ -64,7 +64,7 @@ func main() {
 			continue
 		}
 
-		cmd := fmt.Sprintf("exec blur_image -b -l %v -s %v -r %v -p %v %q -o %s", *lightness, *saturation, *radius, *rounds, image, dest)
+		cmd := fmt.Sprintf("exec blur_image -b -s %v -r %v -p %v %q -o %s", *lightness, *saturation, *radius, *rounds, image, dest)
 		out, err := exec.Command("/bin/sh", "-c", cmd).CombinedOutput()
 		if err != nil {
 			fmt.Printf("Blur '%s' via 'blur_image' failed: %v, %v, try again...\n", image, string(out), err)
