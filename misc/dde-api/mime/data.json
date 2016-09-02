@@ -186,7 +186,7 @@
 			]
 		},
 		{
-			"AppId":"eog.desktop",
+			"AppId":"deepin-image-viewer.desktop",
 			"AppType":"picture",
 			"SupportedType":[
 				"image/bmp",
