@@ -86,6 +86,10 @@ func newAppInfoById(id string) (*AppInfo, error) {
 	}
 
 	defer ginfo.Unref()
+	if !ginfo.ShouldShow() {
+		return nil, fmt.Errorf("app %q should not show", id)
+	}
+
 	var info = &AppInfo{
 		Id:          id,
 		Name:        ginfo.GetName(),
