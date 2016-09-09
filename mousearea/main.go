@@ -14,6 +14,7 @@ import (
 	"pkg.deepin.io/lib"
 	"pkg.deepin.io/lib/dbus"
 	"pkg.deepin.io/lib/log"
+	"syscall"
 )
 
 const (
@@ -41,6 +42,11 @@ func main() {
 
 	dbus.DealWithUnhandledMessage()
 	dbus.Emit(GetManager(), "CancelAllArea")
+
+	if os.Getenv("DEEPIN_MLOCKALL") == "true" {
+		logger.Warning("Call mlockall(MCL_CURRENT) to avoid swap")
+		syscall.Mlockall(syscall.MCL_CURRENT)
+	}
 
 	if err = dbus.Wait(); err != nil {
 		logger.Error("lost dbus session:", err)
