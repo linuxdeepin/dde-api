@@ -76,6 +76,10 @@ func (m *Mouse) EnableMiddleButtonEmulation(enabled bool) error {
 		return nil
 	}
 
+	if m.isLibinputUsed() {
+		return libinputInt8PropSet(m.Id, libinputPropMiddleEmulationEnabled, enabled)
+	}
+
 	var values []int8
 	if enabled {
 		values = []int8{1}
@@ -87,6 +91,10 @@ func (m *Mouse) EnableMiddleButtonEmulation(enabled bool) error {
 }
 
 func (m *Mouse) CanMiddleButtonEmulation() bool {
+	if m.isLibinputUsed() {
+		return libinputInt8PropCan(m.Id, libinputPropMiddleEmulationEnabled)
+	}
+
 	values, err := getInt32Prop(m.Id, propMidBtnEmulation, 1)
 	if err != nil {
 		return false
@@ -99,6 +107,10 @@ func (m *Mouse) CanMiddleButtonEmulation() bool {
 // "Evdev Middle Button Timeout"
 //     1 16-bit positive value.
 func (m *Mouse) SetMiddleButtonEmulationTimeout(timeout int16) error {
+	if m.isLibinputUsed() {
+		return fmt.Errorf("Libinput unsupport the property")
+	}
+
 	old, err := m.MiddleButtonEmulationTimeout()
 	if err == nil && timeout == old {
 		return nil
@@ -108,6 +120,10 @@ func (m *Mouse) SetMiddleButtonEmulationTimeout(timeout int16) error {
 }
 
 func (m *Mouse) MiddleButtonEmulationTimeout() (int16, error) {
+	if m.isLibinputUsed() {
+		return 0, fmt.Errorf("Libinput unsupport the property")
+	}
+
 	values, err := getInt16Prop(m.Id, propMidBtnEmulationTimeout, 1)
 	if err != nil {
 		return 0, err
@@ -122,6 +138,11 @@ func (m *Mouse) EnableWheelEmulation(enabled bool) error {
 	if enabled == m.CanWheelEmulation() {
 		return nil
 	}
+
+	if m.isLibinputUsed() {
+		return libinputEnableScrollButton(m.Id, enabled)
+	}
+
 	var values []int8
 	if enabled {
 		values = []int8{1}
@@ -132,6 +153,11 @@ func (m *Mouse) EnableWheelEmulation(enabled bool) error {
 }
 
 func (m *Mouse) CanWheelEmulation() bool {
+	if m.isLibinputUsed() {
+		_, _, v := libinputCanScroll(m.Id)
+		return v
+	}
+
 	values, err := getInt8Prop(m.Id, propWheelEmulation, 1)
 	if err != nil {
 		return false
@@ -147,11 +173,21 @@ func (m *Mouse) SetWheelEmulationButton(btnNum int8) error {
 	if btnNum == old {
 		return nil
 	}
+
+	if m.isLibinputUsed() {
+		return libinputSetScrollButton(m.Id, int32(btnNum))
+	}
+
 	return utils.SetInt8Prop(m.Id, propWheelEmulationButton,
 		[]int8{btnNum})
 }
 
 func (m *Mouse) WheelEmulationButton() (int8, error) {
+	if m.isLibinputUsed() {
+		v, err := libinputGetScrollButton(m.Id)
+		return int8(v), err
+	}
+
 	values, err := getInt8Prop(m.Id, propWheelEmulationButton, 1)
 	if err != nil {
 		return -1, err
@@ -163,6 +199,10 @@ func (m *Mouse) WheelEmulationButton() (int8, error) {
 // "Evdev Wheel Emulation Timeout"
 //     1 16-bit positive value.
 func (m *Mouse) SetWheelEmulationTimeout(timeout int16) error {
+	if m.isLibinputUsed() {
+		return fmt.Errorf("Libinput unsupport the property")
+	}
+
 	old, err := m.WheelEmulationTimeout()
 	if err == nil && timeout == old {
 		return nil
@@ -172,6 +212,10 @@ func (m *Mouse) SetWheelEmulationTimeout(timeout int16) error {
 }
 
 func (m *Mouse) WheelEmulationTimeout() (int16, error) {
+	if m.isLibinputUsed() {
+		return 0, fmt.Errorf("Libinput unsupport the property")
+	}
+
 	values, err := getInt16Prop(m.Id, propWheelEmulationTimeout, 1)
 	if err != nil {
 		return 0, err
@@ -183,10 +227,17 @@ func (m *Mouse) EnableWheelHorizScroll(enabled bool) error {
 	if enabled == m.CanWheelHorizScroll() {
 		return nil
 	}
+
+	if m.isLibinputUsed() {
+		return libinputInt8PropSet(m.Id, libinputPropHorizScrollEnabled, enabled)
+	}
 	return m.enableWheelHorizScroll(enabled, false)
 }
 
 func (m *Mouse) CanWheelHorizScroll() bool {
+	if m.isLibinputUsed() {
+		return libinputInt8PropCan(m.Id, libinputPropHorizScrollEnabled)
+	}
 	return m.canWheelHorizScroll(false)
 }
 
@@ -194,10 +245,16 @@ func (m *Mouse) EnableWheelHorizNaturalScroll(enabled bool) error {
 	if enabled == m.CanWheelHorizNaturalScroll() {
 		return nil
 	}
+	if m.isLibinputUsed() {
+		return libinputInt8PropSet(m.Id, libinputPropNaturalEnabled, enabled)
+	}
 	return m.enableWheelHorizScroll(enabled, true)
 }
 
 func (m *Mouse) CanWheelHorizNaturalScroll() bool {
+	if m.isLibinputUsed() {
+		return libinputInt8PropCan(m.Id, libinputPropNaturalEnabled)
+	}
 	return m.canWheelHorizScroll(true)
 }
 
@@ -206,6 +263,9 @@ func (m *Mouse) EnableNaturalScroll(enabled bool) error {
 		return nil
 	}
 
+	if m.isLibinputUsed() {
+		return libinputInt8PropSet(m.Id, libinputPropNaturalEnabled, enabled)
+	}
 	values, err := getInt32Prop(m.Id, propEvdevScrollDistance, 3)
 	if err != nil {
 		return err
@@ -221,6 +281,9 @@ func (m *Mouse) EnableNaturalScroll(enabled bool) error {
 }
 
 func (m *Mouse) CanNaturalScroll() bool {
+	if m.isLibinputUsed() {
+		return libinputInt8PropCan(m.Id, libinputPropNaturalEnabled)
+	}
 	values, err := getInt32Prop(m.Id, propEvdevScrollDistance, 3)
 	if err != nil {
 		return false
@@ -233,26 +296,48 @@ func (m *Mouse) CanNaturalScroll() bool {
 }
 
 func (m *Mouse) SetMotionAcceleration(accel float32) error {
+	if m.isLibinputUsed() {
+		return libinputSetAccel(m.Id, accel)
+	}
 	return setMotionAcceleration(m.Id, accel)
 }
 
 func (m *Mouse) MotionAcceleration() (float32, error) {
+	if m.isLibinputUsed() {
+		return libinputGetAccel(m.Id)
+	}
 	return getMotionAcceleration(m.Id)
 }
 
 func (m *Mouse) SetMotionThreshold(thres float32) error {
+	if m.isLibinputUsed() {
+		return fmt.Errorf("Libinput unsupport the property")
+	}
+
 	return setMotionThreshold(m.Id, thres)
 }
 
 func (m *Mouse) MotionThreshold() (float32, error) {
+	if m.isLibinputUsed() {
+		return 0.0, fmt.Errorf("Libinput unsupport the property")
+	}
+
 	return getMotionThreshold(m.Id)
 }
 
 func (m *Mouse) SetMotionScaling(scaling float32) error {
+	if m.isLibinputUsed() {
+		return fmt.Errorf("Libinput unsupport the property")
+	}
+
 	return setMotionScaling(m.Id, scaling)
 }
 
 func (m *Mouse) MotionScaling() (float32, error) {
+	if m.isLibinputUsed() {
+		return 0.0, fmt.Errorf("Libinput unsupport the property")
+	}
+
 	return getMotionScaling(m.Id)
 }
 
@@ -301,6 +386,17 @@ func (m *Mouse) canWheelHorizScroll(natural bool) bool {
 		return isInt8ArrayEqual(values, []int8{7, 6, 5, 4})
 	}
 	return isInt8ArrayEqual(values, []int8{6, 7, 4, 5})
+}
+
+func (m *Mouse) isLibinputUsed() bool {
+	if _isLibinputUsed == -1 {
+		if utils.IsPropertyExist(m.Id, libinputPropButtonScrollingButton) {
+			_isLibinputUsed = 1
+		} else {
+			_isLibinputUsed = 0
+		}
+	}
+	return (_isLibinputUsed == 1)
 }
 
 func isInt8ArrayEqual(a1, a2 []int8) bool {

@@ -15,6 +15,7 @@ import (
 )
 
 const (
+	// only for xf86-input-synaptics
 	propOff            string = "Synaptics Off"
 	propScrollDistance        = "Synaptics Scrolling Distance"
 	propEdgeScroll            = "Synaptics Edge Scrolling"
@@ -61,7 +62,7 @@ func (tpad *Touchpad) Enable(enabled bool) error {
 		return err
 	}
 
-	if enabled == tpad.IsEnabled() {
+	if enabled == tpad.IsEnabled() || tpad.isLibinputUsed() {
 		return nil
 	}
 
@@ -78,6 +79,10 @@ func (tpad *Touchpad) Enable(enabled bool) error {
 func (tpad *Touchpad) IsEnabled() bool {
 	if !isDeviceEnabled(tpad.Id) {
 		return false
+	}
+
+	if tpad.isLibinputUsed() {
+		return true
 	}
 
 	values, err := getInt8Prop(tpad.Id, propOff, 1)
@@ -125,6 +130,10 @@ func (tpad *Touchpad) EnableTapToClick(enabled bool) error {
 		return nil
 	}
 
+	if tpad.isLibinputUsed() {
+		return libinputInt8PropSet(tpad.Id, libinputPropTapEnabled, enabled)
+	}
+
 	values, err := getInt8Prop(tpad.Id, propTapAction, 7)
 	if err != nil {
 		return err
@@ -144,6 +153,10 @@ func (tpad *Touchpad) EnableTapToClick(enabled bool) error {
 }
 
 func (tpad *Touchpad) CanTapToClick() bool {
+	if tpad.isLibinputUsed() {
+		return libinputInt8PropCan(tpad.Id, libinputPropTapEnabled)
+	}
+
 	values, err := getInt8Prop(tpad.Id, propTapAction, 7)
 	if err != nil {
 		return false
@@ -179,6 +192,10 @@ func (tpad *Touchpad) EnableEdgeScroll(enabled bool) error {
 		return nil
 	}
 
+	if tpad.isLibinputUsed() {
+		return libinputEnableScrollEdge(tpad.Id, enabled)
+	}
+
 	values, err := getInt8Prop(tpad.Id, propEdgeScroll, 3)
 	if err != nil {
 		return err
@@ -194,6 +211,11 @@ func (tpad *Touchpad) EnableEdgeScroll(enabled bool) error {
 }
 
 func (tpad *Touchpad) CanEdgeScroll() bool {
+	if tpad.isLibinputUsed() {
+		_, edge, _ := libinputCanScroll(tpad.Id)
+		return edge
+	}
+
 	values, err := getInt8Prop(tpad.Id, propEdgeScroll, 3)
 	if err != nil {
 		return false
@@ -222,6 +244,15 @@ func (tpad *Touchpad) EnableTwoFingerScroll(vert, horiz bool) error {
 		return nil
 	}
 
+	if tpad.isLibinputUsed() {
+		err := libinputEnableScrollTwoFinger(tpad.Id, vert)
+		if err != nil {
+			return err
+		}
+		err = libinputInt8PropSet(tpad.Id, libinputPropHorizScrollEnabled, horiz)
+		return err
+	}
+
 	var (
 		newVert  int8 = 0
 		newHoriz int8 = 0
@@ -238,6 +269,11 @@ func (tpad *Touchpad) EnableTwoFingerScroll(vert, horiz bool) error {
 }
 
 func (tpad *Touchpad) CanTwoFingerScroll() (bool, bool) {
+	if tpad.isLibinputUsed() {
+		twoFinger, _, _ := libinputCanScroll(tpad.Id)
+		return twoFinger, libinputInt8PropCan(tpad.Id, libinputPropHorizScrollEnabled)
+	}
+
 	values, err := getInt8Prop(tpad.Id, propTwoFingerScrol, 2)
 	if err != nil {
 		return false, false
@@ -260,6 +296,10 @@ func (tpad *Touchpad) EnableNaturalScroll(enabled bool) error {
 		return nil
 	}
 
+	if tpad.isLibinputUsed() {
+		return libinputInt8PropSet(tpad.Id, libinputPropNaturalEnabled, enabled)
+	}
+
 	values, err := getInt32Prop(tpad.Id, propScrollDistance, 2)
 	if err != nil {
 		return err
@@ -275,6 +315,10 @@ func (tpad *Touchpad) EnableNaturalScroll(enabled bool) error {
 }
 
 func (tpad *Touchpad) CanNaturalScroll() bool {
+	if tpad.isLibinputUsed() {
+		return libinputInt8PropCan(tpad.Id, libinputPropNaturalEnabled)
+	}
+
 	values, err := getInt32Prop(tpad.Id, propScrollDistance, 2)
 	if err != nil {
 		return false
@@ -288,6 +332,10 @@ func (tpad *Touchpad) CanNaturalScroll() bool {
 }
 
 func (tpad *Touchpad) SetScrollDistance(vert, horiz int32) error {
+	if tpad.isLibinputUsed() {
+		return fmt.Errorf("Libinput unsupport the property")
+	}
+
 	oldVert, oldHoriz := tpad.ScrollDistance()
 	if oldVert == vert && oldHoriz == horiz {
 		return nil
@@ -303,6 +351,10 @@ func (tpad *Touchpad) SetScrollDistance(vert, horiz int32) error {
 }
 
 func (tpad *Touchpad) ScrollDistance() (int32, int32) {
+	if tpad.isLibinputUsed() {
+		return 0, 0
+	}
+
 	values, err := getInt32Prop(tpad.Id, propScrollDistance, 2)
 	if err != nil {
 		return 0, 0
@@ -312,25 +364,73 @@ func (tpad *Touchpad) ScrollDistance() (int32, int32) {
 }
 
 func (tpad *Touchpad) SetMotionAcceleration(accel float32) error {
+	if tpad.isLibinputUsed() {
+		return libinputSetAccel(tpad.Id, accel)
+	}
 	return setMotionAcceleration(tpad.Id, accel)
 }
 
 func (tpad *Touchpad) MotionAcceleration() (float32, error) {
+	if tpad.isLibinputUsed() {
+		return libinputGetAccel(tpad.Id)
+	}
 	return getMotionAcceleration(tpad.Id)
 }
 
 func (tpad *Touchpad) SetMotionThreshold(thres float32) error {
+	if tpad.isLibinputUsed() {
+		return fmt.Errorf("Libinput unsupport the property")
+	}
 	return setMotionThreshold(tpad.Id, thres)
 }
 
 func (tpad *Touchpad) MotionThreshold() (float32, error) {
+	if tpad.isLibinputUsed() {
+		return 0, fmt.Errorf("Libinput unsupport the property")
+	}
 	return getMotionThreshold(tpad.Id)
 }
 
 func (tpad *Touchpad) SetMotionScaling(scaling float32) error {
+	if tpad.isLibinputUsed() {
+		return fmt.Errorf("Libinput unsupport the property")
+	}
 	return setMotionScaling(tpad.Id, scaling)
 }
 
 func (tpad *Touchpad) MotionScaling() (float32, error) {
+	if tpad.isLibinputUsed() {
+		return 0, fmt.Errorf("Libinput unsupport the property")
+	}
 	return getMotionScaling(tpad.Id)
+}
+
+func (tpad *Touchpad) CanDisableWhileTyping() bool {
+	if !tpad.isLibinputUsed() {
+		return true
+	}
+	return libinputInt8PropCan(tpad.Id, libinputPropDiableWhileTypingEnabled)
+}
+
+func (tpad *Touchpad) EnableDisableWhileTyping(enabled bool) error {
+	if !tpad.isLibinputUsed() {
+		return fmt.Errorf("Libinput not enabled")
+	}
+
+	if enabled == tpad.CanDisableWhileTyping() {
+		return nil
+	}
+
+	return libinputInt8PropSet(tpad.Id, libinputPropDiableWhileTypingEnabled, enabled)
+}
+
+func (tpad *Touchpad) isLibinputUsed() bool {
+	if _isLibinputUsed == -1 {
+		if utils.IsPropertyExist(tpad.Id, libinputPropTapEnabled) {
+			_isLibinputUsed = 1
+		} else {
+			_isLibinputUsed = 0
+		}
+	}
+	return (_isLibinputUsed == 1)
 }

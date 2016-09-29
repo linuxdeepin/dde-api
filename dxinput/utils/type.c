@@ -86,15 +86,19 @@ is_property_exist(int deviceid, const char* prop)
 static int
 is_mouse_device(int deviceid)
 {
-    return is_property_exist(deviceid, "Button Labels");
+    return (is_property_exist(deviceid, "Button Labels") ||
+            is_property_exist(deviceid, "libinput Button Scrolling Button"));
 }
 
 static int
 is_touchpad_device(int deviceid)
 {
-    return is_property_exist(deviceid, "Synaptics Off");
+    return (is_property_exist(deviceid, "Synaptics Off") ||
+            (is_property_exist(deviceid, "libinput Tapping Enabled") &&
+             is_property_exist(deviceid, "libinput Disable While Typing Enabled")));
 }
 
+// TODO: support libinput
 static int
 is_wacom_device(int deviceid)
 {
