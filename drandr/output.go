@@ -10,18 +10,12 @@ import (
 
 type randrIdList []uint32
 
-type CrtcInfo struct {
-	Id   uint32
-	Name string
-}
-type CrtcInfos []CrtcInfo
-
 type OutputInfo struct {
 	Name       string
 	Id         uint32
 	MmWidth    uint32
 	MmHeight   uint32
-	Crtc       uint32 // if crtc == 0, means output closed or disconnection
+	Crtc       CrtcInfo
 	Connection bool
 	Invalid    bool
 	Timestamp  xproto.Timestamp
@@ -97,7 +91,7 @@ func toOuputInfo(conn *xgb.Conn, output randr.Output) OutputInfo {
 		Id:         uint32(output),
 		MmWidth:    reply.MmWidth,
 		MmHeight:   reply.MmHeight,
-		Crtc:       uint32(reply.Crtc),
+		Crtc:       toCrtcInfo(conn, reply.Crtc),
 		Connection: (reply.Connection == randr.ConnectionConnected),
 		Timestamp:  reply.Timestamp,
 		Clones:     outputsToRandrIdList(reply.Clones),
@@ -156,4 +150,26 @@ func isBadOutput(conn *xgb.Conn, output string, crtc randr.Crtc) bool {
 			lastConfigTimestamp, 0, 0, 0, 1, nil)
 	}
 	return true
+}
+
+type CrtcInfo struct {
+	Id     uint32 // if crtc == 0, means output closed or disconnection
+	X      int16
+	Y      int16
+	Width  uint16
+	Height uint16
+}
+
+func toCrtcInfo(conn *xgb.Conn, crtc randr.Crtc) CrtcInfo {
+	reply, err := randr.GetCrtcInfo(conn, crtc, lastConfigTimestamp).Reply()
+	if err != nil {
+		return CrtcInfo{}
+	}
+	return CrtcInfo{
+		Id:     uint32(crtc),
+		X:      reply.X,
+		Y:      reply.Y,
+		Width:  reply.Width,
+		Height: reply.Height,
+	}
 }
