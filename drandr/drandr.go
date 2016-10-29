@@ -4,6 +4,7 @@ import (
 	"github.com/BurntSushi/xgb"
 	"github.com/BurntSushi/xgb/randr"
 	"github.com/BurntSushi/xgb/xproto"
+	"sort"
 	"sync"
 )
 
@@ -49,5 +50,6 @@ func GetScreenInfo(conn *xgb.Conn) (OutputInfos, ModeInfos, error) {
 	for _, mode := range resource.Modes {
 		modeInfos = append(modeInfos, toModeInfo(conn, mode))
 	}
+	sort.Sort(modeInfos)
 	return outputInfos, modeInfos, nil
 }

@@ -1,6 +1,7 @@
 package drandr
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/BurntSushi/xgb"
 	"github.com/BurntSushi/xgb/randr"
@@ -72,6 +73,27 @@ func (infos ModeInfos) Best() ModeInfo {
 	return infos[0]
 }
 
+func (infos ModeInfos) Equal(list ModeInfos) bool {
+	len1, len2 := len(infos), len(list)
+	if len1 != len2 {
+		return false
+	}
+
+	sort.Sort(infos)
+	sort.Sort(list)
+	for i := 0; i < len1; i++ {
+		if !infos[i].Equal(list[i]) {
+			return false
+		}
+	}
+	return true
+}
+
+func (infos ModeInfos) String() string {
+	data, _ := json.Marshal(infos)
+	return string(data)
+}
+
 func (infos ModeInfos) Len() int {
 	return len(infos)
 }
@@ -109,6 +131,10 @@ func (infos ModeInfos) filterBySize() ModeInfos {
 		ret = append(ret, info)
 	}
 	return ret
+}
+
+func (info ModeInfo) Equal(v ModeInfo) bool {
+	return info.Id == v.Id
 }
 
 func toModeInfo(conn *xgb.Conn, info randr.ModeInfo) ModeInfo {
