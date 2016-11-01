@@ -39,14 +39,17 @@ func NewTouchpad(id int32) (*Touchpad, error) {
 	if info == nil {
 		return nil, fmt.Errorf("Invalid device id: %v", id)
 	}
+	return NewTouchpadFromDevInfo(info)
+}
 
-	if info.Type != utils.DevTypeTouchpad {
-		return nil, fmt.Errorf("Device id '%v' not a touchpad", id)
+func NewTouchpadFromDevInfo(dev *utils.DeviceInfo) (*Touchpad, error) {
+	if dev == nil || dev.Type != utils.DevTypeTouchpad {
+		return nil, fmt.Errorf("Not a touchpad device(%d - %s)", dev.Id, dev.Name)
 	}
 
 	return &Touchpad{
-		Id:   info.Id,
-		Name: info.Name,
+		Id:   dev.Id,
+		Name: dev.Name,
 	}, nil
 }
 
@@ -422,6 +425,13 @@ func (tpad *Touchpad) EnableDisableWhileTyping(enabled bool) error {
 	}
 
 	return libinputInt8PropSet(tpad.Id, libinputPropDiableWhileTypingEnabled, enabled)
+}
+
+func (tpad *Touchpad) SetRotation(direction uint8) error {
+	if tpad.isLibinputUsed() {
+		return fmt.Errorf("libinput unsupported transformation matrix")
+	}
+	return setRotation(tpad.Id, direction)
 }
 
 func (tpad *Touchpad) isLibinputUsed() bool {

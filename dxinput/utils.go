@@ -19,6 +19,22 @@ const (
 	propConstantDeceleration        = "Device Accel Constant Deceleration"
 	propAdaptiveDeceleration        = "Device Accel Adaptive Deceleration"
 	propVelocityScaling             = "Device Accel Velocity Scaling"
+	propCoordTransMatrix            = "Coordinate Transformation Matrix"
+)
+
+const (
+	// see also randr
+	RotationDirectionNormal   uint8 = 1
+	RotationDirectionLeft           = 2
+	RotationDirectionInverted       = 4
+	RotationDirectionRight          = 8
+)
+
+var (
+	rotationNormal   = []float32{1, 0, 0, 0, 1, 0, 0, 0, 1}   // 0°
+	rotationLeft     = []float32{0, -1, 1, 1, 0, 0, 0, 0, 1}  // clockwise 90°
+	rotationInverted = []float32{-1, 0, 1, 0, -1, 1, 0, 0, 1} // clockwise or counterclockwise 180°
+	rotationRight    = []float32{0, 1, 0, -1, 0, 1, 0, 0, 1}  // counterclockwise 90°
 )
 
 /**
@@ -126,6 +142,29 @@ func getMotionScaling(id int32) (float32, error) {
 	return values[0], nil
 }
 
+func setRotation(id int32, rotation uint8) error {
+	var v []float32
+	switch rotation {
+	case RotationDirectionNormal:
+		v = rotationNormal
+	case RotationDirectionLeft:
+		v = rotationLeft
+	case RotationDirectionInverted:
+		v = rotationInverted
+	case RotationDirectionRight:
+		v = rotationRight
+	default:
+		return fmt.Errorf("Invalid rotation value: %d", rotation)
+	}
+
+	values, _ := getFloat32Prop(id, propCoordTransMatrix, 9)
+	if isFloat32ListEqual(v, values) {
+		return nil
+	}
+
+	return utils.SetFloat32Prop(id, propCoordTransMatrix, v)
+}
+
 func getInt8Prop(id int32, prop string, nitems int32) ([]int8, error) {
 	datas, num := utils.GetProperty(id, prop)
 	if len(datas) == 0 || num != nitems {
@@ -184,4 +223,17 @@ func absInt32(v int32) int32 {
 		return v
 	}
 	return v
+}
+
+func isFloat32ListEqual(l1, l2 []float32) bool {
+	len1, len2 := len(l1), len(l2)
+	if len1 != len2 {
+		return false
+	}
+	for i := 0; i < len1; i++ {
+		if l1[i] != l2[i] {
+			return false
+		}
+	}
+	return true
 }

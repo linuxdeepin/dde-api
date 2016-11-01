@@ -49,14 +49,17 @@ func NewWacom(id int32) (*Wacom, error) {
 	if info == nil {
 		return nil, fmt.Errorf("Invalid device id: %v", id)
 	}
+	return NewWacomFromDevInfo(info)
+}
 
-	if info.Type != utils.DevTypeWacom {
-		return nil, fmt.Errorf("Device id '%v' not a touchpad", id)
+func NewWacomFromDevInfo(dev *utils.DeviceInfo) (*Wacom, error) {
+	if dev == nil || dev.Type != utils.DevTypeWacom {
+		return nil, fmt.Errorf("Not a wacom device(%d - %s)", dev.Id, dev.Name)
 	}
 
 	return &Wacom{
-		Id:   id,
-		Name: info.Name,
+		Id:   dev.Id,
+		Name: dev.Name,
 	}, nil
 }
 

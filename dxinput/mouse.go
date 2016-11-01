@@ -36,15 +36,17 @@ func NewMouse(id int32) (*Mouse, error) {
 	if info == nil {
 		return nil, fmt.Errorf("Invalid device id: %v", id)
 	}
+	return NewMouseFromDeviceInfo(info)
+}
 
-	if info.Type != utils.DevTypeMouse {
-		return nil, fmt.Errorf("Device id '%v' not a mouse", id)
+func NewMouseFromDeviceInfo(dev *utils.DeviceInfo) (*Mouse, error) {
+	if dev == nil || dev.Type != utils.DevTypeMouse {
+		return nil, fmt.Errorf("Not a mouse device(%d - %s)", dev.Id, dev.Name)
 	}
-
 	return &Mouse{
-		Id:         info.Id,
-		Name:       info.Name,
-		TrackPoint: strings.Contains(strings.ToLower(info.Name), "trackpoint"),
+		Id:         dev.Id,
+		Name:       dev.Name,
+		TrackPoint: strings.Contains(strings.ToLower(dev.Name), "trackpoint"),
 	}, nil
 }
 
@@ -150,6 +152,13 @@ func (m *Mouse) EnableWheelEmulation(enabled bool) error {
 		values = []int8{0}
 	}
 	return utils.SetInt8Prop(m.Id, propWheelEmulation, values)
+}
+
+func (m *Mouse) SetRotation(direction uint8) error {
+	if m.isLibinputUsed() {
+		return fmt.Errorf("libinput unsupported transformation matrix")
+	}
+	return setRotation(m.Id, direction)
 }
 
 func (m *Mouse) CanWheelEmulation() bool {
