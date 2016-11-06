@@ -11,6 +11,7 @@ package main
 
 import (
 	. "github.com/smartystreets/goconvey/convey"
+	"os"
 	"testing"
 )
 
@@ -126,5 +127,45 @@ func TestDelStrFromList(t *testing.T) {
 		ret, deleted = delStrFromList("abd", list)
 		So(deleted, ShouldEqual, false)
 		So(ret, ShouldResemble, list)
+	})
+}
+
+func TestUserAppInfo(t *testing.T) {
+	Convey("User appinfo test", t, func() {
+		var infos = userAppInfos{
+			{
+				DesktopId: "test-web.desktop",
+				SupportedMime: []string{
+					"application/test.xml",
+					"application/test.html",
+				},
+			},
+			{
+				DesktopId: "test-doc.desktop",
+				SupportedMime: []string{
+					"application/test.doc",
+					"application/test.xls",
+				},
+			},
+		}
+		var file = "testdata/tmp_user_mime.json"
+		var manager = &userAppManager{
+			appInfos: infos,
+			filename: file,
+		}
+		So(manager.Get("application/test.xml").DesktopId, ShouldEqual, "test-web.desktop")
+		So(manager.Get("application/test.ppt"), ShouldBeNil)
+		So(manager.Add("test-web.desktop", []string{"application/test.xml"}), ShouldEqual, false)
+		So(manager.Add("test-doc.desktop", []string{"application/test.ppt"}), ShouldEqual, true)
+		So(manager.Get("application/test.ppt").DesktopId, ShouldEqual, "test-doc.desktop")
+		So(manager.Delete("test-web.desktop"), ShouldBeNil)
+		So(manager.Delete("test-xxx.desktop"), ShouldNotBeNil)
+		So(manager.Get("application/test.xml"), ShouldBeNil)
+		So(manager.Write(), ShouldBeNil)
+		tmp, err := newUserAppManager(file)
+		So(err, ShouldBeNil)
+		So(tmp.Get("application/test.xml"), ShouldBeNil)
+		So(tmp.Get("application/test.ppt").DesktopId, ShouldEqual, "test-doc.desktop")
+		os.Remove(file)
 	})
 }

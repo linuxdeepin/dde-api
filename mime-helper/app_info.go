@@ -47,6 +47,20 @@ func GetAppInfo(ty string) (*AppInfo, error) {
 	return info, nil
 }
 
+func (infos AppInfos) Add(id string) (AppInfos, error) {
+	for _, info := range infos {
+		if info.Id == id {
+			return infos, nil
+		}
+	}
+	tmp, err := newAppInfoById(id)
+	if err != nil {
+		return nil, err
+	}
+	infos = append(infos, tmp)
+	return infos, nil
+}
+
 func (infos AppInfos) Delete(id string) AppInfos {
 	var ret AppInfos
 	for _, info := range infos {

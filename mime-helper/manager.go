@@ -38,6 +38,7 @@ type Manager struct {
 
 	media *Media
 
+	userManager *userAppManager
 	stateLocker sync.Mutex
 	resetState  int
 }
@@ -45,6 +46,14 @@ type Manager struct {
 func NewManager() *Manager {
 	m := new(Manager)
 	m.resetState = stateResetFinished
+
+	userManager, err := newUserAppManager(userAppFile)
+	if err != nil {
+		userManager = &userAppManager{
+			filename: userAppFile,
+		}
+	}
+	m.userManager = userManager
 	return m
 }
 
@@ -129,9 +138,48 @@ func (m *Manager) ListApps(ty string) string {
 	} else {
 		infos = GetAppInfos(ty)
 	}
-
 	content, _ := marshal(infos)
 	return content
+}
+
+func (m *Manager) ListUserApp(ty string) string {
+	apps := m.userManager.Get(ty)
+	if len(apps) == 0 {
+		return ""
+	}
+	var infos AppInfos
+	for _, app := range apps {
+		info, err := newAppInfoById(app.DesktopId)
+		if err != nil {
+			logger.Warningf("New '%s' failed: %v", app.DesktopId, err)
+			continue
+		}
+		infos = append(infos, info)
+	}
+	content, _ := marshal(infos)
+	return content
+}
+
+func (m *Manager) AddUserApp(desktopId string, mimes []string) error {
+	// check app validity
+	_, err := newAppInfoById(desktopId)
+	if err != nil {
+		logger.Error("Invalid desktop id:", desktopId)
+		return err
+	}
+	if !m.userManager.Add(desktopId, mimes) {
+		return nil
+	}
+	return m.userManager.Write()
+}
+
+func (m *Manager) DeleteUserApp(desktopId string) error {
+	err := m.userManager.Delete(desktopId)
+	if err != nil {
+		logger.Errorf("Delete '%s' failed: %v", desktopId, err)
+		return err
+	}
+	return m.userManager.Write()
 }
 
 func (m *Manager) GetDBusInfo() dbus.DBusInfo {
