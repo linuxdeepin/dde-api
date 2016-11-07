@@ -17,6 +17,7 @@ LIBRARIES = \
     thumbnails \
     themes \
     dxinput \
+    drandr \
     soundutils \
     lang_info \
     i18n_dependent \
