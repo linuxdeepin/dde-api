@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -e
+
+pc_arch=`dpkg --print-architecture`
+pc_64=amd64
+pc_32=i386
+if [ "$1" = "triggered"  ];then
+if [ $pc_arch = $pc_64  ] || [ $pc_arch = $pc_32  ];then
+/usr/lib/deepin-api/image-blur-helper /usr/share/wallpapers/deepin
+fi
+fi

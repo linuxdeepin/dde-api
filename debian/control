@@ -1,0 +1,55 @@
+Source: dde-api
+Section: devel
+Priority: extra
+Maintainer: Deepin Sysdev <sysdev@deepin.com>
+Build-Depends: debhelper (>= 9),
+ golang-go | gccgo-5,
+ golang-dlib-dev (>= 0.4.2),golang-gir-gobject-2.0-dev, 
+ golang-gir-gio-2.0-dev, golang-gir-glib-2.0-dev, golang-gir-gudev-1.0-dev,
+ golang-github-burntsushi-xgb-dev,
+ golang-github-burntsushi-xgbutil-dev,
+ golang-gopkg-alecthomas-kingpin.v2-dev,
+ golang-github-disintegration-imaging-dev,
+ dde-go-dbus-factory(>>2.92.1),
+ libxi-dev,
+ libcanberra-dev,
+ librsvg2-dev,
+ libdeepin-metacity-dev,
+ libmetacity-dev,
+ libgtk-3-dev,
+ libgdk-pixbuf2.0-dev,
+ libcairo2-dev,
+ libfreetype6-dev,
+ libpoppler-glib-dev,
+ dh-systemd,
+ systemd,
+ libcroco3-dev
+Standards-Version: 3.9.5
+Homepage: http://www.deepin.com
+
+Package: dde-api
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ rfkill, locales, libcanberra-pulse, blur-effect,
+Description: Go-lang bingdings for dde-daemon
+ Go-lang bindings for dde-daemon
+
+Package: dde-api-dev
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ golang-dlib-dev(>> 0.4.2),golang-gir-gobject-2.0-dev, golang-gir-gio-2.0-dev, golang-gir-glib-2.0-dev,
+ golang-github-burntsushi-xgb-dev,
+ golang-github-burntsushi-xgbutil-dev,
+ golang-gopkg-alecthomas-kingpin.v2-dev,
+ libxi-dev,
+ libcanberra-dev,
+ librsvg2-dev,
+ libdeepin-metacity-dev,
+ libgtk-3-dev,
+ libgdk-pixbuf2.0-dev,
+ libcairo2-dev,
+ libfreetype6-dev,
+ libpoppler-glib-dev,
+Description: Go-lang bingdings for dde-daemon
+ Go-lang bindings for dde-daemon -- dev file
+

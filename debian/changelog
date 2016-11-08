@@ -1,0 +1,155 @@
+dde-api (3.0.10) unstable; urgency=low
+
+  * Autobuild Tag 3.0.10 
+
+ -- TagBuilder <tagbuilder@deepin.com>  Fri, 12 Aug 2016 18:44:23 +0000
+
+dde-api (3.0.9-1) stable; urgency=low
+
+  * Autobuild Tag 3.0.9 
+
+ -- TagBuilder <tagbuilder@deepin.com>  Fri, 22 Jul 2016 07:46:10 +0000
+
+dde-api (3.0.8-1) stable; urgency=low
+
+  * Autobuild Tag 3.0.8 
+
+ -- TagBuilder <tagbuilder@linuxdeepin.com>  Mon, 23 May 2016 09:59:54 +0000
+
+dde-api (3.0.6-2) stable; urgency=low
+
+  * Rebuild Version 3.0.6 
+
+ -- TagBuilder <tagbuilder@linuxdeepin.com>  Thu, 21 Apr 2016 16:15:45 +0000
+
+dde-api (3.0.6-1) stable; urgency=low
+
+  * Autobuild Tag 3.0.6 
+
+ -- TagBuilder <tagbuilder@linuxdeepin.com>  Mon, 22 Feb 2016 16:28:16 +0000
+
+dde-api (3.0.3-2) stable; urgency=low
+
+  * Rebuild Version 3.0.3 
+
+ -- TagBuilder <tagbuilder@linuxdeepin.com>  Mon, 25 Jan 2016 17:32:14 +0000
+
+dde-api (3.0.3-1) stable; urgency=low
+
+  * Autobuild Tag 3.0.3 
+
+ -- TagBuilder <tagbuilder@linuxdeepin.com>  Fri, 22 Jan 2016 19:13:46 +0000
+
+dde-api (3.0.1-2) stable; urgency=low
+
+  * Rebuild Version 3.0.1 
+
+ -- TagBuilder <tagbuilder@linuxdeepin.com>  Tue, 12 Jan 2016 20:06:40 +0000
+
+dde-api (3.0.1-1) stable; urgency=low
+
+  * Autobuild Tag 3.0.1 
+
+ -- TagBuilder <tagbuilder@linuxdeepin.com>  Tue, 29 Dec 2015 21:10:42 +0000
+
+dde-api (3.0.0-1) stable; urgency=low
+
+  * Autobuild Tag 3.0.0 
+
+ -- TagBuilder <tagbuilder@linuxdeepin.com>  Mon, 28 Dec 2015 20:27:21 +0000
+
+dde-api (2.92.4-4) stable; urgency=low
+
+  * Rebuild Version 2.92.4 
+
+ -- TagBuilder <tabbuilder@linuxdeepin.com>  Sun, 20 Dec 2015 12:21:30 +0000
+
+dde-api (2.92.4-3) stable; urgency=low
+
+  * Rebuild Version 2.92.4 
+
+ -- TagBuilder <tabbuilder@linuxdeepin.com>  Sat, 19 Dec 2015 15:40:07 +0000
+
+dde-api (2.92.4-2) stable; urgency=low
+
+  * Rebuild Version 2.92.4 
+
+ -- TagBuilder <tabbuilder@linuxdeepin.com>  Sat, 19 Dec 2015 15:06:24 +0000
+
+dde-api (2.92.4-1) stable; urgency=low
+
+  * Autobuild Tag 2.92.4 
+
+ -- TagBuilder <tabbuilder@linuxdeepin.com>  Sat, 19 Dec 2015 12:41:55 +0000
+
+dde-api (2.92.3-2) stable; urgency=low
+
+  * Rebuild Version 2.92.3 
+
+ -- TagBuilder <tabbuilder@linuxdeepin.com>  Thu, 10 Dec 2015 21:16:42 +0000
+
+dde-api (2.92.3-1) stable; urgency=low
+
+  * Autobuild Tag 2.92.3 
+
+ -- TagBuilder <tabbuilder@linuxdeepin.com>  Thu, 10 Dec 2015 20:21:19 +0000
+
+dde-api (2.92.2-2) stable; urgency=low
+
+  * Rebuild Version 2.92.2 
+
+ -- TagBuilder <tabbuilder@linuxdeepin.com>  Wed, 09 Dec 2015 21:46:32 +0000
+
+dde-api (2.92.2-1) stable; urgency=low
+
+  * Autobuild Tag 2.92.2 
+
+ -- TagBuilder <tabbuilder@linuxdeepin.com>  Wed, 09 Dec 2015 21:35:52 +0000
+
+dde-api (2.92.1-4) stable; urgency=low
+
+  * Rebuild Version 2.92.1 
+
+ -- TagBuilder <tabbuilder@linuxdeepin.com>  Wed, 09 Dec 2015 07:19:10 +0000
+
+dde-api (2.92.1-3) stable; urgency=low
+
+  * Rebuild Version 2.92.1 
+
+ -- TagBuilder <tabbuilder@linuxdeepin.com>  Wed, 09 Dec 2015 07:12:50 +0000
+
+dde-api (2.92.1-2) stable; urgency=low
+
+  * Rebuild Version 2.92.1 
+
+ -- TagBuilder <tabbuilder@linuxdeepin.com>  Mon, 23 Nov 2015 10:22:14 +0000
+
+dde-api (2.92.1-1) stable; urgency=low
+
+  * Autobuild Tag 2.92.1 
+
+ -- TagBuilder <tabbuilder@linuxdeepin.com>  Fri, 20 Nov 2015 09:14:36 +0000
+
+dde-api (2.91.0-2) unstable; urgency=medium
+
+  * add dde-api-dbg packages. 
+
+ -- Deepin Packages Builder <packages@linuxdeepin.com>  Thu, 06 Aug 2015 14:24:18 +0800
+
+dde-api (2.91.0-1) stable; urgency=low
+
+  * Autobuild Tag 2.91.0 
+
+ -- TagBuilder <tabbuilder@linuxdeepin.com>  Thu, 06 Aug 2015 09:57:09 +0000
+
+dde-api (2.90.0-1) stable; urgency=low
+
+  * Autobuild Tag 2.90.0-1 
+
+ -- TagBuilder <tabbuilder@linuxdeepin.com>  Tue, 30 Jun 2015 10:52:03 +0000
+
+dde-api (0.0.0) unstable; urgency=medium
+
+  * Unstable release.
+
+ -- 宋文武 <songwenwu@linuxdeepin.com>  Thu, 04 Dec 2014 12:47:55 +0800
