@@ -153,11 +153,11 @@ func TestUserAppInfo(t *testing.T) {
 			appInfos: infos,
 			filename: file,
 		}
-		So(manager.Get("application/test.xml").DesktopId, ShouldEqual, "test-web.desktop")
+		So(manager.Get("application/test.xml")[0].DesktopId, ShouldEqual, "test-web.desktop")
 		So(manager.Get("application/test.ppt"), ShouldBeNil)
-		So(manager.Add("test-web.desktop", []string{"application/test.xml"}), ShouldEqual, false)
-		So(manager.Add("test-doc.desktop", []string{"application/test.ppt"}), ShouldEqual, true)
-		So(manager.Get("application/test.ppt").DesktopId, ShouldEqual, "test-doc.desktop")
+		So(manager.Add([]string{"application/test.xml"}, "test-web.desktop"), ShouldEqual, false)
+		So(manager.Add([]string{"application/test.ppt"}, "test-doc.desktop"), ShouldEqual, true)
+		So(manager.Get("application/test.ppt")[0].DesktopId, ShouldEqual, "test-doc.desktop")
 		So(manager.Delete("test-web.desktop"), ShouldBeNil)
 		So(manager.Delete("test-xxx.desktop"), ShouldNotBeNil)
 		So(manager.Get("application/test.xml"), ShouldBeNil)
@@ -165,7 +165,7 @@ func TestUserAppInfo(t *testing.T) {
 		tmp, err := newUserAppManager(file)
 		So(err, ShouldBeNil)
 		So(tmp.Get("application/test.xml"), ShouldBeNil)
-		So(tmp.Get("application/test.ppt").DesktopId, ShouldEqual, "test-doc.desktop")
+		So(tmp.Get("application/test.ppt")[0].DesktopId, ShouldEqual, "test-doc.desktop")
 		os.Remove(file)
 	})
 }

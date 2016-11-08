@@ -117,15 +117,25 @@ func (m *Manager) GetDefaultApp(ty string) (string, error) {
 	return marshal(info)
 }
 
-// SetDefaultApp set the default app for the special mime
+// SetDefaultApp set the default app for the special mime list
 // ty: the special mime
 // deskId: the default app desktop id
 // ret0: error message
-func (m *Manager) SetDefaultApp(ty string, deskId string) error {
-	if ty == AppMimeTerminal {
-		return setDefaultTerminal(deskId)
+func (m *Manager) SetDefaultApp(mimes []string, deskId string) error {
+	var err error
+	for _, mime := range mimes {
+		if mime == AppMimeTerminal {
+			err = setDefaultTerminal(deskId)
+		} else {
+			err = SetAppInfo(mime, deskId)
+		}
+		if err != nil {
+			logger.Warningf("Set '%s' default app to '%s' failed: %v",
+				mime, deskId, err)
+			break
+		}
 	}
-	return SetAppInfo(ty, deskId)
+	return err
 }
 
 // ListApps list the apps that supported the special mime
@@ -142,7 +152,7 @@ func (m *Manager) ListApps(ty string) string {
 	return content
 }
 
-func (m *Manager) ListUserApp(ty string) string {
+func (m *Manager) ListUserApps(ty string) string {
 	apps := m.userManager.Get(ty)
 	if len(apps) == 0 {
 		return ""
@@ -160,14 +170,14 @@ func (m *Manager) ListUserApp(ty string) string {
 	return content
 }
 
-func (m *Manager) AddUserApp(desktopId string, mimes []string) error {
+func (m *Manager) AddUserApp(mimes []string, desktopId string) error {
 	// check app validity
 	_, err := newAppInfoById(desktopId)
 	if err != nil {
 		logger.Error("Invalid desktop id:", desktopId)
 		return err
 	}
-	if !m.userManager.Add(desktopId, mimes) {
+	if !m.userManager.Add(mimes, desktopId) {
 		return nil
 	}
 	return m.userManager.Write()

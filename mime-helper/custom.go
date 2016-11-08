@@ -46,7 +46,7 @@ func (m *userAppManager) Get(mime string) userAppInfos {
 	return ret
 }
 
-func (m *userAppManager) Add(desktopId string, mimes []string) bool {
+func (m *userAppManager) Add(mimes []string, desktopId string) bool {
 	m.locker.Lock()
 	defer m.locker.Unlock()
 	var (
