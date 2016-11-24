@@ -34,13 +34,13 @@ func SetGtkTheme(name string) error {
 		return fmt.Errorf("Invalid theme '%s'", name)
 	}
 
+	setGtk2Theme(name)
+	setGtk3Theme(name)
+
 	old := getXSettingsValue(xsKeyTheme)
 	if old == name {
 		return nil
 	}
-
-	setGtk2Theme(name)
-	setGtk3Theme(name)
 
 	if !setXSettingsKey(xsKeyTheme, name) {
 		return fmt.Errorf("Set theme to '%s' by xsettings failed",
@@ -65,13 +65,13 @@ func SetIconTheme(name string) error {
 		return fmt.Errorf("Invalid theme '%s'", name)
 	}
 
+	setGtk2Icon(name)
+	setGtk3Icon(name)
+
 	old := getXSettingsValue(xsKeyIconTheme)
 	if old == name {
 		return nil
 	}
-
-	setGtk2Icon(name)
-	setGtk3Icon(name)
 
 	if !setXSettingsKey(xsKeyIconTheme, name) {
 		return fmt.Errorf("Set theme to '%s' by xsettings failed",
@@ -85,20 +85,19 @@ func SetCursorTheme(name string) error {
 		return fmt.Errorf("Invalid theme '%s'", name)
 	}
 
+	setGtk2Cursor(name)
+	setGtk3Cursor(name)
+	setDefaultCursor(name)
+
 	old := getXSettingsValue(xsKeyCursorName)
 	if old == name {
 		return nil
 	}
 
-	setGtk2Cursor(name)
-	setGtk3Cursor(name)
-
 	if !setXSettingsKey(xsKeyCursorName, name) {
 		return fmt.Errorf("Set theme to '%s' by xsettings failed",
 			name)
 	}
-
-	setDefaultCursor(name)
 
 	return nil
 }
