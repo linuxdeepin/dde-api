@@ -15,12 +15,11 @@ import (
 	"math/rand"
 	"os"
 	"path"
-	"sync"
-	"time"
-
-	"gir/glib-2.0"
 	"pkg.deepin.io/lib/graphic"
 	dutils "pkg.deepin.io/lib/utils"
+	"pkg.deepin.io/lib/xdg/basedir"
+	"sync"
+	"time"
 )
 
 const (
@@ -30,7 +29,7 @@ const (
 )
 
 const (
-	thumbVersion = "0.1"
+	thumbVersion = "0.2"
 )
 
 // args: src, bg, width, height, force
@@ -114,7 +113,7 @@ func GetThumbnailDest(uri string, width, height int) (string, error) {
 	} else {
 		mid = "thumbnails/small"
 	}
-	dir := path.Join(glib.GetUserCacheDir(), mid)
+	dir := path.Join(basedir.GetUserCacheDir(), mid)
 	err := os.MkdirAll(dir, 0700)
 	if err != nil {
 		return "", err
@@ -124,7 +123,8 @@ func GetThumbnailDest(uri string, width, height int) (string, error) {
 }
 
 func CompositeIcons(icons []string, bg, dest string,
-	iconSize, width, height int) error {
+	iconSize, width, height, padding int) error {
+
 	iconNum := len(icons)
 	if iconNum == 0 {
 		return fmt.Errorf("No icon files")
@@ -139,20 +139,19 @@ func CompositeIcons(icons []string, bg, dest string,
 		defer os.Remove(bg)
 	}
 
-	deltaX := (width - iconSize*iconNum) / (iconNum + 1)
-	deltaY := (height - iconSize) / 2
+	y := (height - iconSize) / 2
+	spaceW := width - iconSize*iconNum
+	x := (spaceW - (iconNum-1)*padding) / 2
 
-	xPoint := deltaX
-	yPoint := deltaY
 	for _, icon := range icons {
-		err = graphic.CompositeImage(bg, icon, dest,
-			xPoint, yPoint, graphic.FormatPng)
+		err = graphic.CompositeImage(bg, icon, dest, x, y, graphic.FormatPng)
 		if err != nil {
 			return err
 		}
 		bg = dest
-		xPoint += deltaX + iconSize
+		x += (iconSize + padding)
 	}
+
 	return nil
 }
 

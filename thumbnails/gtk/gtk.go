@@ -18,6 +18,7 @@ import (
 	. "pkg.deepin.io/dde/api/thumbnails/loader"
 	"pkg.deepin.io/lib/mime"
 	dutils "pkg.deepin.io/lib/utils"
+	"strconv"
 )
 
 const (
@@ -99,18 +100,18 @@ func getThumbDest(src string, width, height int, theme bool) (string, error) {
 }
 
 func doGenThumbnail(name, bg, dest string, width, height int, force bool) (string, error) {
-	if !force && dutils.IsFileExist(dest) {
-		return dest, nil
+	var args = []string{
+		"-theme", name,
+		"-dest", dest,
+		"-width", strconv.Itoa(width),
+		"-height", strconv.Itoa(height),
 	}
-
-	var cmd = cmdGtkThumbnailer
 	if force {
-		cmd += " -f "
+		args = append(args, "-force")
 	}
-	cmd = fmt.Sprintf("%s %s %s %s %d %d", cmd, name, bg, dest, width, height)
-	out, err := exec.Command("/bin/sh", "-c", cmd).CombinedOutput()
+	_, err := exec.Command(cmdGtkThumbnailer, args...).CombinedOutput()
 	if err != nil {
-		return "", fmt.Errorf("%s", string(out))
+		return "", err
 	}
 	return dest, nil
 }

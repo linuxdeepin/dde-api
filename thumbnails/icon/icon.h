@@ -7,12 +7,9 @@
  * (at your option) any later version.
  **/
 
-#ifndef __COMMON_H__
-#define __COMMON_H__
+#ifndef __LOOKUP_H__
+#define __LOOKUP_H__
 
-int gtk_thumbnail(const char *theme, const char *dest, const char *bg,
-		int width, int height);
-
-int try_init();
+char* choose_icon(char* theme, const char** names, int size);
 
 #endif

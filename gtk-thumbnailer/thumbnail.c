@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Deepin Technology Co., Ltd.
+ * Copyright (C) 2016 Deepin Technology Co., Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,164 +8,92 @@
  **/
 
 #include <gtk/gtk.h>
-#include <metacity-private/theme-parser.h>
-#include <metacity-private/preview-widget.h>
+#include <glib/gprintf.h>
+#include <glib.h>
+#include <stdlib.h>
 
-#include  "fix_old_gtk_version.h"
-
-typedef struct _ThumbData {
-    int width;
-    int height;
-
-    char* dest;
-    char* background;
-} ThumbData;
-
-static GtkWidget* get_preview_from_meta(const char* name);
-static void padding_thumbnail(const GtkFixed* fixed);
-static void capture(GtkOffscreenWindow* w, GdkEvent* ev, gpointer user_data);
-
-static gboolean init = FALSE;
-int
-try_init()
+void append_page(GtkNotebook * notebook, const char *tab_label)
 {
-    if (init) {
-        return 0;
-    }
+	GtkWidget *tab_header, *label, *close_button, *child;
 
-    init = TRUE;
-    return gtk_init_check(NULL, NULL)?0:-1;
+	tab_header = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+	child = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+
+	label = gtk_label_new(tab_label);
+	close_button =
+	    gtk_button_new_from_icon_name("window-close-symbolic",
+					  GTK_ICON_SIZE_MENU);
+	gtk_button_set_relief(GTK_BUTTON(close_button), GTK_RELIEF_NONE);
+	gtk_box_pack_start(GTK_BOX(tab_header), label, TRUE, TRUE, 0);
+	gtk_box_pack_end(GTK_BOX(tab_header), close_button, FALSE, FALSE, 0);
+
+	gtk_notebook_append_page(notebook, child, tab_header);
+	gtk_container_child_set(GTK_CONTAINER(notebook), child, "tab-expand",
+				TRUE, NULL);
+
+	gtk_widget_show_all(tab_header);
 }
 
-int
-gtk_thumbnail(const char* name, const char* dest, const char* bg,
-              int width, int height)
+void add_icon_button(GtkHeaderBar * header_bar, const char *icon_name)
 {
-    if (!name || !dest) {
-        g_warning("Invalid theme name or dest");
-        return -1;
-    }
-
-    GtkWidget* w = gtk_offscreen_window_new();
-    if (!w) {
-        g_warning("New offscreen widnow failed");
-        return -1;
-    }
-    gtk_widget_set_size_request(w, width, height);
-    GtkWidget* preview = get_preview_from_meta(name);
-    if (!preview) {
-        g_warning("get metacity theme preview failed");
-        return -1;
-    }
-
-    gtk_container_add(GTK_CONTAINER(w), preview);
-    GtkWidget* fixed = gtk_fixed_new();
-    if (!fixed) {
-        g_warning("New fixed failed");
-        return -1;
-    }
-    gtk_container_add(GTK_CONTAINER(preview), fixed);
-    padding_thumbnail(GTK_FIXED(fixed));
-
-    ThumbData data;
-    data.width = width;
-    data.height = height;
-    data.dest = (char*)dest;
-    data.background = (char*)bg;
-    g_signal_connect(G_OBJECT(w), "damage-event",
-                     G_CALLBACK(capture), &data);
-    gtk_widget_realize(fixed);
-    gtk_widget_show_all(w);
-
-    gtk_main();
-    return 0;
+	GtkWidget *button =
+	    gtk_button_new_from_icon_name(icon_name, GTK_ICON_SIZE_BUTTON);
+	gtk_header_bar_pack_end(GTK_HEADER_BAR(header_bar), button);
 }
 
-static GtkWidget*
-get_preview_from_meta(const char* name)
+static void capture(GtkOffscreenWindow * w, GdkEvent * ev, gpointer user_data)
 {
-    if (!name) {
-        g_warning("Theme name is null");
-        return NULL;
-    }
+	char *dest = (char *)user_data;
 
-    // Init meta_current_theme, otherwise segmentation in metacity
-    meta_theme_set_current("", TRUE);
+	GdkWindow *tmp_window = gtk_widget_get_window(GTK_WIDGET(w));
+	cairo_surface_t *tmp_surface =
+	    gdk_offscreen_window_get_surface(tmp_window);
+	if (!tmp_surface) {
+		g_warning("Get offscreen surface failed");
+		return;
+	}
 
-    GError* error = NULL;
-    MetaTheme* meta = NULL;
-    meta = meta_theme_load(name, &error);
-    if (error) {
-        g_warning("Load meta theme '%s' failed: %s",
-                  name, error->message);
-        g_error_free(error);
-        return NULL;
-    }
-
-    GtkWidget* preview = NULL;
-    preview = meta_preview_new();
-    if (!preview) {
-        g_warning("New metacity preview failed");
-        return NULL;
-    }
-
-    meta_preview_set_theme((MetaPreview*)preview, meta);
-    /*meta_theme_free(meta);*/
-    meta_preview_set_title((MetaPreview*)preview, "");
-
-    return preview;
+	cairo_status_t status = cairo_surface_write_to_png(tmp_surface, dest);
+	g_printf("write png status: %s\n", cairo_status_to_string(status));
+	gtk_main_quit();
 }
 
-static void
-padding_thumbnail(const GtkFixed* fixed)
+void gtk_thumbnail(char *theme_name, char *dest, int width, int min_height)
 {
-    //TODO: Should handle gtk2/gtk3 themes
-}
+	g_setenv("GTK_THEME", theme_name, TRUE);
 
-static void
-capture(GtkOffscreenWindow* w, GdkEvent* ev, gpointer user_data)
-{
-    ThumbData* data = (ThumbData*)user_data;
-    int width = data->width;
-    int height = data->height;
-    char* dest = data->dest;
-    char* bg = data->background;
+	GtkWidget *window;
+	gboolean initialized = gtk_init_check(NULL, NULL);
+	if (!initialized) {
+		return;
+	}
 
-    cairo_surface_t* surface = NULL;
-    if (bg) {
-        surface = cairo_image_surface_create_from_png(bg);
-    } else {
-        surface = cairo_image_surface_create(
-            CAIRO_FORMAT_ARGB32,
-            width, height);
-    }
-    if (!surface) {
-        g_warning("Create surface failed\n");
-        return;
-    }
+	window = gtk_offscreen_window_new();
+	gtk_window_set_title(GTK_WINDOW(window), "Window");
+	gtk_window_set_default_size(GTK_WINDOW(window), width, min_height);
 
-    GdkWindow* tmp_window = gtk_widget_get_window (GTK_WIDGET (w));
-    cairo_surface_t* tmp_surface = gdk_offscreen_window_get_surface (tmp_window);
-    if (!tmp_surface) {
-        g_warning("Get offscreen surface failed");
-        return;
-    }
-    GdkPixbuf*  pbuf = gdk_pixbuf_get_from_surface (tmp_surface,
-                                                    0, 0,
-                                                    gdk_window_get_width (tmp_window),
-                                                    gdk_window_get_height (tmp_window));
-    /*GdkPixbuf* pbuf = gtk_offscreen_window_get_pixbuf(w);*/
-    cairo_t* cairo = cairo_create(surface);
-    if (pbuf) {
-        gdk_cairo_set_source_pixbuf(cairo, pbuf, -15, 15);
-        cairo_paint(cairo);
-        cairo_surface_write_to_png(surface, dest);
+	// header bar
+	GtkWidget *header = gtk_header_bar_new();
+	gtk_header_bar_set_title(GTK_HEADER_BAR(header), NULL);
+	gtk_header_bar_set_show_close_button(GTK_HEADER_BAR(header), TRUE);
+	gtk_header_bar_set_has_subtitle(GTK_HEADER_BAR(header), FALSE);
 
-        g_object_unref(G_OBJECT(pbuf));
-    }
+	add_icon_button(GTK_HEADER_BAR(header), "open-menu-symbolic");
+	add_icon_button(GTK_HEADER_BAR(header), "system-search-symbolic");
 
-    cairo_destroy(cairo);
-    cairo_surface_destroy(surface);
+	// notebook pages
+	GtkWidget *notebook = gtk_notebook_new();
+	append_page(GTK_NOTEBOOK(notebook), "Tab 1");
+	append_page(GTK_NOTEBOOK(notebook), "Tab 2");
 
-    gtk_main_quit();
+	GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), header, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), notebook, TRUE, TRUE, 0);
+	gtk_container_add(GTK_CONTAINER(window), vbox);
+
+	g_signal_connect(G_OBJECT(window), "damage-event", G_CALLBACK(capture),
+			 dest);
+
+	gtk_widget_show_all(window);
+	gtk_main();
 }

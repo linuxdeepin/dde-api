@@ -10,26 +10,18 @@
 package icon
 
 import (
-	"os"
-	"path"
-	"strings"
-
+	"path/filepath"
 	"pkg.deepin.io/dde/api/thumbnails/images"
 	"pkg.deepin.io/dde/api/thumbnails/loader"
+	"pkg.deepin.io/lib/graphic"
 	dutils "pkg.deepin.io/lib/utils"
 )
 
 const (
-	presentIconFolder      = "folder"
-	presentIconTrash       = "user-trash"
-	presentIconFullTrash   = "user-trash-full"
-	presentIconFilemanager = "system-file-manager"
-)
-
-const (
-	defaultWidth    = 128
-	defaultHeight   = 72
-	defaultIconSize = 24
+	defaultWidth    = 320
+	defaultHeight   = 70
+	defaultIconSize = 48
+	defaultPadding  = 4
 )
 
 func doGenThumbnail(src, bg, dest string, width, height int, force, theme bool) (string, error) {
@@ -39,15 +31,16 @@ func doGenThumbnail(src, bg, dest string, width, height int, force, theme bool) 
 
 	src = dutils.DecodeURI(src)
 	bg = dutils.DecodeURI(bg)
-	dir := path.Dir(src)
+	dir := filepath.Dir(src)
 	tmp := loader.GetTmpImage()
-	err := loader.CompositeIcons(getIconFiles(path.Base(dir)), bg, tmp,
-		defaultIconSize, defaultWidth, defaultHeight)
+	themeName := filepath.Base(dir)
+	iconFiles := getIconFiles(themeName)
+	err := loader.CompositeIcons(iconFiles, bg, tmp,
+		defaultIconSize, defaultWidth, defaultHeight, defaultPadding)
 	if err != nil {
 		return "", err
 	}
 
-	defer os.Remove(tmp)
 	if !theme {
 		err = loader.ThumbnailImage(tmp, dest, width, height)
 	} else {
@@ -60,30 +53,60 @@ func doGenThumbnail(src, bg, dest string, width, height int, force, theme bool) 
 	return dest, nil
 }
 
-func getIconFiles(theme string) []string {
-	var files []string
-	files = append(files, GetIconFile(theme, presentIconFolder))
-	trash := GetIconFile(theme, presentIconTrash)
-	if len(trash) == 0 {
-		trash = GetIconFile(theme, presentIconFullTrash)
-	}
-	files = append(files, trash)
-	files = append(files, GetIconFile(theme, presentIconFilemanager))
-	return convertSvgFiles(files)
+// default present icons
+var presentIcons = [][]string{
+	// file manager:
+	{"dde-file-manager", "system-file-manager"},
+	// music player:
+	{"deepin-music", "banshee", "amarok", "deadbeef", "clementine", "rhythmbox"},
+	// image viewer:
+	{"deepin-image-viewer", "eog", "gthumb", "gwenview", "gpicview", "showfoto", "phototonic"},
+	// media/video player:
+	{"deepin-movie", "media-player", "totem", "smplayer", "vlc", "dragonplayer", "kmplayer"},
+	// web browser:
+	{"google-chrome", "firefox", "chromium", "opear", "internet-web-browser", "web-browser", "browser"},
+	// system settings:
+	{"preferences-system"},
 }
 
-func convertSvgFiles(files []string) []string {
+func getIconFiles(theme string) []string {
+	var files []string
+	for _, iconNames := range presentIcons {
+		file := ChooseIcon(theme, iconNames)
+		if file != "" {
+			files = append(files, file)
+		}
+	}
+
+	return fixIconFiles(files)
+}
+
+func fixIconFiles(files []string) []string {
 	var ret []string
 	for _, file := range files {
-		if !strings.HasSuffix(file, ".svg") {
-			ret = append(ret, file)
-			continue
+		ext := filepath.Ext(file)
+		genThumbnail := false
+		if ext == ".svg" {
+			genThumbnail = true
+		} else {
+			// check size
+			w, h, err := graphic.GetImageSize(file)
+			if err != nil {
+				continue
+			}
+			if !(w == defaultIconSize && w == h) {
+				genThumbnail = true
+			}
 		}
-		tmp, err := images.GenThumbnail(file, defaultIconSize, defaultIconSize, true)
-		if err != nil {
-			return nil
+
+		if genThumbnail {
+			var err error
+			file, err = images.GenThumbnail(file, defaultIconSize, defaultIconSize, true)
+			if err != nil {
+				continue
+			}
 		}
-		ret = append(ret, tmp)
+		ret = append(ret, file)
 	}
 
 	return ret

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Deepin Technology Co., Ltd.
+ * Copyright (C) 2016 Deepin Technology Co., Ltd.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -9,94 +9,68 @@
 
 package main
 
+// #cgo pkg-config: gtk+-3.0
+// #include <stdlib.h>
+// void gtk_thumbnail(char *theme, char *dest, int width, int min_height);
+import "C"
+
 import (
+	"flag"
+	"fmt"
 	"os"
-	"time"
-
-	"gopkg.in/alecthomas/kingpin.v2"
-	"pkg.deepin.io/lib"
-	"pkg.deepin.io/lib/dbus"
-	"pkg.deepin.io/lib/log"
-)
-
-const (
-	dbusDest = "com.deepin.api.GtkThumbnailer"
-	dbusPath = "/com/deepin/api/GtkThumbnailer"
-	dbusIFC  = "com.deepin.api.GtkThumbnailer"
+	"path/filepath"
+	"unsafe"
 )
 
 var (
-	logger = log.NewLogger("api/GtkThumbnailer")
-
-	_force  = kingpin.Flag("force", "Force to generate thumbnail").Short('f').Bool()
-	_src    = kingpin.Arg("src", "The source").String()
-	_bg     = kingpin.Arg("bg", "The background").String()
-	_dest   = kingpin.Arg("dest", "The dest").String()
-	_width  = kingpin.Arg("width", "The thumbnail width").Int()
-	_height = kingpin.Arg("height", "The thumbnail height").Int()
+	force  = flag.Bool("force", false, "Force to generate thumbnail")
+	theme  = flag.String("theme", "", "The theme name")
+	dest   = flag.String("dest", "", "The destination of thumbnail file")
+	width  = flag.Int("width", 0, "The thumbnail width")
+	height = flag.Int("height", 0, "The thumbnail min height")
 )
 
-type Manager struct {
-	running bool
-}
-
-func (*Manager) GetDBusInfo() dbus.DBusInfo {
-	return dbus.DBusInfo{
-		Dest:       dbusDest,
-		ObjectPath: dbusPath,
-		Interface:  dbusIFC,
-	}
-}
-
-func (m *Manager) Thumbnail(name, bg, dest string, width, height int32, force bool) error {
-	m.running = true
-	defer func() {
-		m.running = false
-	}()
-	return doGenThumbnail(name, bg, dest, int(width), int(height), force)
-}
-
 func main() {
-	err := initGtkEnv()
-	if err != nil {
-		logger.Error(err)
-		return
-	}
+	flag.Parse()
+	if flag.Parsed() {
 
-	kingpin.Parse()
-	if len(os.Args) > 5 {
-		err := doGenThumbnail(*_src, *_bg, *_dest, *_width, *_height, *_force)
+		if *theme == "" || *dest == "" || *width == 0 || *height == 0 {
+			flag.Usage()
+			os.Exit(1)
+		}
+
+		err := doGenThumbnail(*theme, *dest, *width, *height, *force)
 		if err != nil {
-			logger.Error("Generate gtk thumbnail failed:", *_src, *_dest, err)
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(2)
 		}
-		return
 	}
+	return
+}
 
-	if !lib.UniqueOnSession(dbusDest) {
-		logger.Warning("There already has a gtk thumbnailer running...")
-		return
-	}
-
-	var m = new(Manager)
-	m.running = false
-	err = dbus.InstallOnSession(m)
-	if err != nil {
-		logger.Error("Install dbus session failed:", err)
-		return
-	}
-	dbus.DealWithUnhandledMessage()
-
-	dbus.SetAutoDestroyHandler(time.Second*5, func() bool {
-		if m.running {
-			return false
+func doGenThumbnail(name, dest string, width, height int, force bool) error {
+	if _, err := os.Stat(dest); err != nil {
+		if !os.IsNotExist(err) {
+			return err
 		}
-		return true
-	})
-
-	err = dbus.Wait()
-	if err != nil {
-		logger.Error("Lost dbus connect:", err)
-		os.Exit(-1)
+		// file dest not exist
+	} else {
+		// file dest exist
+		if force {
+			os.Remove(dest)
+		} else {
+			return nil
+		}
 	}
-	os.Exit(0)
+
+	os.MkdirAll(filepath.Dir(dest), 0755)
+	cName := C.CString(name)
+	defer C.free(unsafe.Pointer(cName))
+	cDest := C.CString(dest)
+	defer C.free(unsafe.Pointer(cDest))
+	C.gtk_thumbnail(cName, cDest, C.int(width), C.int(height))
+
+	// check thumbnail result
+	_, err := os.Stat(dest)
+	return err
 }

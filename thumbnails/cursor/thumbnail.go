@@ -12,21 +12,15 @@ package cursor
 import (
 	"os"
 	"path"
-
 	"pkg.deepin.io/dde/api/thumbnails/loader"
 	dutils "pkg.deepin.io/lib/utils"
 )
 
 const (
-	presentCursorLeftPtr   = "left_ptr"
-	presentCursorLeftWatch = "left_ptr_watch"
-	presentCursorQuestion  = "question_arrow"
-)
-
-const (
-	defaultWidth    = 128
-	defaultHeight   = 72
+	defaultWidth    = 320
+	defaultHeight   = 70
 	defaultIconSize = 24
+	defaultPadding  = 12
 )
 
 func doGenThumbnail(src, bg, dest string, width, height int, force, theme bool) (string, error) {
@@ -38,8 +32,9 @@ func doGenThumbnail(src, bg, dest string, width, height int, force, theme bool) 
 	bg = dutils.DecodeURI(bg)
 	dir := path.Dir(src)
 	tmp := loader.GetTmpImage()
-	err := loader.CompositeIcons(getCursorIcons(dir), bg, tmp,
-		defaultIconSize, defaultWidth, defaultHeight)
+	cursorIcons := getCursorIcons(dir)
+	err := loader.CompositeIcons(cursorIcons, bg, tmp,
+		defaultIconSize, defaultWidth, defaultHeight, defaultPadding)
 	os.RemoveAll(xcur2pngCache)
 	if err != nil {
 		return "", err
@@ -58,20 +53,28 @@ func doGenThumbnail(src, bg, dest string, width, height int, force, theme bool) 
 	return dest, nil
 }
 
-func getCursorIcons(dir string) []string {
-	presents := []string{
-		presentCursorLeftPtr,
-		presentCursorLeftWatch,
-		presentCursorQuestion,
-	}
+var presentCursors = [][]string{
+	{"left_ptr"},
+	{"left_ptr_watch"},
+	{"x-cursor", "X_cursor"},
+	{"hand2", "hand1"},
+	{"grab", "grabbing", "closedhand"},
+	{"move"},
+	{"sb_v_double_arrow"},
+	{"sb_h_double_arrow"},
+	{"watch", "wait"},
+}
 
+func getCursorIcons(dir string) []string {
 	var files []string
-	for _, name := range presents {
-		tmp, err := XCursorToPng(path.Join(dir, "cursors", name))
-		if err != nil {
-			return nil
+	for _, cursors := range presentCursors {
+		for _, cursor := range cursors {
+			tmp, err := XCursorToPng(path.Join(dir, "cursors", cursor))
+			if err == nil {
+				files = append(files, tmp)
+				break
+			}
 		}
-		files = append(files, tmp)
 	}
 	return files
 }
