@@ -22,7 +22,8 @@ func FindCommonModes(infosGroup ...ModeInfos) ModeInfos {
 	tmpSet := make(map[string]ModeInfo)
 
 	for _, infos := range infosGroup {
-		for _, info := range infos.filterBySize() {
+		sort.Sort(infos)
+		for _, info := range infos.FilterBySize() {
 			wh := fmt.Sprintf("%d%d", info.Width, info.Height)
 			countSet[wh] += 1
 			tmpSet[wh] = info
@@ -120,10 +121,14 @@ func (infos ModeInfos) Swap(i, j int) {
 	infos[i], infos[j] = infos[j], infos[i]
 }
 
-func (infos ModeInfos) filterBySize() ModeInfos {
+func (infos ModeInfos) FilterBySize() ModeInfos {
 	var set = make(map[string]ModeInfo)
 	for _, info := range infos {
-		set[fmt.Sprintf("%d%d", info.Width, info.Height)] = info
+		wh := fmt.Sprintf("%d%d", info.Width, info.Height)
+		if _, ok := set[wh]; ok {
+			continue
+		}
+		set[wh] = info
 	}
 
 	var ret ModeInfos
