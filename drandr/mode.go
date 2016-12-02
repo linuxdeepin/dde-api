@@ -32,7 +32,7 @@ func FindCommonModes(infosGroup ...ModeInfos) ModeInfos {
 
 	for wh, count := range countSet {
 		// remove not common mode
-		if count < len(countSet) {
+		if count < len(infosGroup) {
 			delete(tmpSet, wh)
 		}
 	}
@@ -41,6 +41,7 @@ func FindCommonModes(infosGroup ...ModeInfos) ModeInfos {
 	for _, info := range tmpSet {
 		commons = append(commons, info)
 	}
+	sort.Sort(commons)
 	return commons
 }
 
