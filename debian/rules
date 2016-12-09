@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+
+export GOPATH := /usr/share/gocode
+
+%:
+	dh $@ --with systemd
+
+ifdef USE_GCCGO
+override_dh_strip:
+	true
+else
+override_dh_strip:
+	dh_strip --dbgsym-migration=dde-api-dbg
+endif
+
