@@ -67,6 +67,10 @@ var presentIcons = [][]string{
 	{"google-chrome", "firefox", "chromium", "opear", "internet-web-browser", "web-browser", "browser"},
 	// system settings:
 	{"preferences-system"},
+	// text editor:
+	{"accessories-text-editor", "text-editor", "gedit", "kedit", "xfce-edit"},
+	// terminal:
+	{"deepin-terminal", "utilities-terminal", "terminal", "gnome-terminal", "xfce-terminal", "terminator", "openterm"},
 }
 
 func getIconFiles(theme string) []string {
@@ -75,6 +79,9 @@ func getIconFiles(theme string) []string {
 		file := ChooseIcon(theme, iconNames)
 		if file != "" {
 			files = append(files, file)
+			if len(files) == 6 {
+				break
+			}
 		}
 	}
 
