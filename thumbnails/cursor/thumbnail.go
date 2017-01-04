@@ -32,6 +32,7 @@ func doGenThumbnail(src, bg, dest string, width, height int, force, theme bool) 
 	bg = dutils.DecodeURI(bg)
 	dir := path.Dir(src)
 	tmp := loader.GetTmpImage()
+	os.MkdirAll(xcur2pngCache, 0755)
 	cursorIcons := getCursorIcons(dir)
 	err := loader.CompositeIcons(cursorIcons, bg, tmp,
 		defaultIconSize, defaultWidth, defaultHeight, defaultPadding)

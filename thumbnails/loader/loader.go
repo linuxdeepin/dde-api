@@ -29,7 +29,7 @@ const (
 )
 
 const (
-	thumbVersion = "0.2"
+	thumbVersion = "0.3"
 )
 
 // args: src, bg, width, height, force
