@@ -10,13 +10,18 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"pkg.deepin.io/lib/dbus"
+	"pkg.deepin.io/lib/strv"
 	dutils "pkg.deepin.io/lib/utils"
 	"sync"
 )
 
 const _FullscreenId = "d41d8cd98f00b204e9800998ecf8427e"
+
+var errAreasRegistered = errors.New("the areas has been registered")
+var errAreasNotRegistered = errors.New("the areas has not been registered yet")
 
 type coordinateInfo struct {
 	areas        []coordinateRange
@@ -45,10 +50,11 @@ type Manager struct {
 	CancelArea    func(string)
 	CancelAllArea func() //resolution changed
 
+	pidAidsMap      map[uint32]strv.Strv
 	idAreaInfoMap   map[string]*coordinateInfo
 	idReferCountMap map[string]int32
 
-	countLock sync.Mutex
+	mu sync.Mutex
 }
 
 var _manager *Manager
@@ -56,6 +62,7 @@ var _manager *Manager
 func GetManager() *Manager {
 	if _manager == nil {
 		_manager = &Manager{}
+		_manager.pidAidsMap = make(map[uint32]strv.Strv)
 		_manager.idAreaInfoMap = make(map[string]*coordinateInfo)
 		_manager.idReferCountMap = make(map[string]int32)
 	}
@@ -167,22 +174,52 @@ func (m *Manager) cancelAllReigsterArea() {
 	dbus.Emit(m, "CancelAllArea")
 }
 
-func (m *Manager) RegisterArea(x1, y1, x2, y2, flag int32) (string, error) {
-	return m.RegisterAreas(
+func (m *Manager) isPidAreaRegistered(pid uint32, areasId string) bool {
+	areasIds := m.pidAidsMap[pid]
+	return areasIds.Contains(areasId)
+}
+
+func (m *Manager) registerPidArea(pid uint32, areasId string) {
+	areasIds := m.pidAidsMap[pid]
+	areasIds, _ = areasIds.Add(areasId)
+	m.pidAidsMap[pid] = areasIds
+}
+
+func (m *Manager) unregisterPidArea(pid uint32, areasId string) {
+	areasIds := m.pidAidsMap[pid]
+	areasIds, _ = areasIds.Delete(areasId)
+	if len(areasIds) > 0 {
+		m.pidAidsMap[pid] = areasIds
+	} else {
+		delete(m.pidAidsMap, pid)
+	}
+}
+
+func (m *Manager) RegisterArea(dbusMsg dbus.DMessage, x1, y1, x2, y2, flag int32) (string, error) {
+	return m.RegisterAreas(dbusMsg,
 		[]coordinateRange{coordinateRange{x1, y1, x2, y2}},
 		flag)
 }
 
-func (m *Manager) RegisterAreas(areas []coordinateRange, flag int32) (id string, err error) {
+func (m *Manager) RegisterAreas(dbusMsg dbus.DMessage, areas []coordinateRange, flag int32) (id string, err error) {
 	md5Str, ok := m.sumAreasMd5(areas, flag)
 	if !ok {
 		err = fmt.Errorf("sumAreasMd5 failed: %v", areas)
 		return
 	}
 	id = md5Str
+	pid := dbusMsg.GetSenderPID()
+	logger.Debugf("RegisterAreas id %q pid %d", id, pid)
 
-	m.countLock.Lock()
-	defer m.countLock.Unlock()
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if m.isPidAreaRegistered(pid, id) {
+		logger.Warningf("RegisterAreas id %q pid %d failed: %v", id, pid, errAreasRegistered)
+		return "", errAreasRegistered
+	}
+	m.registerPidArea(pid, id)
+
 	_, ok = m.idReferCountMap[id]
 	if ok {
 		m.idReferCountMap[id] += 1
@@ -202,33 +239,54 @@ func (m *Manager) RegisterAreas(areas []coordinateRange, flag int32) (id string,
 	return id, nil
 }
 
-func (m *Manager) RegisterFullScreen() (id string) {
-	m.countLock.Lock()
-	defer m.countLock.Unlock()
+func (m *Manager) RegisterFullScreen(dbusMsg dbus.DMessage) (id string, err error) {
+	pid := dbusMsg.GetSenderPID()
+	logger.Debugf("RegisterFullScreen pid %d", pid)
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if m.isPidAreaRegistered(pid, _FullscreenId) {
+		logger.Warningf("RegisterFullScreen pid %d failed: %v", pid, errAreasRegistered)
+		return "", errAreasRegistered
+	}
+
 	_, ok := m.idReferCountMap[_FullscreenId]
 	if !ok {
 		m.idReferCountMap[_FullscreenId] = 1
 	} else {
 		m.idReferCountMap[_FullscreenId] += 1
 	}
-
-	return _FullscreenId
+	m.registerPidArea(pid, _FullscreenId)
+	return _FullscreenId, nil
 }
 
 func (m *Manager) UnregisterArea(dbusMsg dbus.DMessage, id string) {
-	_, ok := m.idReferCountMap[id]
-	if !ok {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	pid := dbusMsg.GetSenderPID()
+	logger.Debugf("UnregisterArea id %q pid %d", id, pid)
+	if !m.isPidAreaRegistered(pid, id) {
+		logger.Warningf("UnregisterArea id %q pid %d failed: %v", id, pid, errAreasNotRegistered)
 		return
 	}
 
-	m.countLock.Lock()
-	defer m.countLock.Unlock()
+	m.unregisterPidArea(pid, id)
+
+	_, ok := m.idReferCountMap[id]
+	if !ok {
+		logger.Warningf("not found key %q in idReferCountMap", id)
+		return
+	}
+
 	m.idReferCountMap[id] -= 1
 	if m.idReferCountMap[id] == 0 {
 		delete(m.idReferCountMap, id)
 		delete(m.idAreaInfoMap, id)
 	}
 	dbus.Emit(m, "CancelArea", fmt.Sprintf("%v", dbusMsg.GetSenderPID()))
+	return
 }
 
 func (m *Manager) getIdList(x, y int32) ([]string, []string) {
