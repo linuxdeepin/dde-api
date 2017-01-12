@@ -1,3 +1,0 @@
-[D-BUS Service]
-Name=com.deepin.api.Mime
-Exec=/usr/lib/deepin-api/mime-helper

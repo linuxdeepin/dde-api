@@ -32,7 +32,6 @@ BINARIES =  \
     lunar-calendar \
     mousearea \
     thumbnailer \
-    mime-helper \
     hans2pinyin \
     cursor-helper \
     gtk-thumbnailer \
@@ -74,8 +73,8 @@ install-binary: build
 	mkdir -pv ${DESTDIR}${PREFIX}/share/dbus-1/system-services
 	cp -v misc/system-services/*.service ${DESTDIR}${PREFIX}/share/dbus-1/system-services/
 
-	mkdir -pv ${DESTDIR}${PREFIX}/share
-	cp -R misc/dde-api ${DESTDIR}${PREFIX}/share
+	#mkdir -pv ${DESTDIR}${PREFIX}/share
+	#cp -R misc/dde-api ${DESTDIR}${PREFIX}/share
 
 	mkdir -pv ${DESTDIR}${SYSTEMD_SERVICE_DIR}
 	cp -R misc/systemd/system/*.service ${DESTDIR}${SYSTEMD_SERVICE_DIR}
