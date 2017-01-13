@@ -94,8 +94,7 @@ static int
 is_touchpad_device(int deviceid)
 {
     return (is_property_exist(deviceid, "Synaptics Off") ||
-            (is_property_exist(deviceid, "libinput Tapping Enabled") &&
-             is_property_exist(deviceid, "libinput Disable While Typing Enabled")));
+            is_property_exist(deviceid, "libinput Tapping Enabled"));
 }
 
 // TODO: support libinput
