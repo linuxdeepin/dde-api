@@ -13,7 +13,6 @@ DDE API provides some dbus interfaces that is used for screen zone detecting, th
 * librsvg-2.0
 * libcanberra
 * poppler-glib
-* libmetacity-private
 
 ### Runtime Dependencies
 
