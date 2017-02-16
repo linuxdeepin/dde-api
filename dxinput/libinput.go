@@ -46,9 +46,6 @@ const (
 	libinputPropHorizScrollEnabled = "libinput Horizontal Scroll Enabled"
 )
 
-// -1: unknow, 0: not used, 1: used
-var _isLibinputUsed int = -1
-
 // scroll methods: two-finger, edge, button. button only for trackpoint
 func libinputCanScroll(id int32) (bool, bool, bool) {
 	available, err := getInt8Prop(id, libinputPropScrollMethodsAvailable, 3)
