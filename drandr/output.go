@@ -20,13 +20,18 @@ type OutputInfo struct {
 	Invalid    bool
 	Timestamp  xproto.Timestamp
 
+	EDID []byte
+
 	Clones randrIdList
 	Crtcs  randrIdList
 	Modes  randrIdList
 }
 type OutputInfos []OutputInfo
 
-var badOutputReg = regexp.MustCompile(`.+-\d-\d$`)
+var (
+	edidAtom     xproto.Atom
+	badOutputReg = regexp.MustCompile(`.+-\d-\d$`)
+)
 
 func (infos OutputInfos) Query(id uint32) OutputInfo {
 	return infos.query("id", fmt.Sprintf("%v", id))
@@ -97,6 +102,7 @@ func toOuputInfo(conn *xgb.Conn, output randr.Output) OutputInfo {
 		Crtcs:      crtcsToRandrIdList(reply.Crtcs),
 		Modes:      modesToRandrIdList(reply.Modes),
 	}
+	info.EDID, _ = getOutputEdid(conn, output)
 	info.Invalid = isBadOutput(conn, info.Name, reply.Crtc)
 	info.Crtc = toCrtcInfo(conn, reply.Crtc)
 
@@ -160,4 +166,34 @@ func isBadOutput(conn *xgb.Conn, output string, crtc randr.Crtc) bool {
 			lastConfigTimestamp, 0, 0, 0, 1, nil)
 	}
 	return true
+}
+
+func getOutputEdid(conn *xgb.Conn, output randr.Output) ([]byte, error) {
+	atom, err := getEdidAtom(conn)
+	if err != nil {
+		return nil, err
+	}
+
+	reply, err := randr.GetOutputProperty(conn, output,
+		atom, xproto.AtomInteger,
+		0, 128, false, false).Reply()
+	if err != nil {
+		return nil, err
+	}
+	return reply.Data, nil
+}
+
+func getEdidAtom(conn *xgb.Conn) (xproto.Atom, error) {
+	if edidAtom != 0 {
+		return edidAtom, nil
+	}
+
+	var prop = "EDID"
+	reply, err := xproto.InternAtom(conn, false,
+		uint16(len(prop)), prop).Reply()
+	if err != nil {
+		return 0, err
+	}
+	edidAtom = reply.Atom
+	return edidAtom, nil
 }
