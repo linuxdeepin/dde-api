@@ -77,6 +77,9 @@ func isDeviceEnabled(id int32) bool {
  **/
 
 func setMotionAcceleration(id int32, accel float32) error {
+	if accel <= 0 {
+		return fmt.Errorf("Invalid accel value: %v, must > 0", accel)
+	}
 	value, err := getMotionAcceleration(id)
 	if err != nil {
 		return err

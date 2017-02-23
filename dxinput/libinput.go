@@ -41,8 +41,6 @@ const (
 	// 1 boolean value (8 bit, 0 or 1).
 	libinputPropMiddleEmulationEnabled = "libinput Middle Emulation Enabled"
 	// 1 boolean value (8 bit, 0 or 1).
-	libinputPropDiableWhileTypingEnabled = "libinput Disable While Typing Enabled"
-	// 1 boolean value (8 bit, 0 or 1).
 	libinputPropHorizScrollEnabled = "libinput Horizontal Scroll Enabled"
 )
 
@@ -169,6 +167,12 @@ func libinputGetAccel(id int32) (float32, error) {
 }
 
 func libinputSetAccel(id int32, accel float32) error {
+	// range [-1 ~ 1]
+	if accel > 1 {
+		accel = 1
+	} else if accel < -1 {
+		accel = -1
+	}
 	v, _ := libinputGetAccel(id)
 	if v == accel {
 		return nil

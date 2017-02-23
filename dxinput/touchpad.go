@@ -372,7 +372,7 @@ func (tpad *Touchpad) ScrollDistance() (int32, int32) {
 
 func (tpad *Touchpad) SetMotionAcceleration(accel float32) error {
 	if tpad.isLibinputUsed {
-		return libinputSetAccel(tpad.Id, accel)
+		return libinputSetAccel(tpad.Id, 1-accel/1.5)
 	}
 	return setMotionAcceleration(tpad.Id, accel)
 }
@@ -410,25 +410,6 @@ func (tpad *Touchpad) MotionScaling() (float32, error) {
 		return 0, fmt.Errorf("Libinput unsupport the property")
 	}
 	return getMotionScaling(tpad.Id)
-}
-
-func (tpad *Touchpad) CanDisableWhileTyping() bool {
-	if !tpad.isLibinputUsed {
-		return true
-	}
-	return libinputInt8PropCan(tpad.Id, libinputPropDiableWhileTypingEnabled)
-}
-
-func (tpad *Touchpad) EnableDisableWhileTyping(enabled bool) error {
-	if !tpad.isLibinputUsed {
-		return fmt.Errorf("Libinput not enabled")
-	}
-
-	if enabled == tpad.CanDisableWhileTyping() {
-		return nil
-	}
-
-	return libinputInt8PropSet(tpad.Id, libinputPropDiableWhileTypingEnabled, enabled)
 }
 
 func (tpad *Touchpad) SetRotation(direction uint8) error {

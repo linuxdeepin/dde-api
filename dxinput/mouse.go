@@ -310,7 +310,7 @@ func (m *Mouse) CanNaturalScroll() bool {
 
 func (m *Mouse) SetMotionAcceleration(accel float32) error {
 	if m.isLibinputUsed {
-		return libinputSetAccel(m.Id, accel)
+		return libinputSetAccel(m.Id, 1-accel/1.5)
 	}
 	return setMotionAcceleration(m.Id, accel)
 }
