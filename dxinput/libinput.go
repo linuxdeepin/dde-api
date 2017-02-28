@@ -42,6 +42,8 @@ const (
 	libinputPropMiddleEmulationEnabled = "libinput Middle Emulation Enabled"
 	// 1 boolean value (8 bit, 0 or 1).
 	libinputPropHorizScrollEnabled = "libinput Horizontal Scroll Enabled"
+	// 1 boolean value (8 bit, 0 or 1).
+	libinputPropDisableWhileTyping = "libinput Disable While Typing Enabled"
 )
 
 // scroll methods: two-finger, edge, button. button only for trackpoint

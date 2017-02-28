@@ -418,3 +418,22 @@ func (tpad *Touchpad) SetRotation(direction uint8) error {
 	}
 	return setRotation(tpad.Id, direction)
 }
+
+func (tpad *Touchpad) CanDisableWhileTyping() bool {
+	if !tpad.isLibinputUsed {
+		return true
+	}
+	return libinputInt8PropCan(tpad.Id, libinputPropDisableWhileTyping)
+}
+
+func (tpad *Touchpad) EnableDisableWhileTyping(enabled bool) error {
+	if !tpad.isLibinputUsed {
+		return fmt.Errorf("Unsupported this prop: unused libinput as driver")
+	}
+
+	if enabled == tpad.CanDisableWhileTyping() {
+		return nil
+	}
+
+	return libinputInt8PropSet(tpad.Id, libinputPropDisableWhileTyping, enabled)
+}
