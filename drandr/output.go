@@ -106,14 +106,8 @@ func toOuputInfo(conn *xgb.Conn, output randr.Output) OutputInfo {
 	info.Invalid = isBadOutput(conn, info.Name, reply.Crtc)
 	info.Crtc = toCrtcInfo(conn, reply.Crtc)
 
-	if reply.Crtc == 0 {
-		if len(info.Modes) != 0 {
-			info.Invalid = false
-		}
-	} else {
-		if info.Crtc.Width == 0 || info.Crtc.Height == 0 {
-			info.Invalid = true
-		}
+	if !info.Invalid {
+		info.Invalid = (len(info.EDID) == 0)
 	}
 	return info
 }
