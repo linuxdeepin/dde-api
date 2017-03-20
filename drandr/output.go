@@ -109,6 +109,12 @@ func toOuputInfo(conn *xgb.Conn, output randr.Output) OutputInfo {
 	if !info.Invalid {
 		info.Invalid = (len(info.EDID) == 0)
 	}
+
+	// if in virtualbox will use fbdev/vesa as driver, so no edid
+	// the output name is 'default'
+	if info.Name == "default" && len(info.Modes) != 0 {
+		info.Invalid = false
+	}
 	return info
 }
 
