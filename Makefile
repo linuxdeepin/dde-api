@@ -9,7 +9,7 @@ SYSTEMD_SERVICE_DIR = ${SYSTEMD_LIB_DIR}/systemd/system/
 ifndef USE_GCCGO
     GOBUILD = go build
 else
-    LDFLAGS = $(shell pkg-config --libs gio-2.0 gdk-3.0 gdk-pixbuf-xlib-2.0 x11 xi xfixes xcursor libcanberra cairo-ft poppler-glib librsvg-2.0)
+    LDFLAGS = $(shell pkg-config --libs gio-2.0 gtk+-3.0 gdk-pixbuf-xlib-2.0 x11 xi xfixes xcursor libcanberra cairo-ft poppler-glib librsvg-2.0)
     GOBUILD = go build -compiler gccgo -gccgoflags "${LDFLAGS}"
 endif
 
@@ -96,6 +96,6 @@ install-dev: build-dev ${addprefix install/lib/, ${LIBRARIES}}
 install: install-binary install-dev
 
 clean:
-	rm -rf out/bin
+	rm -rf out/bin gobuild out
 
 rebuild: clean build
