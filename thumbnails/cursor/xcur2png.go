@@ -25,10 +25,6 @@ import (
 	"unsafe"
 )
 
-const (
-	xcur2pngCache = "/tmp/xcur2png-cache"
-)
-
 func loadXCursorImage(filename string, size int) *C.XcursorImage {
 	cFilename := C.CString(filename)
 	xcImg := C.XcursorFilenameLoadImage(cFilename, C.int(size))
@@ -73,14 +69,14 @@ func savePngFile(m image.Image, filename string) error {
 	return png.Encode(f, m)
 }
 
-func XCursorToPng(filename string) (string, error) {
+func XCursorToPng(filename, destDir string) (string, error) {
 	xcImg := loadXCursorImage(filename, 24)
 	if xcImg == nil {
 		return "", fmt.Errorf("load x cursor image %q failed", filename)
 	}
 	defer destroyXCursorImage(xcImg)
 	img := newImageFromXCurorImage(xcImg)
-	dest := filepath.Join(xcur2pngCache, filepath.Base(filename)+".png")
+	dest := filepath.Join(destDir, filepath.Base(filename)+".png")
 	err := savePngFile(img, dest)
 	if err != nil {
 		return "", err

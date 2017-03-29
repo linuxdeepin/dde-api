@@ -10,6 +10,7 @@
 package cursor
 
 import (
+	"io/ioutil"
 	"os"
 	"path"
 	"pkg.deepin.io/dde/api/thumbnails/loader"
@@ -32,11 +33,15 @@ func doGenThumbnail(src, bg, dest string, width, height int, force, theme bool) 
 	bg = dutils.DecodeURI(bg)
 	dir := path.Dir(src)
 	tmp := loader.GetTmpImage()
-	os.MkdirAll(xcur2pngCache, 0755)
-	cursorIcons := getCursorIcons(dir)
-	err := loader.CompositeIcons(cursorIcons, bg, tmp,
+	cacheDir, err := ioutil.TempDir("", "xcur2png")
+	if err != nil {
+		return "", err
+	}
+	defer os.RemoveAll(cacheDir)
+
+	cursorIcons := getCursorIcons(dir, cacheDir)
+	err = loader.CompositeIcons(cursorIcons, bg, tmp,
 		defaultIconSize, defaultWidth, defaultHeight, defaultPadding)
-	os.RemoveAll(xcur2pngCache)
 	if err != nil {
 		return "", err
 	}
@@ -66,11 +71,11 @@ var presentCursors = [][]string{
 	{"watch", "wait"},
 }
 
-func getCursorIcons(dir string) []string {
+func getCursorIcons(dir, cacheDir string) []string {
 	var files []string
 	for _, cursors := range presentCursors {
 		for _, cursor := range cursors {
-			tmp, err := XCursorToPng(path.Join(dir, "cursors", cursor))
+			tmp, err := XCursorToPng(path.Join(dir, "cursors", cursor), cacheDir)
 			if err == nil {
 				files = append(files, tmp)
 				break
