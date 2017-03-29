@@ -22,6 +22,7 @@ import (
 const (
 	wmSchema        = "com.deepin.wrap.gnome.desktop.wm.preferences"
 	metacitySchema  = "com.deepin.wrap.gnome.metacity"
+	interfaceSchema = "com.deepin.wrap.gnome.desktop.interface"
 	xsettingsSchema = "com.deepin.xsettings"
 
 	xsKeyTheme      = "theme-name"
@@ -88,6 +89,7 @@ func SetCursorTheme(name string) error {
 	setGtk2Cursor(name)
 	setGtk3Cursor(name)
 	setDefaultCursor(name)
+	setWMCursor(name)
 
 	old := getXSettingsValue(xsKeyCursorName)
 	if old == name {
@@ -100,6 +102,15 @@ func SetCursorTheme(name string) error {
 	}
 
 	return nil
+}
+
+// set cursor theme for deepin-wm
+func setWMCursor(name string) {
+	ifc, _ := dutils.CheckAndNewGSettings(interfaceSchema)
+	if ifc != nil {
+		defer ifc.Unref()
+		ifc.SetString("cursor-theme", name)
+	}
 }
 
 func GetCursorTheme() string {
