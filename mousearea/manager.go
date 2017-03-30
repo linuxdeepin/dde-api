@@ -47,7 +47,6 @@ type Manager struct {
 	KeyPress      func(string, int32, int32, string)
 	KeyRelease    func(string, int32, int32, string)
 
-	CancelArea    func(string)
 	CancelAllArea func() //resolution changed
 
 	pidAidsMap      map[uint32]strv.Strv
@@ -261,7 +260,7 @@ func (m *Manager) RegisterFullScreen(dbusMsg dbus.DMessage) (id string, err erro
 	return _FullscreenId, nil
 }
 
-func (m *Manager) UnregisterArea(dbusMsg dbus.DMessage, id string) {
+func (m *Manager) UnregisterArea(dbusMsg dbus.DMessage, id string) bool {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -269,7 +268,7 @@ func (m *Manager) UnregisterArea(dbusMsg dbus.DMessage, id string) {
 	logger.Debugf("UnregisterArea id %q pid %d", id, pid)
 	if !m.isPidAreaRegistered(pid, id) {
 		logger.Warningf("UnregisterArea id %q pid %d failed: %v", id, pid, errAreasNotRegistered)
-		return
+		return false
 	}
 
 	m.unregisterPidArea(pid, id)
@@ -277,7 +276,7 @@ func (m *Manager) UnregisterArea(dbusMsg dbus.DMessage, id string) {
 	_, ok := m.idReferCountMap[id]
 	if !ok {
 		logger.Warningf("not found key %q in idReferCountMap", id)
-		return
+		return false
 	}
 
 	m.idReferCountMap[id] -= 1
@@ -285,8 +284,8 @@ func (m *Manager) UnregisterArea(dbusMsg dbus.DMessage, id string) {
 		delete(m.idReferCountMap, id)
 		delete(m.idAreaInfoMap, id)
 	}
-	dbus.Emit(m, "CancelArea", fmt.Sprintf("%v", dbusMsg.GetSenderPID()))
-	return
+	logger.Debugf("area %q unregistered by pid %d", id, pid)
+	return true
 }
 
 func (m *Manager) getIdList(x, y int32) ([]string, []string) {
