@@ -26,7 +26,7 @@ findAlternative(const char *name)
 {
     // Qt uses non-standard names for some core cursors.
     // If Xcursor fails to load the cursor, Qt creates it with the correct name
-    // using the core protcol instead (which in turn calls Xcursor).
+    // using the core protocol instead (which in turn calls Xcursor).
     // We emulate that process here.
     // Note that there's a core cursor called cross, but it's not the one Qt expects.
     // Precomputed MD5 hashes for the hardcoded bitmap cursors in Qt and KDE.
@@ -107,7 +107,7 @@ set_qt_cursor(const char *name)
      * Fixed Qt cursor not work when cursor theme changed.
      * For details see: lxqt-config/lxqt-config-cursor
      *
-     * XFixes multiple qt cursor name, a X Error will be occured.
+     * XFixes multiple qt cursor name, a X Error will be occurred.
      * Now only XFixes qt cursor name 'left_ptr'
      * Why?
      **/

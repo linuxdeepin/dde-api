@@ -274,7 +274,7 @@ build_fallback_thumbstr(FT_Face face)
 
 /**
  * FT_ERRORS_H is a special header file which is used to define
- * the handling of FT2 enumeration constansts, and can also be
+ * the handling of FT2 enumeration constants, and can also be
  * used to generate error message strings with a small macro trick.
  * much more details in freetype2/fterrors.h.
  **/

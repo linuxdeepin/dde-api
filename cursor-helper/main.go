@@ -69,7 +69,7 @@ func main() {
 	if len(os.Args) == 2 {
 		tmp := strings.ToLower(os.Args[1])
 		if tmp == "-h" || tmp == "--help" {
-			fmt.Println("Usage: cursor-theme-helper <Curosr theme>")
+			fmt.Println("Usage: cursor-theme-helper <Cursor theme>")
 			return
 		}
 		name = os.Args[1]
