@@ -27,7 +27,7 @@ type Touchpad struct {
 	Id   int32
 	Name string
 
-	// -1: unknow, 0: not used, 1: used
+	// -1: unknown, 0: not used, 1: used
 	isLibinputUsed bool
 }
 

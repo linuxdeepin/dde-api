@@ -30,7 +30,7 @@ type Mouse struct {
 	Name       string
 	TrackPoint bool
 
-	// -1: unknow, 0: not used, 1: used
+	// -1: unknown, 0: not used, 1: used
 	isLibinputUsed bool
 }
 
