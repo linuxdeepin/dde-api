@@ -48,7 +48,7 @@ func handleSignal() {
 		switch sig {
 		case os.Kill, os.Interrupt:
 			// Nothing to do
-			logger.Info("[DEEPIN SHUTDOWN SOUND] recieve signal:", sig.String())
+			logger.Info("[DEEPIN SHUTDOWN SOUND] receive signal:", sig.String())
 		}
 	}()
 }
