@@ -22,9 +22,10 @@ type OutputInfo struct {
 
 	EDID []byte
 
-	Clones randrIdList
-	Crtcs  randrIdList
-	Modes  randrIdList
+	Clones         randrIdList
+	Crtcs          randrIdList
+	Modes          randrIdList
+	PreferredModes randrIdList
 }
 type OutputInfos []OutputInfo
 
@@ -102,6 +103,7 @@ func toOuputInfo(conn *xgb.Conn, output randr.Output) OutputInfo {
 		Crtcs:      crtcsToRandrIdList(reply.Crtcs),
 		Modes:      modesToRandrIdList(reply.Modes),
 	}
+	info.PreferredModes = getOutputPreferredModes(info.Modes, reply.NumPreferred)
 	info.EDID, _ = getOutputEdid(conn, output)
 	info.Invalid = isBadOutput(conn, info.Name, reply.Crtc)
 	info.Crtc = toCrtcInfo(conn, reply.Crtc)
@@ -196,4 +198,11 @@ func getEdidAtom(conn *xgb.Conn) (xproto.Atom, error) {
 	}
 	edidAtom = reply.Atom
 	return edidAtom, nil
+}
+
+func getOutputPreferredModes(modes randrIdList, nPreferred uint16) randrIdList {
+	if nPreferred == 0 || uint16(len(modes)) < nPreferred {
+		return nil
+	}
+	return modes[:nPreferred]
 }
