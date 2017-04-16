@@ -12,8 +12,8 @@
  *
  * Reference xfce tumbler.
  **/
-#include <glib/poppler-document.h>
-#include <glib/poppler-page.h>
+#include <poppler-document.h>
+#include <poppler-page.h>
 
 #include <cairo.h>
 
