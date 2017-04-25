@@ -109,14 +109,13 @@ func toOuputInfo(conn *xgb.Conn, output randr.Output) OutputInfo {
 	info.Crtc = toCrtcInfo(conn, reply.Crtc)
 
 	if !info.Invalid {
-		info.Invalid = (len(info.EDID) == 0)
+		info.Invalid = (len(info.EDID) == 0) && (info.Crtc.Id == 0)
 	}
 
-	// some outputs no edid when used abnormal driver, such as fbdev, vesa, etc.
-	// but has crtc and modes
-	if info.Invalid && info.Crtc.Id != 0 {
-		info.Invalid = false
+	if !info.Connection {
+		info.Invalid = true
 	}
+
 	return info
 }
 
