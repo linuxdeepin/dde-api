@@ -27,7 +27,6 @@ LIBRARIES = \
 BINARIES =  \
     device \
     graphic \
-    greeter-helper \
     locale-helper \
     lunar-calendar \
     mousearea \
