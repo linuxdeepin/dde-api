@@ -12,24 +12,43 @@ package main
 import (
 	"fmt"
 	"pkg.deepin.io/lib/dbus"
+	. "pkg.deepin.io/lib/gettext"
+	"pkg.deepin.io/lib/polkit"
 	dutils "pkg.deepin.io/lib/utils"
 )
 
 const (
+	polkitManageLocale = "com.deepin.api.locale-helper.manage-locale"
+	polkitAuthMsg      = "Authentication is required to switch language"
+
 	defaultLocaleFile    = "/etc/default/locale"
 	defaultLocaleGenFile = "/etc/locale.gen"
 )
 
-func (h *Helper) SetLocale(locale string) error {
+var errAuthFailed = fmt.Errorf("Authentication failed")
+
+func (h *Helper) SetLocale(dmessage dbus.DMessage, locale string) error {
+	ok, err := checkAuth(dmessage)
+	logger.Debug("---Auth ret:", ok, err)
+	if !ok || err != nil {
+		return errAuthFailed
+	}
+
 	if !IsLocaleValid(locale) {
-		return fmt.Errorf("Invalid locale:", locale)
+		return fmt.Errorf("Invalid locale: %s", locale)
 	}
 
 	return writeContentToFile(defaultLocaleFile,
 		fmt.Sprintf("LANG=%s", locale))
 }
 
-func (h *Helper) GenerateLocale(locale string) error {
+func (h *Helper) GenerateLocale(dmessage dbus.DMessage, locale string) error {
+	ok, err := checkAuth(dmessage)
+	logger.Debug("---Auth ret:", ok, err)
+	if !ok || err != nil {
+		return errAuthFailed
+	}
+
 	h.running = true
 	defer func() {
 		h.running = false
@@ -38,7 +57,7 @@ func (h *Helper) GenerateLocale(locale string) error {
 	if !IsLocaleValid(locale) {
 		dbus.Emit(h, "Success", false,
 			fmt.Sprintf("Invalid locale: %v", locale))
-		return fmt.Errorf("Invalid locale:", locale)
+		return fmt.Errorf("Invalid locale: %s", locale)
 	}
 
 	// locales version <= 2.13
@@ -53,7 +72,7 @@ func (h *Helper) GenerateLocale(locale string) error {
 		return nil
 	}
 
-	err := enableLocaleInFile(locale, defaultLocaleGenFile)
+	err = enableLocaleInFile(locale, defaultLocaleGenFile)
 	if err != nil {
 		dbus.Emit(h, "Success", false, err.Error())
 		return err
@@ -86,4 +105,25 @@ func enableLocaleInFile(locale, file string) error {
 	}
 
 	return nil
+}
+
+func init() {
+	polkit.Init()
+}
+
+func checkAuth(dmessage dbus.DMessage) (bool, error) {
+	subject := polkit.NewSubject(polkit.SubjectKindUnixProcess)
+	subject.SetDetail("pid", dmessage.GetSenderPID())
+	subject.SetDetail("start-time", uint64(0))
+	details := make(map[string]string)
+	details["polkit.gettext_domain"] = "dde-daemon"
+	details["polkit.message"] = Tr(polkitAuthMsg)
+	result, err := polkit.CheckAuthorization(subject, polkitManageLocale,
+		details,
+		polkit.CheckAuthorizationFlagsAllowUserInteraction, "")
+	if err != nil {
+		return false, err
+	}
+
+	return result.IsAuthorized, nil
 }

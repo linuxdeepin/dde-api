@@ -1,4 +1,5 @@
 /usr/lib
 /usr/share/icons/hicolor
 /usr/share/dbus-1
+/usr/share/polkit-1
 /lib

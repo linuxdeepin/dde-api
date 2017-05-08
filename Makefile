@@ -72,6 +72,9 @@ install-binary: build
 	mkdir -pv ${DESTDIR}${PREFIX}/share/dbus-1/system-services
 	cp -v misc/system-services/*.service ${DESTDIR}${PREFIX}/share/dbus-1/system-services/
 
+	mkdir -pv ${DESTDIR}${PREFIX}/share/polkit-1/actions
+	cp misc/polkit-action/* ${DESTDIR}${PREFIX}/share/polkit-1/actions/
+
 	#mkdir -pv ${DESTDIR}${PREFIX}/share
 	#cp -R misc/dde-api ${DESTDIR}${PREFIX}/share
 
