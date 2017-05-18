@@ -43,16 +43,17 @@ func (h *Helper) SetLocale(dmessage dbus.DMessage, locale string) error {
 }
 
 func (h *Helper) GenerateLocale(dmessage dbus.DMessage, locale string) error {
-	ok, err := checkAuth(dmessage)
-	logger.Debug("---Auth ret:", ok, err)
-	if !ok || err != nil {
-		return errAuthFailed
-	}
-
 	h.running = true
 	defer func() {
 		h.running = false
 	}()
+
+	ok, err := checkAuth(dmessage)
+	logger.Debug("---Auth ret:", ok, err)
+	if !ok || err != nil {
+		dbus.Emit(h, "Success", false, errAuthFailed.Error())
+		return errAuthFailed
+	}
 
 	if !IsLocaleValid(locale) {
 		dbus.Emit(h, "Success", false,

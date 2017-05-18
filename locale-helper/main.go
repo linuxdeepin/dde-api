@@ -54,7 +54,7 @@ func main() {
 	}
 	dbus.DealWithUnhandledMessage()
 
-	dbus.SetAutoDestroyHandler(time.Second*5, func() bool {
+	dbus.SetAutoDestroyHandler(time.Second*30, func() bool {
 		if h.running {
 			return false
 		}
