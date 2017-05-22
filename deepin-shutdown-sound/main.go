@@ -12,9 +12,9 @@ package main
 import (
 	"os"
 	"os/signal"
-	"pkg.deepin.io/dde/api/soundutils"
 	"pkg.deepin.io/lib/log"
 	"pkg.deepin.io/lib/sound"
+	dutils "pkg.deepin.io/lib/utils"
 )
 
 var logger = log.NewLogger("api/shutdown-sound")
@@ -23,7 +23,7 @@ func main() {
 	logger.Info("[DEEPIN SHUTDOWN SOUND] play shutdown sound")
 	handleSignal()
 
-	canPlay, theme, event, err := soundutils.GetShutdownSound()
+	canPlay, theme, event, err := getShutdownSound()
 	if err != nil {
 		logger.Warning("[DEEPIN SHUTDOWN SOUND] get shutdown sound info failed:", err)
 		return
@@ -55,10 +55,44 @@ func handleSignal() {
 
 func doPlayShutdwonSound(theme, event string) error {
 	logger.Info("[DEEPIN SHUTDOWN SOUND] do play:", theme, event)
-	err := sound.PlayThemeSound(theme, event, "", "alsa")
+	err := sound.PlayThemeSound(theme, event, "", "alsa", "")
 	if err != nil {
 		logger.Error("[DEEPIN SHUTDOWN SOUND] do play failed:", theme, event, err)
 		return err
 	}
 	return nil
+}
+
+// fixed compile failure when soundutils api changed
+const (
+	shutdownFile    = "/tmp/deepin-shutdown-sound.ini"
+	kfGroupShutdown = "Shutdown"
+	kfKeyCanPlay    = "CanPlay"
+	kfKeySoundTheme = "SoundTheme"
+	kfKeySoundEvent = "SoundEvent"
+)
+
+func getShutdownSound() (bool, string, string, error) {
+	kf, err := dutils.NewKeyFileFromFile(shutdownFile)
+	if err != nil {
+		return false, "", "", err
+	}
+	defer kf.Free()
+
+	canPlay, err := kf.GetBoolean(kfGroupShutdown, kfKeyCanPlay)
+	if err != nil {
+		return false, "", "", err
+	}
+
+	theme, err := kf.GetString(kfGroupShutdown, kfKeySoundTheme)
+	if err != nil {
+		return false, "", "", err
+	}
+
+	event, err := kf.GetString(kfGroupShutdown, kfKeySoundEvent)
+	if err != nil {
+		return false, "", "", err
+	}
+
+	return canPlay, theme, event, nil
 }

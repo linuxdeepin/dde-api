@@ -47,7 +47,7 @@ prepare:
 	fi
 
 out/bin/%:
-	env GOPATH="${GOPATH}:${CURDIR}/${GOBUILD_DIR}" ${GOBUILD} -o $@  ${GOPKG_PREFIX}/${@F}
+	env GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}" ${GOBUILD} -o $@  ${GOPKG_PREFIX}/${@F}
 
 # Install go packages
 build-dep:
@@ -85,7 +85,7 @@ install-binary: build
 	cp -R misc/icons/* ${DESTDIR}${PREFIX}/share/icons/hicolor
 
 build/lib/%:
-	env GOPATH="${GOPATH}:${CURDIR}/${GOBUILD_DIR}" ${GOBUILD} ${GOPKG_PREFIX}/${@F}
+	env GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}" ${GOBUILD} ${GOPKG_PREFIX}/${@F}
 
 build-dev: prepare $(addprefix build/lib/, ${LIBRARIES})
 

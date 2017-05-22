@@ -11,7 +11,8 @@ package soundutils
 
 import (
 	"gir/gio-2.0"
-	player "pkg.deepin.io/lib/sound"
+	splayer "pkg.deepin.io/lib/sound"
+	"pkg.deepin.io/lib/utils"
 )
 
 const (
@@ -39,6 +40,7 @@ const (
 	appearanceSchema  = "com.deepin.dde.appearance"
 	keySoundTheme     = "sound-theme"
 	keyEnabled        = "enabled"
+	keyPlayer         = "player"
 	soundThemeDeepin  = "deepin"
 )
 
@@ -56,26 +58,44 @@ func PlayThemeSound(theme, event, device string, sync bool) error {
 	}
 
 	if sync {
-		return player.PlayThemeSound(theme, event, device, "")
+		return splayer.PlayThemeSound(theme, event, device, "", GetSoundPlayer())
 	}
 
-	go player.PlayThemeSound(theme, event, device, "")
+	go splayer.PlayThemeSound(theme, event, device, "", GetSoundPlayer())
 	return nil
 }
 
 func PlaySoundFile(file, device string, sync bool) error {
 	if sync {
-		return player.PlaySoundFile(file, device, "")
+		return splayer.PlaySoundFile(file, device, "", GetSoundPlayer())
 	}
 
-	go player.PlaySoundFile(file, device, "")
+	go splayer.PlaySoundFile(file, device, "", GetSoundPlayer())
 	return nil
 }
 
+var setting *gio.Settings
+
 func CanPlayEvent() bool {
-	setting := gio.NewSettings(soundEffectSchema)
-	defer setting.Unref()
+	if setting == nil {
+		s, err := utils.CheckAndNewGSettings(soundEffectSchema)
+		if err != nil {
+			return true
+		}
+		setting = s
+	}
 	return setting.GetBoolean(keyEnabled)
+}
+
+func GetSoundPlayer() string {
+	if setting == nil {
+		s, err := utils.CheckAndNewGSettings(soundEffectSchema)
+		if err != nil {
+			return ""
+		}
+		setting = s
+	}
+	return setting.GetString(keyPlayer)
 }
 
 func GetSoundTheme() string {

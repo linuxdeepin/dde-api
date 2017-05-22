@@ -26,11 +26,11 @@ var (
 	logger  = log.NewLogger("sound-theme-player")
 )
 
-func (*Manager) Play(theme, event string) error {
+func (*Manager) Play(theme, event, player string) error {
 	if len(theme) == 0 || len(event) == 0 {
 		return fmt.Errorf("Invalid theme or event")
 	}
-	go doPlaySound(theme, event)
+	go doPlaySound(theme, event, player)
 	return nil
 }
 
@@ -42,7 +42,7 @@ func (*Manager) GetDBusInfo() dbus.DBusInfo {
 	}
 }
 
-func doPlaySound(theme, event string) error {
+func doPlaySound(theme, event, player string) error {
 	playing = true
 	defer func() {
 		playing = false
@@ -54,7 +54,7 @@ func doPlaySound(theme, event string) error {
 		logger.Warningf("Launch pulseaudio failed: error: %v, output: %v", err, string(out))
 	}
 
-	err = sound.PlayThemeSound(theme, event, "", "pulse")
+	err = sound.PlayThemeSound(theme, event, "", "pulse", player)
 	if err != nil {
 		logger.Errorf("Play '%s' '%s' failed: %v", theme, event, err)
 	}
@@ -72,9 +72,14 @@ func (*Manager) Quit() {
 
 func main() {
 	logger.Info("^^^^^^^^^^^^^^^^^^^Start sound player")
-	if len(os.Args) == 3 {
+	// fix no PATH when was launched by dbus
+	if os.Getenv("PATH") == "" {
+		logger.Warning("No PATH found, manual special")
+		os.Setenv("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin")
+	}
+	if len(os.Args) == 4 {
 		logger.Info("^^^^^^^^^^^^^^^^^Play cmd:", os.Args)
-		doPlaySound(os.Args[1], os.Args[2])
+		doPlaySound(os.Args[1], os.Args[2], os.Args[3])
 		return
 	}
 
@@ -86,7 +91,7 @@ func main() {
 	}
 	dbus.DealWithUnhandledMessage()
 
-	dbus.SetAutoDestroyHandler(time.Second*1, func() bool {
+	dbus.SetAutoDestroyHandler(time.Second*10, func() bool {
 		if playing {
 			return false
 		}
