@@ -6,7 +6,6 @@ import (
 	"github.com/BurntSushi/xgb"
 	"github.com/BurntSushi/xgb/randr"
 	"math"
-	"sort"
 )
 
 type ModeInfo struct {
@@ -18,30 +17,17 @@ type ModeInfo struct {
 type ModeInfos []ModeInfo
 
 func FindCommonModes(infosGroup ...ModeInfos) ModeInfos {
-	countSet := make(map[string]int)
-	tmpSet := make(map[string]ModeInfo)
-
-	for _, infos := range infosGroup {
-		sort.Sort(infos)
-		for _, info := range infos.FilterBySize() {
-			wh := fmt.Sprintf("%d%d", info.Width, info.Height)
-			countSet[wh] += 1
-			tmpSet[wh] = info
-		}
+	length := len(infosGroup)
+	if length == 0 {
+		return ModeInfos{}
+	} else if length == 1 {
+		return infosGroup[0]
 	}
 
-	for wh, count := range countSet {
-		// remove not common mode
-		if count < len(infosGroup) {
-			delete(tmpSet, wh)
-		}
+	var commons = infosGroup[0]
+	for i := 1; i < length; i++ {
+		commons = doFoundCommonModes(commons, infosGroup[i])
 	}
-
-	var commons ModeInfos
-	for _, info := range tmpSet {
-		commons = append(commons, info)
-	}
-	sort.Sort(commons)
 	return commons
 }
 
@@ -63,16 +49,21 @@ func (infos ModeInfos) QueryBySize(width, height uint16) ModeInfo {
 	return ModeInfo{}
 }
 
-func (infos ModeInfos) Best() ModeInfo {
+func (infos ModeInfos) Max() ModeInfo {
 	length := len(infos)
 	if length == 0 {
 		return ModeInfo{}
+	} else if length == 1 {
+		return infos[0]
 	}
 
-	if length >= 2 {
-		sort.Sort(infos)
+	var idx = 0
+	for i := 1; i < length; i++ {
+		if !infos.Less(idx, i) {
+			idx = i
+		}
 	}
-	return infos[0]
+	return infos[idx]
 }
 
 func (infos ModeInfos) Equal(list ModeInfos) bool {
@@ -81,8 +72,6 @@ func (infos ModeInfos) Equal(list ModeInfos) bool {
 		return false
 	}
 
-	sort.Sort(infos)
-	sort.Sort(list)
 	for i := 0; i < len1; i++ {
 		if !infos[i].Equal(list[i]) {
 			return false
@@ -163,4 +152,28 @@ func sumModeRate(info randr.ModeInfo) float64 {
 
 	var rate = float64(info.DotClock) / float64(uint32(info.Htotal)*uint32(vTotal))
 	return (math.Floor(rate*10+0.5) / 10)
+}
+
+// doFoundCommonModes return common modes sorted by x11 preferred
+func doFoundCommonModes(modes1, modes2 ModeInfos) ModeInfos {
+	var (
+		common   ModeInfos
+		max, min = modes1, modes2
+	)
+	if max[0].Width+max[0].Height < min[0].Width+min[0].Height {
+		max, min = modes2, modes1
+	}
+	for _, mode := range min {
+		info := max.QueryBySize(mode.Width, mode.Height)
+		if info.Id == 0 {
+			continue
+		}
+
+		// filter same mode
+		if v := common.QueryBySize(info.Width, mode.Height); v.Id != 0 {
+			continue
+		}
+		common = append(common, info)
+	}
+	return common
 }
