@@ -108,9 +108,11 @@ func toOuputInfo(conn *xgb.Conn, output randr.Output) OutputInfo {
 	info.Invalid = isBadOutput(conn, info.Name, reply.Crtc)
 	info.Crtc = toCrtcInfo(conn, reply.Crtc)
 
-	if !info.Invalid {
-		info.Invalid = (len(info.EDID) == 0) && (info.Crtc.Id == 0)
-	}
+	// don't mark validity by edid and crtc
+	// some monitor no edid and crtc when connected
+	//if !info.Invalid {
+	//info.Invalid = (len(info.EDID) == 0) && (info.Crtc.Id == 0)
+	//}
 
 	if !info.Connection {
 		info.Invalid = true
