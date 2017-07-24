@@ -17,45 +17,27 @@ import (
 )
 
 const (
-	EventLogin               = "sys-login"
-	EventLogout              = "sys-logout"
-	EventShutdown            = "sys-shutdown"
-	EventWakeup              = "suspend-resume"
-	EventNotification        = "message-out"
-	EventUnableOperate       = "app-error"
-	EventEmptyTrash          = "trash-empty"
-	EventVolumeChanged       = "audio-volume-change"
-	EventBatteryLow          = "power-unplug-battery-low"
-	EventPowerPlug           = "power-plug"
-	EventPowerUnplug         = "power-unplug"
-	EventDevicePlug          = "device-added"
-	EventDeviceUnplug        = "device-removed"
-	EventIconToDesktop       = "send-to"
-	EventCameraShutter       = "camera-shutter"
-	EventScreenCapture       = "screen-capture"
-	EventScreenCaptureFinish = "screen-capture-complete"
-)
+	EventPowerPlug     = "power-plug"
+	EventPowerUnplug   = "power-unplug"
+	EventBatteryLow    = "power-unplug-battery-low"
+	EventVolumeChanged = "audio-volume-change"
+	EventIconToDesktop = "x-deepin-app-sent-to-desktop"
+	EventLogin         = "desktop-login"
+	EventLogout        = "desktop-logout"
+	EventShutdown      = "system-shutdown"
+	EventWakeup        = "suspend-resume"
 
-// map sound file name -> key in gsettings
-var soundFileKeyMap = map[string]string{
-	EventLogin:         "login",
-	EventLogout:        "logout",
-	EventShutdown:      "shutdown",
-	EventWakeup:        "wakeup",
-	EventNotification:  "notification",
-	EventUnableOperate: "unable-operate",
-	EventEmptyTrash:    "empty-trash",
-	EventVolumeChanged: "volume-change",
-	EventBatteryLow:    "battery-low",
-	// power-plug
-	// power-unplug
-	EventDevicePlug:    "device-plug",
-	EventDeviceUnplug:  "device-unplug",
-	EventIconToDesktop: "icon-to-desktop",
-	// camera-shutter
-	EventScreenCapture:       "screenshot",
-	EventScreenCaptureFinish: "screenshot",
-}
+	EventPowerUnplugBatteryLow   = "power-unplug-battery-low"
+	EventAudioVolumeChanged      = "audio-volume-change"
+	EventXDeepinAppSentToDesktop = "x-deepin-app-sent-to-desktop"
+	EventDesktopLogin            = "desktop-login"
+	EventDesktopLogout           = "desktop-logout"
+	EventSystemShutdown          = "system-shutdown"
+	EventSuspendResume           = "suspend-resume"
+
+	EventDeviceAdded   = "device-added"
+	EventDeviceRemoved = "device-removed"
+)
 
 const (
 	soundEffectSchema = "com.deepin.dde.sound-effect"
@@ -99,6 +81,10 @@ func PlaySoundFile(file, device string, sync bool) error {
 var setting *gio.Settings
 
 func CanPlayEvent(event string) bool {
+	if event == keyEnabled || event == keyPlayer {
+		return false
+	}
+
 	if setting == nil {
 		s, err := utils.CheckAndNewGSettings(soundEffectSchema)
 		if err != nil {
@@ -112,15 +98,10 @@ func CanPlayEvent(event string) bool {
 		return false
 	}
 
-	key, ok := soundFileKeyMap[event]
-	if !ok {
-		key = event
-	}
-
 	keys := strv.Strv(setting.ListKeys())
-	if keys.Contains(key) {
+	if keys.Contains(event) {
 		// has key
-		return setting.GetBoolean(key)
+		return setting.GetBoolean(event)
 	}
 	return true
 }
