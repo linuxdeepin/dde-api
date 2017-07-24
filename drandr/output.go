@@ -17,7 +17,6 @@ type OutputInfo struct {
 	MmHeight   uint32
 	Crtc       CrtcInfo
 	Connection bool
-	Invalid    bool
 	Timestamp  xproto.Timestamp
 
 	EDID []byte
@@ -61,17 +60,6 @@ func (infos OutputInfos) ListConnectionOutputs() OutputInfos {
 	return ret
 }
 
-func (infos OutputInfos) ListValidOutputs() OutputInfos {
-	var ret OutputInfos
-	for _, info := range infos {
-		if info.Invalid {
-			continue
-		}
-		ret = append(ret, info)
-	}
-	return ret
-}
-
 func (infos OutputInfos) query(key, value string) OutputInfo {
 	for _, info := range infos {
 		if key == "id" {
@@ -105,18 +93,7 @@ func toOuputInfo(conn *xgb.Conn, output randr.Output) OutputInfo {
 	}
 	info.PreferredModes = getOutputPreferredModes(info.Modes, reply.NumPreferred)
 	info.EDID, _ = getOutputEdid(conn, output)
-	info.Invalid = isBadOutput(conn, info.Name, reply.Crtc)
 	info.Crtc = toCrtcInfo(conn, reply.Crtc)
-
-	// don't mark validity by edid and crtc
-	// some monitor no edid and crtc when connected
-	//if !info.Invalid {
-	//info.Invalid = (len(info.EDID) == 0) && (info.Crtc.Id == 0)
-	//}
-
-	if !info.Connection {
-		info.Invalid = true
-	}
 
 	return info
 }
