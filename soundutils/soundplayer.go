@@ -12,6 +12,7 @@ package soundutils
 import (
 	"gir/gio-2.0"
 	splayer "pkg.deepin.io/lib/sound"
+	"pkg.deepin.io/lib/strv"
 	"pkg.deepin.io/lib/utils"
 )
 
@@ -35,6 +36,27 @@ const (
 	EventScreenCaptureFinish = "screen-capture-complete"
 )
 
+// map sound file name -> key in gsettings
+var soundFileKeyMap = map[string]string{
+	EventLogin:         "login",
+	EventLogout:        "logout",
+	EventShutdown:      "shutdown",
+	EventWakeup:        "wakeup",
+	EventNotification:  "notification",
+	EventUnableOperate: "unable-operate",
+	EventEmptyTrash:    "empty-trash",
+	EventVolumeChanged: "volume-change",
+	EventBatteryLow:    "battery-low",
+	// power-plug
+	// power-unplug
+	EventDevicePlug:    "device-plug",
+	EventDeviceUnplug:  "device-unplug",
+	EventIconToDesktop: "icon-to-desktop",
+	// camera-shutter
+	EventScreenCapture:       "screenshot",
+	EventScreenCaptureFinish: "screenshot",
+}
+
 const (
 	soundEffectSchema = "com.deepin.dde.sound-effect"
 	appearanceSchema  = "com.deepin.dde.appearance"
@@ -53,7 +75,7 @@ func PlayThemeSound(theme, event, device string, sync bool) error {
 		theme = soundThemeDeepin
 	}
 
-	if !CanPlayEvent() {
+	if !CanPlayEvent(event) {
 		return nil
 	}
 
@@ -76,7 +98,7 @@ func PlaySoundFile(file, device string, sync bool) error {
 
 var setting *gio.Settings
 
-func CanPlayEvent() bool {
+func CanPlayEvent(event string) bool {
 	if setting == nil {
 		s, err := utils.CheckAndNewGSettings(soundEffectSchema)
 		if err != nil {
@@ -84,7 +106,23 @@ func CanPlayEvent() bool {
 		}
 		setting = s
 	}
-	return setting.GetBoolean(keyEnabled)
+
+	// check main switch
+	if !setting.GetBoolean(keyEnabled) {
+		return false
+	}
+
+	key, ok := soundFileKeyMap[event]
+	if !ok {
+		key = event
+	}
+
+	keys := strv.Strv(setting.ListKeys())
+	if keys.Contains(key) {
+		// has key
+		return setting.GetBoolean(key)
+	}
+	return true
 }
 
 func GetSoundPlayer() string {
