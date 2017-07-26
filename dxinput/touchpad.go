@@ -105,10 +105,16 @@ func (tpad *Touchpad) EnableLeftHanded(enabled bool) error {
 		return nil
 	}
 
+	if tpad.isLibinputUsed {
+		return libinputInt8PropSet(tpad.Id, libinputPropLeftHandedEnabled, enabled)
+	}
 	return utils.SetLeftHanded(uint32(tpad.Id), tpad.Name, enabled)
 }
 
 func (tpad *Touchpad) CanLeftHanded() bool {
+	if tpad.isLibinputUsed {
+		return libinputInt8PropCan(tpad.Id, libinputPropLeftHandedEnabled)
+	}
 	return utils.CanLeftHanded(uint32(tpad.Id), tpad.Name)
 }
 

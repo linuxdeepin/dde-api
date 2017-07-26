@@ -67,10 +67,16 @@ func (m *Mouse) EnableLeftHanded(enabled bool) error {
 		return nil
 	}
 
+	if m.isLibinputUsed {
+		return libinputInt8PropSet(m.Id, libinputPropLeftHandedEnabled, enabled)
+	}
 	return utils.SetLeftHanded(uint32(m.Id), m.Name, enabled)
 }
 
 func (m *Mouse) CanLeftHanded() bool {
+	if m.isLibinputUsed {
+		return libinputInt8PropCan(m.Id, libinputPropLeftHandedEnabled)
+	}
 	return utils.CanLeftHanded(uint32(m.Id), m.Name)
 }
 
