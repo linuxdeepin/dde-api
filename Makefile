@@ -55,7 +55,7 @@ build-dep:
 	go get github.com/BurntSushi/xgb
 	go get github.com/BurntSushi/xgbutil
 	go get github.com/howeyc/fsnotify
-	go get launchpad.net/gocheck
+	go get gopkg.in/check.v1
 
 build: prepare $(addprefix out/bin/, ${BINARIES})
 

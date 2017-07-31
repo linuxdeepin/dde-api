@@ -12,7 +12,7 @@ package main
 import (
 	"testing"
 
-	C "launchpad.net/gocheck"
+	C "gopkg.in/check.v1"
 )
 
 func Test(t *testing.T) {
