@@ -40,13 +40,14 @@ func (infos ModeInfos) Query(id uint32) ModeInfo {
 	return ModeInfo{}
 }
 
-func (infos ModeInfos) QueryBySize(width, height uint16) ModeInfo {
+func (infos ModeInfos) QueryBySize(width, height uint16) ModeInfos {
+	var matches ModeInfos
 	for _, info := range infos {
 		if info.Width == width && info.Height == height {
-			return info
+			matches = append(matches, info)
 		}
 	}
-	return ModeInfo{}
+	return matches
 }
 
 func (infos ModeInfos) Max() ModeInfo {
@@ -128,6 +129,15 @@ func (infos ModeInfos) FilterBySize() ModeInfos {
 	return ret
 }
 
+func (infos ModeInfos) HasRefreshRate(rate float64) bool {
+	for _, info := range infos {
+		if info.Rate == rate {
+			return true
+		}
+	}
+	return false
+}
+
 func (info ModeInfo) Equal(v ModeInfo) bool {
 	return info.Id == v.Id
 }
@@ -164,16 +174,16 @@ func doFoundCommonModes(modes1, modes2 ModeInfos) ModeInfos {
 		max, min = modes2, modes1
 	}
 	for _, mode := range min {
-		info := max.QueryBySize(mode.Width, mode.Height)
-		if info.Id == 0 {
+		matches := max.QueryBySize(mode.Width, mode.Height)
+		if len(matches) == 0 {
 			continue
 		}
 
 		// filter same mode
-		if v := common.QueryBySize(info.Width, mode.Height); v.Id != 0 {
+		if v := common.QueryBySize(matches[0].Width, matches[0].Height); len(v) != 0 {
 			continue
 		}
-		common = append(common, info)
+		common = append(common, matches[0])
 	}
 	return common
 }
