@@ -10,20 +10,24 @@
 package dxinput
 
 import (
+	"bytes"
 	"fmt"
 	"os/exec"
-	"pkg.deepin.io/dde/api/dxinput/utils"
+	"strconv"
 	"strings"
+
+	"pkg.deepin.io/dde/api/dxinput/utils"
 )
 
 const (
 	cmdXSetWacom = "xsetwacom"
 
-	cmdKeyArea     string = "Area"
-	cmdKeyMode            = "mode"
-	cmdKeyButton          = "Button"
-	cmdKeyRotate          = "Rotate"
-	cmdKeySuppress        = "Suppress"
+	cmdKeyArea      string = "Area"
+	cmdKeyResetArea        = "ResetArea"
+	cmdKeyMode             = "mode"
+	cmdKeyButton           = "Button"
+	cmdKeyRotate           = "Rotate"
+	cmdKeySuppress         = "Suppress"
 	//(x1, y2, x2, y2) red(x1, y1), blue(x2, y2), green(Threshold)
 	cmdKeyPressureCurve = "PressureCurve"
 	cmdKeyThreshold     = "Threshold"
@@ -84,6 +88,30 @@ func (w *Wacom) SetArea(x1, y1, x2, y2 int) error {
 	var cmd = fmt.Sprintf("%s set %v %s %v %v %v %v", cmdXSetWacom, w.Id,
 		cmdKeyArea, x1, y1, x2, y2)
 	return doAction(cmd)
+}
+
+func (w *Wacom) ResetArea() error {
+	var cmd = fmt.Sprintf("%s set %v %s", cmdXSetWacom, w.Id, cmdKeyResetArea)
+	return doAction(cmd)
+}
+
+func (w *Wacom) getIdAsStr() string {
+	return strconv.FormatInt(int64(w.Id), 10)
+}
+
+// GetArea get the tablet input area
+func (w *Wacom) GetArea() (x1, y1, x2, y2 int, err error) {
+	var out []byte
+	out, err = exec.Command(cmdXSetWacom, "get", w.getIdAsStr(), cmdKeyArea).Output()
+	if err != nil {
+		return
+	}
+	// parse out
+	_, err = fmt.Fscanln(bytes.NewReader(out), &x1, &y1, &x2, &y2)
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return
 }
 
 // Rotate valid values: none|half|cw|ccw
