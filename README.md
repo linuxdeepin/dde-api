@@ -1,4 +1,4 @@
-# DDE API
+## DDE API
 
 DDE API provides some dbus interfaces that is used for screen zone detecting, thumbnail generating, sound playing, etc.
 
