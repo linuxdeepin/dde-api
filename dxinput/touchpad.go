@@ -21,6 +21,8 @@ const (
 	propEdgeScroll            = "Synaptics Edge Scrolling"
 	propTwoFingerScrol        = "Synaptics Two-Finger Scrolling"
 	propTapAction             = "Synaptics Tap Action"
+	propPalmDetect            = "Synaptics Palm Detection"
+	propPalmDimensions        = "Synaptics Palm Dimensions"
 )
 
 type Touchpad struct {
@@ -442,4 +444,62 @@ func (tpad *Touchpad) EnableDisableWhileTyping(enabled bool) error {
 	}
 
 	return libinputInt8PropSet(tpad.Id, libinputPropDisableWhileTyping, enabled)
+}
+
+// EnablePalmDetect set synaptics palm detect
+// 'Synaptics Palm Detection' 8 bit (BOOL)
+func (tpad *Touchpad) EnablePalmDetect(enabled bool) error {
+	if tpad.isLibinputUsed {
+		return fmt.Errorf("libinput unsupported palm detect setting")
+	}
+
+	if enabled == tpad.CanPalmDetect() {
+		return nil
+	}
+
+	var values []int8
+	if enabled {
+		values = []int8{1}
+	} else {
+		values = []int8{0}
+	}
+
+	return utils.SetInt8Prop(tpad.Id, propPalmDetect, values)
+}
+
+func (tpad *Touchpad) CanPalmDetect() bool {
+	if tpad.isLibinputUsed {
+		// libinput enable palm detect as default
+		return true
+	}
+	values, err := getInt8Prop(tpad.Id, propPalmDetect, 1)
+	if err != nil {
+		return false
+	}
+	return (values[0] == 1)
+}
+
+// 'Synaptics Palm Dimensions' 32 bit, 2 values, width, z
+func (tpad *Touchpad) SetPalmDimensions(width, z int32) error {
+	if tpad.isLibinputUsed {
+		return fmt.Errorf("libinput unsupported palm detect setting")
+	}
+
+	oldWidth, oldZ, _ := tpad.GetPalmDimensions()
+	if width == oldWidth && z == oldZ {
+		return nil
+	}
+	return utils.SetInt32Prop(tpad.Id, propPalmDimensions, []int32{width, z})
+}
+
+func (tpad *Touchpad) GetPalmDimensions() (int32, int32, error) {
+	if tpad.isLibinputUsed {
+		return 0, 0, fmt.Errorf("libinput unsupported palm detect setting")
+	}
+
+	values, err := getInt32Prop(tpad.Id, propPalmDimensions, 2)
+	if err != nil {
+		return 0, 0, err
+	}
+	return values[0], values[1], nil
 }
