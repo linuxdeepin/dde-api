@@ -21,18 +21,19 @@ package main
 
 import (
 	"fmt"
-	"gopkg.in/alecthomas/kingpin.v2"
 	"os"
 	"os/exec"
-	"path"
+	"path/filepath"
+
 	"pkg.deepin.io/dde/api/blurimage"
 	"pkg.deepin.io/lib/graphic"
 	dutils "pkg.deepin.io/lib/utils"
+
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const (
-	destDir = "/var/cache/image-blur/"
-)
+
+const defaultOutDir = "/var/cache/image-blur/"
 
 var (
 	force      = kingpin.Flag("force", "Force to blur image").Short('f').Default("false").Bool()
@@ -42,6 +43,7 @@ var (
 	saturation = kingpin.Flag("saturation", "Multiple current saturation(default 1.5)").Short('s').Default("1.5").Float64()
 	lightness  = kingpin.Flag("lightness", "Multiple current lightness(HSL)(default 0.9)").Short('l').Default("0.9").Float64()
 	src        = kingpin.Arg("src", "The src file, may be directory").String()
+	outDir     = kingpin.Arg("outDir", "The out directory").Default(defaultOutDir).String()
 )
 
 func main() {
@@ -89,5 +91,5 @@ func main() {
 
 func getDestPath(src string) string {
 	id, _ := dutils.SumStrMd5(src)
-	return destDir + id + path.Ext(src)
+	return filepath.Join(*outDir, id + filepath.Ext(src))
 }
