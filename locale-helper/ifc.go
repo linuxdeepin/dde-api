@@ -22,20 +22,18 @@ package main
 import (
 	"fmt"
 	"pkg.deepin.io/lib/dbus"
-	. "pkg.deepin.io/lib/gettext"
 	"pkg.deepin.io/lib/polkit"
 	dutils "pkg.deepin.io/lib/utils"
 )
 
 const (
 	polkitManageLocale = "com.deepin.api.locale-helper.manage-locale"
-	polkitAuthMsg      = "Authentication is required to switch language"
 
 	defaultLocaleFile    = "/etc/default/locale"
 	defaultLocaleGenFile = "/etc/locale.gen"
 )
 
-var errAuthFailed = fmt.Errorf("Authentication failed")
+var errAuthFailed = fmt.Errorf("authentication failed")
 
 func (h *Helper) SetLocale(dmessage dbus.DMessage, locale string) error {
 	ok, err := checkAuth(dmessage)
@@ -45,7 +43,7 @@ func (h *Helper) SetLocale(dmessage dbus.DMessage, locale string) error {
 	}
 
 	if !IsLocaleValid(locale) {
-		return fmt.Errorf("Invalid locale: %s", locale)
+		return fmt.Errorf("invalid locale: %s", locale)
 	}
 
 	return writeContentToFile(defaultLocaleFile,
@@ -68,7 +66,7 @@ func (h *Helper) GenerateLocale(dmessage dbus.DMessage, locale string) error {
 	if !IsLocaleValid(locale) {
 		dbus.Emit(h, "Success", false,
 			fmt.Sprintf("Invalid locale: %v", locale))
-		return fmt.Errorf("Invalid locale: %s", locale)
+		return fmt.Errorf("invalid locale: %s", locale)
 	}
 
 	// locales version <= 2.13
@@ -127,8 +125,6 @@ func checkAuth(dmessage dbus.DMessage) (bool, error) {
 	subject.SetDetail("pid", dmessage.GetSenderPID())
 	subject.SetDetail("start-time", uint64(0))
 	details := make(map[string]string)
-	details["polkit.gettext_domain"] = "dde-daemon"
-	details["polkit.message"] = Tr(polkitAuthMsg)
 	result, err := polkit.CheckAuthorization(subject, polkitManageLocale,
 		details,
 		polkit.CheckAuthorizationFlagsAllowUserInteraction, "")

@@ -47,6 +47,12 @@ prepare:
 		mkdir -p ${GOBUILD_DIR}/src/$(dir ${GOPKG_PREFIX}); \
 		ln -sf ../../../.. ${GOBUILD_DIR}/src/${GOPKG_PREFIX}; \
 	fi
+	
+ts:
+	deepin-policy-ts-convert policy2ts misc/polkit-action/com.deepin.api.locale-helper.policy.in misc/ts/com.deepin.api.locale-helper.policy
+
+ts_to_policy:
+	deepin-policy-ts-convert ts2policy misc/polkit-action/com.deepin.api.locale-helper.policy.in misc/ts/com.deepin.api.locale-helper.policy misc/polkit-action/com.deepin.api.locale-helper.policy
 
 out/bin/%:
 	env GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}" ${GOBUILD} -o $@  ${GOPKG_PREFIX}/${@F}
@@ -58,7 +64,7 @@ build-dep:
 	go get github.com/BurntSushi/xgbutil
 	go get gopkg.in/check.v1
 
-build: prepare $(addprefix out/bin/, ${BINARIES})
+build: prepare $(addprefix out/bin/, ${BINARIES}) ts_to_policy
 
 install-binary: build
 	mkdir -pv ${DESTDIR}${PREFIX}${libdir}/deepin-api
@@ -74,7 +80,7 @@ install-binary: build
 	cp -v misc/system-services/*.service ${DESTDIR}${PREFIX}/share/dbus-1/system-services/
 
 	mkdir -pv ${DESTDIR}${PREFIX}/share/polkit-1/actions
-	cp misc/polkit-action/* ${DESTDIR}${PREFIX}/share/polkit-1/actions/
+	cp misc/polkit-action/*.policy ${DESTDIR}${PREFIX}/share/polkit-1/actions/
 
 	#mkdir -pv ${DESTDIR}${PREFIX}/share
 	#cp -R misc/dde-api ${DESTDIR}${PREFIX}/share
