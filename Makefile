@@ -16,6 +16,7 @@ endif
 LIBRARIES = \
     thumbnails \
     themes \
+    theme_thumb\
     dxinput \
     drandr \
     soundutils \
