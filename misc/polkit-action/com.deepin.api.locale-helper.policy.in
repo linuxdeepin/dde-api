@@ -8,7 +8,7 @@
 
   <action id="com.deepin.api.locale-helper.manage-locale">
     <description>Manage your system locale</description>
-    <message>Authentication is required to manage system locale</message>
+    <message>Authentication is required to switch language</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>

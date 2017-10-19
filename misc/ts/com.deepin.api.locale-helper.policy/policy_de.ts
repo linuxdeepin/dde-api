@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE TS>
-<TS version="2.1">
+<TS language="de" version="2.1">
 	<context>
 		<name>policy</name>
 		<message>
 			<location filename="com.deepin.api.locale-helper.manage-locale!message" line="0" />
 			<source>Authentication is required to switch language</source>
-			<translation type="unfinished" />
+			<translation>Authentifizierung ist erforderlich, um die Sprache zu wechseln</translation>
 		</message>
 		<message>
 			<location filename="com.deepin.api.locale-helper.manage-locale!description" line="0" />
