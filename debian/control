@@ -23,6 +23,7 @@ Build-Depends: debhelper (>= 9),
  libpoppler-glib-dev,
  dh-systemd,
  systemd,
+ deepin-gettext-tools,
  libcroco3-dev
 Standards-Version: 3.9.5
 Homepage: http://www.deepin.com
