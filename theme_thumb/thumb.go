@@ -168,10 +168,10 @@ func shouldGenerateNew(descFile, out string) (bool, error) {
 	return false, nil
 }
 
-// getChangeTime get Time when file status was last changed.
+// getChangeTime get time when file status was last changed.
 func getChangeTime(fileInfo os.FileInfo) time.Time {
 	stat := fileInfo.Sys().(*syscall.Stat_t)
-	return time.Unix(stat.Ctim.Sec, stat.Ctim.Nsec)
+	return time.Unix(int64(stat.Ctim.Sec), int64(stat.Ctim.Nsec))
 }
 
 // ex. $HOME/.cache/deepin/dde-api/theme_thumb/X1.00/icon-v0/deepin.png
