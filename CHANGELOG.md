@@ -1,6 +1,6 @@
 ## [Unreleased]
 
-## [3.1.14] - 2017-10-25
+## [3.1.15] - 2017-10-25
 #### Added
 *   Add deepin-gettext-tools to build dependencies ([d06b8d39](d06b8d39))
 *   Add theme_thumb ([c513f59f](c513f59f))
@@ -11,11 +11,11 @@
 
 
 ## [3.1.14] - 2017-10-12
-### Added
-- Add 'image-blur'
-- Add 'outDir' option in image-blur-helper
-- Add palm settings in dxinput
+#### Added
+*   Add 'image-blur'
+*   Add 'outDir' option in image-blur-helper
+*   Add palm settings in dxinput
 
-### Changed
-- Update license
-- Update sound events name
+#### Changed
+*   Update license
+*   Update sound events name
