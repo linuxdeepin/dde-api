@@ -40,7 +40,7 @@ BINARIES =  \
     image-blur \
     image-blur-helper
 
-all: build
+all: build-binary build-dev ts-to-policy
 
 prepare:
 	@if [ ! -d ${GOBUILD_DIR}/src/${GOPKG_PREFIX} ]; then \
@@ -51,7 +51,7 @@ prepare:
 ts:
 	deepin-policy-ts-convert policy2ts misc/polkit-action/com.deepin.api.locale-helper.policy.in misc/ts/com.deepin.api.locale-helper.policy
 
-ts_to_policy:
+ts-to-policy:
 	deepin-policy-ts-convert ts2policy misc/polkit-action/com.deepin.api.locale-helper.policy.in misc/ts/com.deepin.api.locale-helper.policy misc/polkit-action/com.deepin.api.locale-helper.policy
 
 out/bin/%:
@@ -64,9 +64,9 @@ build-dep:
 	go get github.com/BurntSushi/xgbutil
 	go get gopkg.in/check.v1
 
-build: prepare $(addprefix out/bin/, ${BINARIES}) ts_to_policy
+build-binary: prepare $(addprefix out/bin/, ${BINARIES})
 
-install-binary: build
+install-binary: 
 	mkdir -pv ${DESTDIR}${PREFIX}${libdir}/deepin-api
 	cp out/bin/* ${DESTDIR}${PREFIX}${libdir}/deepin-api/
 
@@ -100,7 +100,7 @@ install/lib/%:
 	mkdir -pv ${DESTDIR}${GOSITE_DIR}/src/${GOPKG_PREFIX}
 	cp -R ${CURDIR}/${GOBUILD_DIR}/src/${GOPKG_PREFIX}/${@F} ${DESTDIR}${GOSITE_DIR}/src/${GOPKG_PREFIX}
 
-install-dev: build-dev ${addprefix install/lib/, ${LIBRARIES}}
+install-dev: ${addprefix install/lib/, ${LIBRARIES}}
 
 install: install-binary install-dev
 
