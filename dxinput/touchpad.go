@@ -156,6 +156,7 @@ func (tpad *Touchpad) EnableTapToClick(enabled bool) error {
 	}
 
 	if tpad.isLibinputUsed {
+		// TODO: libinput unsupported tap mapping settings.
 		return libinputInt8PropSet(tpad.Id, libinputPropTapEnabled, enabled)
 	}
 
@@ -167,10 +168,11 @@ func (tpad *Touchpad) EnableTapToClick(enabled bool) error {
 	if !enabled {
 		values[4], values[5], values[6] = 0, 0, 0
 	} else {
+		// disable tap paste, becase of conflicts with tap gesture
 		if tpad.CanLeftHanded() {
-			values[4], values[5], values[6] = 3, 1, 2
+			values[4], values[5], values[6] = 3, 1, 0
 		} else {
-			values[4], values[5], values[6] = 1, 3, 2
+			values[4], values[5], values[6] = 1, 3, 0
 		}
 	}
 
@@ -188,11 +190,11 @@ func (tpad *Touchpad) CanTapToClick() bool {
 	}
 
 	if tpad.CanLeftHanded() {
-		if values[4] == 3 && values[5] == 1 && values[6] == 2 {
+		if values[4] == 3 && values[5] == 1 {
 			return true
 		}
 	} else {
-		if values[4] == 1 && values[5] == 3 && values[6] == 2 {
+		if values[4] == 1 && values[5] == 3 {
 			return true
 		}
 	}
