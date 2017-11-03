@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+## [3.1.16] - 2017-11-3
+*   dxinput: disable tap middle button
+*   Remove target 'build-dev' from 'install' to 'build'
+
+
 ## [3.1.15] - 2017-10-25
 #### Added
 *   Add deepin-gettext-tools to build dependencies ([d06b8d39](d06b8d39))
