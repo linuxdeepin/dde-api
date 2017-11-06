@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [3.1.17] - 2017-11-6
+*   theme_thumb: fix some cursor theme thumbnails generate failed 
+
+
 ## [3.1.16] - 2017-11-3
 *   dxinput: disable tap middle button
 *   Remove target 'build-dev' from 'install' to 'build'
