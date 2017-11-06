@@ -83,7 +83,7 @@ func GetCursor(id, descFile string) (string, error) {
 	}
 
 	out := prepareOutputPath("cursor", id, cursor.Version)
-	genNew, err := shouldGenerateNew(descFile, out)
+	genNew, err := shouldGenerateNewCursor(descFile, out)
 	if err != nil {
 		return "", err
 	}
@@ -166,6 +166,12 @@ func shouldGenerateNew(descFile, out string) (bool, error) {
 		return true, nil
 	}
 	return false, nil
+}
+
+func shouldGenerateNewCursor(descFile, out string) (bool, error) {
+	dir := filepath.Dir(descFile)
+	ptrFile := filepath.Join(dir, "cursors", "left_ptr")
+	return shouldGenerateNew(ptrFile, out)
 }
 
 // getChangeTime get time when file status was last changed.

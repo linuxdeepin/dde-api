@@ -16,7 +16,10 @@ static gboolean choose_icon(const char *theme_name, const char **icon_names, int
 	gtk_icon_theme_set_custom_theme(icon_theme, theme_name);
 
 	GtkIconInfo* icon_info = gtk_icon_theme_choose_icon(icon_theme, icon_names, size, 0);
-	const char* icon_filename = gtk_icon_info_get_filename(icon_info);
+	if (icon_info == NULL ) {
+		g_printf("gtk_icon_theme_choose_icon failed icon_theme: %s, size: %d\n", icon_theme, size);
+		return FALSE;
+	}
 
 	GError *err = NULL;
 	GdkPixbuf* pixbuf = gtk_icon_info_load_icon(icon_info, &err);
