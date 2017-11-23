@@ -168,7 +168,7 @@ func (tpad *Touchpad) EnableTapToClick(enabled bool) error {
 	if !enabled {
 		values[4], values[5], values[6] = 0, 0, 0
 	} else {
-		// disable tap paste, becase of conflicts with tap gesture
+		// disable tap paste, because of conflicts with tap gesture
 		if tpad.CanLeftHanded() {
 			values[4], values[5], values[6] = 3, 1, 0
 		} else {
