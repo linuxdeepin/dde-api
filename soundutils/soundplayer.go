@@ -20,10 +20,11 @@
 package soundutils
 
 import (
+	"sync"
+
 	"gir/gio-2.0"
-	splayer "pkg.deepin.io/lib/sound"
+	"pkg.deepin.io/lib/sound_effect"
 	"pkg.deepin.io/lib/strv"
-	"pkg.deepin.io/lib/utils"
 )
 
 const (
@@ -58,11 +59,22 @@ const (
 	soundThemeDeepin  = "deepin"
 )
 
-func PlaySystemSound(event, device string, sync bool) error {
-	return PlayThemeSound(GetSoundTheme(), event, device, sync)
+func PlaySystemSound(event, device string) error {
+	return PlayThemeSound(GetSoundTheme(), event, device)
 }
 
-func PlayThemeSound(theme, event, device string, sync bool) error {
+var UseCache = true
+
+var player *sound_effect.Player
+var playerOnce sync.Once
+
+func initPlayer() {
+	playerOnce.Do(func() {
+		player = sound_effect.NewPlayer(UseCache, sound_effect.PlayBackendPulseAudio)
+	})
+}
+
+func PlayThemeSound(theme, event, device string) error {
 	if len(theme) == 0 {
 		theme = soundThemeDeepin
 	}
@@ -71,60 +83,29 @@ func PlayThemeSound(theme, event, device string, sync bool) error {
 		return nil
 	}
 
-	if sync {
-		return splayer.PlayThemeSound(theme, event, device, "", GetSoundPlayer())
-	}
-
-	go splayer.PlayThemeSound(theme, event, device, "", GetSoundPlayer())
-	return nil
+	initPlayer()
+	return player.Play(theme, event, device)
 }
-
-func PlaySoundFile(file, device string, sync bool) error {
-	if sync {
-		return splayer.PlaySoundFile(file, device, "", GetSoundPlayer())
-	}
-
-	go splayer.PlaySoundFile(file, device, "", GetSoundPlayer())
-	return nil
-}
-
-var setting *gio.Settings
 
 func CanPlayEvent(event string) bool {
 	if event == keyEnabled || event == keyPlayer {
 		return false
 	}
 
-	if setting == nil {
-		s, err := utils.CheckAndNewGSettings(soundEffectSchema)
-		if err != nil {
-			return true
-		}
-		setting = s
-	}
+	settings := gio.NewSettings(soundEffectSchema)
+	defer settings.Unref()
 
 	// check main switch
-	if !setting.GetBoolean(keyEnabled) {
+	if !settings.GetBoolean(keyEnabled) {
 		return false
 	}
 
-	keys := strv.Strv(setting.ListKeys())
+	keys := strv.Strv(settings.ListKeys())
 	if keys.Contains(event) {
 		// has key
-		return setting.GetBoolean(event)
+		return settings.GetBoolean(event)
 	}
 	return true
-}
-
-func GetSoundPlayer() string {
-	if setting == nil {
-		s, err := utils.CheckAndNewGSettings(soundEffectSchema)
-		if err != nil {
-			return ""
-		}
-		setting = s
-	}
-	return setting.GetString(keyPlayer)
 }
 
 func GetSoundTheme() string {
