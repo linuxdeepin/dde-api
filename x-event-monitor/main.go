@@ -27,19 +27,19 @@ import (
 )
 
 const (
-	MouseAreaDest = "com.deepin.api.XMouseArea"
+	dbusDest = "com.deepin.api.XEventMonitor"
 )
 
 var (
-	logger = log.NewLogger(MouseAreaDest)
+	logger = log.NewLogger(dbusDest)
 )
 
 func main() {
 	logger.BeginTracing()
 	defer logger.EndTracing()
 
-	if !lib.UniqueOnSession(MouseAreaDest) {
-		logger.Warning("There already has an XMouseArea daemon running.")
+	if !lib.UniqueOnSession(dbusDest) {
+		logger.Warning("There already has an XEventMonitor daemon running.")
 		return
 	}
 
