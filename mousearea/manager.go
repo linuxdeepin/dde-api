@@ -324,9 +324,9 @@ func (m *Manager) getIdList(x, y int32) ([]string, []string) {
 
 func (m *Manager) GetDBusInfo() dbus.DBusInfo {
 	return dbus.DBusInfo{
-		Dest:       dbusDest,
-		ObjectPath: "/com/deepin/api/XEventMonitor",
-		Interface:  "com.deepin.api.XEventMonitor",
+		Dest:       MouseAreaDest,
+		ObjectPath: "/com/deepin/api/XMouseArea",
+		Interface:  "com.deepin.api.XMouseArea",
 	}
 }
 
