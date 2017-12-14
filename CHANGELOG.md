@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+## [3.1.18.1] - 2017-12-14
+*   revert "refactor: rename mousearea to x-event-monitor"
+
 ## [3.1.18] - 2017-12-13
 *   doc: update links in README
 *   fix a typo
