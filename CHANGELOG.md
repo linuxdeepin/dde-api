@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+## [3.1.19] - 2017-12-15
+*   add lib `language_support`
+
 ## [3.1.18] - 2017-12-13
 *   doc: update links in README
 *   fix a typo
