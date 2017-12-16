@@ -21,26 +21,30 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
+	"time"
+
+	"sync"
+
 	"pkg.deepin.io/lib/dbus"
 	"pkg.deepin.io/lib/log"
-	"pkg.deepin.io/lib/sound"
-	"time"
+	"pkg.deepin.io/lib/sound_effect"
 )
 
-type Manager struct{}
+type Manager struct {
+	playing bool
+	mu      sync.Mutex
+	player  *sound_effect.Player
+}
 
 var (
-	playing bool
-	logger  = log.NewLogger("sound-theme-player")
+	logger = log.NewLogger("sound-theme-player")
 )
 
-func (*Manager) Play(theme, event, player string) error {
-	if len(theme) == 0 || len(event) == 0 {
-		return fmt.Errorf("Invalid theme or event")
+func (m *Manager) Play(theme, event, device string) error {
+	if theme == "" || event == "" {
+		return fmt.Errorf("invalid theme or event")
 	}
-	go doPlaySound(theme, event, player)
+	go m.doPlaySound(theme, event, device)
 	return nil
 }
 
@@ -52,48 +56,34 @@ func (*Manager) GetDBusInfo() dbus.DBusInfo {
 	}
 }
 
-func doPlaySound(theme, event, player string) error {
-	playing = true
-	defer func() {
-		playing = false
-	}()
+func (m *Manager) doPlaySound(theme, event, device string) {
+	m.mu.Lock()
+	m.playing = true
+	m.mu.Unlock()
 
-	out, err := exec.Command("/usr/bin/pulseaudio", "--start").CombinedOutput()
-	logger.Debug("Launch pulseaudio output ", string(out))
-	if err != nil {
-		logger.Warningf("Launch pulseaudio failed: error: %v, output: %v", err, string(out))
-	}
+	err := m.player.Play(theme, event, device)
 
-	err = sound.PlayThemeSound(theme, event, "", "pulse", player)
+	m.mu.Lock()
+	m.playing = false
+	m.mu.Unlock()
+
 	if err != nil {
-		logger.Errorf("Play '%s' '%s' failed: %v", theme, event, err)
+		logger.Warning("failed to play:", err)
 	}
-	return err
 }
 
-func (*Manager) Quit() {
-	logger.Info("Quit")
-	out, err := exec.Command("/usr/bin/pulseaudio", "--kill").CombinedOutput()
-	if err != nil {
-		logger.Warningf("quit pulseaudio failed: error: %v, output: %v", err, string(out))
-	}
-	os.Exit(0)
+func (m *Manager) canQuit() bool {
+	m.mu.Lock()
+	playing := m.playing
+	m.mu.Unlock()
+	return !playing
 }
 
 func main() {
-	logger.Info("^^^^^^^^^^^^^^^^^^^Start sound player")
-	// fix no PATH when was launched by dbus
-	if os.Getenv("PATH") == "" {
-		logger.Warning("No PATH found, manual special")
-		os.Setenv("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin")
-	}
-	if len(os.Args) == 4 {
-		logger.Info("^^^^^^^^^^^^^^^^^Play cmd:", os.Args)
-		doPlaySound(os.Args[1], os.Args[2], os.Args[3])
-		return
-	}
-
+	logger.Info("start sound-theme-player")
 	var m = new(Manager)
+	m.player = sound_effect.NewPlayer(false, sound_effect.PlayBackendALSA)
+
 	err := dbus.InstallOnSystem(m)
 	if err != nil {
 		logger.Error("Install sound player bus failed:", err)
@@ -101,12 +91,7 @@ func main() {
 	}
 	dbus.DealWithUnhandledMessage()
 
-	dbus.SetAutoDestroyHandler(time.Second*10, func() bool {
-		if playing {
-			return false
-		}
-		return true
-	})
+	dbus.SetAutoDestroyHandler(time.Second*10, m.canQuit)
 
 	err = dbus.Wait()
 	if err != nil {
