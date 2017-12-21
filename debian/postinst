@@ -10,3 +10,6 @@ if [ $pc_arch = $pc_64  ] || [ $pc_arch = $pc_32  ];then
 /usr/lib/deepin-api/image-blur-helper /usr/share/wallpapers/deepin
 fi
 fi
+
+#DEBHELPER#
+exit 0

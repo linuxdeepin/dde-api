@@ -1,8 +1,8 @@
 Source: dde-api
 Section: devel
 Priority: extra
-Maintainer: Deepin Sysdev <sysdev@deepin.com>
-Build-Depends: debhelper (>= 9),
+Maintainer: Deepin Packages Builder <packages@deepin.com>
+Build-Depends: debhelper (>= 9), dh-golang, golang-any,
  golang-go | gccgo-5,
  golang-dlib-dev (>= 0.4.2),golang-gir-gobject-2.0-dev, 
  golang-gir-gio-2.0-dev, golang-gir-glib-2.0-dev, golang-gir-gudev-1.0-dev,
@@ -25,15 +25,15 @@ Build-Depends: debhelper (>= 9),
  systemd,
  deepin-gettext-tools,
  libcroco3-dev
-Standards-Version: 3.9.5
-Homepage: http://www.deepin.com
+Standards-Version: 3.9.8
+Homepage: http://www.deepin.org
 
 Package: dde-api
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  rfkill, locales, libcanberra-pulse, blur-effect,
 Description: Go-lang bingdings for dde-daemon
- Go-lang bindings for dde-daemon
+ Deepin Go-lang bindings for dde-daemon
 
 Package: dde-api-dev
 Architecture: all
