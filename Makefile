@@ -31,7 +31,6 @@ BINARIES =  \
     graphic \
     locale-helper \
     lunar-calendar \
-    x-event-monitor \
     thumbnailer \
     hans2pinyin \
     cursor-helper \
