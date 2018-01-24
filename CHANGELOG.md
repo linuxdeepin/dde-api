@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+## [3.1.20] - 2018-01-24
+*   sound-theme-player: use newly `sound_effect` lib
+*   add libs for gccgo build
+*   fix Adapt lintian
+*   remove x-event-monitor
+
 ## [3.1.19] - 2017-12-15
 *   add lib `language_support`
 
@@ -7,10 +13,10 @@
 *   doc: update links in README
 *   fix a typo
 *   rename mousearea to x-event-monitor
-*   soundutils: use sound_effect lib
+*   soundutils: use `sound_effect` lib
 
 ## [3.1.17] - 2017-11-6
-*   theme_thumb: fix some cursor theme thumbnails generate failed 
+*   `theme_thumb`: fix some cursor theme thumbnails generate failed 
 
 
 ## [3.1.16] - 2017-11-3
@@ -21,10 +27,10 @@
 ## [3.1.15] - 2017-10-25
 #### Added
 *   Add deepin-gettext-tools to build dependencies ([d06b8d39](d06b8d39))
-*   Add theme_thumb ([c513f59f](c513f59f))
+*   Add `theme_thumb` ([c513f59f](c513f59f))
 
 #### Fixed
-*   Fix theme_thumb build failed with old version gccgo ([f6881342](f6881342))
+*   Fix `theme_thumb` build failed with old version gccgo ([f6881342](f6881342))
 *   Fix policykit message not using user's locale ([c7a9c53a](c7a9c53a))
 
 
