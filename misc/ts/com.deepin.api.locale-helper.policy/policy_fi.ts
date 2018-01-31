@@ -1,15 +1,15 @@
-<?xml version="1.0" ?><!DOCTYPE TS><TS language="it" version="2.1">
+<?xml version="1.0" ?><!DOCTYPE TS><TS language="fi" version="2.1">
 	<context>
 		<name>policy</name>
 		<message>
 			<location filename="com.deepin.api.locale-helper.manage-locale!message" line="0"/>
 			<source>Authentication is required to switch language</source>
-			<translation>Il cambio lingua richiede l&apos;autenticazione</translation>
+			<translation>Kielen vaihtaminen vaatii tunnistautumisen</translation>
 		</message>
 		<message>
 			<location filename="com.deepin.api.locale-helper.manage-locale!description" line="0"/>
 			<source>Manage your system locale</source>
-			<translation>Gestisci il tuo Sistema Locale</translation>
+			<translation type="unfinished"/>
 		</message>
 	</context>
 </TS>
