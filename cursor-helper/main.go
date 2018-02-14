@@ -27,51 +27,67 @@ import "C"
 import (
 	"fmt"
 	"os"
-	"pkg.deepin.io/dde/api/themes"
-	"pkg.deepin.io/lib"
-	"pkg.deepin.io/lib/dbus"
-	"pkg.deepin.io/lib/log"
 	"strings"
 	"sync"
 	"time"
 	"unsafe"
+
+	"pkg.deepin.io/dde/api/themes"
+	"pkg.deepin.io/lib/dbus1"
+	"pkg.deepin.io/lib/dbusutil"
+	"pkg.deepin.io/lib/log"
 )
 
 type Manager struct {
-	locker  sync.Mutex
-	running bool
+	service    *dbusutil.Service
+	runningMu  sync.Mutex
+	running    bool
+	setThemeMu sync.Mutex
+
+	methods *struct {
+		Set func() `in:"name"`
+	}
+}
+
+func (m *Manager) GetDBusExportInfo() dbusutil.ExportInfo {
+	return dbusutil.ExportInfo{
+		Path:      dbusPath,
+		Interface: dbusInterface,
+	}
 }
 
 const (
-	dbusDest = "com.deepin.api.CursorHelper"
-	dbusPath = "/com/deepin/api/CursorHelper"
-	dbusIFC  = "com.deepin.api.CursorHelper"
+	dbusServiceName = "com.deepin.api.CursorHelper"
+	dbusPath        = "/com/deepin/api/CursorHelper"
+	dbusInterface   = "com.deepin.api.CursorHelper"
 )
 
 var logger = log.NewLogger("api/cursor-helper")
 
-func NewManager() *Manager {
+func NewManager(service *dbusutil.Service) *Manager {
 	var m = new(Manager)
 	m.running = false
+	m.service = service
 	return m
 }
 
-func (*Manager) GetDBusInfo() dbus.DBusInfo {
-	return dbus.DBusInfo{
-		Dest:       dbusDest,
-		ObjectPath: dbusPath,
-		Interface:  dbusIFC,
-	}
-}
+func (m *Manager) Set(name string) *dbus.Error {
+	m.service.DelayAutoQuit()
 
-func (m *Manager) Set(name string) {
-	m.locker.Lock()
+	m.runningMu.Lock()
 	m.running = true
+	m.runningMu.Unlock()
+
 	go func() {
-		defer m.locker.Unlock()
+		m.setThemeMu.Lock()
 		setTheme(name)
+		m.setThemeMu.Unlock()
+
+		m.runningMu.Lock()
 		m.running = false
+		m.runningMu.Unlock()
 	}()
+	return nil
 }
 
 func main() {
@@ -85,41 +101,48 @@ func main() {
 		name = os.Args[1]
 	}
 
-	if !lib.UniqueOnSession(dbusDest) {
-		logger.Warning("There already has a cursor helper running...")
-		return
-	}
-
 	if C.init_gtk() == -1 {
 		logger.Warning("Init gtk or x11 thread environment failed")
 		return
 	}
 
-	var m = NewManager()
-	err := dbus.InstallOnSession(m)
-	if err != nil {
-		logger.Error("Install session dbus failed:", err)
-		return
-	}
-	dbus.DealWithUnhandledMessage()
-
-	if len(name) != 0 {
+	if name != "" {
 		setTheme(name)
 		return
 	}
 
-	dbus.SetAutoDestroyHandler(time.Second*5, func() bool {
-		if m.running {
-			return false
-		}
-		return true
-	})
-
-	err = dbus.Wait()
+	// start DBus service
+	service, err := dbusutil.NewSessionService()
 	if err != nil {
-		logger.Error("Lost cursor helper session:", err)
-		os.Exit(-1)
+		logger.Fatal("failed to new session service", err)
 	}
+
+	hasOwner, err := service.NameHasOwner(dbusServiceName)
+	if err != nil {
+		logger.Fatal("failed to call NameHasOwner:", err)
+	}
+	if hasOwner {
+		logger.Fatalf("name %q already has the owner", dbusServiceName)
+	}
+
+	m := &Manager{
+		service: service,
+	}
+	err = service.Export(m)
+	if err != nil {
+		logger.Fatal("failed to export:", err)
+	}
+	err = service.RequestName(dbusServiceName)
+	if err != nil {
+		logger.Fatal("failed to request name:", err)
+	}
+	service.SetAutoQuitHandler(time.Second*5, func() bool {
+		m.runningMu.Lock()
+		r := m.running
+		m.runningMu.Unlock()
+		return !r
+	})
+	service.Wait()
 }
 
 func setTheme(name string) {
