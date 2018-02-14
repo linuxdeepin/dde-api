@@ -20,11 +20,10 @@
 package main
 
 import (
-	"os"
-	"pkg.deepin.io/lib"
-	"pkg.deepin.io/lib/dbus"
-	"pkg.deepin.io/lib/log"
 	"time"
+
+	"pkg.deepin.io/lib/dbusutil"
+	"pkg.deepin.io/lib/log"
 )
 
 var (
@@ -32,24 +31,32 @@ var (
 )
 
 func main() {
-	if !lib.UniqueOnSession(DBusDest) {
-		logger.Warning("There already has an lunar-calendar running.")
-		return
-	}
-
 	logger.SetRestartCommand("/usr/lib/deepin-api/lunar-calendar")
 
-	m := NewManager()
-	if err := dbus.InstallOnSession(m); err != nil {
-		logger.Warning("LunarCalendar Install DBus Session Failed: ", err)
-		return
+	service, err := dbusutil.NewSessionService()
+	if err != nil {
+		logger.Fatal("failed to new session service:", err)
 	}
-	dbus.DealWithUnhandledMessage()
-	dbus.SetAutoDestroyHandler(time.Second*100, nil)
-	if err := dbus.Wait(); err != nil {
-		logger.Warning("Lost Session DBus")
-		os.Exit(-1)
-	} else {
-		os.Exit(0)
+
+	hasOwner, err := service.NameHasOwner(DBusServiceName)
+	if err != nil {
+		logger.Fatal(err)
 	}
+	if hasOwner {
+		logger.Fatalf("name %q already has the owner", DBusServiceName)
+	}
+
+	m := NewManager(service)
+	err = service.Export(m)
+	if err != nil {
+		logger.Fatal("failed to export:", err)
+	}
+
+	err = service.RequestName(DBusServiceName)
+	if err != nil {
+		logger.Fatal("failed to request name:", err)
+	}
+
+	service.SetAutoQuitHandler(time.Second*100, nil)
+	service.Wait()
 }
