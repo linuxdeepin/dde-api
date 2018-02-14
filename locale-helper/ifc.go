@@ -21,7 +21,9 @@ package main
 
 import (
 	"fmt"
-	"pkg.deepin.io/lib/dbus"
+
+	"pkg.deepin.io/lib/dbus1"
+	"pkg.deepin.io/lib/dbusutil"
 	"pkg.deepin.io/lib/polkit"
 	dutils "pkg.deepin.io/lib/utils"
 )
@@ -35,37 +37,39 @@ const (
 
 var errAuthFailed = fmt.Errorf("authentication failed")
 
-func (h *Helper) SetLocale(dmessage dbus.DMessage, locale string) error {
-	ok, err := checkAuth(dmessage)
+func (h *Helper) SetLocale(sender dbus.Sender, locale string) *dbus.Error {
+	h.service.DelayAutoQuit()
+
+	ok, err := h.checkAuth(sender)
 	logger.Debug("---Auth ret:", ok, err)
 	if !ok || err != nil {
-		return errAuthFailed
+		return dbusutil.ToError(errAuthFailed)
 	}
 
 	if !IsLocaleValid(locale) {
-		return fmt.Errorf("invalid locale: %s", locale)
+		return dbusutil.ToError(fmt.Errorf("invalid locale: %s", locale))
 	}
 
-	return writeContentToFile(defaultLocaleFile,
-		fmt.Sprintf("LANG=%s", locale))
+	err = writeContentToFile(defaultLocaleFile, "LANG="+locale)
+	return dbusutil.ToError(err)
 }
 
-func (h *Helper) GenerateLocale(dmessage dbus.DMessage, locale string) error {
-	h.running = true
-	defer func() {
-		h.running = false
-	}()
+func (h *Helper) emitFailed(err error) {
+	h.service.Emit(h, "Success", false, err.Error())
+}
 
-	ok, err := checkAuth(dmessage)
+func (h *Helper) emitRealSuccess() {
+	h.service.Emit(h, "Success", true, "")
+}
+
+func (h *Helper) generateLocale(sender dbus.Sender, locale string) error {
+	ok, err := h.checkAuth(sender)
 	logger.Debug("---Auth ret:", ok, err)
 	if !ok || err != nil {
-		dbus.Emit(h, "Success", false, errAuthFailed.Error())
 		return errAuthFailed
 	}
 
 	if !IsLocaleValid(locale) {
-		dbus.Emit(h, "Success", false,
-			fmt.Sprintf("Invalid locale: %v", locale))
 		return fmt.Errorf("invalid locale: %s", locale)
 	}
 
@@ -73,42 +77,59 @@ func (h *Helper) GenerateLocale(dmessage dbus.DMessage, locale string) error {
 	if !dutils.IsFileExist(defaultLocaleGenFile) {
 		err := h.doGenLocaleWithParam(locale)
 		if err != nil {
-			dbus.Emit(h, "Success", false, err.Error())
 			return err
 		}
-
-		dbus.Emit(h, "Success", true, "")
 		return nil
 	}
 
 	err = enableLocaleInFile(locale, defaultLocaleGenFile)
 	if err != nil {
-		dbus.Emit(h, "Success", false, err.Error())
 		return err
 	}
 
 	err = h.doGenLocale()
 	if err != nil {
-		dbus.Emit(h, "Success", false, err.Error())
 		return err
 	}
 
-	dbus.Emit(h, "Success", true, "")
 	return nil
 }
 
+func (h *Helper) GenerateLocale(sender dbus.Sender, locale string) *dbus.Error {
+	h.service.DelayAutoQuit()
+
+	h.mu.Lock()
+	h.running = true
+	h.mu.Unlock()
+
+	defer func() {
+		h.mu.Lock()
+		h.running = false
+		h.mu.Unlock()
+	}()
+
+	err := h.generateLocale(sender, locale)
+	if err != nil {
+		h.emitFailed(err)
+	} else {
+		h.emitRealSuccess()
+	}
+
+	return dbusutil.ToError(err)
+}
+
 func enableLocaleInFile(locale, file string) error {
-	finfo, err := NewLocaleFileInfo(file)
+	info, err := NewLocaleFileInfo(file)
 	if err != nil {
 		return err
 	}
 
-	if finfo.IsLocaleEnabled(locale) {
+	if info.IsLocaleEnabled(locale) {
 		return nil
 	}
 
-	finfo.EnableLocale(locale)
-	err = finfo.Save(defaultLocaleGenFile)
+	info.EnableLocale(locale)
+	err = info.Save(defaultLocaleGenFile)
 	if err != nil {
 		return err
 	}
@@ -120,9 +141,14 @@ func init() {
 	polkit.Init()
 }
 
-func checkAuth(dmessage dbus.DMessage) (bool, error) {
+func (h *Helper) checkAuth(sender dbus.Sender) (bool, error) {
+	pid, err := h.service.GetConnPID(string(sender))
+	if err != nil {
+		return false, err
+	}
+
 	subject := polkit.NewSubject(polkit.SubjectKindUnixProcess)
-	subject.SetDetail("pid", dmessage.GetSenderPID())
+	subject.SetDetail("pid", pid)
 	subject.SetDetail("start-time", uint64(0))
 	details := make(map[string]string)
 	result, err := polkit.CheckAuthorization(subject, polkitManageLocale,

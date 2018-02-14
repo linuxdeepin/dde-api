@@ -20,73 +20,93 @@
 package main
 
 import (
-	"os"
 	"os/exec"
-	"pkg.deepin.io/lib"
-	"pkg.deepin.io/lib/dbus"
-	"pkg.deepin.io/lib/log"
 	"time"
+
+	"sync"
+
+	"pkg.deepin.io/lib/dbusutil"
+	"pkg.deepin.io/lib/log"
 )
 
 const (
-	dbusSender = "com.deepin.api.LocaleHelper"
-	dbusPath   = "/com/deepin/api/LocaleHelper"
-	dbusIFC    = "com.deepin.api.LocaleHelper"
+	dbusServiceName = "com.deepin.api.LocaleHelper"
+	dbusPath        = "/com/deepin/api/LocaleHelper"
+	dbusInterface   = dbusServiceName
 )
 
 type Helper struct {
-	/**
-	 * if failed, Success(false, reason), else Success(true, "")
-	 **/
-	Success func(bool, string)
-
+	service *dbusutil.Service
+	mu      sync.Mutex
 	running bool
+
+	methods *struct {
+		SetLocale      func() `in:"locale"`
+		GenerateLocale func() `in:"locale"`
+	}
+
+	signals *struct {
+		/**
+		 * if failed, Success(false, reason), else Success(true, "")
+		 **/
+		Success struct {
+			ok     bool
+			reason string
+		}
+	}
 }
 
 var (
-	logger = log.NewLogger(dbusSender)
+	logger = log.NewLogger(dbusServiceName)
 )
 
 func main() {
-	if !lib.UniqueOnSystem(dbusSender) {
-		logger.Warning("There already has an LocaleHelper running...")
-		return
-	}
-
 	logger.BeginTracing()
 	defer logger.EndTracing()
 
-	var h = &Helper{running: false}
-	err := dbus.InstallOnSystem(h)
+	service, err := dbusutil.NewSystemService()
 	if err != nil {
-		logger.Error("Install system dbus failed:", err)
-		return
+		logger.Fatal("failed to new system service:", err)
 	}
-	dbus.DealWithUnhandledMessage()
 
-	dbus.SetAutoDestroyHandler(time.Second*30, func() bool {
-		if h.running {
-			return false
-		}
-
-		return true
-	})
-
-	err = dbus.Wait()
+	hasOwner, err := service.NameHasOwner(dbusServiceName)
 	if err != nil {
-		logger.Error("Lost system dbus:", err)
-		os.Exit(-1)
-	} else {
-		os.Exit(0)
+		logger.Fatal(err)
+	}
+	if hasOwner {
+		logger.Fatalf("name %q already has the owner", dbusServiceName)
+	}
+
+	var h = &Helper{
+		running: false,
+		service: service,
+	}
+	err = service.Export(h)
+	if err != nil {
+		logger.Fatal("failed to export:", err)
+	}
+
+	err = service.RequestName(dbusServiceName)
+	if err != nil {
+		logger.Fatal("failed to request name:", err)
+	}
+
+	service.SetAutoQuitHandler(30*time.Second, h.canQuit)
+	service.Wait()
+}
+
+func (h *Helper) GetDBusExportInfo() dbusutil.ExportInfo {
+	return dbusutil.ExportInfo{
+		Path:      dbusPath,
+		Interface: dbusInterface,
 	}
 }
 
-func (h *Helper) GetDBusInfo() dbus.DBusInfo {
-	return dbus.DBusInfo{
-		Dest:       dbusSender,
-		ObjectPath: dbusPath,
-		Interface:  dbusIFC,
-	}
+func (h *Helper) canQuit() bool {
+	h.mu.Lock()
+	running := h.running
+	h.mu.Unlock()
+	return !running
 }
 
 func (h *Helper) doGenLocale() error {
