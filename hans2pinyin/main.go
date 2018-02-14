@@ -23,39 +23,51 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"pkg.deepin.io/lib/dbus"
-	"pkg.deepin.io/lib/pinyin"
 	"time"
+
+	"log"
+
+	"pkg.deepin.io/lib/dbus1"
+	"pkg.deepin.io/lib/dbusutil"
+	"pkg.deepin.io/lib/pinyin"
 )
 
 const (
-	dbusDest = "com.deepin.api.Pinyin"
-	dbusPath = "/com/deepin/api/Pinyin"
-	dbusIFC  = dbusDest
+	dbusServiceName = "com.deepin.api.Pinyin"
+	dbusPath        = "/com/deepin/api/Pinyin"
+	dbusInterface   = dbusServiceName
 )
 
-type Manager struct{}
+type Manager struct {
+	service *dbusutil.Service
 
-func (*Manager) Query(hans string) []string {
-	return queryPinyin(hans)
+	methods *struct {
+		Query     func() `in:"hans" out:"pinyin"`
+		QueryList func() `in:"hansList" out:"json"`
+	}
 }
 
-// Querylist query pinyin for hans list, return a json data.
-func (*Manager) QueryList(hansList []string) string {
+func (m *Manager) Query(hans string) ([]string, *dbus.Error) {
+	m.service.DelayAutoQuit()
+	return queryPinyin(hans), nil
+}
+
+// QueryList query pinyin for hans list, return a json data.
+func (m *Manager) QueryList(hansList []string) (string, *dbus.Error) {
+	m.service.DelayAutoQuit()
 	var data = make(map[string][]string)
 	for _, hans := range hansList {
 		data[hans] = queryPinyin(hans)
 	}
 
 	content, _ := json.Marshal(data)
-	return string(content)
+	return string(content), nil
 }
 
-func (*Manager) GetDBusInfo() dbus.DBusInfo {
-	return dbus.DBusInfo{
-		Dest:       dbusDest,
-		ObjectPath: dbusPath,
-		Interface:  dbusIFC,
+func (m *Manager) GetDBusExportInfo() dbusutil.ExportInfo {
+	return dbusutil.ExportInfo{
+		Path:      dbusPath,
+		Interface: dbusInterface,
 	}
 }
 
@@ -70,21 +82,32 @@ func main() {
 		return
 	}
 
-	err := dbus.InstallOnSession(new(Manager))
+	service, err := dbusutil.NewSessionService()
 	if err != nil {
-		fmt.Println("Install dbus failed:", err)
-		return
+		log.Fatal("failed to new session service", err)
 	}
 
-	dbus.DealWithUnhandledMessage()
-	dbus.SetAutoDestroyHandler(time.Second*5, nil)
-	err = dbus.Wait()
+	hasOwner, err := service.NameHasOwner(dbusServiceName)
 	if err != nil {
-		fmt.Println("Lost dbus:", err)
-		os.Exit(-1)
+		log.Fatal("failed to call NameHasOwner:", err)
+	}
+	if hasOwner {
+		log.Fatalf("name %q already has the owner", dbusServiceName)
 	}
 
-	os.Exit(0)
+	m := &Manager{
+		service: service,
+	}
+	err = service.Export(m)
+	if err != nil {
+		log.Fatal("failed to export:", err)
+	}
+	err = service.RequestName(dbusServiceName)
+	if err != nil {
+		log.Fatal("failed to request name:", err)
+	}
+	service.SetAutoQuitHandler(time.Second*5, nil)
+	service.Wait()
 }
 
 func usage() {
