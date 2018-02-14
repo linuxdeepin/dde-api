@@ -20,37 +20,44 @@
 package main
 
 import (
-	"os"
-	"pkg.deepin.io/lib"
-	"pkg.deepin.io/lib/dbus"
-	"pkg.deepin.io/lib/log"
 	"time"
+
+	"pkg.deepin.io/lib/dbusutil"
+	"pkg.deepin.io/lib/log"
 )
 
-var logger = log.NewLogger(dbusGraphicDest)
+var logger = log.NewLogger(dbusGraphicServiceName)
 
 func main() {
 	logger.BeginTracing()
 	defer logger.EndTracing()
 
-	if !lib.UniqueOnSession(dbusGraphicDest) {
-		logger.Warning("There already has an Graphic daemon running.")
-		return
-	}
-
-	graphic := &Graphic{}
-	err := dbus.InstallOnSession(graphic)
+	service, err := dbusutil.NewSessionService()
 	if err != nil {
-		logger.Errorf("register dbus interface failed: %v", err)
-		os.Exit(1)
+		logger.Fatal("failed to new session service:", err)
 	}
-	dbus.DealWithUnhandledMessage()
 
-	dbus.SetAutoDestroyHandler(30*time.Second, nil)
-	if err := dbus.Wait(); err != nil {
-		logger.Errorf("lost dbus session: %v", err)
-		os.Exit(1)
-	} else {
-		os.Exit(0)
+	hasOwner, err := service.NameHasOwner(dbusGraphicServiceName)
+	if err != nil {
+		logger.Fatal(err)
 	}
+	if hasOwner {
+		logger.Fatalf("name %q already has the owner", dbusGraphicServiceName)
+	}
+
+	graphic := &Graphic{
+		service: service,
+	}
+	err = service.Export(graphic)
+	if err != nil {
+		logger.Fatal("failed to export:", err)
+	}
+
+	err = service.RequestName(dbusGraphicServiceName)
+	if err != nil {
+		logger.Fatal("failed to request name:", err)
+	}
+
+	service.SetAutoQuitHandler(30*time.Second, nil)
+	service.Wait()
 }
