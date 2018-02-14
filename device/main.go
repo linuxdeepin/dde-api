@@ -20,33 +20,41 @@
 package main
 
 import (
-	"pkg.deepin.io/lib"
-	"pkg.deepin.io/lib/dbus"
-	"pkg.deepin.io/lib/log"
 	"time"
+
+	"pkg.deepin.io/lib/dbusutil"
+	"pkg.deepin.io/lib/log"
 )
 
-var logger = log.NewLogger(deviceDest)
+var logger = log.NewLogger(deviceServiceName)
 
 func main() {
-	if !lib.UniqueOnSystem(deviceDest) {
-		logger.Warning("dbus interface already exists", deviceDest)
-		return
-	}
-
-	d := &Device{}
-	err := dbus.InstallOnSystem(d)
+	service, err := dbusutil.NewSystemService()
 	if err != nil {
-		logger.Error("register dbus interface failed", err)
-		return
+		logger.Fatal("failed to new system service:", err)
 	}
 
-	dbus.SetAutoDestroyHandler(5*time.Second, func() bool {
-		return true
-	})
-
-	dbus.DealWithUnhandledMessage()
-	if err := dbus.Wait(); err != nil {
-		logger.Error("lost dbus session", err)
+	hasOwner, err := service.NameHasOwner(deviceServiceName)
+	if err != nil {
+		logger.Fatal(err)
 	}
+	if hasOwner {
+		logger.Fatalf("name %q already has the owner", deviceServiceName)
+	}
+
+	d := &Device{
+		service: service,
+	}
+	err = service.Export(d)
+	if err != nil {
+		logger.Fatal("failed to export:", err)
+	}
+
+	err = service.RequestName(deviceServiceName)
+	if err != nil {
+		logger.Fatal("failed to request name:", err)
+	}
+
+	service.SetAutoQuitHandler(5*time.Second, nil)
+	service.Wait()
 }

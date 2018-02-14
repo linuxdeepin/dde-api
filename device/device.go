@@ -20,40 +20,48 @@
 package main
 
 import (
-	"pkg.deepin.io/lib/dbus"
+	"pkg.deepin.io/lib/dbus1"
+	"pkg.deepin.io/lib/dbusutil"
 	"pkg.deepin.io/lib/utils"
 )
 
 const (
-	deviceDest = "com.deepin.api.Device"
-	devicePath = "/com/deepin/api/Device"
-	deviceObj  = "com.deepin.api.Device"
-	rfkillBin  = "/usr/sbin/rfkill"
+	deviceServiceName = "com.deepin.api.Device"
+	devicePath        = "/com/deepin/api/Device"
+	deviceInterface   = deviceServiceName
+	rfkillBin         = "/usr/sbin/rfkill"
 )
 
-type Device struct{}
+type Device struct {
+	service *dbusutil.Service
+	methods *struct {
+		UnblockDevice func() `in:"deviceType"`
+		BlockDevice   func() `in:"deviceType"`
+	}
+}
 
-func (d *Device) GetDBusInfo() dbus.DBusInfo {
-	return dbus.DBusInfo{
-		Dest:       deviceDest,
-		ObjectPath: devicePath,
-		Interface:  deviceObj,
+func (d *Device) GetDBusExportInfo() dbusutil.ExportInfo {
+	return dbusutil.ExportInfo{
+		Path:      devicePath,
+		Interface: deviceInterface,
 	}
 }
 
 // UnblockDevice unblock target devices through rfkill, the device
 // type could be all, wifi, wlan, bluetooth, uwb, ultrawideband,
 // wimax, wwan, gps, fm, and nfc.
-func (d *Device) UnblockDevice(deviceType string) (err error) {
-	_, _, err = utils.ExecAndWait(5, rfkillBin, "unblock", deviceType)
-	return
+func (d *Device) UnblockDevice(deviceType string) *dbus.Error {
+	d.service.DelayAutoQuit()
+	_, _, err := utils.ExecAndWait(5, rfkillBin, "unblock", deviceType)
+	return dbusutil.ToError(err)
 }
 
 // BlockDevice block target devices through rfkill, the device
 // type could be all, wifi, wlan, bluetooth, uwb, ultrawideband,
 // wimax, wwan, gps, fm, and nfc. Need polkit authentication.
-func (d *Device) BlockDevice(deviceType string) (err error) {
+func (d *Device) BlockDevice(deviceType string) *dbus.Error {
+	d.service.DelayAutoQuit()
 	// TODO need polkit authentication
-	_, _, err = utils.ExecAndWait(5, rfkillBin, "block", deviceType)
-	return
+	_, _, err := utils.ExecAndWait(5, rfkillBin, "block", deviceType)
+	return dbusutil.ToError(err)
 }
