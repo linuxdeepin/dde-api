@@ -1,5 +1,16 @@
 ## [Unreleased]
 
+## [3.1.21] - 2018-03-07
+*   auto sync po files from transifex
+*   feat(sound-theme-player): use newly lib dbusutil
+*   feat(cursor-helper): use newly lib dbusutil
+*   feat(hans2pinyin): use newly lib dbusutil
+*   feat(lunar-calendar): use newly lib dbusutil
+*   feat(locale-helper): use newly lib dbusutil
+*   feat(graphic): use newly lib dbusutil
+*   feat(device): use newly lib dbusutil
+*   chore: update license
+
 ## [3.1.20] - 2018-01-24
 *   sound-theme-player: use newly `sound_effect` lib
 *   add libs for gccgo build
