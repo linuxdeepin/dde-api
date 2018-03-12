@@ -81,7 +81,7 @@ func main() {
 		running: false,
 		service: service,
 	}
-	err = service.Export(h)
+	err = service.Export(dbusPath, h)
 	if err != nil {
 		logger.Fatal("failed to export:", err)
 	}
@@ -95,11 +95,8 @@ func main() {
 	service.Wait()
 }
 
-func (h *Helper) GetDBusExportInfo() dbusutil.ExportInfo {
-	return dbusutil.ExportInfo{
-		Path:      dbusPath,
-		Interface: dbusInterface,
-	}
+func (*Helper) GetInterfaceName() string {
+	return dbusInterface
 }
 
 func (h *Helper) canQuit() bool {

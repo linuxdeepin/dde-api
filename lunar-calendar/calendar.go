@@ -49,7 +49,7 @@ type SolarMonthInfo struct {
  */
 func getLunarMonthCalendar(year, month int, fill bool) (LunarMonthInfo, bool) {
 	solarMonth, _ := getSolarMonthCalendar(year, month, fill)
-	datas := []calendar.LunarDayInfo{}
+	var datas []calendar.LunarDayInfo
 	for _, data := range solarMonth.Datas {
 		lunarDay, ok := calendar.SolarToLunar(int(data.Year), int(data.Month), int(data.Day))
 		if !ok {

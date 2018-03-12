@@ -26,7 +26,7 @@ import (
 	"pkg.deepin.io/lib/log"
 )
 
-var logger = log.NewLogger(dbusGraphicServiceName)
+var logger = log.NewLogger(dbusServiceName)
 
 func main() {
 	logger.BeginTracing()
@@ -37,23 +37,23 @@ func main() {
 		logger.Fatal("failed to new session service:", err)
 	}
 
-	hasOwner, err := service.NameHasOwner(dbusGraphicServiceName)
+	hasOwner, err := service.NameHasOwner(dbusServiceName)
 	if err != nil {
 		logger.Fatal(err)
 	}
 	if hasOwner {
-		logger.Fatalf("name %q already has the owner", dbusGraphicServiceName)
+		logger.Fatalf("name %q already has the owner", dbusServiceName)
 	}
 
 	graphic := &Graphic{
 		service: service,
 	}
-	err = service.Export(graphic)
+	err = service.Export(dbusPath, graphic)
 	if err != nil {
 		logger.Fatal("failed to export:", err)
 	}
 
-	err = service.RequestName(dbusGraphicServiceName)
+	err = service.RequestName(dbusServiceName)
 	if err != nil {
 		logger.Fatal("failed to request name:", err)
 	}

@@ -61,11 +61,8 @@ func (m *Manager) Play(theme, event, device string) *dbus.Error {
 	return nil
 }
 
-func (m *Manager) GetDBusExportInfo() dbusutil.ExportInfo {
-	return dbusutil.ExportInfo{
-		Path:      dbusPath,
-		Interface: dbusInterface,
-	}
+func (*Manager) GetInterfaceName() string {
+	return dbusInterface
 }
 
 func (m *Manager) doPlaySound(theme, event, device string) {
@@ -115,7 +112,7 @@ func main() {
 	}
 
 	m := newManager(service)
-	err = service.Export(m)
+	err = service.Export(dbusPath, m)
 	if err != nil {
 		logger.Fatal("failed to export:", err)
 	}

@@ -64,11 +64,8 @@ func (m *Manager) QueryList(hansList []string) (string, *dbus.Error) {
 	return string(content), nil
 }
 
-func (m *Manager) GetDBusExportInfo() dbusutil.ExportInfo {
-	return dbusutil.ExportInfo{
-		Path:      dbusPath,
-		Interface: dbusInterface,
-	}
+func (*Manager) GetInterfaceName() string {
+	return dbusInterface
 }
 
 func main() {
@@ -98,7 +95,7 @@ func main() {
 	m := &Manager{
 		service: service,
 	}
-	err = service.Export(m)
+	err = service.Export(dbusPath, m)
 	if err != nil {
 		log.Fatal("failed to export:", err)
 	}

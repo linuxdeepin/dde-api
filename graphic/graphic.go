@@ -27,9 +27,9 @@ import (
 )
 
 const (
-	dbusGraphicServiceName = "com.deepin.api.Graphic"
-	dbusGraphicPath        = "/com/deepin/api/Graphic"
-	dbusGraphicInterface   = "com.deepin.api.Graphic"
+	dbusServiceName = "com.deepin.api.Graphic"
+	dbusPath        = "/com/deepin/api/Graphic"
+	dbusInterface   = "com.deepin.api.Graphic"
 )
 
 // Graphic is a dbus interface wrapper for pkg.deepin.io/lib/graphic.
@@ -58,11 +58,8 @@ type Graphic struct {
 	}
 }
 
-func (graphic *Graphic) GetDBusExportInfo() dbusutil.ExportInfo {
-	return dbusutil.ExportInfo{
-		Path:      dbusGraphicPath,
-		Interface: dbusGraphicInterface,
-	}
+func (*Graphic) GetInterfaceName() string {
+	return dbusInterface
 }
 
 // BlurImage generate blur effect to an image.

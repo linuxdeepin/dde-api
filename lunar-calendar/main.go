@@ -38,21 +38,21 @@ func main() {
 		logger.Fatal("failed to new session service:", err)
 	}
 
-	hasOwner, err := service.NameHasOwner(DBusServiceName)
+	hasOwner, err := service.NameHasOwner(dbusServiceName)
 	if err != nil {
 		logger.Fatal(err)
 	}
 	if hasOwner {
-		logger.Fatalf("name %q already has the owner", DBusServiceName)
+		logger.Fatalf("name %q already has the owner", dbusServiceName)
 	}
 
 	m := NewManager(service)
-	err = service.Export(m)
+	err = service.Export(dbusPath, m)
 	if err != nil {
 		logger.Fatal("failed to export:", err)
 	}
 
-	err = service.RequestName(DBusServiceName)
+	err = service.RequestName(dbusServiceName)
 	if err != nil {
 		logger.Fatal("failed to request name:", err)
 	}

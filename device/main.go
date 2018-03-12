@@ -26,7 +26,7 @@ import (
 	"pkg.deepin.io/lib/log"
 )
 
-var logger = log.NewLogger(deviceServiceName)
+var logger = log.NewLogger(dbusServiceName)
 
 func main() {
 	service, err := dbusutil.NewSystemService()
@@ -34,23 +34,23 @@ func main() {
 		logger.Fatal("failed to new system service:", err)
 	}
 
-	hasOwner, err := service.NameHasOwner(deviceServiceName)
+	hasOwner, err := service.NameHasOwner(dbusServiceName)
 	if err != nil {
 		logger.Fatal(err)
 	}
 	if hasOwner {
-		logger.Fatalf("name %q already has the owner", deviceServiceName)
+		logger.Fatalf("name %q already has the owner", dbusServiceName)
 	}
 
 	d := &Device{
 		service: service,
 	}
-	err = service.Export(d)
+	err = service.Export(dbusPath, d)
 	if err != nil {
 		logger.Fatal("failed to export:", err)
 	}
 
-	err = service.RequestName(deviceServiceName)
+	err = service.RequestName(dbusServiceName)
 	if err != nil {
 		logger.Fatal("failed to request name:", err)
 	}

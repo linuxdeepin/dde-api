@@ -26,9 +26,9 @@ import (
 )
 
 const (
-	DBusServiceName = "com.deepin.api.LunarCalendar"
-	DBusPath        = "/com/deepin/api/LunarCalendar"
-	DBusInterface   = "com.deepin.api.LunarCalendar"
+	dbusServiceName = "com.deepin.api.LunarCalendar"
+	dbusPath        = "/com/deepin/api/LunarCalendar"
+	dbusInterface   = "com.deepin.api.LunarCalendar"
 )
 
 type Manager struct {
@@ -40,11 +40,8 @@ type Manager struct {
 	}
 }
 
-func (m *Manager) GetDBusExportInfo() dbusutil.ExportInfo {
-	return dbusutil.ExportInfo{
-		Path:      DBusPath,
-		Interface: DBusInterface,
-	}
+func (*Manager) GetInterfaceName() string {
+	return dbusInterface
 }
 
 func NewManager(service *dbusutil.Service) *Manager {

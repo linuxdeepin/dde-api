@@ -26,10 +26,10 @@ import (
 )
 
 const (
-	deviceServiceName = "com.deepin.api.Device"
-	devicePath        = "/com/deepin/api/Device"
-	deviceInterface   = deviceServiceName
-	rfkillBin         = "/usr/sbin/rfkill"
+	dbusServiceName = "com.deepin.api.Device"
+	dbusPath        = "/com/deepin/api/Device"
+	dbusInterface   = dbusServiceName
+	rfkillBin       = "/usr/sbin/rfkill"
 )
 
 type Device struct {
@@ -40,11 +40,8 @@ type Device struct {
 	}
 }
 
-func (d *Device) GetDBusExportInfo() dbusutil.ExportInfo {
-	return dbusutil.ExportInfo{
-		Path:      devicePath,
-		Interface: deviceInterface,
-	}
+func (*Device) GetInterfaceName() string {
+	return dbusInterface
 }
 
 // UnblockDevice unblock target devices through rfkill, the device
