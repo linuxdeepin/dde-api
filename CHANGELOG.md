@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+## [3.1.22] - 2018-03-19
+*   chore: use lib dbusutil new api
+
 ## [3.1.21] - 2018-03-07
 *   auto sync po files from transifex
 *   feat(sound-theme-player): use newly lib dbusutil
