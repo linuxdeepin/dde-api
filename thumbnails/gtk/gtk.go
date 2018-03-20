@@ -62,7 +62,7 @@ func GenThumbnail(src, bg string, width, height int, force bool) (string, error)
 		return "", err
 	}
 	if ty != mime.MimeTypeGtk {
-		return "", fmt.Errorf("Unspported mime: %s", ty)
+		return "", fmt.Errorf("Unsupported mime: %s", ty)
 	}
 
 	return genGtkThumbnail(src, bg, width, height, force)

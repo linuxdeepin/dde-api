@@ -194,7 +194,7 @@ func GetTmpImage() string {
 func (m *Manager) Add(ty string, handler HandleType) error {
 	v := m.Get(ty)
 	if v != nil {
-		return fmt.Errorf("'%s' has been registed", ty)
+		return fmt.Errorf("'%s' has been registered", ty)
 	}
 
 	m.locker.Lock()
