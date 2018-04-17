@@ -37,6 +37,7 @@ BINARIES =  \
     gtk-thumbnailer \
     sound-theme-player \
     deepin-shutdown-sound \
+    dde-open \
     image-blur \
     image-blur-helper
 
@@ -69,6 +70,10 @@ build-binary: prepare $(addprefix out/bin/, ${BINARIES})
 install-binary:
 	mkdir -pv ${DESTDIR}${PREFIX}${libdir}/deepin-api
 	cp out/bin/* ${DESTDIR}${PREFIX}${libdir}/deepin-api/
+
+	mkdir -pv ${DESTDIR}${PREFIX}/bin
+	cp out/bin/dde-open ${DESTDIR}${PREFIX}/bin
+	rm ${DESTDIR}${PREFIX}${libdir}/deepin-api/dde-open
 
 	mkdir -pv ${DESTDIR}${PREFIX}/share/dbus-1/system.d
 	cp misc/conf/*.conf ${DESTDIR}${PREFIX}/share/dbus-1/system.d/
