@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [3.1.23] - 2018-04-18
+*   feat: add dde-open
+*   refactor: fix some typos
+
 ## [3.1.22] - 2018-03-19
 *   chore: use lib dbusutil new api
 
