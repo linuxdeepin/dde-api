@@ -17,7 +17,7 @@ static gboolean choose_icon(const char *theme_name, const char **icon_names, int
 
 	GtkIconInfo* icon_info = gtk_icon_theme_choose_icon(icon_theme, icon_names, size, 0);
 	if (icon_info == NULL ) {
-		g_printf("gtk_icon_theme_choose_icon failed icon_theme: %s, size: %d\n", icon_theme, size);
+		g_printf("gtk_icon_theme_choose_icon failed theme_name: %s, size: %d\n", theme_name, size);
 		return FALSE;
 	}
 
