@@ -9,11 +9,10 @@ import (
 
 func CompositeIcons(images []image.Image, width, height, iconSize, padding int) image.Image {
 	iconNum := len(images)
-	if iconNum == 0 {
-		return nil
-	}
-
 	destImg := image.NewRGBA(image.Rect(0, 0, width, height))
+	if iconNum == 0 {
+		return destImg
+	}
 
 	y := (height - iconSize) / 2
 	spaceW := width - iconSize*iconNum

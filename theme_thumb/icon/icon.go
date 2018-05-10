@@ -7,7 +7,7 @@ package icon
 #include <glib/gprintf.h>
 #include <stdlib.h>
 
-static gboolean choose_icon(const char *theme_name, const char **icon_names, int size, const char* dest_filename) {
+static char* choose_icon(const char *theme_name, const char **icon_names, int size) {
 	if (!gtk_init_check(NULL, NULL)) {
 		g_warning("Init gtk environment failed");
 		return FALSE;
@@ -18,54 +18,33 @@ static gboolean choose_icon(const char *theme_name, const char **icon_names, int
 	GtkIconInfo* icon_info = gtk_icon_theme_choose_icon(icon_theme, icon_names, size, 0);
 	if (icon_info == NULL ) {
 		g_printf("gtk_icon_theme_choose_icon failed theme_name: %s, size: %d\n", theme_name, size);
-		return FALSE;
-	}
-
-	GError *err = NULL;
-	GdkPixbuf* pixbuf = gtk_icon_info_load_icon(icon_info, &err);
-	if (err != NULL ) {
-		g_printf("err msg: %s\n", err->message);
-		g_error_free(err);
-
-		g_object_unref(icon_info);
 		g_object_unref(icon_theme);
-		return FALSE;
+		return NULL;
 	}
+	const gchar* filename = gtk_icon_info_get_filename(icon_info);
+	gchar* filename_dup = g_strdup(filename);
 
-	int pb_width = gdk_pixbuf_get_width(pixbuf);
-	if (pb_width != size ) {
-		// need scale
-		GdkPixbuf* tmp = gdk_pixbuf_scale_simple(pixbuf, size, size, GDK_INTERP_BILINEAR);
-		g_object_unref(pixbuf);
-		pixbuf = tmp;
-	}
-
-	gboolean ok = gdk_pixbuf_save(pixbuf, dest_filename, "png", &err, NULL);
-	if (!ok) {
-		g_printf("err msg: %s\n", err->message);
-		g_error_free(err);
-
-		g_object_unref(pixbuf);
-		g_object_unref(icon_info);
-		g_object_unref(icon_theme);
-		return FALSE;
-	}
-
-	g_object_unref(pixbuf);
 	g_object_unref(icon_info);
 	g_object_unref(icon_theme);
-	return TRUE;
+
+	return filename_dup;
 }
+
 */
 import "C"
 import (
 	"errors"
 	"fmt"
 	"image"
-	"io/ioutil"
+	"image/png"
 	"os"
+	"os/exec"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"unsafe"
 
+	"github.com/nfnt/resize"
 	"pkg.deepin.io/dde/api/theme_thumb/common"
 )
 
@@ -107,57 +86,74 @@ func Gen(theme string, width, height int, scaleFactor float64, out string) error
 }
 
 // wrap for choose_icon
-func chooseIcon(theme string, iconNames []string, size int) (string, error) {
-	f, err := ioutil.TempFile(os.TempDir(), "theme-thumb-icon-")
-	if err != nil {
-		return "", err
-	}
-	destFilename := f.Name()
-	f.Close()
-
+func chooseIcon(theme string, iconNames []string, size int) string {
 	cTheme := C.CString(theme)
-	defer C.free(unsafe.Pointer(cTheme))
-
-	cDestFilename := C.CString(destFilename)
-	defer C.free(unsafe.Pointer(cDestFilename))
-
 	cArr := cStrv(iconNames)
 	cNames := (**C.char)(unsafe.Pointer(&cArr[0]))
-	// TODO error handle
-	ok := C.choose_icon(cTheme, cNames, C.int(size), cDestFilename)
 
+	cFilename := C.choose_icon(cTheme, cNames, C.int(size))
+	filename := C.GoString(cFilename)
+
+	C.free(unsafe.Pointer(cFilename))
+	C.free(unsafe.Pointer(cTheme))
 	// free cArr
 	for i := range cArr {
 		C.free(unsafe.Pointer(cArr[i]))
 	}
-
-	if ok == 0 {
-		// fail
-		return "", errors.New("choose icon failed")
-	}
-	return destFilename, nil
+	return filename
 }
 
-func ChooseIcon(theme string, iconNames []string, size int) (string, error) {
+func ChooseIcon(theme string, iconNames []string, size int) string {
 	return chooseIcon(theme, iconNames, size)
 }
 
-func loadIcon(theme string, iconNames []string, size int) (image.Image, error) {
-	filename, err := chooseIcon(theme, iconNames, size)
+func loadIcon(theme string, iconNames []string, size int) (img image.Image, err error) {
+	filename := chooseIcon(theme, iconNames, size)
+	if filename == "" {
+		return nil, errors.New("failed to choose icon")
+	}
+	ext := strings.ToLower(filepath.Ext(filename))
+	if ext == ".svg" {
+		img, err = loadSvg(filename, size)
+	} else {
+		img, err = loadOther(filename)
+	}
+
 	if err != nil {
 		return nil, err
 	}
-	defer os.Remove(filename)
+	imgWidth := img.Bounds().Dx()
+	if imgWidth != size {
+		img = resize.Resize(uint(size), 0, img, resize.Bilinear)
+	}
+	return img, nil
+}
+
+func loadOther(filename string) (image.Image, error) {
 	f, err := os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
 	img, _, err := image.Decode(f)
+	return img, err
+}
+
+func loadSvg(filename string, size int) (img image.Image, err error) {
+	sizeStr := strconv.Itoa(size)
+	cmd := exec.Command("rsvg-convert", "-f", "png", "-w", sizeStr, "-h", sizeStr, filename)
+	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return nil, err
 	}
-	return img, nil
+	err = cmd.Start()
+	if err != nil {
+		return
+	}
+	defer func() {
+		err = cmd.Wait()
+	}()
+	return png.Decode(stdout)
 }
 
 // return NUL-Terminated slice of C String
@@ -173,7 +169,7 @@ func getIcons(theme string, size int) (images []image.Image) {
 	for _, iconNames := range presentIcons {
 		img, err := loadIcon(theme, iconNames, size)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "failed to load icon %v", iconNames)
+			fmt.Fprintf(os.Stderr, "failed to load icon %s %v: %v\n", theme, iconNames, err)
 			continue
 		}
 
