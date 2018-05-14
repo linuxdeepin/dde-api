@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [3.1.24] - 2018-05-14
+*   feat(theme-thumb): use rsvg-convert convert svg to png
+*   fix(theme-thumb): printf argument wrong
+
 ## [3.1.23] - 2018-04-18
 *   feat: add dde-open
 *   refactor: fix some typos
