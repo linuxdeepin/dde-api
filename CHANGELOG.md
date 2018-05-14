@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+## [3.1.25] - 2018-05-14
+*   auto sync po files from transifex
+
 ## [3.1.24] - 2018-05-14
 *   feat(theme-thumb): use rsvg-convert convert svg to png
 *   fix(theme-thumb): printf argument wrong
