@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+## [3.1.26] - 2018-06-07
+*   chore: update makefile for arch `sw_64`
+
 ## [3.1.25] - 2018-05-14
 *   auto sync po files from transifex
 
