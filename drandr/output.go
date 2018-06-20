@@ -21,10 +21,10 @@ package drandr
 
 import (
 	"fmt"
-	"github.com/BurntSushi/xgb"
-	"github.com/BurntSushi/xgb/randr"
-	"github.com/BurntSushi/xgb/xproto"
 	"regexp"
+
+	"github.com/linuxdeepin/go-x11-client"
+	"github.com/linuxdeepin/go-x11-client/ext/randr"
 )
 
 type randrIdList []uint32
@@ -36,7 +36,7 @@ type OutputInfo struct {
 	MmHeight   uint32
 	Crtc       CrtcInfo
 	Connection bool
-	Timestamp  xproto.Timestamp
+	Timestamp  x.Timestamp
 
 	EDID []byte
 
@@ -48,7 +48,6 @@ type OutputInfo struct {
 type OutputInfos []OutputInfo
 
 var (
-	edidAtom     xproto.Atom
 	badOutputReg = regexp.MustCompile(`.+-\d-\d$`)
 )
 
@@ -94,8 +93,8 @@ func (infos OutputInfos) query(key, value string) OutputInfo {
 	return OutputInfo{}
 }
 
-func toOuputInfo(conn *xgb.Conn, output randr.Output) OutputInfo {
-	reply, err := randr.GetOutputInfo(conn, output, lastConfigTimestamp).Reply()
+func toOutputInfo(conn *x.Conn, output randr.Output) OutputInfo {
+	reply, err := randr.GetOutputInfo(conn, output, lastConfigTimestamp).Reply(conn)
 	if err != nil {
 		return OutputInfo{}
 	}
@@ -104,14 +103,14 @@ func toOuputInfo(conn *xgb.Conn, output randr.Output) OutputInfo {
 		Id:         uint32(output),
 		MmWidth:    reply.MmWidth,
 		MmHeight:   reply.MmHeight,
-		Connection: (reply.Connection == randr.ConnectionConnected),
+		Connection: reply.Connection == randr.ConnectionConnected,
 		Timestamp:  reply.Timestamp,
 		Clones:     outputsToRandrIdList(reply.Clones),
 		Crtcs:      crtcsToRandrIdList(reply.Crtcs),
 		Modes:      modesToRandrIdList(reply.Modes),
 	}
 	info.PreferredModes = getOutputPreferredModes(info.Modes, reply.NumPreferred)
-	info.EDID, _ = getOutputEdid(conn, output)
+	info.EDID, _ = getOutputEDID(conn, output)
 	info.Crtc = toCrtcInfo(conn, reply.Crtc)
 
 	return info
@@ -141,7 +140,7 @@ func modesToRandrIdList(modes []randr.Mode) randrIdList {
 	return list
 }
 
-func isBadOutput(conn *xgb.Conn, output string, crtc randr.Crtc) bool {
+func isBadOutput(conn *x.Conn, output string, crtc randr.Crtc) bool {
 	if !badOutputReg.MatchString(output) {
 		return false
 	}
@@ -151,12 +150,12 @@ func isBadOutput(conn *xgb.Conn, output string, crtc randr.Crtc) bool {
 	}
 
 	cinfo, err := randr.GetCrtcInfo(conn, crtc,
-		lastConfigTimestamp).Reply()
+		lastConfigTimestamp).Reply(conn)
 	if err != nil {
 		return true
 	}
 
-	hasOnlyOneRotation := (cinfo.Rotations == 1)
+	hasOnlyOneRotation := cinfo.Rotations == 1
 	if !hasOnlyOneRotation {
 		return false
 	}
@@ -167,34 +166,19 @@ func isBadOutput(conn *xgb.Conn, output string, crtc randr.Crtc) bool {
 	return true
 }
 
-func getOutputEdid(conn *xgb.Conn, output randr.Output) ([]byte, error) {
-	atom, err := getEdidAtom(conn)
+func getOutputEDID(conn *x.Conn, output randr.Output) ([]byte, error) {
+	atomEDID, err := conn.GetAtom("EDID")
 	if err != nil {
 		return nil, err
 	}
 
 	reply, err := randr.GetOutputProperty(conn, output,
-		atom, xproto.AtomInteger,
-		0, 128, false, false).Reply()
+		atomEDID, x.AtomInteger,
+		0, 32, false, false).Reply(conn)
 	if err != nil {
 		return nil, err
 	}
-	return reply.Data, nil
-}
-
-func getEdidAtom(conn *xgb.Conn) (xproto.Atom, error) {
-	if edidAtom != 0 {
-		return edidAtom, nil
-	}
-
-	var prop = "EDID"
-	reply, err := xproto.InternAtom(conn, false,
-		uint16(len(prop)), prop).Reply()
-	if err != nil {
-		return 0, err
-	}
-	edidAtom = reply.Atom
-	return edidAtom, nil
+	return reply.Value, nil
 }
 
 func getOutputPreferredModes(modes randrIdList, nPreferred uint16) randrIdList {

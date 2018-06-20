@@ -20,8 +20,8 @@
 package drandr
 
 import (
-	"github.com/BurntSushi/xgb"
-	"github.com/BurntSushi/xgb/randr"
+	"github.com/linuxdeepin/go-x11-client"
+	"github.com/linuxdeepin/go-x11-client/ext/randr"
 )
 
 type CrtcInfo struct {
@@ -38,8 +38,8 @@ type CrtcInfo struct {
 	Reflects  []uint16
 }
 
-func toCrtcInfo(conn *xgb.Conn, crtc randr.Crtc) CrtcInfo {
-	reply, err := randr.GetCrtcInfo(conn, crtc, lastConfigTimestamp).Reply()
+func toCrtcInfo(conn *x.Conn, crtc randr.Crtc) CrtcInfo {
+	reply, err := randr.GetCrtcInfo(conn, crtc, lastConfigTimestamp).Reply(conn)
 	if err != nil {
 		return CrtcInfo{}
 	}

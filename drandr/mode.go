@@ -22,9 +22,10 @@ package drandr
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/BurntSushi/xgb"
-	"github.com/BurntSushi/xgb/randr"
 	"math"
+
+	"github.com/linuxdeepin/go-x11-client"
+	"github.com/linuxdeepin/go-x11-client/ext/randr"
 )
 
 type ModeInfo struct {
@@ -161,7 +162,7 @@ func (info ModeInfo) Equal(v ModeInfo) bool {
 	return info.Id == v.Id
 }
 
-func toModeInfo(conn *xgb.Conn, info randr.ModeInfo) ModeInfo {
+func toModeInfo(conn *x.Conn, info randr.ModeInfo) ModeInfo {
 	return ModeInfo{
 		Id:     uint32(info.Id),
 		Width:  info.Width,
@@ -171,7 +172,7 @@ func toModeInfo(conn *xgb.Conn, info randr.ModeInfo) ModeInfo {
 }
 
 func sumModeRate(info randr.ModeInfo) float64 {
-	var vTotal = info.Vtotal
+	var vTotal = info.VTotal
 	if (info.ModeFlags & randr.ModeFlagDoubleScan) != 0 {
 		vTotal *= 2
 	}
@@ -179,8 +180,8 @@ func sumModeRate(info randr.ModeInfo) float64 {
 		vTotal /= 2
 	}
 
-	var rate = float64(info.DotClock) / float64(uint32(info.Htotal)*uint32(vTotal))
-	return (math.Floor(rate*10+0.5) / 10)
+	var rate = float64(info.DotClock) / float64(uint32(info.HTotal)*uint32(vTotal))
+	return math.Floor(rate*10+0.5) / 10
 }
 
 // doFoundCommonModes return common modes sorted by x11 preferred

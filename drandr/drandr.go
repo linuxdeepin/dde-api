@@ -21,41 +21,32 @@ package drandr
 
 import (
 	"fmt"
-	"github.com/BurntSushi/xgb"
-	"github.com/BurntSushi/xgb/randr"
-	"github.com/BurntSushi/xgb/xproto"
 	"sync"
+
+	"github.com/linuxdeepin/go-x11-client"
+	"github.com/linuxdeepin/go-x11-client/ext/randr"
 )
 
 var (
-	inited     bool
 	infoLocker sync.Mutex
 
-	lastConfigTimestamp xproto.Timestamp
+	lastConfigTimestamp x.Timestamp
 )
 
 type ScreenInfo struct {
 	Outputs OutputInfos
 	Modes   ModeInfos
 
-	conn   *xgb.Conn
-	window xproto.Window
+	conn   *x.Conn
+	window x.Window
 }
 
-func GetScreenInfo(conn *xgb.Conn) (*ScreenInfo, error) {
+func GetScreenInfo(conn *x.Conn) (*ScreenInfo, error) {
 	infoLocker.Lock()
 	defer infoLocker.Unlock()
 
-	if !inited {
-		err := randr.Init(conn)
-		if err != nil {
-			return nil, err
-		}
-		inited = true
-	}
-
-	sinfo := xproto.Setup(conn).DefaultScreen(conn)
-	resource, err := randr.GetScreenResources(conn, sinfo.Root).Reply()
+	root := conn.GetDefaultScreen().Root
+	resource, err := randr.GetScreenResources(conn, root).Reply(conn)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +54,7 @@ func GetScreenInfo(conn *xgb.Conn) (*ScreenInfo, error) {
 	var outputInfos OutputInfos
 	lastConfigTimestamp = resource.ConfigTimestamp
 	for _, output := range resource.Outputs {
-		info := toOuputInfo(conn, output)
+		info := toOutputInfo(conn, output)
 		if len(info.Name) == 0 {
 			continue
 		}
@@ -79,12 +70,12 @@ func GetScreenInfo(conn *xgb.Conn) (*ScreenInfo, error) {
 		Outputs: outputInfos,
 		Modes:   modeInfos,
 		conn:    conn,
-		window:  sinfo.Root,
+		window:  root,
 	}, nil
 }
 
 func (info *ScreenInfo) GetPrimary() (*OutputInfo, error) {
-	reply, err := randr.GetOutputPrimary(info.conn, info.window).Reply()
+	reply, err := randr.GetOutputPrimary(info.conn, info.window).Reply(info.conn)
 	if err != nil {
 		return nil, err
 	}
@@ -97,6 +88,6 @@ func (info *ScreenInfo) GetPrimary() (*OutputInfo, error) {
 }
 
 func (info *ScreenInfo) GetScreenSize() (uint16, uint16) {
-	sinfo := xproto.Setup(info.conn).DefaultScreen(info.conn)
-	return sinfo.WidthInPixels, sinfo.HeightInPixels
+	screen := info.conn.GetDefaultScreen()
+	return screen.WidthInPixels, screen.HeightInPixels
 }
