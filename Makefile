@@ -64,9 +64,8 @@ out/bin/%:
 # Install go packages
 build-dep:
 	go get github.com/disintegration/imaging
-	go get github.com/BurntSushi/xgb
-	go get github.com/BurntSushi/xgbutil
 	go get gopkg.in/check.v1
+	go get github.com/linuxdeepin/go-x11-client
 
 build-binary: prepare $(addprefix out/bin/, ${BINARIES})
 

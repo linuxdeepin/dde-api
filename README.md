@@ -24,9 +24,9 @@ DDE API provides some dbus interfaces that is used for screen zone detecting, th
 Install prerequisites
 
 ```shell
-$ go get github.com/BurntSushi/xgbutil
 $ go get gopkg.in/alecthomas/kingpin.v2
 $ go get github.com/disintegration/imaging
+$ go get github.com/linuxdeepin/go-x11-client
 ```
 
 Build:
