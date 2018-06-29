@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 
 	"gir/gio-2.0"
-
-	"dbus/com/deepin/sessionmanager"
+	"github.com/linuxdeepin/go-dbus-factory/com.deepin.sessionmanager"
+	"pkg.deepin.io/lib/dbus1"
 )
 
 var versionFlag bool
@@ -47,12 +47,13 @@ func main() {
 }
 
 func launchApp(desktopFile, filename string) {
-	startManager, err := sessionmanager.NewStartManager("com.deepin.SessionManager",
-		"/com/deepin/StartManager")
+	sessionBus, err := dbus.SessionBus()
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = startManager.LaunchApp(desktopFile, 0, []string{filename})
+	startManager := sessionmanager.NewStartManager(sessionBus)
+	err = startManager.LaunchApp(dbus.FlagNoAutoStart, desktopFile, 0,
+		[]string{filename})
 	if err != nil {
 		log.Fatal(err)
 	}

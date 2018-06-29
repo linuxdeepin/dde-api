@@ -20,9 +20,11 @@
 package session
 
 import (
-	"dbus/com/deepin/sessionmanager"
 	"fmt"
 	"os"
+
+	"github.com/linuxdeepin/go-dbus-factory/com.deepin.sessionmanager"
+	"pkg.deepin.io/lib/dbus1"
 	"pkg.deepin.io/lib/utils"
 )
 
@@ -35,12 +37,15 @@ func Register() {
 		return
 	}
 	go func() {
-		manager, err := sessionmanager.NewSessionManager("com.deepin.SessionManager", "/com/deepin/SessionManager")
-		defer sessionmanager.DestroySessionManager(manager)
+		sessionBus, err := dbus.SessionBus()
 		if err != nil {
-			fmt.Println("register failed:", err)
+			fmt.Println("failed to get session bus:", err)
 			return
 		}
-		manager.Register(cookie)
+		manager := sessionmanager.NewSessionManager(sessionBus)
+		_, err = manager.Register(dbus.FlagNoAutoStart, cookie)
+		if err != nil {
+			fmt.Println("failed to register:", err)
+		}
 	}()
 }

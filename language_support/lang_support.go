@@ -6,15 +6,15 @@ import (
 	"os"
 	"strings"
 
-	"dbus/com/deepin/lastore"
-
+	"github.com/linuxdeepin/go-dbus-factory/com.deepin.lastore"
+	"pkg.deepin.io/lib/dbus1"
 	libLocale "pkg.deepin.io/lib/locale"
 )
 
 type LanguageSupport struct {
 	pkgDepends     map[string]map[string]map[string][]string
 	langCountryMap int
-	lastoreManager *lastore.Manager
+	lastoreManager *lastore.Lastore
 }
 
 func NewLanguageSupport() (ls *LanguageSupport, err error) {
@@ -25,7 +25,11 @@ func NewLanguageSupport() (ls *LanguageSupport, err error) {
 		return nil, err
 	}
 
-	ls.lastoreManager, err = lastore.NewManager("com.deepin.lastore", "/com/deepin/lastore")
+	systemBus, err := dbus.SystemBus()
+	if err != nil {
+		return nil, err
+	}
+	ls.lastoreManager = lastore.NewLastore(systemBus)
 	if err != nil {
 		panic(err)
 	}
@@ -34,18 +38,14 @@ func NewLanguageSupport() (ls *LanguageSupport, err error) {
 }
 
 func (ls *LanguageSupport) Destroy() {
-	if ls.lastoreManager != nil {
-		lastore.DestroyManager(ls.lastoreManager)
-		ls.lastoreManager = nil
-	}
 }
 
 func (ls *LanguageSupport) isPkgInstalled(name string) (bool, error) {
-	return ls.lastoreManager.PackageExists(name)
+	return ls.lastoreManager.PackageExists(0, name)
 }
 
 func (ls *LanguageSupport) isPkgInstallable(name string) (bool, error) {
-	return ls.lastoreManager.PackageInstallable(name)
+	return ls.lastoreManager.PackageInstallable(0, name)
 }
 
 // ByPackageAndLocale get language support packages for a package and locale.
