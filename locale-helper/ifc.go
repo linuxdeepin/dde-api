@@ -22,9 +22,9 @@ package main
 import (
 	"fmt"
 
+	polkit "github.com/linuxdeepin/go-dbus-factory/org.freedesktop.policykit1"
 	"pkg.deepin.io/lib/dbus1"
 	"pkg.deepin.io/lib/dbusutil"
-	"pkg.deepin.io/lib/polkit"
 	dutils "pkg.deepin.io/lib/utils"
 )
 
@@ -137,26 +137,21 @@ func enableLocaleInFile(locale, file string) error {
 	return nil
 }
 
-func init() {
-	polkit.Init()
-}
-
 func (h *Helper) checkAuth(sender dbus.Sender) (bool, error) {
 	pid, err := h.service.GetConnPID(string(sender))
 	if err != nil {
 		return false, err
 	}
-
-	subject := polkit.NewSubject(polkit.SubjectKindUnixProcess)
+	systemBus := h.service.Conn()
+	authority := polkit.NewAuthority(systemBus)
+	subject := polkit.MakeSubject(polkit.SubjectKindUnixProcess)
 	subject.SetDetail("pid", pid)
 	subject.SetDetail("start-time", uint64(0))
-	details := make(map[string]string)
-	result, err := polkit.CheckAuthorization(subject, polkitManageLocale,
-		details,
+	result, err := authority.CheckAuthorization(0, subject, polkitManageLocale,
+		nil,
 		polkit.CheckAuthorizationFlagsAllowUserInteraction, "")
 	if err != nil {
 		return false, err
 	}
-
 	return result.IsAuthorized, nil
 }
