@@ -97,7 +97,6 @@ func openFile(filename string) {
 func openScheme(scheme, url string) {
 	log.Printf("openScheme: %q, %q\n", scheme, url)
 	appInfo := gio.AppInfoGetDefaultForUriScheme(scheme)
-	defer appInfo.Unref()
 
 	if appInfo == nil {
 		log.Fatal("failed to get appInfo")
@@ -107,4 +106,5 @@ func openScheme(scheme, url string) {
 	desktopFile := dAppInfo.GetFilename()
 	log.Println("desktop file:", desktopFile)
 	launchApp(desktopFile, url)
+	appInfo.Unref()
 }
