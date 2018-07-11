@@ -22,9 +22,7 @@ package drandr
 import (
 	"encoding/json"
 	"fmt"
-	"math"
 
-	"github.com/linuxdeepin/go-x11-client"
 	"github.com/linuxdeepin/go-x11-client/ext/randr"
 )
 
@@ -162,26 +160,32 @@ func (info ModeInfo) Equal(v ModeInfo) bool {
 	return info.Id == v.Id
 }
 
-func toModeInfo(conn *x.Conn, info randr.ModeInfo) ModeInfo {
+func toModeInfo(info randr.ModeInfo) ModeInfo {
 	return ModeInfo{
 		Id:     uint32(info.Id),
 		Width:  info.Width,
 		Height: info.Height,
-		Rate:   sumModeRate(info),
+		Rate:   calcModeRate(info),
 	}
 }
 
-func sumModeRate(info randr.ModeInfo) float64 {
-	var vTotal = info.VTotal
+func calcModeRate(info randr.ModeInfo) float64 {
+	vTotal := float64(info.VTotal)
 	if (info.ModeFlags & randr.ModeFlagDoubleScan) != 0 {
+		/* doublescan doubles the number of lines */
 		vTotal *= 2
 	}
 	if (info.ModeFlags & randr.ModeFlagInterlace) != 0 {
+		/* interlace splits the frame into two fields */
+		/* the field rate is what is typically reported by monitors */
 		vTotal /= 2
 	}
 
-	var rate = float64(info.DotClock) / float64(uint32(info.HTotal)*uint32(vTotal))
-	return math.Floor(rate*10+0.5) / 10
+	if info.HTotal == 0 || vTotal == 0 {
+		return 0
+	} else {
+		return float64(info.DotClock) / (float64(info.HTotal) * vTotal)
+	}
 }
 
 // doFoundCommonModes return common modes sorted by x11 preferred

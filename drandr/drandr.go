@@ -64,7 +64,7 @@ func GetScreenInfo(conn *x.Conn) (*ScreenInfo, error) {
 
 	var modeInfos ModeInfos
 	for _, mode := range resource.Modes {
-		modeInfos = append(modeInfos, toModeInfo(conn, mode))
+		modeInfos = append(modeInfos, toModeInfo(mode))
 	}
 	return &ScreenInfo{
 		Outputs: outputInfos,
