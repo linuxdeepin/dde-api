@@ -21,6 +21,7 @@ package dxinput
 
 import (
 	"pkg.deepin.io/dde/api/dxinput/utils"
+	"errors"
 )
 
 const (
@@ -34,6 +35,12 @@ const (
 	// Either one 8-bit value specifying the meta drag lock button, or a list of button pairs.
 	// See section Button Drag Lock for details.
 	libinputPropDragLockButtons = "libinput Tapping Drag Lock Buttons"
+	// 2 boolean values (8 bit, 0 or 1), in order "adaptive", "flat".
+	// Indicates which acceleration profiles are available on this device.
+	libinputPropAccelProfileAvaliable = "libinput Accel Profiles Available"
+	// 2 boolean values (8 bit, 0 or 1), in order "adaptive", "flat".
+	// Indicates which acceleration profile is currently enabled on this device.
+	libinputPropAccelProfileEnabled = "libinput Accel Profile Enabled"
 	// 1 32-bit float value
 	// Sets the pointer acceleration speed within the range [-1, 1]
 	libinputPropAccelSpeed = "libinput Accel Speed"
@@ -64,6 +71,48 @@ const (
 	// 1 boolean value (8 bit, 0 or 1).
 	libinputPropDisableWhileTyping = "libinput Disable While Typing Enabled"
 )
+
+// for mouse: check if both "adaptive" and "flat" profile are avaliable
+func libinputIsBothAccelProfileAvaliable(id int32) bool {
+	available, err := getInt8Prop(id, libinputPropAccelProfileAvaliable, 2)
+	if err != nil {
+		return false
+	}
+
+	return (available[0] == 1) && (available[1] == 1)
+}
+
+// for mouse: get enabled accel profile, in order "adaptive", "flat".
+func libinputGetAccelProfile(id int32) (bool, bool) {
+	enabled, err := getInt8Prop(id, libinputPropAccelProfileEnabled, 2)
+	if err != nil {
+		return false, false
+	}
+
+	return enabled[0] == 1, enabled[1] == 1
+}
+
+// for mouse: set enabled accel profile, in order "adaptive", "flat".
+func libinputSetAccelProfile(id int32, useAdaptiveProfile bool) error {
+	if !libinputIsBothAccelProfileAvaliable(id) {
+		return errors.New("dde-api: device doesn't support both accel profile")
+	}
+
+	prop, err := getInt8Prop(id, libinputPropAccelProfileEnabled, 2)
+	if err != nil {
+		return err
+	}
+
+	if useAdaptiveProfile {
+		prop[0] = 1
+		prop[1] = 0
+	} else {
+		prop[0] = 0
+		prop[1] = 1
+	}
+
+	return utils.SetInt8Prop(id, libinputPropAccelProfileEnabled, prop)
+}
 
 // scroll methods: two-finger, edge, button. button only for trackpoint
 func libinputCanScroll(id int32) (bool, bool, bool) {

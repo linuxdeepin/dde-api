@@ -23,7 +23,7 @@ import (
 	"fmt"
 	"pkg.deepin.io/dde/api/dxinput/utils"
 	"strings"
-)
+	)
 
 const (
 	propMidBtnEmulation        string = "Evdev Middle Button Emulation"
@@ -88,6 +88,26 @@ func (m *Mouse) CanLeftHanded() bool {
 		return libinputInt8PropCan(m.Id, libinputPropLeftHandedEnabled)
 	}
 	return utils.CanLeftHanded(uint32(m.Id), m.Name)
+}
+
+// blumia: currently only allow config accel profile when using libinput
+// TODO: Evdev support
+// ref: http://510x.se/notes/posts/Changing_mouse_acceleration_in_Debian_and_Linux_in_general/
+func (m *Mouse) CanChangeAccelProfile() bool {
+	if m.isLibinputUsed {
+		return libinputIsBothAccelProfileAvaliable(m.Id)
+	}
+	return false
+}
+
+// Set to false to use flat accel profile
+func (m *Mouse) SetUseAdaptiveAccelProfile(useAdaptiveProfile bool) error {
+	return libinputSetAccelProfile(m.Id, useAdaptiveProfile)
+}
+
+func (m *Mouse) IsAdaptiveAccelProfileEnabled() bool {
+	adaptive, _ := libinputGetAccelProfile(m.Id)
+	return adaptive
 }
 
 // EnableMiddleButtonEmulation enable mouse middle button emulation
