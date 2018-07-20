@@ -1,5 +1,16 @@
 ## [Unreleased]
 
+## [3.1.27] - 2018-07-20
+*   chore(debian): update require versions
+*   feat(mouse): interface to config accel profile via libinput
+*   auto sync po files from transifex
+*   fix(drandr): rate calculation inaccuracies
+*   chore(locale-helper): no use pkg.deepin.io/lib/polkit
+*   chore: use go-dbus-factory
+*   fix(dde-open): panic when run dde-open xxxxxxx:///xxxxxxxx
+*   chore(debian): update debian control
+*   chore(drandr): use go-x11-client
+
 ## [3.1.26] - 2018-06-07
 *   chore: update makefile for arch `sw_64`
 
