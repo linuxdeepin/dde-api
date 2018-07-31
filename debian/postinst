@@ -1,6 +1,33 @@
 #!/bin/sh
+# postinst script for dde-api
 
 set -e
+player_user=deepin-sound-player
+player_home=/var/lib/$player_user
+
+case "$1" in
+	configure)
+		if ! getent group $player_user >/dev/null; then
+			addgroup --quiet --system $player_user
+		fi
+		if ! getent passwd $player_user >/dev/null; then
+			adduser --quiet --system --ingroup $player_user --home $player_home $player_user
+			adduser --quiet $player_user audio
+		fi
+
+		mkdir -p $player_home/.config/pulse
+		echo "autospawn = no" > $player_home/.config/pulse/client.conf
+		chown -R $player_user:$player_user $player_home/.config
+	;;
+	abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
 
 pc_arch=`dpkg --print-architecture`
 pc_64=amd64

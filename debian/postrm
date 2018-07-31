@@ -1,0 +1,14 @@
+#!/bin/sh
+# postrm script for dde-api
+
+set -e
+sound_player_user=deepin-sound-player
+
+if [ "$1" = "purge" ]; then
+	deluser --quiet --system $sound_player_user >/dev/null || true
+	delgroup --quiet --system $sound_player_user >/dev/null || true
+	rm -rf /var/lib/$sound_player_user 2>/dev/null || true
+fi
+
+#DEBHELPER#
+exit 0
