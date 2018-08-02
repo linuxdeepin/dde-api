@@ -20,45 +20,143 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
+	"os/exec"
+	"sync"
+
 	"pkg.deepin.io/lib/dbus1"
 	"pkg.deepin.io/lib/dbusutil"
-	"pkg.deepin.io/lib/utils"
+
+	polkit "github.com/linuxdeepin/go-dbus-factory/org.freedesktop.policykit1"
 )
 
 const (
-	dbusServiceName = "com.deepin.api.Device"
-	dbusPath        = "/com/deepin/api/Device"
-	dbusInterface   = dbusServiceName
-	rfkillBin       = "/usr/sbin/rfkill"
+	dbusServiceName                 = "com.deepin.api.Device"
+	dbusPath                        = "/com/deepin/api/Device"
+	dbusInterface                   = dbusServiceName
+	rfkillBin                       = "/usr/sbin/rfkill"
+	rfkillDeviceTypeBluetooth       = "bluetooth"
+	unblockBluetoothDevicesActionId = "com.deepin.api.device.unblock-bluetooth-devices"
 )
 
 type Device struct {
-	service *dbusutil.Service
+	service      *dbusutil.Service
+	mu           sync.Mutex
+	callingCount int
+
 	methods *struct {
-		UnblockDevice func() `in:"deviceType"`
-		BlockDevice   func() `in:"deviceType"`
+		HasBluetoothDeviceBlocked func() `out:"has"`
 	}
+}
+
+func (d *Device) incCallingCount() {
+	d.mu.Lock()
+	d.callingCount++
+	d.mu.Unlock()
+}
+
+func (d *Device) decCallingCount() {
+	d.mu.Lock()
+	d.callingCount--
+	d.mu.Unlock()
+}
+
+func (d *Device) canQuit() bool {
+	d.mu.Lock()
+	count := d.callingCount
+	d.mu.Unlock()
+	return count == 0
 }
 
 func (*Device) GetInterfaceName() string {
 	return dbusInterface
 }
 
-// UnblockDevice unblock target devices through rfkill, the device
-// type could be all, wifi, wlan, bluetooth, uwb, ultrawideband,
-// wimax, wwan, gps, fm, and nfc.
-func (d *Device) UnblockDevice(deviceType string) *dbus.Error {
+//  UnblockBluetoothDevice unblock bluetooth devices through rfkill
+func (d *Device) UnblockBluetoothDevices(sender dbus.Sender) *dbus.Error {
 	d.service.DelayAutoQuit()
-	_, _, err := utils.ExecAndWait(5, rfkillBin, "unblock", deviceType)
+	d.incCallingCount()
+	defer d.decCallingCount()
+	err := d.unblockBluetoothDevices(sender)
 	return dbusutil.ToError(err)
 }
 
-// BlockDevice block target devices through rfkill, the device
-// type could be all, wifi, wlan, bluetooth, uwb, ultrawideband,
-// wimax, wwan, gps, fm, and nfc. Need polkit authentication.
-func (d *Device) BlockDevice(deviceType string) *dbus.Error {
+func (d *Device) unblockBluetoothDevices(sender dbus.Sender) error {
+	pid, err := d.service.GetConnPID(string(sender))
+	if err != nil {
+		return err
+	}
+
+	ok, err := checkAuthorization(unblockBluetoothDevicesActionId, pid)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return errors.New("unauthorized access")
+	}
+
+	return exec.Command(rfkillBin, "unblock", rfkillDeviceTypeBluetooth).Run()
+}
+
+func checkAuthorization(actionId string, pid uint32) (bool, error) {
+	systemBus, err := dbus.SystemBus()
+	if err != nil {
+		return false, err
+	}
+	authority := polkit.NewAuthority(systemBus)
+	var subject = polkit.MakeSubject(polkit.SubjectKindUnixProcess)
+	subject.SetDetail("pid", pid)
+	subject.SetDetail("start-time", uint64(0))
+	ret, err := authority.CheckAuthorization(0, subject, actionId,
+		nil, polkit.CheckAuthorizationFlagsAllowUserInteraction, "")
+	if err != nil {
+		return false, err
+	}
+	return ret.IsAuthorized, nil
+}
+
+type rfkillItem struct {
+	Id     string `json:"id"`
+	Type   string `json:"type"`
+	Device string `json:"device"`
+	Soft   string `json:"soft"`
+	Hard   string `json:"hard"`
+}
+
+func getRfkillItems() ([]rfkillItem, error) {
+	output, err := exec.Command(rfkillBin, "-J").Output()
+	if err != nil {
+		return nil, err
+	}
+	var v map[string][]rfkillItem
+	err = json.Unmarshal(output, &v)
+	if err != nil {
+		return nil, err
+	}
+	return v[""], nil
+}
+
+func (d *Device) HasBluetoothDeviceBlocked() (bool, *dbus.Error) {
 	d.service.DelayAutoQuit()
-	// TODO need polkit authentication
-	_, _, err := utils.ExecAndWait(5, rfkillBin, "block", deviceType)
-	return dbusutil.ToError(err)
+	d.incCallingCount()
+	defer d.decCallingCount()
+
+	has, err := d.hasBluetoothDeviceBlocked()
+	return has, dbusutil.ToError(err)
+}
+
+func (d *Device) hasBluetoothDeviceBlocked() (bool, error) {
+	items, err := getRfkillItems()
+	if err != nil {
+		logger.Warning(err)
+		return false, err
+	}
+	logger.Debug(items)
+	for _, item := range items {
+		if item.Type == rfkillDeviceTypeBluetooth && item.Soft == "blocked" {
+			return true, nil
+		}
+	}
+	return false, nil
 }

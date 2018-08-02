@@ -1,0 +1,6 @@
+[Unblock bluetooth devices]
+Identity=unix-group:sudo
+Action=com.deepin.api.device.unblock-bluetooth-devices
+ResultAny=no
+ResultInactive=no
+ResultActive=yes

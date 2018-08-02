@@ -55,6 +55,6 @@ func main() {
 		logger.Fatal("failed to request name:", err)
 	}
 
-	service.SetAutoQuitHandler(5*time.Second, nil)
+	service.SetAutoQuitHandler(10*time.Second, d.canQuit)
 	service.Wait()
 }

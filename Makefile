@@ -54,9 +54,11 @@ prepare:
 
 ts:
 	deepin-policy-ts-convert policy2ts misc/polkit-action/com.deepin.api.locale-helper.policy.in misc/ts/com.deepin.api.locale-helper.policy
+	deepin-policy-ts-convert policy2ts misc/polkit-action/com.deepin.api.device.unblock-bluetooth-devices.policy.in misc/ts/com.deepin.api.device.unblock-bluetooth-devices.policy
 
 ts-to-policy:
 	deepin-policy-ts-convert ts2policy misc/polkit-action/com.deepin.api.locale-helper.policy.in misc/ts/com.deepin.api.locale-helper.policy misc/polkit-action/com.deepin.api.locale-helper.policy
+	deepin-policy-ts-convert ts2policy misc/polkit-action/com.deepin.api.device.unblock-bluetooth-devices.policy.in misc/ts/com.deepin.api.device.unblock-bluetooth-devices.policy misc/polkit-action/com.deepin.api.device.unblock-bluetooth-devices.policy
 
 out/bin/%:
 	env GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}" ${GOBUILD} -o $@  ${GOPKG_PREFIX}/${@F}
@@ -88,6 +90,9 @@ install-binary:
 
 	mkdir -pv ${DESTDIR}${PREFIX}/share/polkit-1/actions
 	cp misc/polkit-action/*.policy ${DESTDIR}${PREFIX}/share/polkit-1/actions/
+
+	mkdir -pv ${DESTDIR}/var/lib/polkit-1/localauthority/10-vendor.d
+	cp misc/polkit-localauthority/*.pkla ${DESTDIR}/var/lib/polkit-1/localauthority/10-vendor.d/
 
 	mkdir -pv ${DESTDIR}${PREFIX}/share/dde-api
 	cp -R misc/data ${DESTDIR}${PREFIX}/share/dde-api
