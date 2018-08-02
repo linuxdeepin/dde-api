@@ -35,7 +35,7 @@ const (
 	dbusServiceName                 = "com.deepin.api.Device"
 	dbusPath                        = "/com/deepin/api/Device"
 	dbusInterface                   = dbusServiceName
-	rfkillBin                       = "/usr/sbin/rfkill"
+	rfkillBin                       = "rfkill"
 	rfkillDeviceTypeBluetooth       = "bluetooth"
 	unblockBluetoothDevicesActionId = "com.deepin.api.device.unblock-bluetooth-devices"
 )
