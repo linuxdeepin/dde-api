@@ -20,10 +20,10 @@
 package main
 
 import (
+	"os"
 	"os/exec"
-	"time"
-
 	"sync"
+	"time"
 
 	"pkg.deepin.io/lib/dbusutil"
 	"pkg.deepin.io/lib/log"
@@ -33,6 +33,7 @@ const (
 	dbusServiceName = "com.deepin.api.LocaleHelper"
 	dbusPath        = "/com/deepin/api/LocaleHelper"
 	dbusInterface   = dbusServiceName
+	localeGenBin    = "locale-gen"
 )
 
 type Helper struct {
@@ -61,6 +62,7 @@ var (
 )
 
 func main() {
+	os.Setenv("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin")
 	logger.BeginTracing()
 	defer logger.EndTracing()
 
@@ -107,11 +109,10 @@ func (h *Helper) canQuit() bool {
 }
 
 func (h *Helper) doGenLocale() error {
-	return exec.Command("/bin/sh", "-c", "locale-gen").Run()
+	return exec.Command(localeGenBin).Run()
 }
 
 // locales version <= 2.13
 func (h *Helper) doGenLocaleWithParam(locale string) error {
-	cmd := "locale-gen " + locale
-	return exec.Command("/bin/sh", "-c", cmd).Run()
+	return exec.Command(localeGenBin, locale).Run()
 }
