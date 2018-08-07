@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+## [3.1.28] - 2018-08-07
+*   fix(device): rfkillBin use absolute path
+*   feat(locale-helper): more safe call locale-gen
+*   feat(device): limit com.deepin.api.Device service
+*   feat: do not use the root user to run sound theme player
+
 ## [3.1.27] - 2018-07-20
 *   chore(debian): update require versions
 *   feat(mouse): interface to config accel profile via libinput
