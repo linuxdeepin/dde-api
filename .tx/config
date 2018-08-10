@@ -6,3 +6,10 @@ file_filter = misc/ts/com.deepin.api.locale-helper.policy/policy_<lang>.ts
 source_file = misc/ts/com.deepin.api.locale-helper.policy/policy.ts
 source_lang = en
 type = QT
+
+[deepin-desktop-environment.dde-api-device-unblock-bt-devices-policyts]
+file_filter = misc/ts/com.deepin.api.device.unblock-bluetooth-devices.policy/policy_<lang>.ts
+source_file = misc/ts/com.deepin.api.device.unblock-bluetooth-devices.policy/policy.ts
+source_lang = en
+type = QT
+
