@@ -4,7 +4,7 @@
 		<message>
 			<location filename="com.deepin.api.locale-helper.manage-locale!message" line="0"/>
 			<source>Authentication is required to switch language</source>
-			<translation>É necessária autenticação para alterar o idioma</translation>
+			<translation>A autenticação é obrigatória para mudar o idioma</translation>
 		</message>
 		<message>
 			<location filename="com.deepin.api.locale-helper.manage-locale!description" line="0"/>

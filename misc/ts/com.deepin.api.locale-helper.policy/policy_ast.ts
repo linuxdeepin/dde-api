@@ -4,12 +4,12 @@
 		<message>
 			<location filename="com.deepin.api.locale-helper.manage-locale!message" line="0"/>
 			<source>Authentication is required to switch language</source>
-			<translation>Ríquese l&apos;autenticación pa camudar la llingua</translation>
+			<translation>Ríquese l&apos;autenticación pa cambiar de llingua</translation>
 		</message>
 		<message>
 			<location filename="com.deepin.api.locale-helper.manage-locale!description" line="0"/>
 			<source>Manage your system locale</source>
-			<translation>Xestionar la locale del sistema</translation>
+			<translation>Xestiona la locale del sistema</translation>
 		</message>
 	</context>
 </TS>
