@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [3.1.29] - 2018-08-12
+*   chore: auto sync ts files from transifex
+*   chore: add unblock-bluetooth-device policy to tx config
+
 ## [3.1.28] - 2018-08-07
 *   fix(device): rfkillBin use absolute path
 *   feat(locale-helper): more safe call locale-gen
