@@ -223,7 +223,8 @@ im:zh-hant::fcitx-frontend-qt4
 im:zh-hant::fcitx-frontend-qt5
 im:zh-hant::fcitx-chewing
 im:zh-hant::fcitx-pinyin
-im:zh-hant::fcitx-table-cangjie
+im:zh-hant::fcitx-table-cangjie3
+im:zh-hant::fcitx-table-cangjie5
 im:zh-hant:kio:kde-config-fcitx
 im:zh-hant:gnome-shell:ibus-chewing
 im:zh-hant:gnome-shell:ibus-table-cangjie3
