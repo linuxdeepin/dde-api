@@ -215,7 +215,7 @@ im:zh-hans:kio:kde-config-fcitx
 im:zh-hans:gnome-shell:ibus-sunpinyin
 im:zh-hans:gnome-shell:ibus-table-wubi
 
-im:zh-hant::fcitx-ui-qimpanel
+#im:zh-hant::fcitx-ui-qimpanel
 im:zh-hant::fcitx-ui-classic
 im:zh-hant::fcitx-frontend-gtk2
 im:zh-hant::fcitx-frontend-gtk3
