@@ -1,4 +1,6 @@
-## [Unreleased]
+## [3.1.30] - 2018-08-14
+*   fix(`pkg_depends`): not found cangjie input method
+*   chore(`pkg_depneds`): zh-hant do not install fcitx-ui-qimpanel
 
 ## [3.1.29] - 2018-08-12
 *   chore: auto sync ts files from transifex
