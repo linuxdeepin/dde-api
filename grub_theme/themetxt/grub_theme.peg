@@ -1,0 +1,128 @@
+{
+    package themetxt
+
+    func toIfaceSlice(v interface{}) []interface{} {
+        if v == nil {
+            return nil
+        }
+        return v.([]interface{})
+    }
+}
+
+Theme <- _ statements:Statement* EOF {
+    theme := &Theme{}
+    ss := toIfaceSlice(statements)
+    for _, s := range ss {
+        switch e := s.(type) {
+        case *Property:
+            theme.Props = append(theme.Props, e)
+        case *Component:
+            theme.Components = append(theme.Components, e)
+        }
+    }
+    return theme, nil
+}
+
+Statement <- s:(Comment / GPD / Component ) _ {
+    return s, nil
+}
+
+GPD <- _ option:Option _ ':' _ val:Value _ {
+    return &Property{
+        name: option.(string),
+        value: val,
+    }, nil
+}
+
+
+CPD <- _ option:Option _ '=' _ val:Value _ {
+    return &Property{
+        name: option.(string),
+        value: val,
+    }, nil
+}
+
+Component <- '+' _ type0:ID _ '{' _  elements:ComponentElement*  _ '}' _ {
+    comp := &Component{
+        Type: type0.(string),
+    }
+    elems := toIfaceSlice(elements)
+    for _, elem := range elems {
+        switch e := elem.(type) {
+        case *Property:
+            comp.Props = append(comp.Props, e)
+
+        case *Component:
+            comp.Children = append(comp.Children, e)
+        }
+    }
+    return comp, nil
+}
+
+ComponentElement <- ele:(Comment / CPD / Component) {
+    return ele, nil
+}
+
+Comment <- ( _ '#' (!NL .)* NL) {
+    return nil, nil
+}
+
+NL <- '\n'
+
+Option <- [a-zA-Z_-]+ {
+    return string(c.text), nil
+}
+
+ID <- [a-zA-Z_-]+ {
+    return string(c.text), nil
+}
+
+Value <- val:( Bool / Numeric / String ) {
+    return val, nil
+}
+
+Bool <- "true" { return true, nil } / "false" { return false, nil }
+
+Integer <- [0-9]+ {
+    return strconv.Atoi(string(c.text))
+}
+
+Numeric <- num:(CombinedNum / RelNum / AbsNum) {
+    return num, nil
+}
+
+AbsNum <- i:Integer  {
+    return AbsNum(i.(int)), nil
+}
+
+RelNum <- i:Integer '%' {
+    return RelNum(i.(int)), nil
+}
+
+CombinedNum <- rel:RelNum op:CombinedNumOp abs:AbsNum {
+    return CombinedNum{
+        Rel: int(rel.(RelNum)),
+        Abs: int(abs.(AbsNum)),
+        Op: op.(CombinedNumOp),
+    }, nil
+}
+
+CombinedNumOp <- ("+" / "-") {
+    switch c.text[0] {
+    case '+':
+        return CombinedNumAdd, nil
+    case '-':
+        return CombinedNumSub, nil
+    }
+    return 0, nil
+}
+
+String <- '"' (!EscapedChar .)* '"' {
+    return strconv.Unquote(string(c.text))
+}
+
+EscapedChar ← [\x00-\x1f"\\]
+
+_ "whitespace" <- [ \n\t\r]*
+
+EOF <- !.

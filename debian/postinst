@@ -5,6 +5,29 @@ set -e
 player_user=deepin-sound-player
 player_home=/var/lib/$player_user
 
+themeDir="/boot/grub/themes/deepin"
+adjustGrubThemeBin="/usr/lib/deepin-api/adjust-grub-theme"
+
+adjustGrubTheme () {
+	themeToolVersion=$($adjustGrubThemeBin -version)
+	if [ -z "$themeToolVersion" ]; then
+		themeToolVersion=0
+	fi
+	echo themeToolVersion: $themeToolVersion
+
+	# get current version
+	themeCurrentVersion=$(grep -m 1 '#version:' $themeDir/theme.txt | cut -d: -f 2)
+	if [ -z "$themeCurrentVersion" ]; then
+		themeCurrentVersion=0
+	fi
+	echo themeCurrentVersion: $themeCurrentVersion
+
+	if [ $themeToolVersion -gt $themeCurrentVersion ]; then
+		echo need adjust grub theme
+		$adjustGrubThemeBin
+	fi
+}
+
 case "$1" in
 	configure)
 		if ! getent group $player_user >/dev/null; then
@@ -18,6 +41,7 @@ case "$1" in
 		mkdir -p $player_home/.config/pulse
 		echo "autospawn = no" > $player_home/.config/pulse/client.conf
 		chown -R $player_user:$player_user $player_home/.config
+		adjustGrubTheme
 	;;
 	abort-upgrade|abort-remove|abort-deconfigure)
     ;;

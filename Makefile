@@ -41,6 +41,7 @@ BINARIES =  \
     sound-theme-player \
     deepin-shutdown-sound \
     dde-open \
+	adjust-grub-theme \
     image-blur \
     image-blur-helper
 

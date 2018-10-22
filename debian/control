@@ -12,6 +12,7 @@ Build-Depends: debhelper (>= 9), dh-golang, golang-any,
  golang-gopkg-alecthomas-kingpin.v2-dev,
  golang-github-disintegration-imaging-dev,
  golang-github-nfnt-resize-dev,
+ golang-github-fogleman-gg-dev,
  libxi-dev,
  libcanberra-dev,
  librsvg2-dev,
@@ -30,7 +31,8 @@ Homepage: http://www.deepin.org
 Package: dde-api
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
- rfkill, locales, libcanberra-pulse, blur-effect, librsvg2-bin
+ rfkill, locales, libcanberra-pulse, blur-effect, librsvg2-bin, fonts-noto-cjk, fonts-noto-mono, grub-common,
+ bc, fontconfig, coreutils
 Description: Go-lang bingdings for dde-daemon
  Deepin Go-lang bindings for dde-daemon
 
