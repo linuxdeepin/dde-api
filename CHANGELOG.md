@@ -1,3 +1,6 @@
+## [3.2.0] - 2018-10-25
+*   feat: add binary adjust-grub-theme
+
 ## [3.1.30] - 2018-08-14
 *   fix(`pkg_depends`): not found cangjie input method
 *   chore(`pkg_depneds`): zh-hant do not install fcitx-ui-qimpanel
