@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	VERSION               int = 2
+	VERSION               int = 3
 	defaultThemeOutputDir     = "/boot/grub/themes/deepin"
 	defaultThemeInputDir      = "/usr/share/dde-api/data/grub-themes/deepin"
 )
@@ -234,6 +234,9 @@ func setBackground(bgFile string) {
 		log.Println("WARN: not found boot_menu component")
 		return
 	}
+
+	convertPropRel2Abs(bmComp, "left", orientationHorizontal)
+	convertPropRel2Abs(bmComp, "top", orientationVertical)
 	adjustBootMenuPixmapStyle(bmComp, bgImg)
 }
 
@@ -620,10 +623,58 @@ func adjustBootMenu(comp *tt.Component, vars map[string]float64) {
 	}
 	adjustBootMenuPixmapStyle(comp, bgImg)
 
+	convertPropAbs2Rel(comp, "left", orientationHorizontal)
+	convertPropAbs2Rel(comp, "top", orientationVertical)
+
 	itemHeight, _ := comp.GetPropInt("item_height")
 	r := round(float64(itemHeight) * 0.16)
 	adjustSelectedItemPixmapStyle(r)
 	adjustItemPixmapStyle(r)
+}
+
+const (
+	orientationHorizontal = 0
+	orientationVertical   = 1
+)
+
+func convertPropAbs2Rel(comp *tt.Component, propName string, orientation int) {
+	var ref int
+	switch orientation {
+	case orientationHorizontal:
+		ref = optScreenWidth
+	case orientationVertical:
+		ref = optScreenHeight
+	default:
+		panic("invalid orientation")
+	}
+
+	abs, _ := comp.GetPropInt(propName)
+	rel := tt.RelNum(round(float64(abs) / float64(ref) * 100.0))
+	comp.SetProp(propName, rel)
+}
+
+func convertPropRel2Abs(comp *tt.Component, propName string, orientation int) {
+	var ref int
+	switch orientation {
+	case orientationHorizontal:
+		ref = optScreenWidth
+	case orientationVertical:
+		ref = optScreenHeight
+	default:
+		panic("invalid orientation")
+	}
+
+	p, _ := comp.GetProp(propName)
+
+	switch pp := p.(type) {
+	case tt.AbsNum:
+		return
+	case int:
+		return
+	case tt.RelNum:
+		abs := round(float64(pp) / 100.0 * float64(ref))
+		comp.SetProp(propName, abs)
+	}
 }
 
 func adjustLabel(comp *tt.Component, vars map[string]float64) {
@@ -639,6 +690,7 @@ func adjustLabel(comp *tt.Component, vars map[string]float64) {
 	for _, propName := range []string{"left", "top", "width", "height"} {
 		adjustProp(comp, propName, vars)
 	}
+	convertPropAbs2Rel(comp, "top", orientationVertical)
 
 	localeVars := locale.GetLocaleVariants(optLang)
 	var text string
