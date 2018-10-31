@@ -8,7 +8,6 @@ import (
 	"image"
 	"image/color"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -18,6 +17,7 @@ import (
 	"github.com/fogleman/gg"
 
 	"pkg.deepin.io/lib/graphic"
+	"pkg.deepin.io/lib/log"
 
 	"github.com/disintegration/imaging"
 
@@ -39,8 +39,13 @@ var optThemeOutputDir string
 var optLang string
 var optVersion bool
 var optSetBackground string
+var optLogSys bool
+var logger *log.Logger
 
 func init() {
+	logger = log.NewLogger("adjust-grub-theme")
+	logger.SetLogLevel(log.LevelDebug)
+
 	flag.IntVar(&optScreenWidth, "width", 0, "screen width")
 	flag.IntVar(&optScreenHeight, "height", 0, "screen height")
 	flag.StringVar(&optThemeInputDir, "theme-input", defaultThemeInputDir,
@@ -50,17 +55,18 @@ func init() {
 	flag.StringVar(&optLang, "lang", "", "language")
 	flag.BoolVar(&optVersion, "version", false, "show version")
 	flag.StringVar(&optSetBackground, "set-background", "", "")
+	flag.BoolVar(&optLogSys, "log-sys", false, "")
 }
 
 func adjustBackground() (image.Image, error) {
-	log.Println("adjustBackground")
+	logger.Debug("adjustBackground")
 
 	img, err := loadImage(filepath.Join(optThemeOutputDir, "background_source"))
 	if err != nil {
 		originDesktopImageFile := filepath.Join(optThemeInputDir, "background.origin.png")
 		img, err = loadImage(originDesktopImageFile)
 		if err != nil {
-			log.Println("WARN:", err)
+			logger.Warning(err)
 			return nil, err
 		}
 	}
@@ -69,7 +75,7 @@ func adjustBackground() (image.Image, error) {
 
 	x, y, w, h, err := graphic.GetPreferScaleClipRect(optScreenWidth, optScreenHeight, imgWidth, imgHeight)
 	if err != nil {
-		log.Println("WARN:", err)
+		logger.Warning(err)
 		return nil, err
 	}
 	img0 := imaging.Crop(img, image.Rect(x, y, x+w, y+h))
@@ -86,14 +92,14 @@ func adjustResourcesOsLogos(width, height int) {
 	dir := filepath.Join(optThemeInputDir, "resources/os-logos")
 	fileInfoList, err := ioutil.ReadDir(dir)
 	if err != nil {
-		log.Println("WARN:", err)
+		logger.Warning(err)
 		return
 	}
 
 	outDir := filepath.Join(optThemeOutputDir, "icons")
 	err = os.Mkdir(outDir, 0755)
 	if err != nil {
-		log.Println("WARN:", err)
+		logger.Warning(err)
 		return
 	}
 
@@ -111,7 +117,7 @@ func adjustResourcesOsLogos(width, height int) {
 		outFile := filepath.Join(outDir, outFileName)
 		err = convertSvg(file, outFile, width, height)
 		if err != nil {
-			log.Println("WARN:", err)
+			logger.Warning(err)
 		}
 	}
 }
@@ -200,7 +206,7 @@ func cropAndSaveStyleBox(img image.Image, filenamePrefix string, r int) {
 		img0 := imaging.Crop(img, item.rect)
 		err := savePng(img0, filenamePrefix+"_"+item.name+".png")
 		if err != nil {
-			log.Println("WARN:", err)
+			logger.Warning(err)
 		}
 	}
 }
@@ -208,18 +214,18 @@ func cropAndSaveStyleBox(img image.Image, filenamePrefix string, r int) {
 func setBackground(bgFile string) {
 	err := copyBgSource(bgFile)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	bgImg, err := adjustBackground()
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	themeTxtFile := filepath.Join(optThemeOutputDir, "theme.txt")
 	theme, err := tt.ParseThemeFile(themeTxtFile)
 	if err != nil {
-		log.Println("WARN:", err)
+		logger.Warning(err)
 		return
 	}
 
@@ -231,7 +237,7 @@ func setBackground(bgFile string) {
 		}
 	}
 	if bmComp == nil {
-		log.Println("WARN: not found boot_menu component")
+		logger.Warning("not found boot_menu component")
 		return
 	}
 
@@ -247,18 +253,20 @@ func main() {
 		return
 	}
 
-	log.SetFlags(log.Lshortfile)
+	if optLogSys {
+		logger.RemoveBackendConsole()
+	}
 
 	if optScreenWidth == 0 || optScreenHeight == 0 {
 		var err error
 		optScreenWidth, optScreenHeight, err = getScreenSizeFromGrubParams()
 		if err != nil {
-			log.Println("WARN:", err)
+			logger.Warning(err)
 			optScreenWidth = 1024
 			optScreenHeight = 768
 		}
-		log.Println("screen width:", optScreenWidth)
-		log.Println("screen height:", optScreenHeight)
+		logger.Debug("screen width:", optScreenWidth)
+		logger.Debug("screen height:", optScreenHeight)
 	}
 
 	if optSetBackground != "" {
@@ -270,7 +278,7 @@ func main() {
 	headInfo, err := loadThemeHeadInfo(filepath.Join(optThemeOutputDir, "theme.txt"))
 	if err != nil {
 		if !os.IsNotExist(err) {
-			log.Println("WARN:", err)
+			logger.Warning(err)
 		}
 	}
 
@@ -282,20 +290,20 @@ func main() {
 			optLang = getCurrentLocale()
 		}
 	}
-	log.Println("lang:", optLang)
+	logger.Debug("lang:", optLang)
 
 	vars := map[string]float64{}
 
 	themeFile := filepath.Join(optThemeInputDir, "theme.txt.tpl")
 	theme, err := tt.ParseThemeFile(themeFile)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	cleanupThemeOutputDir()
 	err = os.MkdirAll(optThemeOutputDir, 0755)
 	if err != nil {
-		log.Println("WARN:", err)
+		logger.Warning(err)
 	}
 	copyPngFiles()
 
@@ -322,7 +330,7 @@ func main() {
 	themeOutput := filepath.Join(optThemeOutputDir, "theme.txt")
 	themeOutputFh, err := os.Create(themeOutput)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 	defer themeOutputFh.Close()
 	bw := bufio.NewWriter(themeOutputFh)
@@ -333,7 +341,7 @@ func main() {
 	var themeInputDir string
 	themeInputDir, err = filepath.Abs(optThemeInputDir)
 	if err != nil {
-		log.Println("WARN:", err)
+		logger.Warning(err)
 		themeInputDir = optThemeInputDir
 	}
 
@@ -355,7 +363,7 @@ func copyBgSource(filename string) error {
 func copyPngFiles() {
 	fileInfoList, err := ioutil.ReadDir(optThemeInputDir)
 	if err != nil {
-		log.Println("WARN:", err)
+		logger.Warning(err)
 		return
 	}
 	var args []string
@@ -369,16 +377,16 @@ func copyPngFiles() {
 
 	dstDir, err := filepath.Abs(optThemeOutputDir)
 	if err != nil {
-		log.Println("WARN:", err)
+		logger.Warning(err)
 		return
 	}
 	args = append(args, dstDir)
-	log.Printf("$ cp %s\n", strings.Join(args, " "))
+	logger.Debugf("$ cp %s", strings.Join(args, " "))
 	cmd := exec.Command("cp", args...)
 	cmd.Dir = optThemeInputDir
 	err = cmd.Run()
 	if err != nil {
-		log.Println("WARN:", err)
+		logger.Warning(err)
 	}
 }
 
@@ -386,7 +394,7 @@ func cleanupThemeOutputDir() {
 	fileInfoList, err := ioutil.ReadDir(optThemeOutputDir)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			log.Println("WARN:", err)
+			logger.Warning(err)
 		}
 	}
 
@@ -420,7 +428,7 @@ func genPF2Font(fontFile string, faceIndex, size int) (*font.Face, error) {
 	}
 	face, ok := genFontCache[cacheKey]
 	if ok {
-		log.Println("genPF2Font use cache")
+		logger.Debug("genPF2Font use cache")
 		return face, nil
 	}
 
@@ -435,7 +443,7 @@ func genPF2Font(fontFile string, faceIndex, size int) (*font.Face, error) {
 
 	cmd := exec.Command("grub-mkfont", "-i", faceIndexStr,
 		"-s", sizeStr, "-o", output, fontFile)
-	log.Printf("$ grub-mkfont -i %d -s %d -o %s %s\n",
+	logger.Debugf("$ grub-mkfont -i %d -s %d -o %s %s",
 		faceIndex, size, output, fontFile)
 	err := cmd.Run()
 	if err != nil {
@@ -473,7 +481,7 @@ func adjustFont(comp *tt.Component, propName string, vars map[string]float64) (*
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("adjustFont fontName: %q, sizeScale: %g\n", fontName, sizeScale)
+	logger.Debugf("adjustFont fontName: %q, sizeScale: %g", fontName, sizeScale)
 
 	fontFile, faceIndex, err := findFont(fontName)
 	if err != nil {
@@ -524,7 +532,7 @@ func adjustProp(comp *tt.Component, propName string, vars map[string]float64) {
 	}
 	evalResult, err := eval(vars, propValStr)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 	evalRet := round(evalResult)
 	if evalRet < 0 {
@@ -552,7 +560,7 @@ func adjustItemPixmapStyle(r int) {
 }
 
 func adjustBootMenuPixmapStyle(comp *tt.Component, bgImg image.Image) {
-	log.Println("adjustBootMenuPixmapStyle")
+	logger.Debug("adjustBootMenuPixmapStyle")
 	itemHeight, _ := comp.GetPropInt("item_height")
 	bmLeft, _ := comp.GetPropInt("left")
 	bmTop, _ := comp.GetPropInt("top")
@@ -600,7 +608,7 @@ func adjustBootMenu(comp *tt.Component, vars map[string]float64) {
 	vars = copyVars(vars)
 	face, err := adjustFont(comp, "item_font", vars)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	fontHeight := face.Height()
@@ -619,7 +627,7 @@ func adjustBootMenu(comp *tt.Component, vars map[string]float64) {
 
 	bgImg, err := adjustBackground()
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 	adjustBootMenuPixmapStyle(comp, bgImg)
 
@@ -681,7 +689,7 @@ func adjustLabel(comp *tt.Component, vars map[string]float64) {
 	vars = copyVars(vars)
 	face, err := adjustFont(comp, "font", vars)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	fontHeight := face.Height()

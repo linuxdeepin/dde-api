@@ -8,7 +8,6 @@ import (
 	"image"
 	_ "image/jpeg"
 	"image/png"
-	"log"
 	"os"
 	"os/exec"
 	"strconv"
@@ -37,7 +36,7 @@ func convertSvg(svgFile, outFile string, width, height int) error {
 		svgFile)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	log.Printf("$ rsvg-convert --output %s -width %d -height %d -f png %s\n",
+	logger.Debugf("$ rsvg-convert --output %s -width %d -height %d -f png %s",
 		outFile, width, height, svgFile)
 	return cmd.Run()
 }
