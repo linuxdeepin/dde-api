@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	VERSION               int = 3
+	VERSION               int = 4
 	defaultThemeOutputDir     = "/boot/grub/themes/deepin"
 	defaultThemeInputDir      = "/usr/share/dde-api/data/grub-themes/deepin"
 )
@@ -122,16 +122,18 @@ func adjustResourcesOsLogos(width, height int) {
 	}
 }
 
-// min 16px
+const minFontSize = 12
+
+// min 12px
 func getFontSize(screenWidth int, screenHeight int) int {
 	var x1 float64 = 768
-	var y1 float64 = 16
+	var y1 float64 = minFontSize
 	var x2 float64 = 2000
 	var y2 float64 = 32
 	y := (float64(screenHeight)-x1)/(x2-x1)*(y2-y1) + y1
 
-	if y < 16 {
-		y = 16
+	if y < minFontSize {
+		y = minFontSize
 	}
 
 	return round(y)
@@ -489,6 +491,10 @@ func adjustFont(comp *tt.Component, propName string, vars map[string]float64) (*
 	}
 
 	fontSize := round(vars["std_font_size"] * sizeScale)
+	if fontSize < minFontSize {
+		fontSize = minFontSize
+	}
+
 	face, err := genPF2Font(fontFile, faceIndex, fontSize)
 	if err != nil {
 		return nil, err
@@ -512,6 +518,9 @@ func adjustTerminalFont(theme *tt.Theme, vars map[string]float64) error {
 	}
 
 	fontSize := round(vars["std_font_size"] * sizeScale)
+	if fontSize < minFontSize {
+		fontSize = minFontSize
+	}
 	face, err := genPF2Font(fontFile, faceIndex, fontSize)
 	if err != nil {
 		return err

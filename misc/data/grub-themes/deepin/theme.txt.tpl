@@ -14,7 +14,7 @@ terminal-border: "0"
 + boot_menu {
   left = "(screen_width - width) / 2"
   top = "(screen_height - height) / 2"
-  width = "1.5 * height"
+  width = "1.7 * height"
   height = "6*item_spacing + 8*item_height"
   item_font = "Noto Sans CJK SC Regular;1"
   item_color = "#dddddd"
