@@ -1,3 +1,10 @@
+## [3.3.0] - 2018-11-01
+*   chore(adjust-grub-theme): small appearance adjustment
+*   fix: update-grub not executed after adjust grub theme
+*   feat(adjust-grub-theme): use pkg.deepin.io/lib/log
+*   fix(adjust-grub-theme): save boot menu position rel value into theme.txt
+*   auto sync po files from transifex
+
 ## [3.2.0] - 2018-10-25
 *   feat: add binary adjust-grub-theme
 
