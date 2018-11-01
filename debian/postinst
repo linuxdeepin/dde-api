@@ -25,6 +25,7 @@ adjustGrubTheme () {
 	if [ $themeToolVersion -gt $themeCurrentVersion ]; then
 		echo need adjust grub theme
 		$adjustGrubThemeBin -log-sys
+		grub-mkconfig -o /boot/grub/grub.cfg
 	fi
 }
 
