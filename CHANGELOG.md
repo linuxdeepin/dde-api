@@ -1,3 +1,6 @@
+## [3.4.0] - 2018-11-01
+*   chore: no call grub-mkconfig
+
 ## [3.3.0] - 2018-11-01
 *   chore(adjust-grub-theme): small appearance adjustment
 *   fix: update-grub not executed after adjust grub theme
