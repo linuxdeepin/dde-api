@@ -433,9 +433,6 @@ func (tpad *Touchpad) MotionScaling() (float32, error) {
 }
 
 func (tpad *Touchpad) SetRotation(direction uint8) error {
-	if tpad.isLibinputUsed {
-		return fmt.Errorf("libinput unsupported transformation matrix")
-	}
 	return setRotation(tpad.Id, direction)
 }
 

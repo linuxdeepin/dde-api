@@ -23,7 +23,7 @@ import (
 	"fmt"
 	"pkg.deepin.io/dde/api/dxinput/utils"
 	"strings"
-	)
+)
 
 const (
 	propMidBtnEmulation        string = "Evdev Middle Button Emulation"
@@ -195,8 +195,9 @@ func (m *Mouse) EnableWheelEmulation(enabled bool) error {
 }
 
 func (m *Mouse) SetRotation(direction uint8) error {
-	if m.isLibinputUsed {
-		return fmt.Errorf("libinput unsupported transformation matrix")
+	// ignore mouse only set trackpoint, because mouse can adjust it's position manualy
+	if !m.TrackPoint {
+		return nil
 	}
 	return setRotation(m.Id, direction)
 }

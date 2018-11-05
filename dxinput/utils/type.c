@@ -117,6 +117,10 @@ is_wacom_device(int deviceid)
 static int
 is_touchscreen_device(int deviceid)
 {
+    // for libinput
+    if (is_property_exist(deviceid, "libinput Calibration Matrix")) {
+        return 1;
+    }
     // Now XInput2 library detect touchscreen as mouse
     if (!is_mouse_device(deviceid)) {
         return 0;
