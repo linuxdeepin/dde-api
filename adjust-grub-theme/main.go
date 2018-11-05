@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	VERSION               int = 4
+	VERSION               int = 5
 	defaultThemeOutputDir     = "/boot/grub/themes/deepin"
 	defaultThemeInputDir      = "/usr/share/dde-api/data/grub-themes/deepin"
 )
