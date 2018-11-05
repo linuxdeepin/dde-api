@@ -358,8 +358,13 @@ func main() {
 
 func copyBgSource(filename string) error {
 	dstFile := filepath.Join(optThemeOutputDir, "background_source")
-	cmd := exec.Command("cp", filename, dstFile)
-	return cmd.Run()
+	err := os.Remove(dstFile)
+	if err != nil {
+		return err
+	}
+
+	_, err = copyFile(filename, dstFile)
+	return err
 }
 
 func copyPngFiles() {
@@ -368,28 +373,20 @@ func copyPngFiles() {
 		logger.Warning(err)
 		return
 	}
-	var args []string
 	for _, fileInfo := range fileInfoList {
 		name := fileInfo.Name()
 		if strings.HasSuffix(name, ".png") &&
 			name != "background.origin.png" {
-			args = append(args, name)
+			srcFile := filepath.Join(optThemeInputDir, name)
+			dstFile := filepath.Join(optThemeOutputDir, name)
+			logger.Debug("copyFile", srcFile, dstFile)
+			_, err := copyFile(srcFile, dstFile)
+			if err != nil {
+				logger.Warning("failed to copy file:", err)
+			}
 		}
 	}
 
-	dstDir, err := filepath.Abs(optThemeOutputDir)
-	if err != nil {
-		logger.Warning(err)
-		return
-	}
-	args = append(args, dstDir)
-	logger.Debugf("$ cp %s", strings.Join(args, " "))
-	cmd := exec.Command("cp", args...)
-	cmd.Dir = optThemeInputDir
-	err = cmd.Run()
-	if err != nil {
-		logger.Warning(err)
-	}
 }
 
 func cleanupThemeOutputDir() {
