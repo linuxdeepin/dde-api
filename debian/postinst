@@ -7,6 +7,7 @@ player_home=/var/lib/$player_user
 
 themeDir="/boot/grub/themes/deepin"
 adjustGrubThemeBin="/usr/lib/deepin-api/adjust-grub-theme"
+grubCfgFile=/boot/grub/grub.cfg
 
 adjustGrubTheme () {
 	themeToolVersion=$($adjustGrubThemeBin -version)
@@ -25,6 +26,7 @@ adjustGrubTheme () {
 	if [ $themeToolVersion -gt $themeCurrentVersion ]; then
 		echo need adjust grub theme
 		$adjustGrubThemeBin -log-sys
+		grub-mkconfig -o $grubCfgFile
 	fi
 }
 
@@ -41,7 +43,10 @@ case "$1" in
 		mkdir -p $player_home/.config/pulse
 		echo "autospawn = no" > $player_home/.config/pulse/client.conf
 		chown -R $player_user:$player_user $player_home/.config
-		adjustGrubTheme
+
+		if [ -f $grubCfgFile ]; then
+			adjustGrubTheme
+		fi
 	;;
 	abort-upgrade|abort-remove|abort-deconfigure)
     ;;
