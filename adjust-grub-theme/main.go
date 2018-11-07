@@ -527,14 +527,14 @@ func adjustTerminalFont(theme *tt.Theme, vars map[string]float64) error {
 	return nil
 }
 
-func adjustProp(comp *tt.Component, propName string, vars map[string]float64) {
+func adjustProp(comp *tt.Component, propName string, vars map[string]float64) int {
 	propVal, ok := comp.GetProp(propName)
 	if !ok {
-		return
+		return 0
 	}
 	propValStr, ok := propVal.(string)
 	if !ok {
-		return
+		return 0
 	}
 	evalResult, err := eval(vars, propValStr)
 	if err != nil {
@@ -546,6 +546,8 @@ func adjustProp(comp *tt.Component, propName string, vars map[string]float64) {
 	}
 	vars[propName] = float64(evalRet)
 	comp.SetProp(propName, evalRet)
+	logger.Debug("adjustProp", propName, evalRet)
+	return evalRet
 }
 
 func adjustSelectedItemPixmapStyle(r int) {
@@ -565,6 +567,14 @@ func adjustItemPixmapStyle(r int) {
 	cropAndSaveStyleBox(img, prefix, r)
 }
 
+func getBootMenuR(itemHeight int) int {
+	return round(float64(itemHeight) * 0.5)
+}
+
+func getItemR(itemHeight int) int {
+	return round(float64(itemHeight) * 0.16)
+}
+
 func adjustBootMenuPixmapStyle(comp *tt.Component, bgImg image.Image) {
 	logger.Debug("adjustBootMenuPixmapStyle")
 	itemHeight, _ := comp.GetPropInt("item_height")
@@ -573,20 +583,21 @@ func adjustBootMenuPixmapStyle(comp *tt.Component, bgImg image.Image) {
 	bmWidth, _ := comp.GetPropInt("width")
 	bmHeight, _ := comp.GetPropInt("height")
 
-	r := round(float64(itemHeight) * 0.5)
+	menuR := getBootMenuR(itemHeight)
+	logger.Debug("menuR:", menuR)
 	// boot menu rect
 	rect := image.Rect(bmLeft, bmTop,
 		bmLeft+bmWidth, bmTop+bmHeight)
 
-	x := r * 2
+	x := menuR * 2
 	y := x
 	w := bmWidth - x*2
 	h := bmHeight - y*2
 
 	shadowDc := gg.NewContext(rect.Dx(), rect.Dy())
 	shadowDc.SetRGBA(0, 0, 0, 0.2) // black
-	shadowYOffset := r
-	shadowDc.DrawRoundedRectangle(float64(x), float64(y+shadowYOffset), float64(w), float64(h), float64(r))
+	shadowYOffset := menuR
+	shadowDc.DrawRoundedRectangle(float64(x), float64(y+shadowYOffset), float64(w), float64(h), float64(menuR))
 	shadowDc.Fill()
 	// shadow blur sigma : 10
 	shadowImg := imaging.Blur(shadowDc.Image(), 10)
@@ -598,7 +609,7 @@ func adjustBootMenuPixmapStyle(comp *tt.Component, bgImg image.Image) {
 	img1b = imaging.Overlay(img1b, imgWhite, image.Pt(0, 0), 0.1)
 	dc := gg.NewContext(bmWidth, bmHeight)
 	dc.DrawRoundedRectangle(float64(x), float64(y), float64(w), float64(h),
-		float64(r))
+		float64(menuR))
 	dc.Clip()
 	dc.DrawImage(img1b, 0, 0)
 	// img2 是模糊过的圆角的
@@ -607,7 +618,7 @@ func adjustBootMenuPixmapStyle(comp *tt.Component, bgImg image.Image) {
 	img3 := imaging.Overlay(shadowImg, img2, image.Pt(0, 0), 1)
 
 	prefix := filepath.Join(optThemeOutputDir, "menu")
-	cropAndSaveStyleBox(img3, prefix, x+r)
+	cropAndSaveStyleBox(img3, prefix, x+menuR)
 }
 
 func adjustBootMenu(comp *tt.Component, vars map[string]float64) {
@@ -620,8 +631,14 @@ func adjustBootMenu(comp *tt.Component, vars map[string]float64) {
 	fontHeight := face.Height()
 	vars["font_height"] = float64(fontHeight)
 
+	itemHeight := adjustProp(comp, "item_height", vars)
+	itemR := getItemR(itemHeight)
+	vars["item_r"] = float64(itemR)
+	menuR := getBootMenuR(itemHeight)
+	vars["menu_r"] = float64(menuR)
+
 	for _, propName := range []string{
-		"item_height", "item_spacing",
+		"item_spacing",
 		"item_padding", "icon_width",
 		"icon_height", "item_icon_space",
 		"height", "width",
@@ -640,10 +657,8 @@ func adjustBootMenu(comp *tt.Component, vars map[string]float64) {
 	convertPropAbs2Rel(comp, "left", orientationHorizontal)
 	convertPropAbs2Rel(comp, "top", orientationVertical)
 
-	itemHeight, _ := comp.GetPropInt("item_height")
-	r := round(float64(itemHeight) * 0.16)
-	adjustSelectedItemPixmapStyle(r)
-	adjustItemPixmapStyle(r)
+	adjustSelectedItemPixmapStyle(itemR)
+	adjustItemPixmapStyle(itemR)
 }
 
 const (
