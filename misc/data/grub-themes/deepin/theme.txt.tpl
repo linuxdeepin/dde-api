@@ -28,6 +28,7 @@ terminal-border: "0"
   item_pixmap_style = "item_*.png"
   selected_item_pixmap_style = "selected_item_*.png"
   menu_pixmap_style = "menu_*.png"
+  scrollbar_thumb = "scrollbar_thumb_*.png"
 }
 
 # Countdown message

@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	VERSION               int = 6
+	VERSION               int = 7
 	defaultThemeOutputDir     = "/boot/grub/themes/deepin"
 	defaultThemeInputDir      = "/usr/share/dde-api/data/grub-themes/deepin"
 )
@@ -152,7 +152,7 @@ func getScreenSizeFromGrubParams() (w, h int, err error) {
 	return
 }
 
-func cropAndSaveStyleBox(img image.Image, filenamePrefix string, r int) {
+func cropSaveStyleBox(img image.Image, filenamePrefix string, r int) {
 	imgW := img.Bounds().Dx()
 	imgH := img.Bounds().Dy()
 
@@ -557,14 +557,35 @@ func adjustSelectedItemPixmapStyle(r int) {
 	dc.DrawRoundedRectangle(0, 0, float64(width), float64(width), float64(r))
 	dc.Fill()
 	prefix := filepath.Join(optThemeOutputDir, "selected_item")
-	cropAndSaveStyleBox(dc.Image(), prefix, r)
+	cropSaveStyleBox(dc.Image(), prefix, r)
 }
 
 func adjustItemPixmapStyle(r int) {
 	width := 2*r + 1
 	img := image.NewAlpha(image.Rect(0, 0, width, width))
 	prefix := filepath.Join(optThemeOutputDir, "item")
-	cropAndSaveStyleBox(img, prefix, r)
+	cropSaveStyleBox(img, prefix, r)
+}
+
+func adjustScrollbarThumbPixmapStyle(r int) {
+	width := 2 * r
+	height := 2*r + 1
+	dc := gg.NewContext(width, height)
+	dc.SetRGBA(1, 1, 1, 0.2)
+	dc.DrawRoundedRectangle(0, 0, float64(width), float64(height), float64(r))
+	dc.Fill()
+	cropSaveScrollbarThumbStyleBox(dc.Image(), r, "scrollbar_thumb")
+}
+
+func cropSaveScrollbarThumbStyleBox(img image.Image, r int, name string) {
+	w := 2 * r
+	imgN := imaging.CropAnchor(img, w, r, imaging.Top)
+	imgS := imaging.CropAnchor(img, w, r, imaging.Bottom)
+	imgC := imaging.CropAnchor(img, w, 1, imaging.Center)
+	namePrefix := filepath.Join(optThemeOutputDir, name)
+	imaging.Save(imgN, namePrefix+"_n.png")
+	imaging.Save(imgS, namePrefix+"_s.png")
+	imaging.Save(imgC, namePrefix+"_c.png")
 }
 
 func getBootMenuR(itemHeight int) int {
@@ -573,6 +594,10 @@ func getBootMenuR(itemHeight int) int {
 
 func getItemR(itemHeight int) int {
 	return round(float64(itemHeight) * 0.16)
+}
+
+func getScrollbarThumbR(menuR int) int {
+	return round(float64(menuR) * 0.167)
 }
 
 func adjustBootMenuPixmapStyle(comp *tt.Component, bgImg image.Image) {
@@ -618,7 +643,7 @@ func adjustBootMenuPixmapStyle(comp *tt.Component, bgImg image.Image) {
 	img3 := imaging.Overlay(shadowImg, img2, image.Pt(0, 0), 1)
 
 	prefix := filepath.Join(optThemeOutputDir, "menu")
-	cropAndSaveStyleBox(img3, prefix, x+menuR)
+	cropSaveStyleBox(img3, prefix, x+menuR)
 }
 
 func adjustBootMenu(comp *tt.Component, vars map[string]float64) {
@@ -644,9 +669,11 @@ func adjustBootMenu(comp *tt.Component, vars map[string]float64) {
 		"height", "width",
 		"left", "top",
 	} {
-
 		adjustProp(comp, propName, vars)
 	}
+
+	scrollbarThumbR := getScrollbarThumbR(menuR)
+	comp.SetProp("scrollbar_width", scrollbarThumbR*2)
 
 	bgImg, err := adjustBackground()
 	if err != nil {
@@ -659,6 +686,7 @@ func adjustBootMenu(comp *tt.Component, vars map[string]float64) {
 
 	adjustSelectedItemPixmapStyle(itemR)
 	adjustItemPixmapStyle(itemR)
+	adjustScrollbarThumbPixmapStyle(scrollbarThumbR)
 }
 
 const (
