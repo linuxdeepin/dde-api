@@ -1,3 +1,13 @@
+## [3.5.0] - 2018-11-08
+*   feat(adjust-grub-theme): add scrollbar thumb
+*   fix(adjust-grub-theme): failed to display 5 items
+*   chore(adjust-grub-theme): update background.origin.png
+*   chore(adjust-grub-theme): update version
+*   fix: update-grub not executed after adjust grub theme
+*   chore(grub-theme): add os.svg
+*   fix(adjust-grub-theme): set background copy file failed
+*   feat(dxinput): add libinput pointer rotation supported
+
 ## [3.4.0] - 2018-11-01
 *   chore: no call grub-mkconfig
 
