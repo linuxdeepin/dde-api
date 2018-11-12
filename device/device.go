@@ -117,11 +117,11 @@ func checkAuthorization(actionId string, pid uint32) (bool, error) {
 }
 
 type rfkillItem struct {
-	Id     string `json:"id"`
-	Type   string `json:"type"`
-	Device string `json:"device"`
-	Soft   string `json:"soft"`
-	Hard   string `json:"hard"`
+	Id     json.RawMessage `json:"id"`
+	Type   string          `json:"type"`
+	Device string          `json:"device"`
+	Soft   string          `json:"soft"`
+	Hard   string          `json:"hard"`
 }
 
 func getRfkillItems() ([]rfkillItem, error) {
