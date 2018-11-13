@@ -49,7 +49,7 @@ import (
 )
 
 const (
-	Version      = 0
+	Version      = 1
 	baseIconSize = 48
 	basePadding  = 4
 )
@@ -65,7 +65,7 @@ var presentIcons = [][]string{
 	// media/video player:
 	{"deepin-movie", "media-player", "totem", "smplayer", "vlc", "dragonplayer", "kmplayer"},
 	// web browser:
-	{"google-chrome", "firefox", "chromium", "opear", "internet-web-browser", "web-browser", "browser"},
+	{"google-chrome", "firefox", "chromium", "opera", "internet-web-browser", "browser"},
 	// system settings:
 	{"preferences-system"},
 	// text editor:
