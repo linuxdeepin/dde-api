@@ -1,3 +1,6 @@
+## [3.6.0] - 2018-11-13
+*   fix: correctly parse rfkill output
+
 ## [3.5.0] - 2018-11-08
 *   feat(adjust-grub-theme): add scrollbar thumb
 *   fix(adjust-grub-theme): failed to display 5 items
