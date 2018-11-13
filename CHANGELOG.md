@@ -1,3 +1,6 @@
+## [3.7.0] - 2018-11-13
+*   fix: icon theme deepin-dark thumbnail not well
+
 ## [3.6.0] - 2018-11-13
 *   fix: correctly parse rfkill output
 
