@@ -1,3 +1,6 @@
+## [3.8.0] - 2018-11-14
+*   feat(adjust-grub-theme): reset `GRUB_GFXMODE` to 1024x768 only once
+
 ## [3.7.0] - 2018-11-13
 *   fix: icon theme deepin-dark thumbnail not well
 
