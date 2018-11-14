@@ -10,6 +10,19 @@ adjustGrubThemeBin="/usr/lib/deepin-api/adjust-grub-theme"
 grubCfgFile=/boot/grub/grub.cfg
 
 adjustGrubTheme () {
+	# reset GRUB_GFXMODE
+	gfxmodeChanged=0
+	mkdir -p /var/cache/deepin/dde-api
+	gfxmodeMarkFile=/var/cache/deepin/dde-api/grub-gfxmode-changed
+	if [ ! -e $gfxmodeMarkFile ]; then
+		# run this code only once
+		if ! grep 'GRUB_GFXMODE.*1024x768' /etc/default/grub >/dev/null; then
+			sed -i -e /GRUB_GFXMODE/d -e '$'aGRUB_GFXMODE=\"1024x768\" /etc/default/grub
+			gfxmodeChanged=1
+		fi
+		touch $gfxmodeMarkFile
+	fi
+
 	themeToolVersion=$($adjustGrubThemeBin -version)
 	if [ -z "$themeToolVersion" ]; then
 		themeToolVersion=0
@@ -23,7 +36,7 @@ adjustGrubTheme () {
 	fi
 	echo themeCurrentVersion: $themeCurrentVersion
 
-	if [ $themeToolVersion -gt $themeCurrentVersion ]; then
+	if [ $themeToolVersion -gt $themeCurrentVersion -o $gfxmodeChanged = 1 ]; then
 		echo need adjust grub theme
 		$adjustGrubThemeBin -log-sys
 		grub-mkconfig -o $grubCfgFile
