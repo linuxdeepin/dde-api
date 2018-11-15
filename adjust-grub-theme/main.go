@@ -359,7 +359,7 @@ func main() {
 func copyBgSource(filename string) error {
 	dstFile := filepath.Join(optThemeOutputDir, "background_source")
 	err := os.Remove(dstFile)
-	if err != nil {
+	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
 
