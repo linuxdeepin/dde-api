@@ -60,7 +60,7 @@ func (categories jsonDependentCategories) GetAllDependentInfos(locale string) De
 	// tr: translations
 	dependents = append(dependents, categories.GetDependentInfos(
 		"tr", locale)...)
-	// wa: writing assistence
+	// wa: writing assistance
 	dependents = append(dependents, categories.GetDependentInfos(
 		"wa", locale)...)
 	// fn: font

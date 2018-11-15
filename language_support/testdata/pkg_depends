@@ -1,5 +1,5 @@
 # File format:
-# Column 1: category (tr: translations, fn: fonts, in: input method, wa: writing assistence)
+# Column 1: category (tr: translations, fn: fonts, in: input method, wa: writing assistance)
 # Column 2: languange code for which the package should only be installed. If empty, install for all languages.
 # The language code will be appended in the specified format
 # Column 3: dependency package(s). Only install the package in column 4 when this dependency package is already installed.
