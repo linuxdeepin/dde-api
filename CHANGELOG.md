@@ -1,3 +1,6 @@
+## [3.9.0] - 2018-11-15
+*   fix(adjust-grub-theme): no append `GRUB_GFXMODE=1024x768`
+
 ## [3.8.0] - 2018-11-14
 *   feat(adjust-grub-theme): reset `GRUB_GFXMODE` to 1024x768 only once
 
