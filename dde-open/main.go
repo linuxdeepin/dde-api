@@ -83,11 +83,10 @@ func openFile(filename string) {
 	}
 
 	appInfo := gio.AppInfoGetDefaultForType(contentType, false)
-	defer appInfo.Unref()
-
 	if appInfo == nil {
 		log.Fatal("failed to get appInfo")
 	}
+	defer appInfo.Unref()
 
 	dAppInfo := gio.ToDesktopAppInfo(appInfo)
 	desktopFile := dAppInfo.GetFilename()
