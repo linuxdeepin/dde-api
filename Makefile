@@ -104,6 +104,10 @@ install-binary:
 	mkdir -pv ${DESTDIR}${PREFIX}/share/icons/hicolor
 	cp -R misc/icons/* ${DESTDIR}${PREFIX}/share/icons/hicolor
 
+	mkdir -pv ${DESTDIR}/boot/grub/themes/deepin-fallback
+	cp -R misc/grub-theme-fallback/* ${DESTDIR}/boot/grub/themes/deepin-fallback
+	cp misc/data/grub-themes/deepin/background.origin.png ${DESTDIR}/boot/grub/themes/deepin-fallback/background.png
+
 build-dev: prepare
 ifneq ($(ARCH),sw_64)
 	env GOPATH="${GOPATH}:${CURDIR}/${GOBUILD_DIR}" ${GOBUILD} $(addprefix ${GOPKG_PREFIX}/, ${LIBRARIES})
