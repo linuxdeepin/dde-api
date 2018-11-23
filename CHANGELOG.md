@@ -1,3 +1,8 @@
+## [3.10.0] - 2018-11-23
+*   fix: some types
+*   fix: crash on dde-open when no appinfo available
+*   fix(adjust-grub-theme): set background failed
+
 ## [3.9.0] - 2018-11-15
 *   fix(adjust-grub-theme): no append `GRUB_GFXMODE=1024x768`
 
