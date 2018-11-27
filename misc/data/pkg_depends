@@ -13,6 +13,7 @@ tr::libreoffice-common:libreoffice-l10n-
 tr::libreoffice-common:libreoffice-help-
 tr::firefox:firefox-locale-
 tr::thunderbird:thunderbird-locale-
+tr::thunderbird:thunderbird-l10n-
 tr::lightning-extension:lightning-extension-locale-
 tr::sunbird:sunbird-locale-
 tr::sword-text-gerlut1545:sword-language-pack-
