@@ -27,8 +27,8 @@ import (
 )
 
 const (
-	defaultThemeOutputDir     = "/boot/grub/themes/deepin"
-	defaultThemeInputDir      = "/usr/share/dde-api/data/grub-themes/deepin"
+	defaultThemeOutputDir = "/boot/grub/themes/deepin"
+	defaultThemeInputDir  = "/usr/share/dde-api/data/grub-themes/deepin"
 )
 
 var optScreenHeight int
@@ -62,6 +62,7 @@ func adjustBackground() (image.Image, error) {
 
 	img, err := loadImage(filepath.Join(optThemeOutputDir, "background_source"))
 	if err != nil {
+		logger.Warning("failed to load image background_source:", err)
 		originDesktopImageFile := filepath.Join(optThemeInputDir, "background.origin.png")
 		img, err = loadImage(originDesktopImageFile)
 		if err != nil {

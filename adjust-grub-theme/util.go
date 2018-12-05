@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"image"
-	_ "image/jpeg"
 	"image/png"
 	"io"
 	"os"
@@ -14,10 +13,8 @@ import (
 	"strconv"
 	"strings"
 
-	_ "golang.org/x/image/bmp"
-	_ "golang.org/x/image/tiff"
-
 	"pkg.deepin.io/lib/encoding/kv"
+	"pkg.deepin.io/lib/imgutil"
 )
 
 // copy from go source
@@ -43,33 +40,13 @@ func convertSvg(svgFile, outFile string, width, height int) error {
 }
 
 func loadImage(filename string) (image.Image, error) {
-	fh, err := os.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-	defer fh.Close()
-
-	br := bufio.NewReader(fh)
-	img, _, err := image.Decode(br)
-	return img, err
+	return imgutil.Load(filename)
 }
 
 func savePng(img image.Image, filename string) error {
-	fh, err := os.Create(filename)
-	if err != nil {
-		return err
-	}
-	defer fh.Close()
-	bw := bufio.NewWriter(fh)
-
 	var enc png.Encoder
 	enc.CompressionLevel = png.NoCompression
-	err = enc.Encode(bw, img)
-	if err != nil {
-		return err
-	}
-	err = bw.Flush()
-	return err
+	return imgutil.SavePng(img, filename, &enc)
 }
 
 var findFontCache map[string]findFontResult
