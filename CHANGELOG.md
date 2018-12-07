@@ -1,3 +1,9 @@
+## [3.11.0] - 2018-12-07
+*   auto sync po files from transifex
+*   chore(adjust-grub-theme): use lib imgutil
+*   feat: remove code about setting `GRUB_GFXMODE` from the debian/postinst script
+*   chore: `pkg_depends` add rule for thunderbird-l10n-
+
 ## [3.10.0] - 2018-11-23
 *   fix: some types
 *   fix: crash on dde-open when no appinfo available
