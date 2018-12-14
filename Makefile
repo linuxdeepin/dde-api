@@ -6,15 +6,6 @@ libdir = /lib
 SYSTEMD_LIB_DIR = ${libdir}
 SYSTEMD_SERVICE_DIR = ${SYSTEMD_LIB_DIR}/systemd/system/
 GOBUILD = go build
-ARCH = $(shell uname -m)
-
-ifdef USE_GCCGO
-	extra_gccgo_flags = -Os -O2
-	ifeq ($(ARCH),sw_64)
-		extra_gccgo_flags += -mieee
-	endif
-	GOBUILD = gccgo_build.pl -p "gio-2.0 gtk+-3.0 gdk-pixbuf-xlib-2.0 x11 xi xfixes xcursor libcanberra cairo-ft poppler-glib librsvg-2.0 alsa libpulse-simple" -f "$(extra_gccgo_flags)"
-endif
 
 LIBRARIES = \
     thumbnails \
@@ -109,9 +100,7 @@ install-binary:
 	cp misc/data/grub-themes/deepin/background.origin.png ${DESTDIR}/boot/grub/themes/deepin-fallback/background.png
 
 build-dev: prepare
-ifneq ($(ARCH),sw_64)
 	env GOPATH="${GOPATH}:${CURDIR}/${GOBUILD_DIR}" ${GOBUILD} $(addprefix ${GOPKG_PREFIX}/, ${LIBRARIES})
-endif
 
 install/lib/%:
 	mkdir -pv ${DESTDIR}${GOSITE_DIR}/src/${GOPKG_PREFIX}
