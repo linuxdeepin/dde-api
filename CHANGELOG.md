@@ -1,3 +1,6 @@
+## [3.12.0] - 2018-12-14
+*   fix(adjust-grub-theme): only 4 lines of options can be displayed when the resolution is 1280x1024
+
 ## [3.11.0] - 2018-12-07
 *   auto sync po files from transifex
 *   chore(adjust-grub-theme): use lib imgutil
