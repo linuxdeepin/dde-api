@@ -57,19 +57,22 @@ func init() {
 	flag.BoolVar(&optLogSys, "log-sys", false, "")
 }
 
-func adjustBackground() (image.Image, error) {
-	logger.Debug("adjustBackground")
-
+func loadBackgroundImage() (image.Image, error) {
 	img, err := loadImage(filepath.Join(optThemeOutputDir, "background_source"))
 	if err != nil {
 		logger.Warning("failed to load image background_source:", err)
-		originDesktopImageFile := filepath.Join(optThemeInputDir, "background.origin.png")
+		originDesktopImageFile := filepath.Join(optThemeInputDir, "background.origin.jpg")
 		img, err = loadImage(originDesktopImageFile)
 		if err != nil {
 			logger.Warning(err)
 			return nil, err
 		}
 	}
+	return img, nil
+}
+
+func adjustBackground(img image.Image) (image.Image, error) {
+	logger.Debug("adjustBackground")
 	imgWidth := img.Bounds().Dx()
 	imgHeight := img.Bounds().Dy()
 
@@ -81,7 +84,7 @@ func adjustBackground() (image.Image, error) {
 	img0 := imaging.Crop(img, image.Rect(x, y, x+w, y+h))
 	img0 = imaging.Resize(img0, optScreenWidth, optScreenHeight, imaging.Lanczos)
 	// save img
-	err = savePng(img0, filepath.Join(optThemeOutputDir, "background.png"))
+	err = saveJpeg(img0, filepath.Join(optThemeOutputDir, "background.jpg"))
 	if err != nil {
 		return nil, err
 	}
@@ -213,13 +216,31 @@ func cropSaveStyleBox(img image.Image, filenamePrefix string, r int) {
 	}
 }
 
+func getFallbackDir() string {
+	return filepath.Clean(filepath.Join(optThemeOutputDir, "../deepin-fallback"))
+}
+
 func setBackground(bgFile string) {
 	err := copyBgSource(bgFile)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	bgImg, err := adjustBackground()
+	bgImg, err := loadBackgroundImage()
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	fallbackDir := getFallbackDir()
+	_, err = os.Stat(fallbackDir)
+	if err == nil {
+		err = saveJpeg(bgImg, filepath.Join(fallbackDir, "background.jpg"))
+		if err != nil {
+			logger.Fatal(err)
+		}
+	}
+
+	bgImg, err = adjustBackground(bgImg)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -375,8 +396,7 @@ func copyPngFiles() {
 	}
 	for _, fileInfo := range fileInfoList {
 		name := fileInfo.Name()
-		if strings.HasSuffix(name, ".png") &&
-			name != "background.origin.png" {
+		if strings.HasSuffix(name, ".png") {
 			srcFile := filepath.Join(optThemeInputDir, name)
 			dstFile := filepath.Join(optThemeOutputDir, name)
 			logger.Debug("copyFile", srcFile, dstFile)
@@ -386,7 +406,6 @@ func copyPngFiles() {
 			}
 		}
 	}
-
 }
 
 func cleanupThemeOutputDir() {
@@ -675,7 +694,12 @@ func adjustBootMenu(comp *tt.Component, vars map[string]float64) {
 	scrollbarThumbR := getScrollbarThumbR(menuR)
 	comp.SetProp("scrollbar_width", scrollbarThumbR*2)
 
-	bgImg, err := adjustBackground()
+	bgImg, err := loadBackgroundImage()
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	bgImg, err = adjustBackground(bgImg)
 	if err != nil {
 		logger.Fatal(err)
 	}

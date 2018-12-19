@@ -97,7 +97,7 @@ install-binary:
 
 	mkdir -pv ${DESTDIR}/boot/grub/themes/deepin-fallback
 	cp -R misc/grub-theme-fallback/* ${DESTDIR}/boot/grub/themes/deepin-fallback
-	cp misc/data/grub-themes/deepin/background.origin.png ${DESTDIR}/boot/grub/themes/deepin-fallback/background.png
+	cp misc/data/grub-themes/deepin/background.origin.jpg ${DESTDIR}/boot/grub/themes/deepin-fallback/background.jpg
 
 build-dev: prepare
 	env GOPATH="${GOPATH}:${CURDIR}/${GOBUILD_DIR}" ${GOBUILD} $(addprefix ${GOPKG_PREFIX}/, ${LIBRARIES})

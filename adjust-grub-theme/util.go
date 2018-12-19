@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	"image/jpeg"
 	"image/png"
 	"io"
 	"os"
@@ -47,6 +48,21 @@ func savePng(img image.Image, filename string) error {
 	var enc png.Encoder
 	enc.CompressionLevel = png.NoCompression
 	return imgutil.SavePng(img, filename, &enc)
+}
+
+func saveJpeg(img image.Image, filename string) error {
+	fh, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer fh.Close()
+	bw := bufio.NewWriter(fh)
+	err = jpeg.Encode(bw, img, nil)
+	if err != nil {
+		return err
+	}
+	err = bw.Flush()
+	return err
 }
 
 var findFontCache map[string]findFontResult
