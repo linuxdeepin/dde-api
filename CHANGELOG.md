@@ -1,3 +1,7 @@
+## [3.13.0] - 2018-12-25
+*   chore: change background image format from png to jpeg
+*   chore: compile with sw arch no longer needs to use gccgo
+
 ## [3.12.0] - 2018-12-14
 *   fix(adjust-grub-theme): only 4 lines of options can be displayed when the resolution is 1280x1024
 
