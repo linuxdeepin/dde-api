@@ -56,7 +56,7 @@ const (
 	keySoundTheme     = "sound-theme"
 	keyEnabled        = "enabled"
 	keyPlayer         = "player"
-	soundThemeDeepin  = "deepin"
+	defaultSoundTheme = "deepin"
 )
 
 func PlaySystemSound(event, device string) error {
@@ -75,8 +75,8 @@ func initPlayer() {
 }
 
 func PlayThemeSound(theme, event, device string) error {
-	if len(theme) == 0 {
-		theme = soundThemeDeepin
+	if theme == "" {
+		theme = defaultSoundTheme
 	}
 
 	if !CanPlayEvent(event) {
@@ -112,4 +112,17 @@ func GetSoundTheme() string {
 	s := gio.NewSettings(appearanceSchema)
 	defer s.Unref()
 	return s.GetString(keySoundTheme)
+}
+
+func GetThemeSoundFile(theme, event string) string {
+	if theme == "" {
+		theme = defaultSoundTheme
+	}
+
+	initPlayer()
+	return player.Finder().Find(theme, "stereo", event)
+}
+
+func GetSystemSoundFile(event string) string {
+	return GetThemeSoundFile(GetSoundTheme(), event)
 }
