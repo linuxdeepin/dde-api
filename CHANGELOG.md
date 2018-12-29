@@ -1,3 +1,6 @@
+## [3.14.0] - 2018-12-29
+*   feat(soundutils): and method for get sound file
+
 ## [3.13.0] - 2018-12-25
 *   chore: change background image format from png to jpeg
 *   chore: compile with sw arch no longer needs to use gccgo
