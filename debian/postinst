@@ -44,7 +44,7 @@ case "$1" in
 		echo "autospawn = no" > $player_home/.config/pulse/client.conf
 		chown -R $player_user:$player_user $player_home/.config
 
-		if [ -f $grubCfgFile ]; then
+		if [ -f $grubCfgFile -a -f /etc/default/grub ]; then
 			adjustGrubTheme
 		fi
 	;;
