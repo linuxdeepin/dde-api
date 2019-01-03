@@ -1,3 +1,6 @@
+## [3.15.0] - 2019-01-03
+*   chore: depends remove grub-common
+
 ## [3.14.0] - 2018-12-29
 *   feat(soundutils): and method for get sound file
 
