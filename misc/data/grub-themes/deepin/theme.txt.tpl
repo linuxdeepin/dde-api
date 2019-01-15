@@ -71,7 +71,7 @@ terminal-border: "0"
   # DE
   # text = "System mit ↑ und ↓ auswählen und mit Enter bestätigen."
   # EN
-  _text_en = "Use ↑ and ↓ keys to change selection, Enter to confirm"
+  _text_en = "Use ↑ and ↓ keys to change selection, Enter to confirm, E to edit the commands before booting or C for a command-line"
   # ES
   # text = "Use las teclas ↑ y ↓ para cambiar la selección, Enter para confirmar"
   # FR
@@ -85,7 +85,7 @@ terminal-border: "0"
   # UA
   # text = "Використовуйте ↑ та ↓ для вибору, Enter для підтвердження"
   # zh_CN
-  _text_zh_CN = "使用 ↑ 和 ↓ 键移动选择条，Enter 键确认"
+  _text_zh_CN = "使用 ↑ 和 ↓ 键移动选择条，Enter 键确认，E 键编辑启动命令，C 键进入命令行"
   color = "#99E53E"
   font = "Noto Sans CJK SC Regular;0.85"
 }
