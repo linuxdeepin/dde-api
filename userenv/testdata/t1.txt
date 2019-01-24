@@ -1,0 +1,7 @@
+export ENV1="abc";
+export ENV2="abc def";
+export ENV3="abc\`def";
+export ENV4="\$abc";
+export ENV5="\"abc";
+export ENV6="\\abc";
+export ENV7="'abc";
