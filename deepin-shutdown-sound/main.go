@@ -22,87 +22,49 @@ package main
 import (
 	"os"
 	"os/signal"
+
+	"pkg.deepin.io/dde/api/soundutils"
 	"pkg.deepin.io/lib/log"
-	"pkg.deepin.io/lib/sound"
-	dutils "pkg.deepin.io/lib/utils"
+	"pkg.deepin.io/lib/sound_effect"
 )
 
 var logger = log.NewLogger("api/shutdown-sound")
 
 func main() {
-	logger.Info("[DEEPIN SHUTDOWN SOUND] play shutdown sound")
 	handleSignal()
 
-	canPlay, theme, event, err := getShutdownSound()
+	cfg, err := soundutils.GetShutdownSoundConfig()
 	if err != nil {
-		logger.Warning("[DEEPIN SHUTDOWN SOUND] get shutdown sound info failed:", err)
-		return
-	}
-	logger.Info("[DEEPIN SHUTDOWN SOUND] can play:", canPlay, theme, event)
-
-	if !canPlay {
+		logger.Warning("failed to get shutdown sound config:", err)
 		return
 	}
 
-	err = doPlayShutdwonSound(theme, event)
+	if !cfg.CanPlay {
+		return
+	}
+
+	err = doPlayShutdownSound(cfg.Theme, cfg.Event, cfg.Device)
 	if err != nil {
-		logger.Error("[DEEPIN SHUTDOWN SOUND] play shutdown sound failed:", theme, event, err)
+		logger.Error("failed to play shutdown sound:", err)
 	}
 }
 
 func handleSignal() {
-	var sigs = make(chan os.Signal, 2)
-	signal.Notify(sigs, os.Kill, os.Interrupt)
+	var sigChan = make(chan os.Signal, 2)
+	signal.Notify(sigChan, os.Kill, os.Interrupt)
 	go func() {
-		sig := <-sigs
+		sig := <-sigChan
 		switch sig {
 		case os.Kill, os.Interrupt:
 			// Nothing to do
-			logger.Info("[DEEPIN SHUTDOWN SOUND] receive signal:", sig.String())
+			logger.Info("receive signal:", sig.String())
 		}
 	}()
 }
 
-func doPlayShutdwonSound(theme, event string) error {
-	logger.Info("[DEEPIN SHUTDOWN SOUND] do play:", theme, event)
-	err := sound.PlayThemeSound(theme, event, "", "alsa", "")
-	if err != nil {
-		logger.Error("[DEEPIN SHUTDOWN SOUND] do play failed:", theme, event, err)
-		return err
-	}
-	return nil
-}
-
-// fixed compile failure when soundutils api changed
-const (
-	shutdownFile    = "/tmp/deepin-shutdown-sound.ini"
-	kfGroupShutdown = "Shutdown"
-	kfKeyCanPlay    = "CanPlay"
-	kfKeySoundTheme = "SoundTheme"
-	kfKeySoundEvent = "SoundEvent"
-)
-
-func getShutdownSound() (bool, string, string, error) {
-	kf, err := dutils.NewKeyFileFromFile(shutdownFile)
-	if err != nil {
-		return false, "", "", err
-	}
-	defer kf.Free()
-
-	canPlay, err := kf.GetBoolean(kfGroupShutdown, kfKeyCanPlay)
-	if err != nil {
-		return false, "", "", err
-	}
-
-	theme, err := kf.GetString(kfGroupShutdown, kfKeySoundTheme)
-	if err != nil {
-		return false, "", "", err
-	}
-
-	event, err := kf.GetString(kfGroupShutdown, kfKeySoundEvent)
-	if err != nil {
-		return false, "", "", err
-	}
-
-	return canPlay, theme, event, nil
+func doPlayShutdownSound(theme, event, device string) error {
+	logger.Infof("play theme: %s, event: %s, device: %s", theme, event, device)
+	player := sound_effect.NewPlayer(false, sound_effect.PlayBackendALSA)
+	err := player.Play(theme, event, device)
+	return err
 }

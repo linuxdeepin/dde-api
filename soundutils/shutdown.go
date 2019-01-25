@@ -20,65 +20,40 @@
 package soundutils
 
 import (
+	"encoding/json"
 	"io/ioutil"
-	dutils "pkg.deepin.io/lib/utils"
 )
 
 const (
-	shutdownFile    = "/tmp/deepin-shutdown-sound.ini"
-	kfGroupShutdown = "Shutdown"
-	kfKeyCanPlay    = "CanPlay"
-	kfKeySoundTheme = "SoundTheme"
-	kfKeySoundEvent = "SoundEvent"
+	shutdownSoundFile = "/tmp/deepin-shutdown-sound.json"
 )
 
-func GetShutdownSound() (bool, string, string, error) {
-	kf, err := dutils.NewKeyFileFromFile(shutdownFile)
-	if err != nil {
-		return false, "", "", err
-	}
-	defer kf.Free()
-
-	canPlay, err := kf.GetBoolean(kfGroupShutdown, kfKeyCanPlay)
-	if err != nil {
-		return false, "", "", err
-	}
-
-	theme, err := kf.GetString(kfGroupShutdown, kfKeySoundTheme)
-	if err != nil {
-		return false, "", "", err
-	}
-
-	event, err := kf.GetString(kfGroupShutdown, kfKeySoundEvent)
-	if err != nil {
-		return false, "", "", err
-	}
-
-	return canPlay, theme, event, nil
+type ShutdownSoundConfig struct {
+	CanPlay bool
+	Theme   string
+	Event   string
+	Device  string
 }
 
-func SetShutdownSound(canPlay bool, theme, event string) error {
-	if !dutils.IsFileExist(shutdownFile) {
-		err := dutils.CreateFile(shutdownFile)
-		if err != nil {
-			return err
-		}
-	}
-
-	kf, err := dutils.NewKeyFileFromFile(shutdownFile)
+func GetShutdownSoundConfig() (*ShutdownSoundConfig, error) {
+	data, err := ioutil.ReadFile(shutdownSoundFile)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer kf.Free()
+	var v ShutdownSoundConfig
+	err = json.Unmarshal(data, &v)
+	if err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
 
-	kf.SetBoolean(kfGroupShutdown, kfKeyCanPlay, canPlay)
-	kf.SetString(kfGroupShutdown, kfKeySoundTheme, theme)
-	kf.SetString(kfGroupShutdown, kfKeySoundEvent, event)
-
-	_, content, err := kf.ToData()
+func SetShutdownSoundConfig(v *ShutdownSoundConfig) error {
+	data, err := json.Marshal(v)
 	if err != nil {
 		return err
 	}
 
-	return ioutil.WriteFile(shutdownFile, []byte(content), 0644)
+	err = ioutil.WriteFile(shutdownSoundFile, data, 0644)
+	return err
 }
