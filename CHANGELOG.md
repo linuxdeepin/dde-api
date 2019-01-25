@@ -1,3 +1,9 @@
+[3.16.0] 2019-01-25
+*   fix: build miss pkg userenv
+*   feat: add package userenv
+*   feat: grub-theme add key e and c usage
+*   auto sync po files from transifex
+
 ## [3.15.0] - 2019-01-03
 *   chore: depends remove grub-common
 
