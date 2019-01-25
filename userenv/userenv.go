@@ -3,6 +3,7 @@ package userenv
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -12,8 +13,6 @@ import (
 	"strings"
 
 	"pkg.deepin.io/lib/xdg/basedir"
-
-	"github.com/pkg/errors"
 )
 
 var defaultFile = filepath.Join(basedir.GetUserHomeDir(), ".dde_env")

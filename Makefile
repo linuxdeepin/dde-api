@@ -18,6 +18,7 @@ LIBRARIES = \
     i18n_dependent \
     session \
     language_support \
+	userenv \
     powersupply
 
 BINARIES =  \
