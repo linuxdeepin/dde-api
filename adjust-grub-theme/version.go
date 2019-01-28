@@ -1,3 +1,3 @@
 package main
 
-const VERSION int = 11
+const VERSION int = 12

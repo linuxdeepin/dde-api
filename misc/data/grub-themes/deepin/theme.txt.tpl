@@ -56,7 +56,7 @@ terminal-border: "0"
   # UA
   # text = "Автоматичне завантаження розпочнеться через %d сек."
   # zh_CN
-  _text_zh_CN = "在 %d 内启动"
+  _text_zh_CN = "在 %d 秒内启动"
   color = "#99E53E"
   font = "Noto Sans CJK SC Regular;0.85"
 }
