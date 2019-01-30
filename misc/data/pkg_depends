@@ -210,7 +210,6 @@ im:zh-hans::fcitx-frontend-qt5
 im:zh-hans::fcitx-pinyin
 #im:zh-hans::fcitx-table-wubi
 im:zh-hans::sogoupinyin
-im:zh-hans::fcitx-sogoupinyin-uk
 im:zh-hans::fcitx-table-wbpy
 im:zh-hans:kio:kde-config-fcitx
 im:zh-hans:gnome-shell:ibus-sunpinyin
