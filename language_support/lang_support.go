@@ -1,20 +1,19 @@
 package language_support
 
 import (
+	"bytes"
 	"encoding/csv"
 	"io"
 	"os"
+	"os/exec"
 	"strings"
 
-	"github.com/linuxdeepin/go-dbus-factory/com.deepin.lastore"
-	"pkg.deepin.io/lib/dbus1"
 	libLocale "pkg.deepin.io/lib/locale"
 )
 
 type LanguageSupport struct {
 	pkgDepends     map[string]map[string]map[string][]string
 	langCountryMap int
-	lastoreManager *lastore.Lastore
 }
 
 func NewLanguageSupport() (ls *LanguageSupport, err error) {
@@ -25,15 +24,6 @@ func NewLanguageSupport() (ls *LanguageSupport, err error) {
 		return nil, err
 	}
 
-	systemBus, err := dbus.SystemBus()
-	if err != nil {
-		return nil, err
-	}
-	ls.lastoreManager = lastore.NewLastore(systemBus)
-	if err != nil {
-		panic(err)
-	}
-
 	return ls, nil
 }
 
@@ -41,16 +31,38 @@ func (ls *LanguageSupport) Destroy() {
 }
 
 func (ls *LanguageSupport) isPkgInstalled(name string) (bool, error) {
-	return ls.lastoreManager.PackageExists(0, name)
+	output, err := exec.Command("/usr/bin/dpkg-query", "-W", "-f",
+		"${db:Status-Status}", "--", name).Output()
+	if err != nil {
+		return false, err
+	}
+	return bytes.Equal(bytes.TrimSpace(output), []byte("installed")), nil
 }
 
 func (ls *LanguageSupport) isPkgInstallable(name string) (bool, error) {
-	return ls.lastoreManager.PackageInstallable(0, name)
+	cmd := exec.Command("/usr/bin/apt-cache", "policy",
+		"--", name)
+	cmd.Env = []string{"LANG=en_US.UTF-8"}
+	output, err := cmd.Output()
+	if err != nil {
+		return false, err
+	}
+
+	const candidate = "Candidate: "
+	idx := bytes.Index(output, []byte(candidate))
+	if idx == -1 {
+		return false, nil
+	}
+
+	if bytes.HasPrefix(output[idx+len(candidate):], []byte("(none)")) {
+		return false, nil
+	}
+	return true, nil
 }
 
 // ByPackageAndLocale get language support packages for a package and locale.
 func (ls *LanguageSupport) ByPackageAndLocale(
-	package0 string, locale string, installed bool) (packages []string) {
+	package0 string, locale string, includeInstalled bool) (packages []string) {
 
 	packagesTemp := make(map[string]struct{})
 	depMap := ls.pkgDepends[package0]
@@ -84,7 +96,7 @@ func (ls *LanguageSupport) ByPackageAndLocale(
 		}
 	}
 
-	if !installed { // not show installed
+	if !includeInstalled { // not show installed
 		for pkg := range packagesTemp {
 			isInstalled, err := ls.isPkgInstalled(pkg)
 			if err != nil {
@@ -133,7 +145,7 @@ func (ls *LanguageSupport) ByPackageAndLocale(
 }
 
 // ByLocale get language support packages for a locale
-func (ls *LanguageSupport) ByLocale(locale string, installed bool) []string {
+func (ls *LanguageSupport) ByLocale(locale string, includeInstalled bool) []string {
 	packagesTemp := make(map[string]struct{})
 	for trigger := range ls.pkgDepends {
 		var add bool
@@ -147,7 +159,7 @@ func (ls *LanguageSupport) ByLocale(locale string, installed bool) []string {
 		}
 
 		if add {
-			pkgs := ls.ByPackageAndLocale(trigger, locale, installed)
+			pkgs := ls.ByPackageAndLocale(trigger, locale, includeInstalled)
 			for _, pkg := range pkgs {
 				packagesTemp[pkg] = struct{}{}
 			}
