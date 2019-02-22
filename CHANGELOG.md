@@ -1,3 +1,9 @@
+[3.17.0] 2019-02-22
+*   chore: pkg_depends remove fcitx-sogoupinyin-uk
+*   chore(language_support): do not use lastore dbus methods
+*   fix: deepin grub theme text typo
+*   fix: can not play shutdown music
+
 [3.16.0] 2019-01-25
 *   fix: build miss pkg userenv
 *   feat: add package userenv
