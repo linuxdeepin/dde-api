@@ -21,7 +21,7 @@ package powersupply
 
 import (
 	"errors"
-	"gir/gudev-1.0"
+	"pkg.deepin.io/gir/gudev-1.0"
 	"pkg.deepin.io/dde/api/powersupply/battery"
 	"strings"
 )

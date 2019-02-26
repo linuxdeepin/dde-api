@@ -22,7 +22,7 @@ package soundutils
 import (
 	"sync"
 
-	"gir/gio-2.0"
+	"pkg.deepin.io/gir/gio-2.0"
 	"pkg.deepin.io/lib/sound_effect"
 	"pkg.deepin.io/lib/strv"
 )
