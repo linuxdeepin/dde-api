@@ -1,3 +1,6 @@
+[3.17.1] 2019-03-01
+*   chore: use pkg.deepin.io/gir
+
 [3.17.0] 2019-02-22
 *   chore: pkg_depends remove fcitx-sogoupinyin-uk
 *   chore(language_support): do not use lastore dbus methods
