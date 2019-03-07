@@ -5,7 +5,7 @@ GOSITE_DIR = ${PREFIX}/share/gocode
 libdir = /lib
 SYSTEMD_LIB_DIR = ${libdir}
 SYSTEMD_SERVICE_DIR = ${SYSTEMD_LIB_DIR}/systemd/system/
-GOBUILD = go build
+GOBUILD = env GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}" go build
 
 LIBRARIES = \
     thumbnails \
@@ -54,7 +54,7 @@ ts-to-policy:
 	deepin-policy-ts-convert ts2policy misc/polkit-action/com.deepin.api.device.unblock-bluetooth-devices.policy.in misc/ts/com.deepin.api.device.unblock-bluetooth-devices.policy misc/polkit-action/com.deepin.api.device.unblock-bluetooth-devices.policy
 
 out/bin/%:
-	env GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}" ${GOBUILD} -o $@  ${GOPKG_PREFIX}/${@F}
+	${GOBUILD} -o $@  ${GOPKG_PREFIX}/${@F}
 
 # Install go packages
 build-dep:
@@ -101,7 +101,7 @@ install-binary:
 	cp misc/data/grub-themes/deepin/background.origin.jpg ${DESTDIR}/boot/grub/themes/deepin-fallback/background.jpg
 
 build-dev: prepare
-	env GOPATH="${GOPATH}:${CURDIR}/${GOBUILD_DIR}" ${GOBUILD} $(addprefix ${GOPKG_PREFIX}/, ${LIBRARIES})
+	${GOBUILD} $(addprefix ${GOPKG_PREFIX}/, ${LIBRARIES})
 
 install/lib/%:
 	mkdir -pv ${DESTDIR}${GOSITE_DIR}/src/${GOPKG_PREFIX}
