@@ -1,3 +1,7 @@
+[3.18.0] 2019-03-15
+*   change(api): sound-theme-player add more methods
+*   chore: modify GOPATH directroy order
+
 [3.17.1] 2019-03-01
 *   chore: use pkg.deepin.io/gir
 
