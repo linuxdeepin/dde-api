@@ -14,3 +14,6 @@ else
 override_dh_strip:
 	dh_strip --dbgsym-migration=dde-api-dbg
 endif
+
+override_dh_systemd_start:
+	true
