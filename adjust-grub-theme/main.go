@@ -39,6 +39,8 @@ var optLang string
 var optVersion bool
 var optSetBackground string
 var optLogSys bool
+var optTerminalFontSize int
+var optTerminalFontName string
 var logger *log.Logger
 
 func init() {
@@ -55,6 +57,9 @@ func init() {
 	flag.BoolVar(&optVersion, "version", false, "show version")
 	flag.StringVar(&optSetBackground, "set-background", "", "")
 	flag.BoolVar(&optLogSys, "log-sys", false, "")
+	flag.IntVar(&optTerminalFontSize, "tf-size", -1, "terminal font size")
+	flag.StringVar(&optTerminalFontName, "tf-name", "Unifont:style=Medium",
+		"terminal font name")
 }
 
 func loadBackgroundImage() (image.Image, error) {
@@ -125,7 +130,10 @@ func adjustResourcesOsLogos(width, height int) {
 	}
 }
 
-const minFontSize = 12
+const (
+	minFontSize         = 12
+	minTerminalFontSize = 14
+)
 
 // min 12px
 func getFontSize(screenWidth int, screenHeight int) int {
@@ -335,7 +343,10 @@ func main() {
 	vars["screen_width"] = float64(optScreenWidth)
 	vars["screen_height"] = float64(optScreenHeight)
 
-	adjustTerminalFont(theme, vars)
+	err = adjustTerminalFont(theme, vars)
+	if err != nil {
+		logger.Fatal(err)
+	}
 
 	for _, comp := range theme.Components {
 		if comp.Type == tt.ComponentTypeBootMenu {
@@ -521,11 +532,20 @@ func adjustFont(comp *tt.Component, propName string, vars map[string]float64) (*
 }
 
 func adjustTerminalFont(theme *tt.Theme, vars map[string]float64) error {
+	var fontName string
+	var sizeScale float64
+	var err error
+
 	const propName = "terminal-font"
-	propFont, _ := theme.GetPropString(propName)
-	fontName, sizeScale, err := parseTplFont(propFont)
-	if err != nil {
-		return err
+
+	if optTerminalFontSize > 0 {
+		fontName = optTerminalFontName
+	} else {
+		propFont, _ := theme.GetPropString(propName)
+		fontName, sizeScale, err = parseTplFont(propFont)
+		if err != nil {
+			return err
+		}
 	}
 
 	fontFile, faceIndex, err := findFont(fontName)
@@ -533,10 +553,21 @@ func adjustTerminalFont(theme *tt.Theme, vars map[string]float64) error {
 		return err
 	}
 
-	fontSize := round(vars["std_font_size"] * sizeScale)
-	if fontSize < minFontSize {
-		fontSize = minFontSize
+	var fontSize int
+	if optTerminalFontSize > 0 {
+		fontSize = optTerminalFontSize
+	} else {
+		fontSize = round(vars["std_font_size"] * sizeScale)
+		if fontSize < minTerminalFontSize {
+			fontSize = minTerminalFontSize
+		}
+
+		// NOTE: grub gfxterm 的终端在使用 unifont 字体时，字体大小为 16 时，会出现光标残留问题。
+		if fontSize == 16 {
+			fontSize = 17
+		}
 	}
+
 	face, err := genPF2Font(fontFile, faceIndex, fontSize)
 	if err != nil {
 		return err

@@ -33,7 +33,7 @@ Homepage: http://www.deepin.org
 Package: dde-api
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
- rfkill, locales, libcanberra-pulse, blur-effect, librsvg2-bin, fonts-noto-cjk, fonts-noto-mono,
+ rfkill, locales, libcanberra-pulse, blur-effect, librsvg2-bin, fonts-noto-cjk, ttf-unifont,
  bc, fontconfig, coreutils, alsa-utils
 Description: Go-lang bingdings for dde-daemon
  Deepin Go-lang bindings for dde-daemon

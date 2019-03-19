@@ -2,7 +2,7 @@
 title-text: ""
 desktop-image: "background.jpg"
 desktop-color: "#000000"
-terminal-font: "Noto Mono:style=Regular;1"
+terminal-font: "Unifont:style=Medium;1"
 terminal-box: "terminal_box_*.png"
 terminal-left: "0"
 terminal-top: "0"
