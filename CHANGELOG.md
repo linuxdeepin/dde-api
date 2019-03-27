@@ -1,3 +1,7 @@
+[3.18.1] 2019-03-27
+*   fix(adjust-grub-theme): terminal font has cursor image residue
+*   chore(deb): override `dh_systemd_start`
+
 [3.18.0] 2019-03-15
 *   change(api): sound-theme-player add more methods
 *   chore: modify GOPATH directroy order
@@ -6,8 +10,8 @@
 *   chore: use pkg.deepin.io/gir
 
 [3.17.0] 2019-02-22
-*   chore: pkg_depends remove fcitx-sogoupinyin-uk
-*   chore(language_support): do not use lastore dbus methods
+*   chore: `pkg_depends` remove fcitx-sogoupinyin-uk
+*   chore(`language_support`): do not use lastore dbus methods
 *   fix: deepin grub theme text typo
 *   fix: can not play shutdown music
 
