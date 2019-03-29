@@ -6,9 +6,12 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"time"
 
 	"pkg.deepin.io/lib/dbus1"
 	"pkg.deepin.io/lib/keyfile"
@@ -76,22 +79,37 @@ func runALSARestore(uid int) error {
 	if err != nil {
 		return err
 	}
-
-	cmd := exec.Command(alsaCtlBin, "-f", "-", "restore")
-	cmd.Stdin = gzipReader
-	var errBuf bytes.Buffer
-	cmd.Stderr = &errBuf
-	err = cmd.Run()
+	content, err := ioutil.ReadAll(gzipReader)
 	if err != nil {
-		logger.Warningf("alsactl std err: %s", errBuf.Bytes())
 		return err
 	}
-
 	err = gzipReader.Close()
 	if err != nil {
 		return err
 	}
 
+	var errBuf bytes.Buffer
+	contentReader := bytes.NewReader(content)
+	for i := 0; i < 6; i++ {
+		cmd := exec.Command(alsaCtlBin, "-f", "-", "restore")
+		if i != 0 {
+			_, _ = contentReader.Seek(io.SeekStart, 0)
+			errBuf.Reset()
+			logger.Warning("retry restore alsa state", i)
+		}
+		cmd.Stdin = contentReader
+		cmd.Stderr = &errBuf
+		err = cmd.Run()
+		if err != nil {
+			time.Sleep(500 * time.Millisecond)
+		} else {
+			break
+		}
+	}
+	if err != nil {
+		logger.Warningf("alsactl std err: %s", errBuf.Bytes())
+		return err
+	}
 	return nil
 }
 
