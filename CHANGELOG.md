@@ -1,3 +1,6 @@
+[3.18.2] 2019-04-01
+*   feat(sound-theme-player): add retry for alsactl restore
+
 [3.18.1] 2019-03-27
 *   fix(adjust-grub-theme): terminal font has cursor image residue
 *   chore(deb): override `dh_systemd_start`
