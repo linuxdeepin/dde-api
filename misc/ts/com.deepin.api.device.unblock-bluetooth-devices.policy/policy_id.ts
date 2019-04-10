@@ -4,12 +4,12 @@
 		<message>
 			<location filename="com.deepin.api.device.unblock-bluetooth-devices!message" line="0"/>
 			<source>Authentication is required to unblock bluetooth devices</source>
-			<translation>Dibutuhkan otentikasi untuk buka blokir alat bluetooth</translation>
+			<translation>Dibutuhkan otentikasi untuk buka blokir perangkat bluetooth</translation>
 		</message>
 		<message>
 			<location filename="com.deepin.api.device.unblock-bluetooth-devices!description" line="0"/>
 			<source>Unblock bluetooth devices</source>
-			<translation>Buka blokir alat bluetooth</translation>
+			<translation>Buka blokir perangkat bluetooth</translation>
 		</message>
 	</context>
 </TS>
