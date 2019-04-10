@@ -1,3 +1,6 @@
+[3.18.3] 2019-04-10
+*   chore: auto pull translation files from transifex
+
 [3.18.2] 2019-04-01
 *   feat(sound-theme-player): add retry for alsactl restore
 
