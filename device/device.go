@@ -83,12 +83,7 @@ func (d *Device) UnblockBluetoothDevices(sender dbus.Sender) *dbus.Error {
 }
 
 func (d *Device) unblockBluetoothDevices(sender dbus.Sender) error {
-	pid, err := d.service.GetConnPID(string(sender))
-	if err != nil {
-		return err
-	}
-
-	ok, err := checkAuthorization(unblockBluetoothDevicesActionId, pid)
+	ok, err := checkAuthorization(unblockBluetoothDevicesActionId, string(sender))
 	if err != nil {
 		return err
 	}
@@ -99,15 +94,15 @@ func (d *Device) unblockBluetoothDevices(sender dbus.Sender) error {
 	return exec.Command(rfkillBin, "unblock", rfkillDeviceTypeBluetooth).Run()
 }
 
-func checkAuthorization(actionId string, pid uint32) (bool, error) {
+func checkAuthorization(actionId string, sysBusName string) (bool, error) {
 	systemBus, err := dbus.SystemBus()
 	if err != nil {
 		return false, err
 	}
 	authority := polkit.NewAuthority(systemBus)
-	var subject = polkit.MakeSubject(polkit.SubjectKindUnixProcess)
-	subject.SetDetail("pid", pid)
-	subject.SetDetail("start-time", uint64(0))
+	subject := polkit.MakeSubject(polkit.SubjectKindSystemBusName)
+	subject.SetDetail("name", sysBusName)
+
 	ret, err := authority.CheckAuthorization(0, subject, actionId,
 		nil, polkit.CheckAuthorizationFlagsAllowUserInteraction, "")
 	if err != nil {
