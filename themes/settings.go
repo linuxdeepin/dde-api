@@ -22,10 +22,13 @@ package themes
 
 import (
 	"fmt"
-	"pkg.deepin.io/gir/glib-2.0"
 	"os"
 	"path"
+
+	"github.com/linuxdeepin/go-dbus-factory/com.deepin.wm"
 	"pkg.deepin.io/dde/api/themes/scanner"
+	"pkg.deepin.io/gir/glib-2.0"
+	"pkg.deepin.io/lib/dbus1"
 	dutils "pkg.deepin.io/lib/utils"
 )
 
@@ -93,13 +96,18 @@ func SetIconTheme(name string) error {
 
 func SetCursorTheme(name string) error {
 	if !scanner.IsCursorTheme(getThemePath(name, scanner.ThemeTypeCursor, "icons")) {
-		return fmt.Errorf("Invalid theme '%s'", name)
+		return fmt.Errorf("invalid theme '%s'", name)
 	}
 
-	setGtk2Cursor(name)
-	setGtk3Cursor(name)
+	err := setGtk2Cursor(name)
+	if err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, err)
+	}
+	err = setGtk3Cursor(name)
+	if err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, err)
+	}
 	setDefaultCursor(name)
-	setWMCursor(name)
 
 	old := getXSettingsValue(xsKeyCursorName)
 	if old == name {
@@ -107,10 +115,13 @@ func SetCursorTheme(name string) error {
 	}
 
 	if !setXSettingsKey(xsKeyCursorName, name) {
-		return fmt.Errorf("Set theme to '%s' by xsettings failed",
+		return fmt.Errorf("set theme to '%s' by xsettings failed",
 			name)
 	}
 
+	setQtCursor(name)
+	setGtkCursor(name)
+	setWMCursor(name)
 	return nil
 }
 
@@ -120,6 +131,18 @@ func setWMCursor(name string) {
 	if ifc != nil {
 		defer ifc.Unref()
 		ifc.SetString("cursor-theme", name)
+	}
+
+	sessionBus, err := dbus.SessionBus()
+	if err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, "failed to get session bus:", err)
+		return
+	}
+
+	wmObj := wm.NewWm(sessionBus)
+	err = wmObj.CursorTheme().Set(0, name)
+	if err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, "failed to set wm cursorTheme:", err)
 	}
 }
 
