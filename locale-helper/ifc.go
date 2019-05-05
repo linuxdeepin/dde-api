@@ -138,15 +138,10 @@ func enableLocaleInFile(locale, file string) error {
 }
 
 func (h *Helper) checkAuth(sender dbus.Sender) (bool, error) {
-	pid, err := h.service.GetConnPID(string(sender))
-	if err != nil {
-		return false, err
-	}
 	systemBus := h.service.Conn()
 	authority := polkit.NewAuthority(systemBus)
-	subject := polkit.MakeSubject(polkit.SubjectKindUnixProcess)
-	subject.SetDetail("pid", pid)
-	subject.SetDetail("start-time", uint64(0))
+	subject := polkit.MakeSubject(polkit.SubjectKindSystemBusName)
+	subject.SetDetail("name", string(sender))
 	result, err := authority.CheckAuthorization(0, subject, polkitManageLocale,
 		nil,
 		polkit.CheckAuthorizationFlagsAllowUserInteraction, "")
