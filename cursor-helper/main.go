@@ -21,7 +21,6 @@ package main
 
 // #cgo pkg-config: x11 xcursor xfixes gtk+-3.0
 // #include <stdlib.h>
-// #include "cursor.h"
 import "C"
 
 import (
@@ -30,7 +29,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"unsafe"
 
 	"pkg.deepin.io/dde/api/themes"
 	"pkg.deepin.io/lib/dbus1"
@@ -98,11 +96,6 @@ func main() {
 		name = os.Args[1]
 	}
 
-	if C.init_gtk() == -1 {
-		logger.Warning("Init gtk or x11 thread environment failed")
-		return
-	}
-
 	if name != "" {
 		setTheme(name)
 		return
@@ -147,17 +140,8 @@ func setTheme(name string) {
 		return
 	}
 
-	doSetTheme(name)
-}
-
-func doSetTheme(name string) {
 	err := themes.SetCursorTheme(name)
 	if err != nil {
 		logger.Warning("Set failed:", err)
 	}
-
-	cName := C.CString(name)
-	defer C.free(unsafe.Pointer(cName))
-	C.set_gtk_cursor(cName)
-	C.set_qt_cursor(cName)
 }
