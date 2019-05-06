@@ -273,7 +273,7 @@ func GetBatteryInfo(bat *gudev.Device) *BatteryInfo {
 		energyRate = 0
 	}
 
-	/* the hardware reporting faield --try to calculate this */
+	/* the hardware reporting failed --try to calculate this */
 	// if energyRate < 0.01 {
 	// TODO
 	// }
