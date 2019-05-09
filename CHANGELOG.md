@@ -1,3 +1,8 @@
+[3.18.4] 2019-05-09
+*   chore: correct a typo
+*   fix(device): checkAuthorization is not secure
+*   feat(cursor-helper): set com.deepin.wm cursorTheme
+
 [3.18.3] 2019-04-10
 *   chore: auto pull translation files from transifex
 
