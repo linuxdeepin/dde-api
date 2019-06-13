@@ -1,3 +1,6 @@
+[3.18.4.1] 2019-06-13
+*   fix(adjust-grub-theme): failed to set background if theme output dir not exist
+
 [3.18.4] 2019-05-09
 *   chore: correct a typo
 *   fix(device): checkAuthorization is not secure
