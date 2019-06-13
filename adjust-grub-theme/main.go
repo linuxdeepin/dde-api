@@ -395,6 +395,10 @@ func copyBgSource(filename string) error {
 		return err
 	}
 
+	err = os.MkdirAll(optThemeOutputDir, 0755)
+	if err != nil {
+		return err
+	}
 	_, err = copyFile(filename, dstFile)
 	return err
 }
