@@ -9,7 +9,7 @@
 		<message>
 			<location filename="com.deepin.api.locale-helper.manage-locale!description" line="0"/>
 			<source>Manage your system locale</source>
-			<translation type="unfinished"/>
+			<translation>Διαχειριστείτε το τοπικό σύστημα</translation>
 		</message>
 	</context>
 </TS>

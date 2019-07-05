@@ -4,7 +4,7 @@
 		<message>
 			<location filename="com.deepin.api.device.unblock-bluetooth-devices!message" line="0"/>
 			<source>Authentication is required to unblock bluetooth devices</source>
-			<translation>Tunnistautuminen vaaditaan käynnistäessäsi bluetooth laitteet</translation>
+			<translation>Bluetooth-laitteiden lukituksen poistamiseen tarvitaan todennus</translation>
 		</message>
 		<message>
 			<location filename="com.deepin.api.device.unblock-bluetooth-devices!description" line="0"/>
