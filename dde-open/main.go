@@ -8,8 +8,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"pkg.deepin.io/gir/gio-2.0"
 	"github.com/linuxdeepin/go-dbus-factory/com.deepin.sessionmanager"
+	"pkg.deepin.io/gir/gio-2.0"
 	"pkg.deepin.io/lib/dbus1"
 )
 
@@ -27,22 +27,25 @@ func main() {
 		return
 	}
 
-	rawUrl := flag.Arg(0)
-	if rawUrl == "" {
-		log.Fatal("rawUrl empty")
+	arg := flag.Arg(0)
+	if arg == "" {
+		log.Fatal("arg empty")
 	}
 
-	u, err := url.Parse(rawUrl)
+	u, err := url.Parse(arg)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	switch u.Scheme {
-	case "", "file":
+	case "file":
 		openFile(u.Path)
 
+	case "":
+		openFile(arg)
+
 	default:
-		openScheme(u.Scheme, rawUrl)
+		openScheme(u.Scheme, arg)
 	}
 }
 
