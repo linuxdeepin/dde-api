@@ -1,0 +1,58 @@
+#+OPTIONS: toc:nil num:nil timestamp:nil ^:{} <:{}
+#+TITLE: 生成黄历数据
+
+** Description
+
+程序用来生成黄历数据到数据库中，数据爬自百度。
+
+经过测试百度中目前(2019)可获取到 =2008.1 ~ 2020.12= 的数据。
+
+** Prepare
+
+设置 =GOPATH= ，如 =mkdir ~/go && export GOPATH=~/go=
+
+** Dependencies
+
+*** Build Dependencies
+
++ =go=
+
+  =sudo apt-get install  golang-src golang-go=
+
++ =github.com/mattn/go-sqlite3=
+
+  =go get -u -v github.com/mattn/go-sqlite3=
+
++ =libsqlite3-dev=
+
+  =sudo apt-get install libsqlite3-dev=
+
+*** Run Dependencies
+
++ =sqlite3=
+
+  =sudo apt-get install sqlite3=
+
+** Build
+
+=make build=
+
+
+** Run
+
+使用方法请执行：
+
+=./huangli_generator -h=
+
+查看
+
+** Version
+
+当前版本为 =v1.0= ，生成的是 =2008.1 ~ 2020.12= 之间的数据，生成的命令如下：
+
+#+BEGIN_SRC shell
+./huangli_generator -s 2008 -e 2020 -f ../misc/data/huangli.db
+echo "v1.0" > ../misc/data/huangli.version
+#+END_SRC
+
+*之后更新完数据，必须同时更新 =version= ，否则依然使用的是旧数据*

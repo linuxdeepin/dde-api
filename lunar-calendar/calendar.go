@@ -20,6 +20,9 @@
 package main
 
 import (
+	"fmt"
+	"strconv"
+
 	"pkg.deepin.io/lib/calendar"
 	"pkg.deepin.io/lib/calendar/util"
 )
@@ -29,6 +32,7 @@ type DayInfo struct {
 	Month int32
 	Day   int32
 }
+type DayInfoList []DayInfo
 
 type LunarMonthInfo struct {
 	FirstDayWeek int32
@@ -47,17 +51,20 @@ type SolarMonthInfo struct {
  * year,month 公历年，月
  * fill 是否用上下月数据补齐首尾空缺，首例数据从周日开始
  */
-func getLunarMonthCalendar(year, month int, fill bool) (LunarMonthInfo, bool) {
-	solarMonth, _ := getSolarMonthCalendar(year, month, fill)
+func getLunarMonthCalendar(year, month int, fill bool) (LunarMonthInfo, SolarMonthInfo, bool) {
+	solarMonth, ok := getSolarMonthCalendar(year, month, fill)
+	if !ok {
+		return LunarMonthInfo{}, SolarMonthInfo{}, false
+	}
 	var datas []calendar.LunarDayInfo
 	for _, data := range solarMonth.Datas {
 		lunarDay, ok := calendar.SolarToLunar(int(data.Year), int(data.Month), int(data.Day))
 		if !ok {
-			return LunarMonthInfo{}, false
+			return LunarMonthInfo{}, SolarMonthInfo{}, false
 		}
 		datas = append(datas, lunarDay)
 	}
-	return LunarMonthInfo{solarMonth.FirstDayWeek, solarMonth.Days, datas}, true
+	return LunarMonthInfo{solarMonth.FirstDayWeek, solarMonth.Days, datas}, solarMonth, true
 }
 
 /**
@@ -117,5 +124,14 @@ func getNextMonth(year, month int) (nextYear, nextMonth int) {
 	}
 	nextYear = year
 	nextMonth = month + 1
+	return
+}
+
+func (days DayInfoList) GetIDList() (list []int64) {
+	for _, day := range days {
+		v, _ := strconv.ParseInt(fmt.Sprintf("%d%02d%02d",
+			day.Year, day.Month, day.Day), 10, 64)
+		list = append(list, v)
+	}
 	return
 }

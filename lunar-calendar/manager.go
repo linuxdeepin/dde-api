@@ -20,8 +20,10 @@
 package main
 
 import (
+	"fmt"
+
 	"pkg.deepin.io/lib/calendar"
-	"pkg.deepin.io/lib/dbus1"
+	dbus "pkg.deepin.io/lib/dbus1"
 	"pkg.deepin.io/lib/dbusutil"
 )
 
@@ -37,6 +39,8 @@ type Manager struct {
 	methods *struct {
 		GetLunarInfoBySolar   func() `in:"year,month,day" out:"lunarDay,ok"`
 		GetLunarMonthCalendar func() `in:"year,month,fill" out:"lunarMonth,ok"`
+		GetHuangLiDay         func() `in:"year,month,day" out:"json"`
+		GetHuangLiMonth       func() `in:"year,month,fill" out:"json"`
 	}
 }
 
@@ -71,10 +75,41 @@ func (m *Manager) GetLunarInfoBySolar(year, month, day int32) (calendar.LunarDay
 func (m *Manager) GetLunarMonthCalendar(year, month int32, fill bool) (LunarMonthInfo, bool, *dbus.Error) {
 	m.service.DelayAutoQuit()
 	logger.Infof("LUNAR DATE: %v %v %v", year, month, fill)
-	if info, ok := getLunarMonthCalendar(int(year), int(month), fill); !ok {
+	if info, _, ok := getLunarMonthCalendar(int(year), int(month), fill); !ok {
 		return LunarMonthInfo{}, false, nil
 	} else {
 		logger.Infof("Lunar Month Data: %v", info)
 		return info, true, nil
 	}
+}
+
+// GetHuangLiDay 获取指定公历日的黄历信息
+func (m *Manager) GetHuangLiDay(year, month, day int32) (string, *dbus.Error) {
+	m.service.DelayAutoQuit()
+	info, ok := calendar.SolarToLunar(int(year), int(month), int(day))
+	if !ok {
+		return "", dbusutil.ToError(fmt.Errorf("invalid date: %d-%d-%d", year, month, day))
+	}
+	list := newHuangLiInfoList([]calendar.LunarDayInfo{info}, DayInfoList{DayInfo{
+		Year:  year,
+		Month: month,
+		Day:   day,
+	}})
+	return list[0].String(), nil
+}
+
+// GetHuangLiMonth 获取指定公历月的黄历信息
+func (m *Manager) GetHuangLiMonth(year, month int32, fill bool) (string, *dbus.Error) {
+	m.service.DelayAutoQuit()
+	lunarDays, solarDays, ok := getLunarMonthCalendar(int(year), int(month), fill)
+	if !ok {
+		return "", dbusutil.ToError(fmt.Errorf("invalid date: %d-%d", year, month))
+	}
+	list := newHuangLiInfoList(lunarDays.Datas, solarDays.Datas)
+	var ret = HuangLiMonthInfo{
+		FirstDayWeek: lunarDays.FirstDayWeek,
+		Days:         lunarDays.Days,
+		Datas:        list,
+	}
+	return ret.String(), nil
 }

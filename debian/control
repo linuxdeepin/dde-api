@@ -26,7 +26,9 @@ Build-Depends: debhelper (>= 9), dh-golang, golang-any,
  dh-systemd,
  systemd,
  deepin-gettext-tools,
- libcroco3-dev
+ libcroco3-dev,
+ golang-github-mattn-go-sqlite3-dev,
+ libsqlite3-dev
 Standards-Version: 3.9.8
 Homepage: http://www.deepin.org
 
@@ -34,7 +36,7 @@ Package: dde-api
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  rfkill, locales, libcanberra-pulse, blur-effect, librsvg2-bin, fonts-noto-cjk, ttf-unifont,
- bc, fontconfig, coreutils, alsa-utils
+ bc, fontconfig, coreutils, alsa-utils, libsqlite3-0
 Description: Go-lang bingdings for dde-daemon
  Deepin Go-lang bindings for dde-daemon
 

@@ -46,6 +46,9 @@ func main() {
 		logger.Fatalf("name %q already has the owner", dbusServiceName)
 	}
 
+	initHuangLi()
+	defer finalizeHuangLi()
+
 	m := NewManager(service)
 	err = service.Export(dbusPath, m)
 	if err != nil {

@@ -13,11 +13,13 @@ DDE API provides some dbus interfaces that is used for screen zone detecting, th
 * librsvg-2.0
 * libcanberra
 * poppler-glib
+* libsqlite3
 
 ### Runtime Dependencies
 
 * xcur2png
 * deepin-desktop-base
+* libsqlite3
 
 ## Installation
 
@@ -27,6 +29,7 @@ Install prerequisites
 $ go get gopkg.in/alecthomas/kingpin.v2
 $ go get github.com/disintegration/imaging
 $ go get github.com/linuxdeepin/go-x11-client
+$ go get -u -v github.com/mattn/go-sqlite3
 ```
 
 Build:
