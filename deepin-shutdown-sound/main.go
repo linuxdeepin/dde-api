@@ -22,6 +22,7 @@ package main
 import (
 	"os"
 	"os/signal"
+	"time"
 
 	"pkg.deepin.io/dde/api/soundutils"
 	"pkg.deepin.io/lib/log"
@@ -65,6 +66,14 @@ func handleSignal() {
 func doPlayShutdownSound(theme, event, device string) error {
 	logger.Infof("play theme: %s, event: %s, device: %s", theme, event, device)
 	player := sound_effect.NewPlayer(false, sound_effect.PlayBackendALSA)
+	duration, _ := player.GetDuration(theme, event)
+	logger.Info("duration:", duration)
+	if duration > 0 {
+		time.AfterFunc(duration, func() {
+			os.Exit(0)
+		})
+	}
+
 	err := player.Play(theme, event, device)
 	return err
 }
