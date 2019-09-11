@@ -115,3 +115,7 @@ clean:
 	rm -rf out/bin gobuild out
 
 rebuild: clean build
+
+check_code_quality: prepare
+	env GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}" go vet ./...
+
