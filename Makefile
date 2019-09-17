@@ -19,6 +19,7 @@ LIBRARIES = \
     session \
     language_support \
 	userenv \
+	inhibit_hint \
     powersupply
 
 BINARIES =  \
