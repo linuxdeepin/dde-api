@@ -59,7 +59,7 @@ func (validator *Validator) ValidateUsername(username string) (int, string) {
 	}
 
 	if len(username) > UsernameMaxLength {
-		return UsernameExceed, fmt.Sprintf("The length of username cannot exceed %s characters", UsernameMaxLength)
+		return UsernameExceed, fmt.Sprintf("The length of username cannot exceed %d characters", UsernameMaxLength)
 	}
 
 	if pw, _ := passwd.GetPasswdByName(username); pw != nil {

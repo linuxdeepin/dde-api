@@ -129,7 +129,7 @@ func (graphic *Graphic) GetDominantColorOfImage(imgFile string) (h, s, v float64
 	if err != nil {
 		logger.Errorf("%v", err)
 	}
-	return h, s, v, dbusutil.ToError(busErr)
+	return h, s, v, dbusutil.ToError(err)
 }
 
 // FillImage generate a new image in target width and height through
