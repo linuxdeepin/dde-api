@@ -41,6 +41,7 @@ type Manager struct {
 		GetLunarMonthCalendar func() `in:"year,month,fill" out:"lunarMonth,ok"`
 		GetHuangLiDay         func() `in:"year,month,day" out:"json"`
 		GetHuangLiMonth       func() `in:"year,month,fill" out:"json"`
+		GetFestivalMonth      func() `in:"year,month" out:"json"`
 	}
 }
 
@@ -112,4 +113,13 @@ func (m *Manager) GetHuangLiMonth(year, month int32, fill bool) (string, *dbus.E
 		Datas:        list,
 	}
 	return ret.String(), nil
+}
+
+// GetFestivalMonth 获取指定公历月的假日信息
+func (m *Manager) GetFestivalMonth(year, month int) (string, *dbus.Error) {
+	list, err := newFestivalList(year, month)
+	if err != nil {
+		return "", dbusutil.ToError(err)
+	}
+	return list.String(), nil
 }

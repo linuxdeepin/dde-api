@@ -27,10 +27,11 @@ import (
 )
 
 var (
-	start  = flag.Int("s", 0, "The start year, the min value is 2008")
-	end    = flag.Int("e", 0, "The end year, the max year is (now year) + 1")
-	test   = flag.Bool("t", false, "Test huangli api")
-	dbFile = flag.String("f", "huangli.db", "The huangli data sqlite db file")
+	start    = flag.Int("s", 0, "The start year, the min value is 2008")
+	end      = flag.Int("e", 0, "The end year, the max year is (now year) + 1")
+	festival = flag.Bool("fest", false, "Generate the current year festival db data")
+	test     = flag.Bool("t", false, "Test huangli api")
+	dbFile   = flag.String("f", "huangli.db", "The huangli data sqlite db file")
 )
 
 func main() {
@@ -40,7 +41,7 @@ func main() {
 		return
 	}
 
-	if (*start == 0 && *end == 0) || *end-*start < 0 || *start < 2008 || *end > (time.Now().Year()+1) {
+	if !*festival && ((*start == 0 && *end == 0) || *end-*start < 0 || *start < 2008 || *end > (time.Now().Year()+1)) {
 		fmt.Printf("Invalid start year and end year: %d - %d\n", *start, *end)
 		return
 	}
@@ -51,9 +52,18 @@ func main() {
 	}
 	defer huangli.Finalize()
 
+	if *festival {
+		genFestivalData()
+		return
+	}
+
 	// generated db data
+	genHuangLiData(*start, *end)
+}
+
+func genHuangLiData(s, e int) {
 	var list huangli.HuangLiList
-	for i := *start; i <= *end; i++ {
+	for i := s; i <= e; i++ {
 		for j := 1; j < 13; j++ {
 			if len(list) > 100 {
 				err := list.Create()
@@ -76,10 +86,27 @@ func main() {
 		return
 	}
 
-	err = list.Create()
+	err := list.Create()
 	if err != nil {
 		fmt.Println("Failed to create db data:", err)
 		return
+	}
+}
+
+func genFestivalData() {
+	t := time.Now()
+	var list huangli.FestivalList
+	for i := 1; i < 13; i++ {
+		info, err := newBaiduFestivalByDate(t.Year(), i)
+		if err != nil {
+			fmt.Println("Failed to get festival data:", err, t.Year(), i)
+			return
+		}
+		list = append(list, info.ToFestival(t.Year(), i)...)
+	}
+	err := list.Create(t.Year())
+	if err != nil {
+		fmt.Println("Failed to create festival:", err)
 	}
 }
 
@@ -96,6 +123,13 @@ func doTest() {
 		return
 	}
 	info.Dump()
+
+	fest, err := newBaiduFestival(data)
+	if err != nil {
+		fmt.Println("Failed to unmarshal festival:", err)
+		return
+	}
+	fest.Dump()
 }
 
 func newBaiduHuangLiByDate(year, month int) (*baiduHuangLi, error) {
@@ -104,4 +138,12 @@ func newBaiduHuangLiByDate(year, month int) (*baiduHuangLi, error) {
 		return nil, err
 	}
 	return newBaiduHuangLi(data)
+}
+
+func newBaiduFestivalByDate(year, month int) (*baiduFestival, error) {
+	data, err := doGet(makeURL(year, month))
+	if err != nil {
+		return nil, err
+	}
+	return newBaiduFestival(data)
 }

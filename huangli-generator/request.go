@@ -46,6 +46,39 @@ type baiduHuangLi struct {
 	} `json:"data"`
 }
 
+type baiduFestivalDay struct {
+	Date   string `json:"date"`
+	Status string `json:"status"`
+}
+
+type baiduFestivalDayList []*baiduFestivalDay
+
+type baiduFestivalHoliday struct {
+	Name        string               `json:"name"`
+	Festival    string               `json:"festival"`
+	Description string               `json:"desc"`
+	Rest        string               `json:"rest"`
+	List        baiduFestivalDayList `json:"list"`
+}
+
+type baiduFestivalHolidayList []*baiduFestivalHoliday
+
+type baiduFestivalData struct {
+	Holiday baiduFestivalHolidayList `json:"holiday"`
+}
+
+type baiduFestivalData2 struct {
+	Holiday baiduFestivalHoliday `json:"holiday"`
+}
+
+type baiduFestival struct {
+	Data []*baiduFestivalData `json:"data"`
+}
+
+type baiduFestival2 struct {
+	Data []*baiduFestivalData2 `json:"data"`
+}
+
 func (info *baiduHuangLi) ToHuangLiList() huangli.HuangLiList {
 	var list huangli.HuangLiList
 	for _, almanac := range info.Data {
@@ -76,12 +109,62 @@ func (info *baiduHuangLi) Dump() {
 	fmt.Println("Baidu huangli dump done")
 }
 
-func convertDateToID(date string) (int64, error) {
-	list := strings.SplitN(date, "-", 3)
-	if len(list) != 3 {
-		return 0, fmt.Errorf("invalid baidu huangli date: %s", date)
+func (info *baiduFestival) ToFestival(year, month int) huangli.FestivalList {
+	var list huangli.FestivalList
+	for _, days := range info.Data {
+		for _, day := range days.Holiday {
+			id, err := getFestivalID(day.Festival, month)
+			if err != nil {
+				fmt.Println("Failed to convert festival id:", day.Festival, err)
+				continue
+			}
+			var info = huangli.Festival{
+				ID:          id,
+				Month:       month,
+				Name:        day.Name,
+				Description: day.Description,
+				Rest:        day.Rest,
+				Holidays:    day.List.ToHolidayList(),
+			}
+			// if !info.Holidays.Contain(year, month) {
+			// 	fmt.Println("Not contain year-month:", info.ID, info.Name, year, month)
+			// 	continue
+			// }
+			list = append(list, &info)
+		}
 	}
-	return strconv.ParseInt(fmt.Sprintf("%s%02s%02s", list[0], list[1], list[2]), 10, 64)
+	return list
+}
+
+func (info *baiduFestival) Dump() {
+	fmt.Println("Baidu festival:")
+	for _, days := range info.Data {
+		for _, day := range days.Holiday {
+			fmt.Printf("\tName: %s, \tFestival: %s, \tDesc: %s, \tRest: %s\n",
+				day.Name, day.Festival, day.Description, day.Rest)
+			for _, holiday := range day.List {
+				fmt.Printf("\t\tDate: %s, \tstatus: %s\n", holiday.Date, holiday.Status)
+			}
+			fmt.Println("")
+		}
+	}
+	fmt.Println("Baidu festival dump done")
+}
+
+func (list baiduFestivalDayList) ToHolidayList() huangli.HolidayList {
+	var holidays huangli.HolidayList
+	for _, info := range list {
+		v, err := strconv.Atoi(info.Status)
+		if err != nil {
+			fmt.Println("Failed to convert holiday status:", info.Status, err)
+			continue
+		}
+		holidays = append(holidays, &huangli.Holiday{
+			Date:   info.Date,
+			Status: huangli.HolidayStatus(v),
+		})
+	}
+	return holidays
 }
 
 func newBaiduHuangLi(data []byte) (*baiduHuangLi, error) {
@@ -89,6 +172,25 @@ func newBaiduHuangLi(data []byte) (*baiduHuangLi, error) {
 	err := json.Unmarshal(data, &info)
 	if err != nil {
 		return nil, err
+	}
+
+	return &info, nil
+}
+
+func newBaiduFestival(data []byte) (*baiduFestival, error) {
+	var info baiduFestival
+	err := json.Unmarshal(data, &info)
+	if err == nil {
+		return &info, nil
+	}
+	var info2 baiduFestival2
+	err = json.Unmarshal(data, &info2)
+	if err != nil {
+		return nil, err
+	}
+	for i, days := range info2.Data {
+		info.Data = append(info.Data, &baiduFestivalData{})
+		info.Data[i].Holiday = baiduFestivalHolidayList{&days.Holiday}
 	}
 	return &info, nil
 }
@@ -121,4 +223,20 @@ func makeURL(year, month int) string {
 	params["query"] = []string{fmt.Sprintf("%d年%d月", year, month)}
 
 	return fmt.Sprintf("%s?%s", apiURL, params.Encode())
+}
+
+func getFestivalID(fest string, month int) (string, error) {
+	list := strings.SplitN(fest, "-", 3)
+	if len(list) != 3 {
+		return "", fmt.Errorf("invalid baidu festival date: %s", fest)
+	}
+	return fmt.Sprintf("%s%02s%02s%02d", list[0], list[1], list[2], month), nil
+}
+
+func convertDateToID(date string) (int64, error) {
+	list := strings.SplitN(date, "-", 3)
+	if len(list) != 3 {
+		return 0, fmt.Errorf("invalid baidu huangli date: %s", date)
+	}
+	return strconv.ParseInt(fmt.Sprintf("%s%02s%02s", list[0], list[1], list[2]), 10, 64)
 }

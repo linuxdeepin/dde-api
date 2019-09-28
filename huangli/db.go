@@ -22,6 +22,12 @@ import (
 	"database/sql"
 	"fmt"
 
+	"time"
+
+	"encoding/json"
+
+	"strings"
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -34,6 +40,44 @@ type HuangLi struct {
 
 // HuangLiList huang li info list
 type HuangLiList []*HuangLi
+
+type HolidayStatus int
+
+const (
+	HolidayStatusLeave HolidayStatus = iota + 1
+	HolidayStatusWork
+)
+
+type Holiday struct {
+	Date   string        `json:"date"`
+	Status HolidayStatus `json:"status"`
+}
+
+type HolidayList []*Holiday
+
+func (list HolidayList) Contain(year, month int) bool {
+	str := fmt.Sprintf("%d-%d-", year, month)
+	for _, info := range list {
+		if strings.Contains(info.Date, str) {
+			return true
+		}
+	}
+	return false
+}
+
+type Festival struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Rest        string `json:"rest"`
+	list        string `json:"-"`
+
+	Month int `json:"month"`
+
+	Holidays HolidayList `json:"list"`
+}
+
+type FestivalList []*Festival
 
 var (
 	_db *sql.DB
@@ -53,7 +97,17 @@ CREATE TABLE IF NOT EXISTS huangli (id INTEGER NOT NULL PRIMARY KEY, avoid TEXT,
 	if err != nil {
 		return err
 	}
-	return nil
+	return initFestival()
+}
+
+func initFestival() error {
+	var year = time.Now().Year()
+	var table = fmt.Sprintf("festival_%d", year)
+	var tableStmt = fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s  ", table)
+	tableStmt += `
+(id TEXT NOT NULL PRIMARY KEY,month INTEGER NOT NULL,name TEXT,description TEXT, rest TEXT, list TEXT)`
+	_, err := _db.Exec(tableStmt)
+	return err
 }
 
 // Finalize close db
@@ -69,14 +123,14 @@ func (list HuangLiList) Create() error {
 	}
 
 	for _, info := range list {
-		tmp, _ := txQuery(tx, info.ID)
+		tmp, _ := txQueryHuangLi(tx, info.ID)
 		if tmp != nil {
 			fmt.Println("Has exists:", tmp.ID, tmp.Avoid, tmp.Suit, info.ID, info.Avoid, info.Suit)
 			continue
 		}
-		err = txCreate(tx, info)
+		err = txCreateHuangLi(tx, info)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return err
 		}
 	}
@@ -84,9 +138,53 @@ func (list HuangLiList) Create() error {
 	return tx.Commit()
 }
 
+func (list FestivalList) Create(year int) error {
+	var table = fmt.Sprintf("festival_%d", year)
+	tx, err := _db.Begin()
+	if err != nil {
+		return err
+	}
+
+	for _, info := range list {
+		tmp, _ := txQueryFestival(tx, table, info.ID)
+		if tmp != nil {
+			fmt.Println("Has exists:", tmp.ID, tmp.Name, tmp.Description)
+			continue
+		}
+		err = txCreateFestival(tx, table, info)
+		if err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+	}
+	return tx.Commit()
+}
+
+func (list FestivalList) String() string {
+	data, _ := json.Marshal(list)
+	return string(data)
+}
+
+func (info *Festival) EncodeHolidayList() {
+	info.list = ""
+	if len(info.Holidays) == 0 {
+		return
+	}
+	data, _ := json.Marshal(info.Holidays)
+	info.list = string(data)
+}
+
+func (info *Festival) DecodeHolidayList() {
+	info.Holidays = HolidayList{}
+	if len(info.list) == 0 {
+		return
+	}
+	_ = json.Unmarshal([]byte(info.list), &info.Holidays)
+}
+
 // NewHuangLi query by id
 func NewHuangLi(id int64) (*HuangLi, error) {
-	return txQuery(nil, id)
+	return txQueryHuangLi(nil, id)
 }
 
 // NewHuangLiList query by id list
@@ -102,7 +200,7 @@ func NewHuangLiList(idList []int64) (HuangLiList, error) {
 
 	var list HuangLiList
 	for _, id := range idList {
-		info, err := txQuery(tx, id)
+		info, err := txQueryHuangLi(tx, id)
 		if err != nil {
 			// TODO(jouyouyun): warning?
 			fmt.Println("Failed to query huangli by id:", id, err)
@@ -118,7 +216,12 @@ func NewHuangLiList(idList []int64) (HuangLiList, error) {
 	return list, nil
 }
 
-func txQuery(tx *sql.Tx, id int64) (*HuangLi, error) {
+func NewFestivalList(year, month int) (FestivalList, error) {
+	table := fmt.Sprintf("festival_%d", year)
+	return txQueryFestivalList(nil, table, month)
+}
+
+func txQueryHuangLi(tx *sql.Tx, id int64) (*HuangLi, error) {
 	var (
 		stmt *sql.Stmt
 		err  error
@@ -142,7 +245,7 @@ func txQuery(tx *sql.Tx, id int64) (*HuangLi, error) {
 	return &info, nil
 }
 
-func txCreate(tx *sql.Tx, info *HuangLi) error {
+func txCreateHuangLi(tx *sql.Tx, info *HuangLi) error {
 	stmt, err := tx.Prepare("INSERT INTO huangli (id,avoid,suit) VALUES (?,?,?)")
 	if err != nil {
 		return err
@@ -150,5 +253,78 @@ func txCreate(tx *sql.Tx, info *HuangLi) error {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(info.ID, info.Avoid, info.Suit)
+	return err
+}
+
+func txQueryFestival(tx *sql.Tx, table, id string) (*Festival, error) {
+	var (
+		stmt *sql.Stmt
+		err  error
+	)
+	str := fmt.Sprintf("SELECT id,month,name,description,rest,list FROM %s WHERE id = ?",
+		table)
+	if tx != nil {
+		stmt, err = tx.Prepare(str)
+	} else {
+		stmt, err = _db.Prepare(str)
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	var info Festival
+	err = stmt.QueryRow(id).Scan(&info.ID, &info.Month, &info.Name, &info.Description,
+		&info.Rest, &info.list)
+	if err != nil {
+		return nil, err
+	}
+	info.DecodeHolidayList()
+	return &info, nil
+}
+
+func txQueryFestivalList(tx *sql.Tx, table string, month int) (FestivalList, error) {
+	var (
+		rows *sql.Rows
+		err  error
+	)
+	str := fmt.Sprintf("SELECT id,month,name,description,rest,list FROM %s WHERE month = %d",
+		table, month)
+	if tx != nil {
+		rows, err = tx.Query(str)
+	} else {
+		rows, err = _db.Query(str)
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var list FestivalList
+	for rows.Next() {
+		var info Festival
+		err := rows.Scan(&info.ID, &info.Month, &info.Name, &info.Description,
+			&info.Rest, &info.list)
+		if err != nil {
+			return nil, err
+		}
+		info.DecodeHolidayList()
+		list = append(list, &info)
+	}
+	return list, nil
+}
+
+func txCreateFestival(tx *sql.Tx, table string, info *Festival) error {
+	str := fmt.Sprintf("INSERT INTO %s (id,month,name,description,rest,list) VALUES (?,?,?,?,?,?)",
+		table)
+	stmt, err := tx.Prepare(str)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	info.EncodeHolidayList()
+	_, err = stmt.Exec(info.ID, info.Month, info.Name, info.Description,
+		info.Rest, info.list)
 	return err
 }

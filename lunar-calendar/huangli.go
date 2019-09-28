@@ -104,6 +104,10 @@ func newHuangLiInfoList(lunarDays []calendar.LunarDayInfo, days DayInfoList) (li
 	return
 }
 
+func newFestivalList(year, month int) (huangli.FestivalList, error) {
+	return huangli.NewFestivalList(year, month)
+}
+
 func getDBFile() string {
 	filename := filepath.Join(basedir.GetUserConfigDir(), "deepin", "dde-api", "huangli.db")
 	if utils.IsFileExist(filename) && checkDBVersion() {
