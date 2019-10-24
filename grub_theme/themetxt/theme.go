@@ -121,27 +121,43 @@ func (c *Component) Dump(indent int) {
 	fmt.Printf("%s}\n", indentStr)
 }
 
-func (c *Component) writeTo(w io.Writer, indent int) {
+func (c *Component) writeTo(w io.Writer, indent int) (n int64, err error) {
 	indentStr := strings.Repeat(" ", indent*4)
-	fmt.Fprintf(w, "%s+ %s {\n", indentStr, c.Type)
+	var pn int
+	pn, err = fmt.Fprintf(w, "%s+ %s {\n", indentStr, c.Type)
+	n += int64(pn)
+	if err != nil {
+		return
+	}
 
 	for _, prop := range c.Props {
 		if strings.HasPrefix(prop.name, "_") {
 			continue
 		}
-		fmt.Fprintf(w, "%s    %s = %s\n", indentStr, prop.name,
+		pn, err = fmt.Fprintf(w, "%s    %s = %s\n", indentStr, prop.name,
 			propValueToString(prop.value))
+		n += int64(pn)
+		if err != nil {
+			return
+		}
 	}
 
 	for _, child := range c.Children {
-		child.writeTo(w, indent+1)
+		var cn int64
+		cn, err = child.writeTo(w, indent+1)
+		n += cn
+		if err != nil {
+			return
+		}
 	}
 
-	fmt.Fprintf(w, "%s}\n", indentStr)
+	pn, err = fmt.Fprintf(w, "%s}\n", indentStr)
+	n += int64(pn)
+	return
 }
 
-func (c *Component) WriteTo(w io.Writer) {
-	c.writeTo(w, 0)
+func (c *Component) WriteTo(w io.Writer) (n int64, err error) {
+	return c.writeTo(w, 0)
 }
 
 func propValueToString(value interface{}) string {
@@ -244,13 +260,24 @@ func (t *Theme) Dump() {
 	}
 }
 
-func (t *Theme) WriteTo(w io.Writer) {
+func (t *Theme) WriteTo(w io.Writer) (n int64, err error) {
 	for _, prop := range t.Props {
-		fmt.Fprintf(w, "%s: %s\n", prop.name, propValueToString(prop.value))
+		var pn int
+		pn, err = fmt.Fprintf(w, "%s: %s\n", prop.name, propValueToString(prop.value))
+		n += int64(pn)
+		if err != nil {
+			return
+		}
 	}
 	for _, comp := range t.Components {
-		comp.WriteTo(w)
+		var cn int64
+		cn, err = comp.WriteTo(w)
+		n += cn
+		if err != nil {
+			return
+		}
 	}
+	return
 }
 
 func ParseThemeFile(filename string) (*Theme, error) {

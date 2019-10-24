@@ -55,24 +55,22 @@ type DeviceInfo struct {
 type DeviceInfos []*DeviceInfo
 
 func ListDevice() DeviceInfos {
-	var cnum C.int = 0
-	cinfos := C.list_device(&cnum)
-	if cnum == 0 && cinfos == nil {
+	var cNum C.int = 0
+	cInfos := C.list_device(&cNum)
+	if cNum == 0 && cInfos == nil {
 		return nil
 	}
-	defer C.free_device_list(cinfos, cnum)
+	defer C.free_device_list(cInfos, cNum)
 
 	var infos DeviceInfos
-	clist := uintptr(unsafe.Pointer(cinfos))
-	itemLen := unsafe.Sizeof(*cinfos)
-	for i := C.int(0); i < cnum; i++ {
-		cinfo := (*C.DeviceInfo)(unsafe.Pointer(
-			clist + uintptr(i)*itemLen))
+	itemLen := unsafe.Sizeof(*cInfos)
+	for i := C.int(0); i < cNum; i++ {
+		cInfo := (*C.DeviceInfo)(unsafe.Pointer(uintptr(unsafe.Pointer(cInfos)) + uintptr(i)*itemLen))
 		infos = append(infos, &DeviceInfo{
-			Id:      int32(cinfo.id),
-			Type:    int32(cinfo.ty),
-			Name:    C.GoString(cinfo.name),
-			Enabled: (int(cinfo.enabled) == 1),
+			Id:      int32(cInfo.id),
+			Type:    int32(cInfo.ty),
+			Name:    C.GoString(cInfo.name),
+			Enabled: (int(cInfo.enabled) == 1),
 		})
 	}
 	return infos
@@ -189,16 +187,21 @@ func SetFloat32Prop(id int32, prop string, values []float32) error {
 	return nil
 }
 
-func ucharArrayToByte(cdatas *C.uchar, length int) []byte {
-	clist := uintptr(unsafe.Pointer(cdatas))
-	citemLen := unsafe.Sizeof(*cdatas)
-
-	var datas []byte
-	for i := 0; i < length; i++ {
-		cdata := (*C.uchar)(unsafe.Pointer(clist + uintptr(i)*citemLen))
-		datas = append(datas, byte(*cdata))
+func ucharArrayToByte(cData *C.uchar, length int) []byte {
+	if cData == nil {
+		return nil
 	}
-	return datas
+	cItemSize := unsafe.Sizeof(*cData)
+
+	var data []byte
+	for i := 0; i < length; i++ {
+		cdata := (*C.uchar)(unsafe.Pointer(uintptr(unsafe.Pointer(cData)) + uintptr(i)*cItemSize))
+		if cdata == nil {
+			break
+		}
+		data = append(data, byte(*cdata))
+	}
+	return data
 }
 
 func byteArrayToUChar(datas []byte) []C.uchar {

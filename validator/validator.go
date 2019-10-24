@@ -28,8 +28,8 @@ type Validator struct{}
 // GetDBusInfo implements dbus.DBusObject interface
 func (validator *Validator) GetDBusInfo() dbus.DBusInfo {
 	return dbus.DBusInfo{
-		DBusName,
-		DBusPath,
-		DBusInterface,
+		Dest:       DBusName,
+		ObjectPath: DBusPath,
+		Interface:  DBusInterface,
 	}
 }

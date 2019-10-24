@@ -70,7 +70,7 @@ type Festival struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Rest        string `json:"rest"`
-	list        string `json:"-"`
+	list        string
 
 	Month int `json:"month"`
 

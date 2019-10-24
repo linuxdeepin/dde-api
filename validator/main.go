@@ -30,6 +30,7 @@ import (
 
 var logger = log.NewLogger(DBusName)
 
+// 此执行程序目前没有被使用和编译
 func main() {
 	logger.BeginTracing()
 	defer logger.EndTracing()
