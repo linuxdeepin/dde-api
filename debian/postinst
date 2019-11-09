@@ -6,8 +6,29 @@ player_user=deepin-sound-player
 player_home=/var/lib/$player_user
 
 themeDir="/boot/grub/themes/deepin"
+fallbackThemeDir=$themeDir-fallback
 adjustGrubThemeBin="/usr/lib/deepin-api/adjust-grub-theme"
 grubCfgFile=/boot/grub/grub.cfg
+
+
+setupFallbackTheme () {
+    mkdir -p $fallbackThemeDir
+    for f in $(ls $fallbackThemeDir);
+    do
+        if [ "$f" = 'background.jpg' ]; then
+            continue
+        fi
+        rm $fallbackThemeDir/$f
+    done
+
+    resourceDir=/usr/share/dde-api/data/grub-themes/deepin
+    fallbackResourceDir=$resourceDir-fallback
+    cp $fallbackResourceDir/* $fallbackThemeDir
+
+    if [ ! -f $themeDir/background_source ] || [ ! -f $fallbackThemeDir/background.jpg ]; then
+        cp $resourceDir/background.origin.jpg $fallbackThemeDir/background.jpg
+    fi
+}
 
 adjustGrubTheme () {
 	themeToolVersion=$($adjustGrubThemeBin -version)
@@ -47,6 +68,7 @@ case "$1" in
 		if [ -f $grubCfgFile -a -f /etc/default/grub ]; then
 			adjustGrubTheme
 		fi
+        setupFallbackTheme
 	;;
 	abort-upgrade|abort-remove|abort-deconfigure)
     ;;
