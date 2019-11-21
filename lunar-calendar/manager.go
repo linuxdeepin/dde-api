@@ -75,11 +75,11 @@ func (m *Manager) GetLunarInfoBySolar(year, month, day int32) (calendar.LunarDay
 // fill 是否用上下月数据补齐首尾空缺
 func (m *Manager) GetLunarMonthCalendar(year, month int32, fill bool) (LunarMonthInfo, bool, *dbus.Error) {
 	m.service.DelayAutoQuit()
-	logger.Infof("LUNAR DATE: %v %v %v", year, month, fill)
+	logger.Debugf("LUNAR DATE: %v %v %v", year, month, fill)
 	if info, _, ok := getLunarMonthCalendar(int(year), int(month), fill); !ok {
 		return LunarMonthInfo{}, false, nil
 	} else {
-		logger.Infof("Lunar Month Data: %v", info)
+		logger.Debugf("Lunar Month Data: %v", info)
 		return info, true, nil
 	}
 }
