@@ -20,12 +20,13 @@
 package blurimage
 
 import (
-	"github.com/disintegration/imaging"
 	"image"
 	"image/color"
 	"os"
 	"path"
 	"runtime/debug"
+
+	"github.com/disintegration/imaging"
 )
 
 func BlurImage(file string, sigma float64, dest string) error {

@@ -20,8 +20,10 @@
 package blurimage
 
 import (
-	"github.com/disintegration/imaging"
+	"runtime"
 	"testing"
+
+	"github.com/disintegration/imaging"
 )
 
 func BenchmarkIsTooBright(b *testing.B) {
@@ -38,6 +40,9 @@ func BenchmarkIsTooBright(b *testing.B) {
 }
 
 func TestIsTooBright(t *testing.T) {
+	if runtime.GOARCH == "386" {
+		t.Skip("GOARCH is 386")
+	}
 	img, err := imaging.Open("testdata/test1.jpg")
 	if err != nil {
 		t.Error(err)
