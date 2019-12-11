@@ -12,22 +12,13 @@ grubCfgFile=/boot/grub/grub.cfg
 
 
 setupFallbackTheme () {
+    [ -d $fallbackThemeDir ] && return 0
     mkdir -p $fallbackThemeDir
-    for f in $(ls $fallbackThemeDir);
-    do
-        if [ "$f" = 'background.jpg' ]; then
-            continue
-        fi
-        rm $fallbackThemeDir/$f
-    done
-
     resourceDir=/usr/share/dde-api/data/grub-themes/deepin
     fallbackResourceDir=$resourceDir-fallback
     cp $fallbackResourceDir/* $fallbackThemeDir
-
-    if [ ! -f $themeDir/background_source ] || [ ! -f $fallbackThemeDir/background.jpg ]; then
-        cp $resourceDir/background.origin.jpg $fallbackThemeDir/background.jpg
-    fi
+    [ -f $fallbackThemeDir/theme.txt.tpl ] && rm $fallbackThemeDir/theme.txt.tpl
+    cp $resourceDir/background.origin.jpg $fallbackThemeDir/background.jpg
 }
 
 adjustGrubTheme () {

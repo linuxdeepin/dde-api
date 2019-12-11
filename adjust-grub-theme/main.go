@@ -27,8 +27,11 @@ import (
 )
 
 const (
-	defaultThemeOutputDir = "/boot/grub/themes/deepin"
-	defaultThemeInputDir  = "/usr/share/dde-api/data/grub-themes/deepin"
+	defaultThemeOutputDir = "/boot/grub/themes/"
+	defaultThemeInputDir  = "/usr/share/dde-api/data/grub-themes/"
+
+	themeNameNormal   = "deepin"
+	themeNameFallback = "deepin-fallback"
 )
 
 var optScreenHeight int
@@ -63,10 +66,10 @@ func init() {
 }
 
 func loadBackgroundImage() (image.Image, error) {
-	img, err := loadImage(filepath.Join(optThemeOutputDir, "background_source"))
+	img, err := loadImage(filepath.Join(optThemeOutputDir, themeNameNormal, "background_source"))
 	if err != nil {
 		logger.Warning("failed to load image background_source:", err)
-		originDesktopImageFile := filepath.Join(optThemeInputDir, "background.origin.jpg")
+		originDesktopImageFile := filepath.Join(optThemeInputDir, themeNameNormal, "background.origin.jpg")
 		img, err = loadImage(originDesktopImageFile)
 		if err != nil {
 			logger.Warning(err)
@@ -76,7 +79,7 @@ func loadBackgroundImage() (image.Image, error) {
 	return img, nil
 }
 
-func adjustBackground(img image.Image) (image.Image, error) {
+func adjustBackground(themeOutputDir string, img image.Image) (image.Image, error) {
 	logger.Debug("adjustBackground")
 	imgWidth := img.Bounds().Dx()
 	imgHeight := img.Bounds().Dy()
@@ -89,22 +92,22 @@ func adjustBackground(img image.Image) (image.Image, error) {
 	img0 := imaging.Crop(img, image.Rect(x, y, x+w, y+h))
 	img0 = imaging.Resize(img0, optScreenWidth, optScreenHeight, imaging.Lanczos)
 	// save img
-	err = saveJpeg(img0, filepath.Join(optThemeOutputDir, "background.jpg"))
+	err = saveJpeg(img0, filepath.Join(themeOutputDir, "background.jpg"))
 	if err != nil {
 		return nil, err
 	}
 	return img0, nil
 }
 
-func adjustResourcesOsLogos(width, height int) {
-	dir := filepath.Join(optThemeInputDir, "resources/os-logos")
-	fileInfoList, err := ioutil.ReadDir(dir)
+func adjustResourcesOsLogos(themeInputDir, themeOutputDir string, width, height int) {
+	srcDir := filepath.Join(themeInputDir, "resources/os-logos")
+	fileInfoList, err := ioutil.ReadDir(srcDir)
 	if err != nil {
 		logger.Warning(err)
 		return
 	}
 
-	outDir := filepath.Join(optThemeOutputDir, "icons")
+	outDir := filepath.Join(themeOutputDir, "icons")
 	err = os.Mkdir(outDir, 0755)
 	if err != nil {
 		logger.Warning(err)
@@ -116,7 +119,7 @@ func adjustResourcesOsLogos(width, height int) {
 			continue
 		}
 
-		file := filepath.Join(dir, fileInfo.Name())
+		file := filepath.Join(srcDir, fileInfo.Name())
 		ext := filepath.Ext(fileInfo.Name())
 		if ext != ".svg" {
 			continue
@@ -225,7 +228,7 @@ func cropSaveStyleBox(img image.Image, filenamePrefix string, r int) {
 }
 
 func getFallbackDir() string {
-	return filepath.Clean(filepath.Join(optThemeOutputDir, "../deepin-fallback"))
+	return filepath.Clean(filepath.Join(optThemeOutputDir, themeNameFallback))
 }
 
 func setBackground(bgFile string) {
@@ -248,12 +251,13 @@ func setBackground(bgFile string) {
 		}
 	}
 
-	bgImg, err = adjustBackground(bgImg)
+	themeOutputDir := filepath.Join(optThemeOutputDir, themeNameNormal)
+	bgImg, err = adjustBackground(themeOutputDir, bgImg)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
-	themeTxtFile := filepath.Join(optThemeOutputDir, "theme.txt")
+	themeTxtFile := filepath.Join(themeOutputDir, "theme.txt")
 	theme, err := tt.ParseThemeFile(themeTxtFile)
 	if err != nil {
 		logger.Warning(err)
@@ -274,7 +278,185 @@ func setBackground(bgFile string) {
 
 	convertPropRel2Abs(bmComp, "left", orientationHorizontal)
 	convertPropRel2Abs(bmComp, "top", orientationVertical)
-	adjustBootMenuPixmapStyle(bmComp, bgImg)
+	adjustBootMenuPixmapStyle(themeOutputDir, bmComp, bgImg)
+}
+
+func adjustTheme() {
+	err := adjustThemeFallback()
+	if err != nil {
+		logger.Fatal(err)
+	}
+	err = adjustThemeNormal()
+	if err != nil {
+		logger.Fatal(err)
+	}
+}
+
+func adjustThemeNormal() error {
+	themeInputDir := filepath.Join(optThemeInputDir, themeNameNormal)
+	themeOutputDir := filepath.Join(optThemeOutputDir, themeNameNormal)
+
+	vars := map[string]float64{}
+	themeFile := filepath.Join(themeInputDir, "theme.txt.tpl")
+	theme, err := tt.ParseThemeFile(themeFile)
+	if err != nil {
+		return err
+	}
+
+	cleanupThemeOutputDir(themeOutputDir)
+	err = os.MkdirAll(themeOutputDir, 0755)
+	if err != nil {
+		return err
+	}
+	copyThemeFiles(themeInputDir, themeOutputDir)
+
+	stdFontSize := getFontSize(optScreenWidth, optScreenHeight)
+	vars["std_font_size"] = float64(stdFontSize)
+	vars["screen_width"] = float64(optScreenWidth)
+	vars["screen_height"] = float64(optScreenHeight)
+
+	err = adjustTerminalFont(themeOutputDir, theme, vars)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	for _, comp := range theme.Components {
+		if comp.Type == tt.ComponentTypeBootMenu {
+			adjustBootMenu(themeOutputDir, comp, vars)
+
+			iconWidth, _ := comp.GetPropInt("icon_width")
+			iconHeight, _ := comp.GetPropInt("icon_height")
+			adjustResourcesOsLogos(themeInputDir, themeOutputDir, iconWidth, iconHeight)
+
+		} else if comp.Type == tt.ComponentTypeLabel {
+			adjustLabel(themeOutputDir, comp, vars)
+		}
+	}
+
+	themeOutput := filepath.Join(themeOutputDir, "theme.txt")
+	themeOutputFh, err := os.Create(themeOutput)
+	if err != nil {
+		return err
+	}
+	defer themeOutputFh.Close()
+	bw := bufio.NewWriter(themeOutputFh)
+	// write head
+	_, err = fmt.Fprintf(bw, "#version:%d\n", VERSION)
+	if err != nil {
+		return err
+	}
+	_, err = fmt.Fprintf(bw, "#lang:%s\n", optLang)
+	if err != nil {
+		return err
+	}
+
+	var inputDir string
+	inputDir, err = filepath.Abs(themeInputDir)
+	if err != nil {
+		logger.Warning(err)
+		inputDir = themeInputDir
+	}
+
+	_, err = fmt.Fprintf(bw, "#themeInputDir:%s\n", inputDir)
+	if err != nil {
+		return err
+	}
+
+	_, err = fmt.Fprintf(bw, "#screenWidth:%d\n", optScreenWidth)
+	if err != nil {
+		return err
+	}
+	_, err = fmt.Fprintf(bw, "#screenHeight:%d\n", optScreenHeight)
+	if err != nil {
+		return err
+	}
+
+	_, err = fmt.Fprintln(bw, "#head end")
+	if err != nil {
+		return err
+	}
+
+	_, err = theme.WriteTo(bw)
+	if err != nil {
+		return err
+	}
+	err = bw.Flush()
+	return err
+}
+
+func adjustThemeFallback() error {
+	themeInputDir := filepath.Join(optThemeInputDir, themeNameFallback)
+	themeOutputDir := filepath.Join(optThemeOutputDir, themeNameFallback)
+
+	cleanupThemeOutputDir(themeOutputDir)
+	err := os.MkdirAll(themeOutputDir, 0755)
+	if err != nil {
+		return err
+	}
+	copyThemeFiles(themeInputDir, themeOutputDir)
+
+	bgImg, err := loadBackgroundImage()
+	if err != nil {
+		return err
+	}
+
+	err = saveJpeg(bgImg, filepath.Join(themeOutputDir, "background.jpg"))
+	if err != nil {
+		return err
+	}
+
+	themeFile := filepath.Join(themeInputDir, "theme.txt.tpl")
+	theme, err := tt.ParseThemeFile(themeFile)
+	if err != nil {
+		return err
+	}
+
+	for _, comp := range theme.Components {
+		if comp.Type == tt.ComponentTypeLabel {
+			adjustLabelText(comp)
+		}
+	}
+
+	themeOutput := filepath.Join(themeOutputDir, "theme.txt")
+	themeOutputFh, err := os.Create(themeOutput)
+	if err != nil {
+		return err
+	}
+	defer themeOutputFh.Close()
+	bw := bufio.NewWriter(themeOutputFh)
+	// write head
+	_, err = fmt.Fprintf(bw, "#version:%d\n", VERSION)
+	if err != nil {
+		return err
+	}
+	_, err = fmt.Fprintf(bw, "#lang:%s\n", optLang)
+	if err != nil {
+		return err
+	}
+
+	var inputDir string
+	inputDir, err = filepath.Abs(themeInputDir)
+	if err != nil {
+		logger.Warning(err)
+		inputDir = themeInputDir
+	}
+
+	_, err = fmt.Fprintf(bw, "#themeInputDir:%s\n", inputDir)
+	if err != nil {
+		return err
+	}
+
+	_, err = fmt.Fprintln(bw, "#head end")
+	if err != nil {
+		return err
+	}
+
+	_, err = theme.WriteTo(bw)
+	if err != nil {
+		return err
+	}
+	err = bw.Flush()
+	return err
 }
 
 func main() {
@@ -306,7 +488,7 @@ func main() {
 	}
 
 	// load old theme.txt head info
-	headInfo, err := loadThemeHeadInfo(filepath.Join(optThemeOutputDir, "theme.txt"))
+	headInfo, err := loadThemeHeadInfo(filepath.Join(optThemeOutputDir, themeNameNormal, "theme.txt"))
 	if err != nil {
 		if !os.IsNotExist(err) {
 			logger.Warning(err)
@@ -323,79 +505,17 @@ func main() {
 	}
 	logger.Debug("lang:", optLang)
 
-	vars := map[string]float64{}
-
-	themeFile := filepath.Join(optThemeInputDir, "theme.txt.tpl")
-	theme, err := tt.ParseThemeFile(themeFile)
-	if err != nil {
-		logger.Fatal(err)
-	}
-
-	cleanupThemeOutputDir()
-	err = os.MkdirAll(optThemeOutputDir, 0755)
-	if err != nil {
-		logger.Warning(err)
-	}
-	copyPngFiles()
-
-	stdFontSize := getFontSize(optScreenWidth, optScreenHeight)
-	vars["std_font_size"] = float64(stdFontSize)
-	vars["screen_width"] = float64(optScreenWidth)
-	vars["screen_height"] = float64(optScreenHeight)
-
-	err = adjustTerminalFont(theme, vars)
-	if err != nil {
-		logger.Fatal(err)
-	}
-
-	for _, comp := range theme.Components {
-		if comp.Type == tt.ComponentTypeBootMenu {
-			adjustBootMenu(comp, vars)
-
-			iconWidth, _ := comp.GetPropInt("icon_width")
-			iconHeight, _ := comp.GetPropInt("icon_height")
-			adjustResourcesOsLogos(iconWidth, iconHeight)
-
-		} else if comp.Type == tt.ComponentTypeLabel {
-			adjustLabel(comp, vars)
-		}
-	}
-
-	themeOutput := filepath.Join(optThemeOutputDir, "theme.txt")
-	themeOutputFh, err := os.Create(themeOutput)
-	if err != nil {
-		logger.Fatal(err)
-	}
-	defer themeOutputFh.Close()
-	bw := bufio.NewWriter(themeOutputFh)
-	// write head
-	fmt.Fprintf(bw, "#version:%d\n", VERSION)
-	fmt.Fprintf(bw, "#lang:%s\n", optLang)
-
-	var themeInputDir string
-	themeInputDir, err = filepath.Abs(optThemeInputDir)
-	if err != nil {
-		logger.Warning(err)
-		themeInputDir = optThemeInputDir
-	}
-
-	fmt.Fprintf(bw, "#themeInputDir:%s\n", themeInputDir)
-	fmt.Fprintf(bw, "#screenWidth:%d\n", optScreenWidth)
-	fmt.Fprintf(bw, "#screenHeight:%d\n", optScreenHeight)
-	fmt.Fprintln(bw, "#head end")
-
-	theme.WriteTo(bw)
-	bw.Flush()
+	adjustTheme()
 }
 
 func copyBgSource(filename string) error {
-	dstFile := filepath.Join(optThemeOutputDir, "background_source")
+	dstFile := filepath.Join(optThemeOutputDir, themeNameNormal, "background_source")
 	err := os.Remove(dstFile)
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
 
-	err = os.MkdirAll(optThemeOutputDir, 0755)
+	err = os.MkdirAll(filepath.Dir(dstFile), 0755)
 	if err != nil {
 		return err
 	}
@@ -403,17 +523,18 @@ func copyBgSource(filename string) error {
 	return err
 }
 
-func copyPngFiles() {
-	fileInfoList, err := ioutil.ReadDir(optThemeInputDir)
+func copyThemeFiles(themeInputDir, themeOutputDir string) {
+	fileInfoList, err := ioutil.ReadDir(themeInputDir)
 	if err != nil {
 		logger.Warning(err)
 		return
 	}
 	for _, fileInfo := range fileInfoList {
 		name := fileInfo.Name()
-		if strings.HasSuffix(name, ".png") {
-			srcFile := filepath.Join(optThemeInputDir, name)
-			dstFile := filepath.Join(optThemeOutputDir, name)
+		ext := filepath.Ext(name)
+		if ext == ".png" || ext == ".pf2" {
+			srcFile := filepath.Join(themeInputDir, name)
+			dstFile := filepath.Join(themeOutputDir, name)
 			logger.Debug("copyFile", srcFile, dstFile)
 			_, err := copyFile(srcFile, dstFile)
 			if err != nil {
@@ -423,8 +544,8 @@ func copyPngFiles() {
 	}
 }
 
-func cleanupThemeOutputDir() {
-	fileInfoList, err := ioutil.ReadDir(optThemeOutputDir)
+func cleanupThemeOutputDir(dir string) {
+	fileInfoList, err := ioutil.ReadDir(dir)
 	if err != nil {
 		if !os.IsNotExist(err) {
 			logger.Warning(err)
@@ -432,7 +553,7 @@ func cleanupThemeOutputDir() {
 	}
 
 	for _, fileInfo := range fileInfoList {
-		filename := filepath.Join(optThemeOutputDir, fileInfo.Name())
+		filename := filepath.Join(dir, fileInfo.Name())
 		if fileInfo.IsDir() {
 			os.RemoveAll(filename)
 		} else {
@@ -453,7 +574,7 @@ type genFontCacheKey struct {
 	size      int
 }
 
-func genPF2Font(fontFile string, faceIndex, size int) (*font.Face, error) {
+func genPF2Font(themeOutputDir, fontFile string, faceIndex, size int) (*font.Face, error) {
 	cacheKey := genFontCacheKey{
 		fontFile:  fontFile,
 		faceIndex: faceIndex,
@@ -472,7 +593,7 @@ func genPF2Font(fontFile string, faceIndex, size int) (*font.Face, error) {
 	// trim ext
 	fontBaseName = strings.TrimSuffix(fontBaseName, filepath.Ext(fontBaseName))
 	fontBaseName = fmt.Sprintf("ag-%s-%d-%d.pf2", fontBaseName, faceIndex, size)
-	output := filepath.Join(optThemeOutputDir, fontBaseName)
+	output := filepath.Join(themeOutputDir, fontBaseName)
 
 	cmd := exec.Command("grub-mkfont", "-i", faceIndexStr,
 		"-s", sizeStr, "-o", output, fontFile)
@@ -508,7 +629,9 @@ func parseTplFont(str string) (fontName string, sizeScale float64, err error) {
 	return fontName, sizeScale, nil
 }
 
-func adjustFont(comp *tt.Component, propName string, vars map[string]float64) (*font.Face, error) {
+func adjustFont(themeOutputDir string, comp *tt.Component, propName string,
+	vars map[string]float64) (*font.Face, error) {
+
 	propFont, _ := comp.GetPropString(propName)
 	fontName, sizeScale, err := parseTplFont(propFont)
 	if err != nil {
@@ -526,7 +649,7 @@ func adjustFont(comp *tt.Component, propName string, vars map[string]float64) (*
 		fontSize = minFontSize
 	}
 
-	face, err := genPF2Font(fontFile, faceIndex, fontSize)
+	face, err := genPF2Font(themeOutputDir, fontFile, faceIndex, fontSize)
 	if err != nil {
 		return nil, err
 	}
@@ -535,7 +658,7 @@ func adjustFont(comp *tt.Component, propName string, vars map[string]float64) (*
 	return face, nil
 }
 
-func adjustTerminalFont(theme *tt.Theme, vars map[string]float64) error {
+func adjustTerminalFont(themeOutputDir string, theme *tt.Theme, vars map[string]float64) error {
 	var fontName string
 	var sizeScale float64
 	var err error
@@ -572,7 +695,7 @@ func adjustTerminalFont(theme *tt.Theme, vars map[string]float64) error {
 		}
 	}
 
-	face, err := genPF2Font(fontFile, faceIndex, fontSize)
+	face, err := genPF2Font(themeOutputDir, fontFile, faceIndex, fontSize)
 	if err != nil {
 		return err
 	}
@@ -610,14 +733,14 @@ func adjustSelectedItemPixmapStyle(r int) {
 	dc.SetRGBA(1, 1, 1, 0.2)
 	dc.DrawRoundedRectangle(0, 0, float64(width), float64(width), float64(r))
 	dc.Fill()
-	prefix := filepath.Join(optThemeOutputDir, "selected_item")
+	prefix := filepath.Join(optThemeOutputDir, themeNameNormal, "selected_item")
 	cropSaveStyleBox(dc.Image(), prefix, r)
 }
 
 func adjustItemPixmapStyle(r int) {
 	width := 2*r + 1
 	img := image.NewAlpha(image.Rect(0, 0, width, width))
-	prefix := filepath.Join(optThemeOutputDir, "item")
+	prefix := filepath.Join(optThemeOutputDir, themeNameNormal, "item")
 	cropSaveStyleBox(img, prefix, r)
 }
 
@@ -636,7 +759,7 @@ func cropSaveScrollbarThumbStyleBox(img image.Image, r int, name string) {
 	imgN := imaging.CropAnchor(img, w, r, imaging.Top)
 	imgS := imaging.CropAnchor(img, w, r, imaging.Bottom)
 	imgC := imaging.CropAnchor(img, w, 1, imaging.Center)
-	namePrefix := filepath.Join(optThemeOutputDir, name)
+	namePrefix := filepath.Join(optThemeOutputDir, themeNameNormal, name)
 	imaging.Save(imgN, namePrefix+"_n.png")
 	imaging.Save(imgS, namePrefix+"_s.png")
 	imaging.Save(imgC, namePrefix+"_c.png")
@@ -654,7 +777,7 @@ func getScrollbarThumbR(menuR int) int {
 	return round(float64(menuR) * 0.167)
 }
 
-func adjustBootMenuPixmapStyle(comp *tt.Component, bgImg image.Image) {
+func adjustBootMenuPixmapStyle(themeOutputDir string, comp *tt.Component, bgImg image.Image) {
 	logger.Debug("adjustBootMenuPixmapStyle")
 	itemHeight, _ := comp.GetPropInt("item_height")
 	bmLeft, _ := comp.GetPropInt("left")
@@ -696,13 +819,13 @@ func adjustBootMenuPixmapStyle(comp *tt.Component, bgImg image.Image) {
 
 	img3 := imaging.Overlay(shadowImg, img2, image.Pt(0, 0), 1)
 
-	prefix := filepath.Join(optThemeOutputDir, "menu")
+	prefix := filepath.Join(themeOutputDir, "menu")
 	cropSaveStyleBox(img3, prefix, x+menuR)
 }
 
-func adjustBootMenu(comp *tt.Component, vars map[string]float64) {
+func adjustBootMenu(themeOutputDir string, comp *tt.Component, vars map[string]float64) {
 	vars = copyVars(vars)
-	face, err := adjustFont(comp, "item_font", vars)
+	face, err := adjustFont(themeOutputDir, comp, "item_font", vars)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -734,11 +857,11 @@ func adjustBootMenu(comp *tt.Component, vars map[string]float64) {
 		logger.Fatal(err)
 	}
 
-	bgImg, err = adjustBackground(bgImg)
+	bgImg, err = adjustBackground(themeOutputDir, bgImg)
 	if err != nil {
 		logger.Fatal(err)
 	}
-	adjustBootMenuPixmapStyle(comp, bgImg)
+	adjustBootMenuPixmapStyle(themeOutputDir, comp, bgImg)
 
 	convertPropAbs2Rel(comp, "left", orientationHorizontal)
 	convertPropAbs2Rel(comp, "top", orientationVertical)
@@ -793,9 +916,9 @@ func convertPropRel2Abs(comp *tt.Component, propName string, orientation int) {
 	}
 }
 
-func adjustLabel(comp *tt.Component, vars map[string]float64) {
+func adjustLabel(themeOutputDir string, comp *tt.Component, vars map[string]float64) {
 	vars = copyVars(vars)
-	face, err := adjustFont(comp, "font", vars)
+	face, err := adjustFont(themeOutputDir, comp, "font", vars)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -808,6 +931,10 @@ func adjustLabel(comp *tt.Component, vars map[string]float64) {
 	}
 	convertPropAbs2Rel(comp, "top", orientationVertical)
 
+	adjustLabelText(comp)
+}
+
+func adjustLabelText(comp *tt.Component) {
 	localeVars := locale.GetLocaleVariants(optLang)
 	var text string
 	var textFound bool
