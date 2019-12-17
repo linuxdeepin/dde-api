@@ -223,12 +223,65 @@ func parseResolution(v string) (w, h int, err error) {
 	return
 }
 
-func getCurrentLocale() string {
-	lang := os.Getenv("LANG")
-	if lang == "" {
-		lang = "en"
+func getCurrentLocale() (locale string) {
+	for _, envVar := range []string{"DEEPIN_LASTORE_LANG", "LC_ALL", "LANG"} {
+		locale = os.Getenv(envVar)
+		if locale != "" {
+			return locale
+		}
 	}
-	return lang
+
+	return getDefaultLocale()
+}
+
+const (
+	systemLocaleFile  = "/etc/default/locale"
+	systemdLocaleFile = "/etc/locale.conf"
+	defaultLocale     = "en_US.UTF-8"
+)
+
+func getDefaultLocale() (locale string) {
+	files := [...]string{
+		systemLocaleFile,
+		systemdLocaleFile,
+	}
+	for _, file := range files {
+		locale = getLocaleFromFile(file)
+		if locale != "" {
+			// get locale success
+			break
+		}
+	}
+	if locale == "" {
+		return defaultLocale
+	}
+	return locale
+}
+
+func getLocaleFromFile(file string) string {
+	f, err := os.Open(file)
+	if err != nil {
+		return ""
+	}
+	defer f.Close()
+
+	r := kv.NewReader(f)
+	r.Delim = '='
+	r.Comment = '#'
+	r.TrimSpace = kv.TrimLeadingTailingSpace
+	for {
+		pair, err := r.Read()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return ""
+		}
+
+		if pair.Key == "LANG" {
+			return pair.Value
+		}
+	}
+	return ""
 }
 
 func loadThemeHeadInfo(filename string) (map[string]string, error) {

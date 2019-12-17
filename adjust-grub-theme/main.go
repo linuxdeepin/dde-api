@@ -487,21 +487,8 @@ func main() {
 		return
 	}
 
-	// load old theme.txt head info
-	headInfo, err := loadThemeHeadInfo(filepath.Join(optThemeOutputDir, themeNameNormal, "theme.txt"))
-	if err != nil {
-		if !os.IsNotExist(err) {
-			logger.Warning(err)
-		}
-	}
-
 	if optLang == "" {
-		optLang = headInfo["#lang"]
-
-		if optLang == "" {
-			// get current locale
-			optLang = getCurrentLocale()
-		}
+		optLang = getCurrentLocale()
 	}
 	logger.Debug("lang:", optLang)
 
