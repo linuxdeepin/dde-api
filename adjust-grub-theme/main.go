@@ -44,11 +44,11 @@ var optSetBackground string
 var optLogSys bool
 var optTerminalFontSize int
 var optTerminalFontName string
+var optFallbackOnly bool
 var logger *log.Logger
 
 func init() {
 	logger = log.NewLogger("adjust-grub-theme")
-	logger.SetLogLevel(log.LevelDebug)
 
 	flag.IntVar(&optScreenWidth, "width", 0, "screen width")
 	flag.IntVar(&optScreenHeight, "height", 0, "screen height")
@@ -63,6 +63,7 @@ func init() {
 	flag.IntVar(&optTerminalFontSize, "tf-size", -1, "terminal font size")
 	flag.StringVar(&optTerminalFontName, "tf-name", "Unifont:style=Medium",
 		"terminal font name")
+	flag.BoolVar(&optFallbackOnly, "fallback-only", false, "fallback only")
 }
 
 func loadBackgroundImage() (image.Image, error) {
@@ -286,6 +287,9 @@ func adjustTheme() {
 	if err != nil {
 		logger.Fatal(err)
 	}
+	if optFallbackOnly {
+		return
+	}
 	err = adjustThemeNormal()
 	if err != nil {
 		logger.Fatal(err)
@@ -474,7 +478,7 @@ func main() {
 		var err error
 		optScreenWidth, optScreenHeight, err = getScreenSizeFromGrubParams()
 		if err != nil {
-			logger.Warning(err)
+			logger.Debug(err)
 			optScreenWidth = 1024
 			optScreenHeight = 768
 		}
