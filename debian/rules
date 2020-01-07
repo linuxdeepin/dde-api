@@ -1,5 +1,5 @@
 #!/usr/bin/make -f
-
+export GOCACHE = /tmp/gocache
 export GOPATH := /usr/share/gocode
 
 %:
