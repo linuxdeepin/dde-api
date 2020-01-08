@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Deepin Packages Builder <packages@deepin.com>
 Build-Depends: debhelper (>= 9), dh-golang, golang-any,
  golang-go | gccgo-5,
- golang-dlib-dev (>= 1.2.13),golang-gir-gobject-2.0-dev (>> 1.2.0+),
+ golang-dlib-dev (>> 5.4.1+),golang-gir-gobject-2.0-dev (>> 1.2.0+),
  golang-gir-gio-2.0-dev (>> 1.2.0+), golang-gir-glib-2.0-dev (>> 1.2.0+),
  golang-gir-gudev-1.0-dev (>> 1.2.0+),
  golang-github-linuxdeepin-go-x11-client-dev (>= 0.0.4),
