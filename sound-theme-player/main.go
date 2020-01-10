@@ -114,7 +114,10 @@ func (m *Manager) PlaySoundDesktopLogin(sender dbus.Sender) *dbus.Error {
 		if cfg.Card != "" && cfg.Device != "" {
 			device = fmt.Sprintf("plughw:CARD=%s,DEV=%s", cfg.Card, cfg.Device)
 		}
-		go m.doPlaySound(cfg.Theme, "desktop-login", device)
+		go func() {
+			m.doPlaySound(cfg.Theme, "desktop-login", device)
+			os.Exit(0)
+		}()
 	}
 	return nil
 }
@@ -125,7 +128,10 @@ func (m *Manager) Play(theme, event, device string) *dbus.Error {
 	if theme == "" || event == "" {
 		return dbusutil.ToError(errors.New("invalid theme or event"))
 	}
-	go m.doPlaySound(theme, event, device)
+	go func() {
+		m.doPlaySound(theme, event, device)
+		os.Exit(0)
+	}()
 	return nil
 }
 
