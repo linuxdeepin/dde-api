@@ -123,11 +123,9 @@ fn:he::fonts-sil-ezra
 fn:hi::fonts-deva
 fn:ii::fonts-sil-nuosusil
 fn:ja::fonts-noto-cjk
-fn:ja::fonts-noto-cjk-extra
 fn:km::fonts-khmeros
 fn:kn::fonts-knda
 fn:ko::fonts-noto-cjk
-fn:ko::fonts-noto-cjk-extra
 fn:lo::fonts-lao
 fn:ml::fonts-mlym
 fn:mn::fonts-manchufont
@@ -146,13 +144,7 @@ fn:ur::fonts-nafees
 fn:ur::fonts-sil-scheherazade
 fn:yi::fonts-sil-ezra
 fn:zh-hans::fonts-noto-cjk
-fn:zh-hans::fonts-noto-cjk-extra
-fn:zh-hans::fonts-arphic-uming
-fn:zh-hans::fonts-arphic-ukai
 fn:zh-hant::fonts-noto-cjk
-fn:zh-hant::fonts-noto-cjk-extra
-fn:zh-hant::fonts-arphic-uming
-fn:zh-hant::fonts-arphic-ukai
 
 # GhostScript CJK resources
 fn:ja:gs-cjk-resource:poppler-data
@@ -176,7 +168,7 @@ im:ja::fcitx-frontend-gtk3
 im:ja::fcitx-frontend-qt4
 im:ja::fcitx-frontend-qt5
 im:ja::fcitx-mozc
-im:ja:kio:kde-config-fcitx
+im:ja:kde-plasma-desktop:kde-config-fcitx
 
 im:ko:ibus:ibus-hangul
 im:ko::fcitx-ui-classic
@@ -185,7 +177,7 @@ im:ko::fcitx-frontend-gtk3
 im:ko::fcitx-frontend-qt4
 im:ko::fcitx-frontend-qt5
 im:ko::fcitx-hangul
-im:ko:kio:kde-config-fcitx
+im:ko:kde-plasma-desktop:kde-config-fcitx
 
 im:te:ibus:ibus-m17n
 im:th:ibus:gtk-im-libthai
@@ -197,7 +189,7 @@ im:vi::fcitx-frontend-gtk3
 im:vi::fcitx-frontend-qt4
 im:vi::fcitx-frontend-qt5
 im:vi::fcitx-unikey
-im:vi:kio:kde-config-fcitx
+im:vi:kde-plasma-desktop:kde-config-fcitx
 
 #im:zh-hans::fcitx-ui-qimpanel
 im:zh-hans::fcitx-ui-classic
@@ -205,13 +197,9 @@ im:zh-hans::fcitx-frontend-gtk2
 im:zh-hans::fcitx-frontend-gtk3
 im:zh-hans::fcitx-frontend-qt4
 im:zh-hans::fcitx-frontend-qt5
-#im:zh-hans::fcitx-module-cloudpinyin
-#im:zh-hans::fcitx-sunpinyin
-im:zh-hans::fcitx-pinyin
-#im:zh-hans::fcitx-table-wubi
 im:zh-hans::uos-chineseime
 im:zh-hans::fcitx-table-wbpy
-im:zh-hans:kio:kde-config-fcitx
+im:zh-hans:kde-plasma-desktop:kde-config-fcitx
 im:zh-hans:gnome-shell:ibus-sunpinyin
 im:zh-hans:gnome-shell:ibus-table-wubi
 
@@ -222,10 +210,9 @@ im:zh-hant::fcitx-frontend-gtk3
 im:zh-hant::fcitx-frontend-qt4
 im:zh-hant::fcitx-frontend-qt5
 im:zh-hant::fcitx-chewing
-im:zh-hant::fcitx-pinyin
 im:zh-hant::fcitx-table-cangjie3
 im:zh-hant::fcitx-table-cangjie5
-im:zh-hant:kio:kde-config-fcitx
+im:zh-hant:kde-plasma-desktop:kde-config-fcitx
 im:zh-hant:gnome-shell:ibus-chewing
 im:zh-hant:gnome-shell:ibus-table-cangjie3
 im:zh-hant:gnome-shell:ibus-table-cangjie5
