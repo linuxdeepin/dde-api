@@ -1,17 +1,15 @@
 [Unit]
 Description=Deepin shutdown sound
-Requisite=sound.target
-After=sound.target
-Before=local-fs.target shutdown.target
-DefaultDependencies=no
+Requisite=sound.target local-fs.target
+After=sound.target local-fs.target
+Before=systemd-logind.service
 
 [Service]
-Type=oneshot
-ExecStart=/usr/lib/deepin-api/deepin-shutdown-sound
+Type=simple
+ExecStart=/usr/bin/true
+ExecStop=/usr/lib/deepin-api/deepin-shutdown-sound
 RemainAfterExit=yes
-KillSignal=SIGINT
-KillMode=none
-TimeoutStopSec=3s
+TimeoutStopSec=7s
 
 [Install]
-WantedBy=shutdown.target
+WantedBy=graphical.target
