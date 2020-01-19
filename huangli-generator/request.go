@@ -118,6 +118,10 @@ func (info *baiduFestival) ToFestival(year, month int) huangli.FestivalList {
 				fmt.Println("Failed to convert festival id:", day.Festival, err)
 				continue
 			}
+			yearMonthStr := fmt.Sprintf("%04d%02d", year, month)
+			if 0 != strings.Index(id, yearMonthStr) {
+				continue
+			}
 			var info = huangli.Festival{
 				ID:          id,
 				Month:       month,
