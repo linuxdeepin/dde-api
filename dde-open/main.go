@@ -21,6 +21,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"net/url"
 	"os"
@@ -34,12 +35,24 @@ import (
 
 var logger = log.NewLogger("dde-open")
 
+var optVersion bool
+
+func init() {
+	flag.BoolVar(&optVersion, "version", false, "show version")
+}
+
 func main() {
-	if len(os.Args) != 2 {
+	flag.Parse()
+	if optVersion {
+		fmt.Println("1.0")
+		os.Exit(0)
+	}
+
+	if len(flag.Args()) != 1 {
 		fmt.Println("usage: dde-open { file | URL }")
 		os.Exit(1)
 	}
-	arg := os.Args[1]
+	arg := flag.Arg(0)
 
 	u, err := url.Parse(arg)
 	if err != nil {
