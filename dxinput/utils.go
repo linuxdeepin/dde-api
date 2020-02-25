@@ -21,6 +21,8 @@ package dxinput
 
 import (
 	"fmt"
+	"os"
+
 	"pkg.deepin.io/dde/api/dxinput/utils"
 )
 
@@ -46,6 +48,16 @@ var (
 	rotationInverted = []float32{-1, 0, 1, 0, -1, 1, 0, 0, 1} // clockwise or counterclockwise 180°
 	rotationRight    = []float32{0, 1, 0, -1, 0, 1, 0, 0, 1}  // counterclockwise 90°
 )
+
+var (
+	globalWayland bool
+)
+
+func init() {
+	if len(os.Getenv("WAYLAND_DISPLAY")) != 0 {
+		globalWayland = true
+	}
+}
 
 /**
  * Prop: "Device Enabled", 8 bit, 1 value

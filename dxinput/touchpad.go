@@ -21,6 +21,9 @@ package dxinput
 
 import (
 	"fmt"
+
+	. "pkg.deepin.io/dde/api/dxinput/common"
+	"pkg.deepin.io/dde/api/dxinput/kwayland"
 	"pkg.deepin.io/dde/api/dxinput/utils"
 )
 
@@ -57,8 +60,8 @@ func NewTouchpad(id int32) (*Touchpad, error) {
 	return NewTouchpadFromDevInfo(info)
 }
 
-func NewTouchpadFromDevInfo(dev *utils.DeviceInfo) (*Touchpad, error) {
-	if dev == nil || dev.Type != utils.DevTypeTouchpad {
+func NewTouchpadFromDevInfo(dev *DeviceInfo) (*Touchpad, error) {
+	if dev == nil || dev.Type != DevTypeTouchpad {
 		return nil, fmt.Errorf("Not a touchpad device(%d - %s)", dev.Id, dev.Name)
 	}
 
@@ -76,6 +79,10 @@ func NewTouchpadFromDevInfo(dev *utils.DeviceInfo) (*Touchpad, error) {
  *	Value 2: Only tapping and scrolling is switched off
  **/
 func (tpad *Touchpad) Enable(enabled bool) error {
+	if globalWayland {
+		return kwayland.Enable(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id), enabled)
+	}
+
 	err := enableDevice(tpad.Id, enabled)
 	if err != nil {
 		return err
@@ -96,6 +103,10 @@ func (tpad *Touchpad) Enable(enabled bool) error {
 }
 
 func (tpad *Touchpad) IsEnabled() bool {
+	if globalWayland {
+		return kwayland.CanEnabled(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id))
+	}
+
 	if !isDeviceEnabled(tpad.Id) {
 		return false
 	}
@@ -117,6 +128,9 @@ func (tpad *Touchpad) EnableLeftHanded(enabled bool) error {
 		return nil
 	}
 
+	if globalWayland {
+		return kwayland.EnableLeftHanded(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id), enabled)
+	}
 	if tpad.isLibinputUsed {
 		return libinputInt8PropSet(tpad.Id, libinputPropLeftHandedEnabled, enabled)
 	}
@@ -124,6 +138,9 @@ func (tpad *Touchpad) EnableLeftHanded(enabled bool) error {
 }
 
 func (tpad *Touchpad) CanLeftHanded() bool {
+	if globalWayland {
+		return kwayland.CanLeftHanded(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id))
+	}
 	if tpad.isLibinputUsed {
 		return libinputInt8PropCan(tpad.Id, libinputPropLeftHandedEnabled)
 	}
@@ -155,6 +172,9 @@ func (tpad *Touchpad) EnableTapToClick(enabled bool) error {
 		return nil
 	}
 
+	if globalWayland {
+		return kwayland.EnableTapToClick(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id), enabled)
+	}
 	if tpad.isLibinputUsed {
 		// TODO: libinput unsupported tap mapping settings.
 		return libinputInt8PropSet(tpad.Id, libinputPropTapEnabled, enabled)
@@ -180,6 +200,9 @@ func (tpad *Touchpad) EnableTapToClick(enabled bool) error {
 }
 
 func (tpad *Touchpad) CanTapToClick() bool {
+	if globalWayland {
+		return kwayland.CanTapToClick(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id))
+	}
 	if tpad.isLibinputUsed {
 		return libinputInt8PropCan(tpad.Id, libinputPropTapEnabled)
 	}
@@ -219,6 +242,9 @@ func (tpad *Touchpad) EnableEdgeScroll(enabled bool) error {
 		return nil
 	}
 
+	if globalWayland {
+		return kwayland.EnableScrollEdge(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id), enabled)
+	}
 	if tpad.isLibinputUsed {
 		return libinputEnableScrollEdge(tpad.Id, enabled)
 	}
@@ -238,6 +264,9 @@ func (tpad *Touchpad) EnableEdgeScroll(enabled bool) error {
 }
 
 func (tpad *Touchpad) CanEdgeScroll() bool {
+	if globalWayland {
+		return kwayland.CanScrollEdge(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id))
+	}
 	if tpad.isLibinputUsed {
 		_, edge, _ := libinputCanScroll(tpad.Id)
 		return edge
@@ -266,6 +295,13 @@ func (tpad *Touchpad) CanEdgeScroll() bool {
  *		two fingers anywhere on the touchpad.
  **/
 func (tpad *Touchpad) EnableTwoFingerScroll(vert, horiz bool) error {
+	if globalWayland {
+		v := vert
+		if !v {
+			v = horiz
+		}
+		return kwayland.EnableScrollTwoFinger(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id), v)
+	}
 	oldVert, oldHoriz := tpad.CanTwoFingerScroll()
 	if oldVert == vert && oldHoriz == horiz {
 		return nil
@@ -296,6 +332,9 @@ func (tpad *Touchpad) EnableTwoFingerScroll(vert, horiz bool) error {
 }
 
 func (tpad *Touchpad) CanTwoFingerScroll() (bool, bool) {
+	if globalWayland {
+		return true, kwayland.CanScrollTwoFinger(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id))
+	}
 	if tpad.isLibinputUsed {
 		twoFinger, _, _ := libinputCanScroll(tpad.Id)
 		return twoFinger, libinputInt8PropCan(tpad.Id, libinputPropHorizScrollEnabled)
@@ -323,6 +362,9 @@ func (tpad *Touchpad) EnableNaturalScroll(enabled bool) error {
 		return nil
 	}
 
+	if globalWayland {
+		return kwayland.EnableNaturalScroll(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id), enabled)
+	}
 	if tpad.isLibinputUsed {
 		return libinputInt8PropSet(tpad.Id, libinputPropNaturalEnabled, enabled)
 	}
@@ -342,6 +384,9 @@ func (tpad *Touchpad) EnableNaturalScroll(enabled bool) error {
 }
 
 func (tpad *Touchpad) CanNaturalScroll() bool {
+	if globalWayland {
+		return kwayland.CanNaturalScroll(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id))
+	}
 	if tpad.isLibinputUsed {
 		return libinputInt8PropCan(tpad.Id, libinputPropNaturalEnabled)
 	}
@@ -359,7 +404,7 @@ func (tpad *Touchpad) CanNaturalScroll() bool {
 }
 
 func (tpad *Touchpad) SetScrollDistance(vert, horiz int32) error {
-	if tpad.isLibinputUsed {
+	if tpad.isLibinputUsed || globalWayland {
 		return fmt.Errorf("Libinput unsupport the property")
 	}
 
@@ -378,7 +423,7 @@ func (tpad *Touchpad) SetScrollDistance(vert, horiz int32) error {
 }
 
 func (tpad *Touchpad) ScrollDistance() (int32, int32) {
-	if tpad.isLibinputUsed {
+	if tpad.isLibinputUsed || globalWayland {
 		return 0, 0
 	}
 
@@ -391,6 +436,9 @@ func (tpad *Touchpad) ScrollDistance() (int32, int32) {
 }
 
 func (tpad *Touchpad) SetMotionAcceleration(accel float32) error {
+	if globalWayland {
+		return kwayland.SetPointerAccel(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id), float64(accel))
+	}
 	if tpad.isLibinputUsed {
 		return libinputSetAccel(tpad.Id, 1-accel/1.5)
 	}
@@ -398,6 +446,10 @@ func (tpad *Touchpad) SetMotionAcceleration(accel float32) error {
 }
 
 func (tpad *Touchpad) MotionAcceleration() (float32, error) {
+	if globalWayland {
+		v, err := kwayland.GetPointerAccel(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id))
+		return float32(v), err
+	}
 	if tpad.isLibinputUsed {
 		return libinputGetAccel(tpad.Id)
 	}
@@ -405,28 +457,28 @@ func (tpad *Touchpad) MotionAcceleration() (float32, error) {
 }
 
 func (tpad *Touchpad) SetMotionThreshold(thres float32) error {
-	if tpad.isLibinputUsed {
+	if tpad.isLibinputUsed || globalWayland {
 		return fmt.Errorf("Libinput unsupport the property")
 	}
 	return setMotionThreshold(tpad.Id, thres)
 }
 
 func (tpad *Touchpad) MotionThreshold() (float32, error) {
-	if tpad.isLibinputUsed {
+	if tpad.isLibinputUsed || globalWayland {
 		return 0, fmt.Errorf("Libinput unsupport the property")
 	}
 	return getMotionThreshold(tpad.Id)
 }
 
 func (tpad *Touchpad) SetMotionScaling(scaling float32) error {
-	if tpad.isLibinputUsed {
+	if tpad.isLibinputUsed || globalWayland {
 		return fmt.Errorf("Libinput unsupport the property")
 	}
 	return setMotionScaling(tpad.Id, scaling)
 }
 
 func (tpad *Touchpad) MotionScaling() (float32, error) {
-	if tpad.isLibinputUsed {
+	if tpad.isLibinputUsed || globalWayland {
 		return 0, fmt.Errorf("Libinput unsupport the property")
 	}
 	return getMotionScaling(tpad.Id)
@@ -437,6 +489,10 @@ func (tpad *Touchpad) SetRotation(direction uint8) error {
 }
 
 func (tpad *Touchpad) CanDisableWhileTyping() bool {
+	if globalWayland {
+		return kwayland.CanDisableWhileTyping(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id))
+	}
+
 	if !tpad.isLibinputUsed {
 		return true
 	}
@@ -444,6 +500,9 @@ func (tpad *Touchpad) CanDisableWhileTyping() bool {
 }
 
 func (tpad *Touchpad) EnableDisableWhileTyping(enabled bool) error {
+	if globalWayland {
+		return kwayland.EnableDisableWhileTyping(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id), enabled)
+	}
 	if !tpad.isLibinputUsed {
 		return fmt.Errorf("Unsupported this prop: unused libinput as driver")
 	}
@@ -458,7 +517,7 @@ func (tpad *Touchpad) EnableDisableWhileTyping(enabled bool) error {
 // EnablePalmDetect set synaptics palm detect
 // 'Synaptics Palm Detection' 8 bit (BOOL)
 func (tpad *Touchpad) EnablePalmDetect(enabled bool) error {
-	if tpad.isLibinputUsed {
+	if tpad.isLibinputUsed || globalWayland {
 		return fmt.Errorf("libinput unsupported palm detect setting")
 	}
 
@@ -477,7 +536,7 @@ func (tpad *Touchpad) EnablePalmDetect(enabled bool) error {
 }
 
 func (tpad *Touchpad) CanPalmDetect() bool {
-	if tpad.isLibinputUsed {
+	if tpad.isLibinputUsed || globalWayland {
 		// libinput enable palm detect as default
 		return true
 	}
@@ -490,7 +549,7 @@ func (tpad *Touchpad) CanPalmDetect() bool {
 
 // 'Synaptics Palm Dimensions' 32 bit, 2 values, width, z
 func (tpad *Touchpad) SetPalmDimensions(width, z int32) error {
-	if tpad.isLibinputUsed {
+	if tpad.isLibinputUsed || globalWayland {
 		return fmt.Errorf("libinput unsupported palm detect setting")
 	}
 
@@ -502,7 +561,7 @@ func (tpad *Touchpad) SetPalmDimensions(width, z int32) error {
 }
 
 func (tpad *Touchpad) GetPalmDimensions() (int32, int32, error) {
-	if tpad.isLibinputUsed {
+	if tpad.isLibinputUsed || globalWayland {
 		return 0, 0, fmt.Errorf("libinput unsupported palm detect setting")
 	}
 

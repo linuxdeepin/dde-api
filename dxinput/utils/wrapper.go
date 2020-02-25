@@ -29,16 +29,11 @@ import "C"
 
 import (
 	"fmt"
+	"os"
 	"unsafe"
-)
 
-const (
-	DevTypeUnknown int32 = iota
-	DevTypeKeyboard
-	DevTypeMouse
-	DevTypeTouchpad
-	DevTypeWacom
-	DevTypeTouchscreen
+	. "pkg.deepin.io/dde/api/dxinput/common"
+	"pkg.deepin.io/dde/api/dxinput/kwayland"
 )
 
 const (
@@ -46,15 +41,13 @@ const (
 	maxBufferLen = 1000
 )
 
-type DeviceInfo struct {
-	Id      int32
-	Type    int32
-	Name    string
-	Enabled bool
-}
-type DeviceInfos []*DeviceInfo
-
 func ListDevice() DeviceInfos {
+	if len(os.Getenv("WAYLAND_DISPLAY")) != 0 {
+		infos, _ := kwayland.ListDevice()
+		if len(infos) != 0 {
+			return infos
+		}
+	}
 	var cNum C.int = 0
 	cInfos := C.list_device(&cNum)
 	if cNum == 0 && cInfos == nil {
@@ -74,15 +67,6 @@ func ListDevice() DeviceInfos {
 		})
 	}
 	return infos
-}
-
-func (infos DeviceInfos) Get(id int32) *DeviceInfo {
-	for _, info := range infos {
-		if info.Id == id {
-			return info
-		}
-	}
-	return nil
 }
 
 func QueryDeviceType(id int32) int32 {

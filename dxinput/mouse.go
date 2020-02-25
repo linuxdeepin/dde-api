@@ -21,8 +21,11 @@ package dxinput
 
 import (
 	"fmt"
-	"pkg.deepin.io/dde/api/dxinput/utils"
 	"strings"
+
+	. "pkg.deepin.io/dde/api/dxinput/common"
+	"pkg.deepin.io/dde/api/dxinput/kwayland"
+	"pkg.deepin.io/dde/api/dxinput/utils"
 )
 
 const (
@@ -52,10 +55,15 @@ func NewMouse(id int32) (*Mouse, error) {
 	return NewMouseFromDeviceInfo(info)
 }
 
-func NewMouseFromDeviceInfo(dev *utils.DeviceInfo) (*Mouse, error) {
-	if dev == nil || dev.Type != utils.DevTypeMouse {
+func NewMouseFromDeviceInfo(dev *DeviceInfo) (*Mouse, error) {
+	if dev == nil || dev.Type != DevTypeMouse {
 		return nil, fmt.Errorf("Not a mouse device(%d - %s)", dev.Id, dev.Name)
 	}
+
+	if globalWayland {
+		return &Mouse{Id: dev.Id, Name: dev.Name}, nil
+	}
+
 	return &Mouse{
 		Id:             dev.Id,
 		Name:           dev.Name,
@@ -65,10 +73,18 @@ func NewMouseFromDeviceInfo(dev *utils.DeviceInfo) (*Mouse, error) {
 }
 
 func (m *Mouse) Enable(enabled bool) error {
+	if globalWayland {
+		return kwayland.Enable(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id), enabled)
+	}
+
 	return enableDevice(m.Id, enabled)
 }
 
 func (m *Mouse) IsEnabled() bool {
+	if globalWayland {
+		return kwayland.CanEnabled(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id))
+	}
+
 	return isDeviceEnabled(m.Id)
 }
 
@@ -77,6 +93,9 @@ func (m *Mouse) EnableLeftHanded(enabled bool) error {
 		return nil
 	}
 
+	if globalWayland {
+		return kwayland.EnableLeftHanded(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id), enabled)
+	}
 	if m.isLibinputUsed {
 		return libinputInt8PropSet(m.Id, libinputPropLeftHandedEnabled, enabled)
 	}
@@ -84,6 +103,9 @@ func (m *Mouse) EnableLeftHanded(enabled bool) error {
 }
 
 func (m *Mouse) CanLeftHanded() bool {
+	if globalWayland {
+		return kwayland.CanLeftHanded(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id))
+	}
 	if m.isLibinputUsed {
 		return libinputInt8PropCan(m.Id, libinputPropLeftHandedEnabled)
 	}
@@ -94,6 +116,9 @@ func (m *Mouse) CanLeftHanded() bool {
 // TODO: Evdev support
 // ref: http://510x.se/notes/posts/Changing_mouse_acceleration_in_Debian_and_Linux_in_general/
 func (m *Mouse) CanChangeAccelProfile() bool {
+	if globalWayland {
+		return kwayland.CanAdaptiveAccelProfile(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id))
+	}
 	if m.isLibinputUsed {
 		return libinputIsBothAccelProfileAvaliable(m.Id)
 	}
@@ -102,10 +127,16 @@ func (m *Mouse) CanChangeAccelProfile() bool {
 
 // Set to false to use flat accel profile
 func (m *Mouse) SetUseAdaptiveAccelProfile(useAdaptiveProfile bool) error {
+	if globalWayland {
+		return kwayland.EnableAdaptiveAccelProfile(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id), useAdaptiveProfile)
+	}
 	return libinputSetAccelProfile(m.Id, useAdaptiveProfile)
 }
 
 func (m *Mouse) IsAdaptiveAccelProfileEnabled() bool {
+	if globalWayland {
+		return kwayland.CanAdaptiveAccelProfile(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id))
+	}
 	adaptive, _ := libinputGetAccelProfile(m.Id)
 	return adaptive
 }
@@ -118,6 +149,9 @@ func (m *Mouse) EnableMiddleButtonEmulation(enabled bool) error {
 		return nil
 	}
 
+	if globalWayland {
+		return kwayland.EnableMiddleEmulation(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id), enabled)
+	}
 	if m.isLibinputUsed {
 		return libinputInt8PropSet(m.Id, libinputPropMiddleEmulationEnabled, enabled)
 	}
@@ -133,6 +167,9 @@ func (m *Mouse) EnableMiddleButtonEmulation(enabled bool) error {
 }
 
 func (m *Mouse) CanMiddleButtonEmulation() bool {
+	if globalWayland {
+		return kwayland.CanMiddleButtonEmulation(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id))
+	}
 	if m.isLibinputUsed {
 		return libinputInt8PropCan(m.Id, libinputPropMiddleEmulationEnabled)
 	}
@@ -149,7 +186,7 @@ func (m *Mouse) CanMiddleButtonEmulation() bool {
 // "Evdev Middle Button Timeout"
 //     1 16-bit positive value.
 func (m *Mouse) SetMiddleButtonEmulationTimeout(timeout int16) error {
-	if m.isLibinputUsed {
+	if m.isLibinputUsed || globalWayland {
 		return fmt.Errorf("Libinput unsupport the property")
 	}
 
@@ -162,7 +199,7 @@ func (m *Mouse) SetMiddleButtonEmulationTimeout(timeout int16) error {
 }
 
 func (m *Mouse) MiddleButtonEmulationTimeout() (int16, error) {
-	if m.isLibinputUsed {
+	if m.isLibinputUsed || globalWayland {
 		return 0, fmt.Errorf("Libinput unsupport the property")
 	}
 
@@ -181,6 +218,9 @@ func (m *Mouse) EnableWheelEmulation(enabled bool) error {
 		return nil
 	}
 
+	if globalWayland {
+		return nil
+	}
 	if m.isLibinputUsed {
 		return libinputEnableScrollButton(m.Id, enabled)
 	}
@@ -203,6 +243,9 @@ func (m *Mouse) SetRotation(direction uint8) error {
 }
 
 func (m *Mouse) CanWheelEmulation() bool {
+	if globalWayland {
+		return true
+	}
 	if m.isLibinputUsed {
 		_, _, v := libinputCanScroll(m.Id)
 		return v
@@ -224,6 +267,9 @@ func (m *Mouse) SetWheelEmulationButton(btnNum int8) error {
 		return nil
 	}
 
+	if globalWayland {
+		return kwayland.SetScrollButton(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id), uint32(btnNum))
+	}
 	if m.isLibinputUsed {
 		return libinputSetScrollButton(m.Id, int32(btnNum))
 	}
@@ -233,6 +279,10 @@ func (m *Mouse) SetWheelEmulationButton(btnNum int8) error {
 }
 
 func (m *Mouse) WheelEmulationButton() (int8, error) {
+	if globalWayland {
+		v, err := kwayland.GetScrollButton(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id))
+		return int8(v), err
+	}
 	if m.isLibinputUsed {
 		v, err := libinputGetScrollButton(m.Id)
 		return int8(v), err
@@ -249,7 +299,7 @@ func (m *Mouse) WheelEmulationButton() (int8, error) {
 // "Evdev Wheel Emulation Timeout"
 //     1 16-bit positive value.
 func (m *Mouse) SetWheelEmulationTimeout(timeout int16) error {
-	if m.isLibinputUsed {
+	if m.isLibinputUsed || globalWayland {
 		return fmt.Errorf("Libinput unsupport the property")
 	}
 
@@ -262,7 +312,7 @@ func (m *Mouse) SetWheelEmulationTimeout(timeout int16) error {
 }
 
 func (m *Mouse) WheelEmulationTimeout() (int16, error) {
-	if m.isLibinputUsed {
+	if m.isLibinputUsed || globalWayland {
 		return 0, fmt.Errorf("Libinput unsupport the property")
 	}
 
@@ -278,6 +328,9 @@ func (m *Mouse) EnableWheelHorizScroll(enabled bool) error {
 		return nil
 	}
 
+	if globalWayland {
+		return kwayland.EnableScrollTwoFinger(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id), enabled)
+	}
 	if m.isLibinputUsed {
 		return libinputInt8PropSet(m.Id, libinputPropHorizScrollEnabled, enabled)
 	}
@@ -285,6 +338,9 @@ func (m *Mouse) EnableWheelHorizScroll(enabled bool) error {
 }
 
 func (m *Mouse) CanWheelHorizScroll() bool {
+	if globalWayland {
+		return kwayland.CanScrollTwoFinger(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id))
+	}
 	if m.isLibinputUsed {
 		return libinputInt8PropCan(m.Id, libinputPropHorizScrollEnabled)
 	}
@@ -295,6 +351,9 @@ func (m *Mouse) EnableWheelHorizNaturalScroll(enabled bool) error {
 	if enabled == m.CanWheelHorizNaturalScroll() {
 		return nil
 	}
+	if globalWayland {
+		return kwayland.EnableNaturalScroll(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id), enabled)
+	}
 	if m.isLibinputUsed {
 		return libinputInt8PropSet(m.Id, libinputPropNaturalEnabled, enabled)
 	}
@@ -302,6 +361,9 @@ func (m *Mouse) EnableWheelHorizNaturalScroll(enabled bool) error {
 }
 
 func (m *Mouse) CanWheelHorizNaturalScroll() bool {
+	if globalWayland {
+		return kwayland.CanNaturalScroll(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id))
+	}
 	if m.isLibinputUsed {
 		return libinputInt8PropCan(m.Id, libinputPropNaturalEnabled)
 	}
@@ -313,6 +375,9 @@ func (m *Mouse) EnableNaturalScroll(enabled bool) error {
 		return nil
 	}
 
+	if globalWayland {
+		return kwayland.EnableNaturalScroll(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id), enabled)
+	}
 	if m.isLibinputUsed {
 		return libinputInt8PropSet(m.Id, libinputPropNaturalEnabled, enabled)
 	}
@@ -331,6 +396,9 @@ func (m *Mouse) EnableNaturalScroll(enabled bool) error {
 }
 
 func (m *Mouse) CanNaturalScroll() bool {
+	if globalWayland {
+		return kwayland.CanNaturalScroll(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id))
+	}
 	if m.isLibinputUsed {
 		return libinputInt8PropCan(m.Id, libinputPropNaturalEnabled)
 	}
@@ -346,6 +414,9 @@ func (m *Mouse) CanNaturalScroll() bool {
 }
 
 func (m *Mouse) SetMotionAcceleration(accel float32) error {
+	if globalWayland {
+		return kwayland.SetPointerAccel(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id), float64(accel))
+	}
 	if m.isLibinputUsed {
 		return libinputSetAccel(m.Id, 1-accel/1.5)
 	}
@@ -353,6 +424,10 @@ func (m *Mouse) SetMotionAcceleration(accel float32) error {
 }
 
 func (m *Mouse) MotionAcceleration() (float32, error) {
+	if globalWayland {
+		v, err := kwayland.GetPointerAccel(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id))
+		return float32(v), err
+	}
 	if m.isLibinputUsed {
 		return libinputGetAccel(m.Id)
 	}
@@ -360,7 +435,7 @@ func (m *Mouse) MotionAcceleration() (float32, error) {
 }
 
 func (m *Mouse) SetMotionThreshold(thres float32) error {
-	if m.isLibinputUsed {
+	if m.isLibinputUsed || globalWayland {
 		return fmt.Errorf("Libinput unsupport the property")
 	}
 
@@ -368,7 +443,7 @@ func (m *Mouse) SetMotionThreshold(thres float32) error {
 }
 
 func (m *Mouse) MotionThreshold() (float32, error) {
-	if m.isLibinputUsed {
+	if m.isLibinputUsed || globalWayland {
 		return 0.0, fmt.Errorf("Libinput unsupport the property")
 	}
 
@@ -376,7 +451,7 @@ func (m *Mouse) MotionThreshold() (float32, error) {
 }
 
 func (m *Mouse) SetMotionScaling(scaling float32) error {
-	if m.isLibinputUsed {
+	if m.isLibinputUsed || globalWayland {
 		return fmt.Errorf("Libinput unsupport the property")
 	}
 
@@ -384,7 +459,7 @@ func (m *Mouse) SetMotionScaling(scaling float32) error {
 }
 
 func (m *Mouse) MotionScaling() (float32, error) {
-	if m.isLibinputUsed {
+	if m.isLibinputUsed || globalWayland {
 		return 0.0, fmt.Errorf("Libinput unsupport the property")
 	}
 
@@ -438,7 +513,7 @@ func (m *Mouse) canWheelHorizScroll(natural bool) bool {
 	return isInt8ArrayEqual(values, []int8{6, 7, 4, 5})
 }
 
-func isTrackPoint(info *utils.DeviceInfo) bool {
+func isTrackPoint(info *DeviceInfo) bool {
 	name := strings.ToLower(info.Name)
 	return strings.Contains(name, "trackpoint") ||
 		strings.Contains(name, "dualpoint stick")

@@ -21,6 +21,8 @@ package dxinput
 
 import (
 	"fmt"
+
+	. "pkg.deepin.io/dde/api/dxinput/common"
 	"pkg.deepin.io/dde/api/dxinput/utils"
 )
 
@@ -44,8 +46,8 @@ func NewTouchscreen(id int32) (*Touchscreen, error) {
 	return NewTouchscreenFromDevInfo(info)
 }
 
-func NewTouchscreenFromDevInfo(dev *utils.DeviceInfo) (*Touchscreen, error) {
-	if dev == nil || dev.Type != utils.DevTypeTouchscreen {
+func NewTouchscreenFromDevInfo(dev *DeviceInfo) (*Touchscreen, error) {
+	if dev == nil || dev.Type != DevTypeTouchscreen {
 		return nil, fmt.Errorf("Not a touchscreen device(%d - %s)",
 			dev.Id, dev.Name)
 	}

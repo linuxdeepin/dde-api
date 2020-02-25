@@ -26,6 +26,7 @@ import (
 	"strconv"
 	"strings"
 
+	. "pkg.deepin.io/dde/api/dxinput/common"
 	"pkg.deepin.io/dde/api/dxinput/utils"
 )
 
@@ -66,8 +67,8 @@ func NewWacom(id int32) (*Wacom, error) {
 	return NewWacomFromDevInfo(info)
 }
 
-func NewWacomFromDevInfo(dev *utils.DeviceInfo) (*Wacom, error) {
-	if dev == nil || dev.Type != utils.DevTypeWacom {
+func NewWacomFromDevInfo(dev *DeviceInfo) (*Wacom, error) {
+	if dev == nil || dev.Type != DevTypeWacom {
 		return nil, fmt.Errorf("Not a wacom device(%d - %s)", dev.Id, dev.Name)
 	}
 
