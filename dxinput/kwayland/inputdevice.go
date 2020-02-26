@@ -22,17 +22,21 @@ var (
 	errUnsupported = fmt.Errorf("unsupported this operation")
 )
 
-func init() {
-	conn, err := dbus.SessionBus()
-	if err != nil {
-		fmt.Println("Failed to connect session bus:", err)
-		panic(err)
+func getSessionBus() *dbus.Conn {
+	if _conn == nil {
+		conn, err := dbus.SessionBus()
+		if err != nil {
+			fmt.Println("Failed to connect session bus:", err)
+			panic(err)
+		}
+		_conn = conn
 	}
-	_conn = conn
+
+	return _conn
 }
 
 func ListDevice() (DeviceInfos, error) {
-	var manager = kwin.NewInputDeviceManager(_conn)
+	var manager = kwin.NewInputDeviceManager(getSessionBus())
 	var infos DeviceInfos
 
 	sysNames, err := manager.DevicesSysNames().Get(0)
@@ -297,7 +301,7 @@ func CanLmrTapButtonMap(sysName string) bool {
 }
 
 func NewDeviceInfo(sysName string) (*DeviceInfo, error) {
-	dev, err := kwin.NewInputDevice(_conn, dbus.ObjectPath(eventPathPrefix+sysName))
+	dev, err := kwin.NewInputDevice(getSessionBus(), dbus.ObjectPath(eventPathPrefix+sysName))
 	if err != nil {
 		fmt.Println("Failed to new input device:", err)
 		return nil, err
@@ -340,7 +344,7 @@ fill:
 }
 
 func newInputDeviceObj(sysName string) (*kwin.InputDevice, error) {
-	return kwin.NewInputDevice(_conn, dbus.ObjectPath(eventPathPrefix+sysName))
+	return kwin.NewInputDevice(getSessionBus(), dbus.ObjectPath(eventPathPrefix+sysName))
 }
 
 func dumpInputDevice(dev *kwin.InputDevice) {
