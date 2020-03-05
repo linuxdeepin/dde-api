@@ -303,7 +303,7 @@ func main() {
 		logger.Fatal("failed to request name:", err)
 	}
 	if optAutoQuit {
-		service.SetAutoQuitHandler(time.Second*30, m.canQuit)
+		service.SetAutoQuitHandler(time.Second*2, m.canQuit)
 	}
 
 	time.AfterFunc(8*time.Second, func() {
