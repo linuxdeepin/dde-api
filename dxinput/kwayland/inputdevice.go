@@ -306,7 +306,7 @@ func NewDeviceInfo(sysName string) (*DeviceInfo, error) {
 		fmt.Println("Failed to new input device:", err)
 		return nil, err
 	}
-	dumpInputDevice(dev)
+	//dumpInputDevice(dev)
 
 	var info DeviceInfo
 	kbd, _ := dev.Keyboard().Get(0)
