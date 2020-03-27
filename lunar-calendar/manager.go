@@ -20,11 +20,15 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"strings"
 
 	"pkg.deepin.io/lib/calendar"
+	"pkg.deepin.io/lib/calendar/lunar"
 	dbus "pkg.deepin.io/lib/dbus1"
 	"pkg.deepin.io/lib/dbusutil"
+	libdate "github.com/rickb777/date"
 )
 
 const (
@@ -42,6 +46,7 @@ type Manager struct {
 		GetHuangLiDay         func() `in:"year,month,day" out:"json"`
 		GetHuangLiMonth       func() `in:"year,month,fill" out:"json"`
 		GetFestivalMonth      func() `in:"year,month" out:"json"`
+		GetFestivalsInRange func() `in:"startDate,endDate" out:"result"`
 	}
 }
 
@@ -66,6 +71,58 @@ func (m *Manager) GetLunarInfoBySolar(year, month, day int32) (calendar.LunarDay
 	} else {
 		return info, true, nil
 	}
+}
+
+type DayFestival struct {
+	Year int32
+	Month int32
+	Day int32
+	Festivals []string
+}
+
+func (m *Manager) GetFestivalsInRange(start, end string) ([]DayFestival, *dbus.Error) {
+	m.service.DelayAutoQuit()
+
+	startDate, err := libdate.ParseISO(start)
+	if err != nil {
+		return nil, dbusutil.ToError(err)
+	}
+	endDate, err := libdate.ParseISO(end)
+	if err != nil {
+		return nil, dbusutil.ToError(err)
+	}
+	if startDate.After(endDate) {
+		return nil, dbusutil.ToError(errors.New("start date after end date"))
+	}
+	date := startDate
+	var result []DayFestival
+	for !date.After(endDate) {
+		// date <= endDate
+		cal := lunar.New(date.Year())
+		lunarDay := cal.SolarDayToLunarDay(int(date.Month()), date.Day())
+		var festivals []string
+		festival := lunarDay.Festival()
+		if festival != "" {
+			festivals = append(festivals, festival)
+		}
+		solarDay := calendar.Day{Year: date.Year(), Month: int(date.Month()), Day: date.Day()}
+		festival = solarDay.Festival()
+		if festival != "" {
+			parts := strings.Split(festival, ",")
+			festivals = append(festivals, parts...)
+		}
+		if len(festivals) > 0 {
+			//logger.Debugf("date: %s, festivals: %v", date, festivals)
+			result = append(result, DayFestival{
+				Year:      int32(solarDay.Year),
+				Month:     int32(solarDay.Month),
+				Day:       int32(solarDay.Day),
+				Festivals: festivals,
+			})
+		}
+		date = date.Add(1)
+	}
+	return result, nil
 }
 
 // GetLunarMonthCalendar 获取指定指定公历月份的农历信息
