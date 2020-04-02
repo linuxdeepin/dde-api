@@ -312,7 +312,11 @@ func NewDeviceInfo(sysName string) (*DeviceInfo, error) {
 	kbd, _ := dev.Keyboard().Get(0)
 	numKbd, _ := dev.AlphaNumericKeyboard().Get(0)
 	if kbd && numKbd {
-		info.Type = DevTypeKeyboard
+		if isMouseDevice(dev) {
+			info.Type = DevTypeMouse
+		} else {
+			info.Type = DevTypeKeyboard
+		}
 		goto fill
 	}
 
@@ -321,15 +325,9 @@ func NewDeviceInfo(sysName string) (*DeviceInfo, error) {
 		goto fill
 	}
 
-	{
-		fcount, _ := dev.TapFingerCount().Get(0)
-		suppLeftHanded, _ := dev.SupportsLeftHanded().Get(0)
-		suppBtns, _ := dev.SupportedButtons().Get(0)
-		sbtn, _ := dev.ScrollButton().Get(0)
-		if (fcount == 0) && suppLeftHanded && (suppBtns > 0) && (sbtn != 0) {
-			info.Type = DevTypeMouse
-			goto fill
-		}
+	if isMouseDevice(dev) {
+		info.Type = DevTypeMouse
+		goto fill
 	}
 
 	return nil, nil
@@ -341,6 +339,14 @@ fill:
 	info.Enabled, _ = dev.Enabled().Get(0)
 
 	return &info, nil
+}
+
+func isMouseDevice(dev *kwin.InputDevice) bool {
+	fcount, _ := dev.TapFingerCount().Get(0)
+	suppLeftHanded, _ := dev.SupportsLeftHanded().Get(0)
+	suppBtns, _ := dev.SupportedButtons().Get(0)
+	sbtn, _ := dev.ScrollButton().Get(0)
+	return (fcount == 0) && suppLeftHanded && (suppBtns > 0) && (sbtn != 0)
 }
 
 func newInputDeviceObj(sysName string) (*kwin.InputDevice, error) {
