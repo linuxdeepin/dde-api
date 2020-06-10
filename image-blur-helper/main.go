@@ -80,7 +80,9 @@ func main() {
 		out, err := exec.Command("/bin/sh", "-c", cmd).CombinedOutput()
 		if err != nil {
 			fmt.Printf("Blur '%s' via 'blur_image' failed: %v, %v, try again...\n", image, string(out), err)
-			// fallback
+		}
+		// fallback
+		if !dutils.IsFileExist(dest) {
 			err = blurimage.BlurImage(image, *sigma, dest)
 			if err != nil {
 				fmt.Printf("Blur '%s' via 'blurimage' failed: %s\n", image, err)
