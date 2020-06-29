@@ -3,11 +3,12 @@ package cursor
 import (
 	"image"
 	"path/filepath"
+
 	"pkg.deepin.io/dde/api/theme_thumb/common"
 )
 
 const (
-	Version      = 0
+	Version      = 1
 	basePadding  = 12
 	baseIconSize = 24
 )
@@ -31,7 +32,7 @@ var presentCursors = [][]string{
 	{"x-cursor", "X_cursor"},
 	{"hand2", "hand1"},
 	{"grab", "grabbing", "closedhand"},
-	{"move"},
+	{"fleur", "move"},
 	{"sb_v_double_arrow"},
 	{"sb_h_double_arrow"},
 	{"watch", "wait"},
