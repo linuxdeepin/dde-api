@@ -117,6 +117,9 @@ func Finalize() {
 
 // Create insert to sqlite, if exists, ignore
 func (list HuangLiList) Create() error {
+	if len(list) == 0 {
+		return nil
+	}
 	tx, err := _db.Begin()
 	if err != nil {
 		return err

@@ -21,7 +21,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"strconv"
 	"time"
+
+	"github.com/jinzhu/gorm"
 
 	"pkg.deepin.io/dde/api/huangli"
 )
@@ -35,13 +38,14 @@ var (
 )
 
 func main() {
+	const baseDBFile = "./huangliBase.db"
 	flag.Parse()
 	if *test {
 		doTest()
 		return
 	}
 
-	if !*festival && ((*start == 0 && *end == 0) || *end-*start < 0 || *start < 2008 || *end > (time.Now().Year()+1)) {
+	if !*festival && ((*start == 0 && *end == 0) || *end-*start < 0 || *start < 2008 || *end > (time.Now().Year()+20)) {
 		fmt.Printf("Invalid start year and end year: %d - %d\n", *start, *end)
 		return
 	}
@@ -52,41 +56,56 @@ func main() {
 	}
 	defer huangli.Finalize()
 
+	db, err := gorm.Open("sqlite3", baseDBFile)
+	if err != nil {
+		panic(err)
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+
 	if *festival {
 		genFestivalData()
 		return
 	}
 
 	// generated db data
-	genHuangLiData(*start, *end)
+	genHuangLiData(db, *start, *end)
 }
 
-func genHuangLiData(s, e int) {
-	var list huangli.HuangLiList
-	for i := s; i <= e; i++ {
-		for j := 1; j < 13; j++ {
-			if len(list) > 100 {
-				err := list.Create()
-				if err != nil {
-					fmt.Println("Failed to create db data:", err)
-					return
-				}
-				list = huangli.HuangLiList{}
-			}
-			info, err := newBaiduHuangLiByDate(i, j)
+type Huangli struct {
+	ID int
+	Y  int    // 年
+	M  int    // 月
+	D  int    // 日
+	Yi string // 宜
+	Ji string // 忌
+}
+
+func genHuangLiData(db *gorm.DB, start, end int) {
+	var baseHuangliList []*Huangli
+	var genHuangliList huangli.HuangLiList
+	err := db.Where("Y >= ? AND Y <= ?", start, end).Find(&baseHuangliList).Error
+	if err != nil {
+		fmt.Println("Failed to get db data:", err)
+	}
+	genHuangliList = make(huangli.HuangLiList, 0, 100)
+	for _, item := range baseHuangliList {
+		if len(genHuangliList) >= 100 {
+			err := genHuangliList.Create()
 			if err != nil {
-				fmt.Println("Failed to generate huangli info:", err)
+				fmt.Println("Failed to create db data:", err)
 				return
 			}
-			list = append(list, info.ToHuangLiList()...)
+			genHuangliList = genHuangliList[0:0:100]
 		}
+		temp := &huangli.HuangLi{}
+		temp.Avoid = item.Ji
+		temp.Suit = item.Yi
+		temp.ID, _ = strconv.ParseInt(fmt.Sprintf("%d%02d%02d", item.Y, item.M, item.D), 10, 64)
+		genHuangliList = append(genHuangliList, temp)
 	}
-
-	if len(list) == 0 {
-		return
-	}
-
-	err := list.Create()
+	err = genHuangliList.Create()
 	if err != nil {
 		fmt.Println("Failed to create db data:", err)
 		return
