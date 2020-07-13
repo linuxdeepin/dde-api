@@ -571,3 +571,31 @@ func (tpad *Touchpad) GetPalmDimensions() (int32, int32, error) {
 	}
 	return values[0], values[1], nil
 }
+
+// 校验是否已经使能了触摸板中键模拟功能
+func (tpad *Touchpad) IsMiddleButtonEnulationEnabled() bool {
+	if globalWayland {
+		return kwayland.CanMiddleButtonEmulation(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id))
+	}
+
+	if !tpad.isLibinputUsed {
+		return false
+	}
+	return libinputInt8PropCan(tpad.Id, libinputPropMiddleEmulationEnabled)
+}
+
+// 触摸板中键模拟使能接口
+func (tpad *Touchpad) EnableMiddleButtonEmulation(enabled bool) error {
+	if globalWayland {
+		return kwayland.EnableMiddleEmulation(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id), enabled)
+	}
+	if !tpad.isLibinputUsed {
+		return fmt.Errorf("unsupported this prop: unused libinput as driver")
+	}
+
+	if enabled == tpad.IsMiddleButtonEnulationEnabled() {
+		return nil
+	}
+
+	return libinputInt8PropSet(tpad.Id, libinputPropMiddleEmulationEnabled, enabled)
+}
