@@ -30,12 +30,12 @@ import (
 const (
 	// only for xf86-input-synaptics
 	propOff            string = "Synaptics Off"
-	propScrollDistance        = "Synaptics Scrolling Distance"
-	propEdgeScroll            = "Synaptics Edge Scrolling"
-	propTwoFingerScrol        = "Synaptics Two-Finger Scrolling"
-	propTapAction             = "Synaptics Tap Action"
-	propPalmDetect            = "Synaptics Palm Detection"
-	propPalmDimensions        = "Synaptics Palm Dimensions"
+	propScrollDistance string = "Synaptics Scrolling Distance"
+	propEdgeScroll     string = "Synaptics Edge Scrolling"
+	propTwoFingerScrol string = "Synaptics Two-Finger Scrolling"
+	propTapAction      string = "Synaptics Tap Action"
+	propPalmDetect     string = "Synaptics Palm Detection"
+	propPalmDimensions string = "Synaptics Palm Dimensions"
 )
 
 type Touchpad struct {

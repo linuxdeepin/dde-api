@@ -55,10 +55,7 @@ func IsGtkTheme(uri string) bool {
 	}
 
 	ty, _ := mime.Query(uri)
-	if ty == mime.MimeTypeGtk {
-		return true
-	}
-	return false
+	return ty == mime.MimeTypeGtk
 }
 
 func IsIconTheme(uri string) bool {
@@ -67,10 +64,7 @@ func IsIconTheme(uri string) bool {
 	}
 
 	ty, _ := mime.Query(uri)
-	if ty == mime.MimeTypeIcon {
-		return true
-	}
-	return false
+	return ty == mime.MimeTypeIcon
 }
 
 func IsCursorTheme(uri string) bool {
@@ -79,10 +73,7 @@ func IsCursorTheme(uri string) bool {
 	}
 
 	ty, _ := mime.Query(uri)
-	if ty == mime.MimeTypeCursor {
-		return true
-	}
-	return false
+	return ty == mime.MimeTypeCursor
 }
 
 func doListTheme(uri string, ty string, filter func(string) bool) ([]string, error) {

@@ -186,6 +186,9 @@ func prepareOutputPath(type0, id string, version int) string {
 	typeDir := getTypeDir(type0, version)
 	dir := filepath.Join(cacheDir, scaleDir, typeDir)
 
-	os.MkdirAll(dir, 0755)
+	err := os.MkdirAll(dir, 0755)
+	if err != nil {
+		return ""
+	}
 	return filepath.Join(dir, id+".png")
 }

@@ -36,11 +36,11 @@ const (
 
 const (
 	ImageTypePng  string = "image/png"
-	ImageTypeJpeg        = "image/jpeg"
-	ImageTypeGif         = "image/gif"
-	ImageTypeBmp         = "image/bmp"
-	ImageTypeTiff        = "image/tiff"
-	ImageTypeSvg         = "image/svg+xml"
+	ImageTypeJpeg string = "image/jpeg"
+	ImageTypeGif  string = "image/gif"
+	ImageTypeBmp  string = "image/bmp"
+	ImageTypeTiff string = "image/tiff"
+	ImageTypeSvg  string = "image/svg+xml"
 )
 
 var themeThumbDir = path.Join(os.Getenv("HOME"),

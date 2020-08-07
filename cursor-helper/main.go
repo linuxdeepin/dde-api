@@ -41,7 +41,7 @@ type Manager struct {
 	runningMu  sync.Mutex
 	running    bool
 	setThemeMu sync.Mutex
-
+	//nolint
 	methods *struct {
 		Set func() `in:"name"`
 	}
@@ -58,13 +58,6 @@ const (
 )
 
 var logger = log.NewLogger("api/cursor-helper")
-
-func NewManager(service *dbusutil.Service) *Manager {
-	var m = new(Manager)
-	m.running = false
-	m.service = service
-	return m
-}
 
 func (m *Manager) Set(name string) *dbus.Error {
 	m.service.DelayAutoQuit()

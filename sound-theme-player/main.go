@@ -74,6 +74,7 @@ type Manager struct {
 	service *dbusutil.Service
 
 	configCache map[int]*config
+	//nolint
 	methods     *struct {
 		Play                    func() `in:"theme,event,device"`
 		SaveAudioState          func() `in:"activePlayback"`

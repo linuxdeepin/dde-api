@@ -96,10 +96,7 @@ func IsPropertyExist(id int32, prop string) bool {
 	cprop := C.CString(prop)
 	defer C.free(unsafe.Pointer(cprop))
 	ret := C.is_property_exist(C.int(id), cprop)
-	if int(ret) == 0 {
-		return false
-	}
-	return true
+	return int(ret) != 0
 }
 
 func GetProperty(id int32, prop string) ([]byte, int32) {

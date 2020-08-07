@@ -35,7 +35,7 @@ const (
 // Graphic is a dbus interface wrapper for pkg.deepin.io/lib/graphic.
 type Graphic struct {
 	service *dbusutil.Service
-
+	//nolint
 	methods *struct {
 		BlurImage               func() `in:"srcFile,dstFile,sigma,numSteps,format"`
 		ClipImage               func() `in:"srcFile,dstFile,x,y,w,h,format"`

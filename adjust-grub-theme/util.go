@@ -303,33 +303,6 @@ func getLocaleFromFile(file string) string {
 	return ""
 }
 
-func loadThemeHeadInfo(filename string) (map[string]string, error) {
-	fh, err := os.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-	defer fh.Close()
-
-	headInfo := make(map[string]string)
-	scanner := bufio.NewScanner(fh)
-	for scanner.Scan() {
-		line := scanner.Bytes()
-		if bytes.Equal(line, []byte("#head end")) ||
-			!bytes.HasPrefix(line, []byte{'#'}) {
-			break
-		}
-		fields := bytes.SplitN(line, []byte{':'}, 2)
-		if len(fields) != 2 {
-			continue
-		}
-
-		key := string(fields[0])
-		value := string(fields[1])
-		headInfo[key] = value
-	}
-	return headInfo, nil
-}
-
 func copyFile(src, dst string) (int64, error) {
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {

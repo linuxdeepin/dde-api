@@ -26,7 +26,6 @@ import (
 	"pkg.deepin.io/lib/dbusutil"
 
 	C "gopkg.in/check.v1"
-	"pkg.deepin.io/lib/utils"
 )
 
 func Test(t *testing.T) { C.TestingT(t) }
@@ -42,12 +41,8 @@ const (
 	originImgDominantColorV = 0.43
 
 	originImgPngSmall       = "testdata/origin_small_200x200.png"
-	originImgPngSmallWidth  = 200
-	originImgPngSmallHeight = 200
 	originImgPngIcon1       = "testdata/origin_icon_1_48x48.png"
 	originImgPngIcon2       = "testdata/origin_icon_2_48x48.png"
-	originIconWidth         = 48
-	originIconHeight        = 48
 )
 
 // data uri for originImgPngIcon2
@@ -58,11 +53,6 @@ func delta(x, y float64) float64 {
 		return x - y
 	}
 	return y - x
-}
-
-func sumFileMd5(f string) (md5 string) {
-	md5, _ = utils.SumFileMd5(f)
-	return
 }
 
 func (g *Graphic) SetUpSuite(c *C.C) {

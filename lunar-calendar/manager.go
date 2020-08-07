@@ -39,7 +39,7 @@ const (
 
 type Manager struct {
 	service *dbusutil.Service
-
+	//nolint
 	methods *struct {
 		GetLunarInfoBySolar   func() `in:"year,month,day" out:"lunarDay,ok"`
 		GetLunarMonthCalendar func() `in:"year,month,fill" out:"lunarMonth,ok"`

@@ -47,7 +47,7 @@ type thumbInfo struct {
 
 const (
 	defaultDPI   int = 96
-	defaultScale     = 1
+	defaultScale int = 1
 )
 
 // refer to kde text thumbnail in kde-runtime

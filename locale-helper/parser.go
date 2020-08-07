@@ -180,11 +180,7 @@ func (infos LocaleLangInfos) IsLocaleExist(locale string) bool {
 
 func isUncommented(line string) bool {
 	var match = regexp.MustCompile(`^#`)
-	if match.MatchString(line) {
-		return false
-	}
-
-	return true
+	return !match.MatchString(line)
 }
 
 func getLineContent(line string) string {

@@ -48,8 +48,15 @@ func SetGtkTheme(name string) error {
 		return fmt.Errorf("Invalid theme '%s'", name)
 	}
 
-	setGtk2Theme(name)
-	setGtk3Theme(name)
+	err := setGtk2Theme(name)
+	if err != nil {
+		return fmt.Errorf("set GTK2 Theme to '%s' failed", name)
+	}
+
+	err = setGtk3Theme(name)
+	if err != nil {
+		return fmt.Errorf("set GTK2 Theme to '%s' failed", name)
+	}
 
 	old := getXSettingsValue(xsKeyTheme)
 	if old == name {
@@ -57,19 +64,19 @@ func SetGtkTheme(name string) error {
 	}
 
 	if !setXSettingsKey(xsKeyTheme, name) {
-		return fmt.Errorf("Set theme to '%s' by xsettings failed",
+		return fmt.Errorf("set theme to '%s' by xsettings failed",
 			name)
 	}
 
 	if !setWMTheme(name) {
 		setXSettingsKey(xsKeyTheme, old)
-		return fmt.Errorf("Set wm theme to '%s' failed", name)
+		return fmt.Errorf("set wm theme to '%s' failed", name)
 	}
 
 	if !setQTTheme(name) {
 		setXSettingsKey(xsKeyTheme, old)
 		setWMTheme(old)
-		return fmt.Errorf("Set qt theme to '%s' failed", name)
+		return fmt.Errorf("set qt theme to '%s' failed", name)
 	}
 	return nil
 }
@@ -79,8 +86,15 @@ func SetIconTheme(name string) error {
 		return fmt.Errorf("Invalid theme '%s'", name)
 	}
 
-	setGtk2Icon(name)
-	setGtk3Icon(name)
+	err := setGtk2Icon(name)
+	if err != nil {
+		return fmt.Errorf("set GTK2 Icon to '%s' failed", name)
+	}
+
+	err = setGtk3Icon(name)
+	if err != nil {
+		return fmt.Errorf("set GTK3 Icon to '%s' failed", name)
+	}
 
 	old := getXSettingsValue(xsKeyIconTheme)
 	if old == name {
@@ -88,7 +102,7 @@ func SetIconTheme(name string) error {
 	}
 
 	if !setXSettingsKey(xsKeyIconTheme, name) {
-		return fmt.Errorf("Set theme to '%s' by xsettings failed",
+		return fmt.Errorf("set theme to '%s' by xsettings failed",
 			name)
 	}
 	return nil

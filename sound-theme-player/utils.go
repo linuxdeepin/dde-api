@@ -93,7 +93,7 @@ func runALSARestore(uid int) error {
 	for i := 0; i < 6; i++ {
 		cmd := exec.Command(alsaCtlBin, "-f", "-", "restore")
 		if i != 0 {
-			_, _ = contentReader.Seek(io.SeekStart, 0)
+			_, _ = contentReader.Seek(0, io.SeekStart)
 			errBuf.Reset()
 			logger.Warning("retry restore alsa state", i)
 		}

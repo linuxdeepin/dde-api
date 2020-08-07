@@ -30,12 +30,12 @@ import (
 
 const (
 	propMidBtnEmulation        string = "Evdev Middle Button Emulation"
-	propMidBtnEmulationTimeout        = "Evdev Middle Button Timeout"
-	propWheelEmulation                = "Evdev Wheel Emulation"
-	propWheelEmulationButton          = "Evdev Wheel Emulation Button"
-	propWheelEmulationTimeout         = "Evdev Wheel Emulation Timeout"
-	propWheelEmulationAxes            = "Evdev Wheel Emulation Axes"
-	propEvdevScrollDistance           = "Evdev Scrolling Distance"
+	propMidBtnEmulationTimeout string = "Evdev Middle Button Timeout"
+	propWheelEmulation         string = "Evdev Wheel Emulation"
+	propWheelEmulationButton   string = "Evdev Wheel Emulation Button"
+	propWheelEmulationTimeout  string = "Evdev Wheel Emulation Timeout"
+	propWheelEmulationAxes     string = "Evdev Wheel Emulation Axes"
+	propEvdevScrollDistance    string = "Evdev Scrolling Distance"
 )
 
 type Mouse struct {
@@ -464,19 +464,6 @@ func (m *Mouse) MotionScaling() (float32, error) {
 	}
 
 	return getMotionScaling(m.Id)
-}
-
-// setWheelEmulationAxes set wheel horizontal scrolling
-// "Evdev Wheel Emulation Axes"
-//     4 8-bit values, order X up, X down, Y up, Y down. 0 disables a value.
-// set to "6 7 4 5", enable horizontal scrolling
-// default: "0 0 4 5"
-func (m *Mouse) setWheelEmulationAxes(values []int8) error {
-	old, err := m.wheelEmulationAxes()
-	if err == nil && isInt8ArrayEqual(values, old) {
-		return nil
-	}
-	return utils.SetInt8Prop(m.Id, propWheelEmulationAxes, values)
 }
 
 func (m *Mouse) wheelEmulationAxes() ([]int8, error) {

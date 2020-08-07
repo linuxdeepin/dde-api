@@ -27,7 +27,9 @@ import (
 const (
 	prefixPS    = "POWER_SUPPLY_"
 	pName       = prefixPS + "NAME"
+	//nolint
 	pStatus     = prefixPS + "STATUS"
+	//nolint
 	pPresent    = prefixPS + "PRESENT"
 	pTechnology = prefixPS + "TECHNOLOGY"
 

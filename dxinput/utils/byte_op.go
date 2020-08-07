@@ -30,7 +30,10 @@ func ReadInt8(datas []byte, nitems int32) []int8 {
 	var array []int8
 	for i := int32(0); i < nitems; i++ {
 		var tmp int8
-		binary.Read(reader, machineEndian(), &tmp)
+		err := binary.Read(reader, machineEndian(), &tmp)
+		if err != nil {
+			return nil
+		}
 		array = append(array, tmp)
 		tmp = 0
 	}
@@ -42,7 +45,10 @@ func ReadInt16(datas []byte, nitems int32) []int16 {
 	var array []int16
 	for i := int32(0); i < nitems; i++ {
 		var tmp int16
-		binary.Read(reader, machineEndian(), &tmp)
+		err := binary.Read(reader, machineEndian(), &tmp)
+		if err != nil {
+			return nil
+		}
 		array = append(array, tmp)
 		tmp = 0
 	}
@@ -54,7 +60,10 @@ func ReadInt32(datas []byte, nitems int32) []int32 {
 	var array []int32
 	for i := int32(0); i < nitems; i++ {
 		var tmp int32
-		binary.Read(reader, machineEndian(), &tmp)
+		err := binary.Read(reader, machineEndian(), &tmp)
+		if err != nil {
+			return nil
+		}
 		array = append(array, tmp)
 		tmp = 0
 	}
@@ -66,7 +75,10 @@ func ReadFloat32(datas []byte, nitems int32) []float32 {
 	var array []float32
 	for i := int32(0); i < nitems; i++ {
 		var tmp float32
-		binary.Read(reader, machineEndian(), &tmp)
+		err := binary.Read(reader, machineEndian(), &tmp)
+		if err != nil {
+			return nil
+		}
 		array = append(array, tmp)
 		tmp = 0
 	}
@@ -76,7 +88,10 @@ func ReadFloat32(datas []byte, nitems int32) []float32 {
 func WriteInt8(values []int8) []byte {
 	var writer = new(bytes.Buffer)
 	for i := 0; i < len(values); i++ {
-		binary.Write(writer, machineEndian(), values[i])
+		err := binary.Write(writer, machineEndian(), values[i])
+		if err != nil {
+			return nil
+		}
 	}
 	return writer.Bytes()
 }
@@ -84,7 +99,10 @@ func WriteInt8(values []int8) []byte {
 func WriteInt16(values []int16) []byte {
 	var writer = new(bytes.Buffer)
 	for i := 0; i < len(values); i++ {
-		binary.Write(writer, machineEndian(), values[i])
+		err := binary.Write(writer, machineEndian(), values[i])
+		if err != nil {
+			return nil
+		}
 	}
 	return writer.Bytes()
 }
@@ -92,7 +110,10 @@ func WriteInt16(values []int16) []byte {
 func WriteInt32(values []int32) []byte {
 	var writer = new(bytes.Buffer)
 	for i := 0; i < len(values); i++ {
-		binary.Write(writer, machineEndian(), values[i])
+		err := binary.Write(writer, machineEndian(), values[i])
+		if err != nil {
+			return nil
+		}
 	}
 	return writer.Bytes()
 }
@@ -100,7 +121,10 @@ func WriteInt32(values []int32) []byte {
 func WriteFloat32(values []float32) []byte {
 	var writer = new(bytes.Buffer)
 	for i := 0; i < len(values); i++ {
-		binary.Write(writer, machineEndian(), values[i])
+		err := binary.Write(writer, machineEndian(), values[i])
+		if err != nil {
+			return nil
+		}
 	}
 	return writer.Bytes()
 }

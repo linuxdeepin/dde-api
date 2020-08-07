@@ -55,11 +55,17 @@ func (h *Helper) SetLocale(sender dbus.Sender, locale string) *dbus.Error {
 }
 
 func (h *Helper) emitFailed(err error) {
-	h.service.Emit(h, "Success", false, err.Error())
+	erro := h.service.Emit(h, "Success", false, err.Error())
+	if erro != nil {
+		logger.Warning(erro)
+	}
 }
 
 func (h *Helper) emitRealSuccess() {
-	h.service.Emit(h, "Success", true, "")
+	err := h.service.Emit(h, "Success", true, "")
+	if err != nil {
+		logger.Warning(err)
+	}
 }
 
 func (h *Helper) generateLocale(sender dbus.Sender, locale string) error {

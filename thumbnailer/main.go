@@ -27,7 +27,7 @@ import (
 
 const (
 	SizeTypeNormal int = 128
-	SizeTypeLarge      = 256
+	SizeTypeLarge  int = 256
 )
 
 func main() {

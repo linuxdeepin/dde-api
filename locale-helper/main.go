@@ -40,12 +40,13 @@ type Helper struct {
 	service *dbusutil.Service
 	mu      sync.Mutex
 	running bool
-
+	//nolint
 	methods *struct {
 		SetLocale      func() `in:"locale"`
 		GenerateLocale func() `in:"locale"`
 	}
 
+	//nolint
 	signals *struct {
 		/**
 		 * if failed, Success(false, reason), else Success(true, "")

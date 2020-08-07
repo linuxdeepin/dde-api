@@ -21,7 +21,6 @@ package drandr
 
 import (
 	"fmt"
-	"regexp"
 
 	"github.com/linuxdeepin/go-x11-client"
 	"github.com/linuxdeepin/go-x11-client/ext/randr"
@@ -46,10 +45,6 @@ type OutputInfo struct {
 	PreferredModes randrIdList
 }
 type OutputInfos []OutputInfo
-
-var (
-	badOutputReg = regexp.MustCompile(`.+-\d-\d$`)
-)
 
 func (infos OutputInfos) Query(id uint32) OutputInfo {
 	return infos.query("id", fmt.Sprintf("%v", id))
@@ -138,32 +133,6 @@ func modesToRandrIdList(modes []randr.Mode) randrIdList {
 		list = append(list, uint32(mode))
 	}
 	return list
-}
-
-func isBadOutput(conn *x.Conn, output string, crtc randr.Crtc) bool {
-	if !badOutputReg.MatchString(output) {
-		return false
-	}
-
-	if crtc == 0 {
-		return true
-	}
-
-	cinfo, err := randr.GetCrtcInfo(conn, crtc,
-		lastConfigTimestamp).Reply(conn)
-	if err != nil {
-		return true
-	}
-
-	hasOnlyOneRotation := cinfo.Rotations == 1
-	if !hasOnlyOneRotation {
-		return false
-	}
-	if cinfo.Mode != 0 {
-		randr.SetCrtcConfig(conn, crtc, 0,
-			lastConfigTimestamp, 0, 0, 0, 1, nil)
-	}
-	return true
 }
 
 func getOutputEDID(conn *x.Conn, output randr.Output) ([]byte, error) {

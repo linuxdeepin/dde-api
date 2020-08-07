@@ -24,8 +24,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"image"
-	"image/color"
 	"io"
 	"io/ioutil"
 	"log"
@@ -181,7 +179,10 @@ func parseSection(r io.Reader) (*section, error) {
 	s.name = string(buf)
 
 	var length uint32
-	binary.Read(r, binary.BigEndian, &length)
+	err = binary.Read(r, binary.BigEndian, &length)
+	if err != nil {
+		return nil, err
+	}
 
 	if s.name == "DATA" {
 		return nil, io.EOF
@@ -247,99 +248,6 @@ func parseCharIndex(r *bytes.Reader) (charIndex, error) {
 
 func (f *Face) Close() error {
 	return nil
-}
-
-func (f *Face) findCharIndex(r rune) *charIndex {
-	for _, chixItem := range f.CharIndexes {
-		if rune(chixItem.unicodeCodePoint) == r {
-			return &chixItem
-		}
-	}
-	return nil
-}
-
-func (f *Face) findChar(r rune) *CharInfo {
-	charIdx := f.findCharIndex(r)
-	if charIdx == nil {
-		return nil
-	}
-
-	_, err := f.br.Seek(int64(charIdx.offset), io.SeekStart)
-	if err != nil {
-		return nil
-	}
-	charInfo, err := parseCharInfo(f.br)
-	if err != nil {
-		return nil
-	}
-	return charInfo
-}
-
-type CharInfo struct {
-	width       uint16
-	height      uint16
-	xOffset     int16
-	yOffset     int16
-	deviceWidth int16
-	mask        image.Image
-}
-
-func parseCharInfo(r io.Reader) (*CharInfo, error) {
-	var d CharInfo
-	err := binary.Read(r, binary.BigEndian, &d.width)
-	if err != nil {
-		return nil, err
-	}
-	err = binary.Read(r, binary.BigEndian, &d.height)
-	if err != nil {
-		return nil, err
-	}
-	err = binary.Read(r, binary.BigEndian, &d.xOffset)
-	if err != nil {
-		return nil, err
-	}
-	err = binary.Read(r, binary.BigEndian, &d.yOffset)
-	if err != nil {
-		return nil, err
-	}
-
-	err = binary.Read(r, binary.BigEndian, &d.deviceWidth)
-	if err != nil {
-		return nil, err
-	}
-
-	count := 0
-	var b byte
-	buf := make([]byte, 1)
-
-	img := image.NewAlpha(image.Rect(0, 0, int(d.width), int(d.height)))
-
-	for y := 0; y < int(d.height); y++ {
-		for x := 0; x < int(d.width); x++ {
-			if count == 0 {
-				_, err = r.Read(buf)
-				if err != nil {
-					log.Fatal(err)
-				}
-				b = buf[0]
-			}
-
-			val := b & (1 << uint(7-count))
-			if val != 0 {
-				img.SetAlpha(x, y, color.Alpha{A: 255})
-			}
-
-			if count == 7 {
-				// reset count
-				count = 0
-			} else {
-				count++
-			}
-		}
-	}
-
-	d.mask = img
-	return &d, nil
 }
 
 func (f *Face) Height() int {

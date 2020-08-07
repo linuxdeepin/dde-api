@@ -13,6 +13,7 @@ import (
 
 type LanguageSupport struct {
 	pkgDepends     map[string]map[string]map[string][]string
+	//nolint
 	langCountryMap int
 }
 
@@ -185,8 +186,6 @@ func expendPkgPattern(pattern, locale string) (pkgs []string) {
 		pkgs = append(pkgs,
 			pattern+lang+country,
 			pattern+lang+"-"+country)
-	} else {
-
 	}
 
 	if variant != "" {

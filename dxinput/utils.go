@@ -28,18 +28,18 @@ import (
 
 const (
 	propDeviceEnabled        string = "Device Enabled"
-	propConstantDeceleration        = "Device Accel Constant Deceleration"
-	propAdaptiveDeceleration        = "Device Accel Adaptive Deceleration"
-	propVelocityScaling             = "Device Accel Velocity Scaling"
-	propCoordTransMatrix            = "Coordinate Transformation Matrix"
+	propConstantDeceleration string = "Device Accel Constant Deceleration"
+	propAdaptiveDeceleration string = "Device Accel Adaptive Deceleration"
+	propVelocityScaling      string = "Device Accel Velocity Scaling"
+	propCoordTransMatrix     string = "Coordinate Transformation Matrix"
 )
 
 const (
 	// see also randr
 	RotationDirectionNormal   uint8 = 1
-	RotationDirectionLeft           = 2
-	RotationDirectionInverted       = 4
-	RotationDirectionRight          = 8
+	RotationDirectionLeft     uint8 = 2
+	RotationDirectionInverted uint8 = 4
+	RotationDirectionRight    uint8 = 8
 )
 
 var (
@@ -228,16 +228,6 @@ func getFloat32Prop(id int32, prop string, nitems int32) ([]float32, error) {
 	}
 
 	return utils.ReadFloat32(datas, nitems), nil
-}
-
-func getStringProp(id int32, prop string) (string, error) {
-	datas, num := utils.GetProperty(id, prop)
-	if len(datas) == 0 {
-		return "", fmt.Errorf("Get prop '%v -- %s' values failed",
-			id, prop)
-	}
-
-	return string(datas[:num]), nil
 }
 
 func absInt32(v int32) int32 {

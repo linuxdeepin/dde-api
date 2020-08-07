@@ -28,13 +28,6 @@ const (
 	// detail see: man libinput
 	// 1 boolean value (8 bit, 0 or 1).
 	libinputPropTapEnabled = "libinput Tapping Enabled"
-	// 1 boolean value (8 bit, 0 or 1).
-	libinputPropDragEnabled = "libinput Tapping Drag Enabled"
-	// 1 boolean value (8 bit, 0 or 1).
-	libinputPropDragLockEnabled = "libinput Tapping Drag Lock Enabled"
-	// Either one 8-bit value specifying the meta drag lock button, or a list of button pairs.
-	// See section Button Drag Lock for details.
-	libinputPropDragLockButtons = "libinput Tapping Drag Lock Buttons"
 	// 2 boolean values (8 bit, 0 or 1), in order "adaptive", "flat".
 	// Indicates which acceleration profiles are available on this device.
 	libinputPropAccelProfileAvaliable = "libinput Accel Profiles Available"
@@ -54,14 +47,6 @@ const (
 	// 3 boolean values (8 bit, 0 or 1), in order "two-finger", "edge", "button".
 	// Indicates which scroll methods are available on this device.
 	libinputPropScrollMethodsAvailable = "libinput Scroll Methods Available"
-	// 2 boolean values (8 bit, 0 or 1), in order "buttonareas", "clickfinger"
-	// Indicates which click methods are available on this device.
-	// TODO
-	libinputPropClickMethodEnabled = "libinput Click Method Enabled"
-	// 2 boolean values (8 bit, 0 or 1), in order "buttonareas", "clickfinger"
-	// Indicates which click methods are available on this device.
-	// TODO
-	libinputPropClickMethodAvailable = "libinput Click Methods Available"
 	// 1 32-bit value
 	libinputPropButtonScrollingButton = "libinput Button Scrolling Button"
 	// 1 boolean value (8 bit, 0 or 1).
@@ -194,37 +179,6 @@ func libinputEnableScrollButton(id int32, enabled bool) error {
 		}
 		values[2] = 0
 	}
-	return utils.SetInt8Prop(id, libinputPropScrollMethodsEnabled, values)
-}
-
-func libinputEnableScroll(id int32, twoFinger, edge, button bool) error {
-	available, err := getInt8Prop(id, libinputPropScrollMethodsAvailable, 3)
-	if err != nil {
-		return err
-	}
-
-	var values = []int8{1, 1, 1}
-
-	if available[0] == 0 {
-		twoFinger = false
-	}
-	if available[1] == 0 {
-		edge = false
-	}
-	if available[2] == 0 {
-		button = false
-	}
-
-	if !twoFinger {
-		values[0] = 0
-	}
-	if !edge {
-		values[1] = 0
-	}
-	if !button {
-		values[2] = 0
-	}
-
 	return utils.SetInt8Prop(id, libinputPropScrollMethodsEnabled, values)
 }
 

@@ -85,10 +85,7 @@ func setGtk3Prop(key, value, file string) error {
 
 func isGtk3PropEqual(key, value string, kfile *glib.KeyFile) bool {
 	old, _ := kfile.GetString(gtk3GroupSettings, key)
-	if old == value {
-		return true
-	}
-	return false
+	return old == value
 }
 
 func doSetGtk3Prop(key, value, file string, kfile *glib.KeyFile) error {

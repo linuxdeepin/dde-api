@@ -34,8 +34,8 @@ import (
 
 const (
 	SizeFlagLarge  int = 256
-	SizeFlagNormal     = 128
-	SizeFlagSmall      = 64
+	SizeFlagNormal int = 128
+	SizeFlagSmall  int = 64
 )
 
 const (

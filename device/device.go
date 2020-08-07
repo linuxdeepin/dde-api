@@ -44,7 +44,7 @@ type Device struct {
 	service      *dbusutil.Service
 	mu           sync.Mutex
 	callingCount int
-
+	//nolint
 	methods *struct {
 		HasBluetoothDeviceBlocked func() `out:"has"`
 	}

@@ -770,9 +770,21 @@ func cropSaveScrollbarThumbStyleBox(img image.Image, r int, name string) {
 	imgS := imaging.CropAnchor(img, w, r, imaging.Bottom)
 	imgC := imaging.CropAnchor(img, w, 1, imaging.Center)
 	namePrefix := filepath.Join(optThemeOutputDir, themeNameNormal, name)
-	imaging.Save(imgN, namePrefix+"_n.png")
-	imaging.Save(imgS, namePrefix+"_s.png")
-	imaging.Save(imgC, namePrefix+"_c.png")
+	err := imaging.Save(imgN, namePrefix+"_n.png")
+	if err != nil {
+		logger.Warning(err)
+		return
+	}
+	err = imaging.Save(imgS, namePrefix+"_s.png")
+	if err != nil {
+		logger.Warning(err)
+		return
+	}
+	err = imaging.Save(imgC, namePrefix+"_c.png")
+	if err != nil {
+		logger.Warning(err)
+		return
+	}
 }
 
 func getBootMenuR(itemHeight int) int {

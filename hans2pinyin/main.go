@@ -40,7 +40,7 @@ const (
 
 type Manager struct {
 	service *dbusutil.Service
-
+	//nolint
 	methods *struct {
 		Query     func() `in:"hans" out:"pinyin"`
 		QueryList func() `in:"hansList" out:"json"`

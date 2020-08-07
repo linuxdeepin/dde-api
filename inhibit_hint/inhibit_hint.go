@@ -20,6 +20,7 @@ type Object struct {
 	domain  string
 	name    interface{}
 	icon    interface{}
+	//nolint
 	methods *struct {
 		Get func() `in:"locale,why" out:"hint"`
 	}

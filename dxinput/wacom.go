@@ -34,17 +34,17 @@ const (
 	cmdXSetWacom = "xsetwacom"
 
 	cmdKeyArea      string = "Area"
-	cmdKeyResetArea        = "ResetArea"
-	cmdKeyMode             = "mode"
-	cmdKeyButton           = "Button"
-	cmdKeyRotate           = "Rotate"
-	cmdKeySuppress         = "Suppress"
+	cmdKeyResetArea string = "ResetArea"
+	cmdKeyMode      string = "mode"
+	cmdKeyButton    string = "Button"
+	cmdKeyRotate    string = "Rotate"
+	cmdKeySuppress  string = "Suppress"
 	//(x1, y2, x2, y2) red(x1, y1), blue(x2, y2), green(Threshold)
-	cmdKeyPressureCurve = "PressureCurve"
-	cmdKeyThreshold     = "Threshold"
-	cmdKeyRawSample     = "RawSample"
+	cmdKeyPressureCurve string = "PressureCurve"
+	cmdKeyThreshold     string = "Threshold"
+	cmdKeyRawSample     string = "RawSample"
 	// such as 'VGA1'
-	cmdKeyMapToOutput = "MapToOutput"
+	cmdKeyMapToOutput   string = "MapToOutput"
 )
 
 const (

@@ -55,7 +55,6 @@ func main() {
 			os.Exit(2)
 		}
 	}
-	return
 }
 
 func doGenThumbnail(name, dest string, width, height int, force bool) error {
@@ -73,7 +72,10 @@ func doGenThumbnail(name, dest string, width, height int, force bool) error {
 		}
 	}
 
-	os.MkdirAll(filepath.Dir(dest), 0755)
+	err := os.MkdirAll(filepath.Dir(dest), 0755)
+	if err != nil {
+		return err
+	}
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
 	cDest := C.CString(dest)
@@ -81,6 +83,6 @@ func doGenThumbnail(name, dest string, width, height int, force bool) error {
 	C.gtk_thumbnail(cName, cDest, C.int(width), C.int(height))
 
 	// check thumbnail result
-	_, err := os.Stat(dest)
+	_, err = os.Stat(dest)
 	return err
 }

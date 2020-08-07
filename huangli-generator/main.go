@@ -151,14 +151,6 @@ func doTest() {
 	fest.Dump()
 }
 
-func newBaiduHuangLiByDate(year, month int) (*baiduHuangLi, error) {
-	data, err := doGet(makeURL(year, month))
-	if err != nil {
-		return nil, err
-	}
-	return newBaiduHuangLi(data)
-}
-
 func newBaiduFestivalByDate(year, month int) (*baiduFestival, error) {
 	data, err := doGet(makeURL(year, month))
 	if err != nil {

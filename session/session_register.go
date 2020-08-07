@@ -31,11 +31,17 @@ import (
 // Register will register to session manager if program is started from startdde.
 func Register() {
 	cookie := os.ExpandEnv("$DDE_SESSION_PROCESS_COOKIE_ID")
-	utils.UnsetEnv("DDE_SESSION_PROCESS_COOKIE_ID")
+	err := utils.UnsetEnv("DDE_SESSION_PROCESS_COOKIE_ID")
+
 	if cookie == "" {
 		fmt.Println("get DDE_SESSION_PROCESS_COOKIE_ID failed")
 		return
 	}
+
+	if err != nil {
+		fmt.Println("unsetenv DDE_SESSION_PROCESS_COOKIE_ID failed")
+	}
+	
 	go func() {
 		sessionBus, err := dbus.SessionBus()
 		if err != nil {
