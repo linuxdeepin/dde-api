@@ -52,7 +52,7 @@ func main() {
 
 func handleSignal() {
 	var sigChan = make(chan os.Signal, 2)
-	signal.Notify(sigChan, os.Kill, os.Interrupt)
+	signal.Notify(sigChan, os.Kill, os.Interrupt) //nolint
 	go func() {
 		sig := <-sigChan
 		switch sig {
