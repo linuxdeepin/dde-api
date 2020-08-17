@@ -6,7 +6,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/gosexy/gettext"
-	dbus "pkg.deepin.io/lib/dbus1"
+	"github.com/godbus/dbus"
 	"pkg.deepin.io/lib/dbusutil"
 )
 

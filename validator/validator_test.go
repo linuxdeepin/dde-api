@@ -32,27 +32,38 @@ func Test(t *testing.T) {
 var _ = C.Suite(&Validator{})
 
 func (validator *Validator) TestValidateHostname(c *C.C) {
-	c.Check(validator.ValidateHostname("hostname"), C.Equals, true)
-	c.Check(validator.ValidateHostname("#1"), C.Equals, false)
-	c.Check(validator.ValidateHostname("sub.domain."), C.Equals, false)
+	var res bool
+
+	res, _ = validator.ValidateHostname("hostname")
+	c.Check(res, C.Equals, true)
+
+	res, _ = validator.ValidateHostname("#1")
+	c.Check(res, C.Equals, false)
+
+	res, _ = validator.ValidateHostname("sub.domain.")
+	c.Check(res, C.Equals, false)
 }
 
 func (validator *Validator) TestValidateHostnameTemp(c *C.C) {
-	c.Check(validator.ValidateHostnameTemp("sub.domain."), C.Equals, true)
-	c.Check(validator.ValidateHostnameTemp("sub-domain."), C.Equals, true)
-	c.Check(validator.ValidateHostnameTemp("sub-domain$"), C.Equals, false)
+	var res bool
+
+	res, _ = validator.ValidateHostnameTemp("sub.domain.")
+	c.Check(res, C.Equals, true)
+
+	res, _ = validator.ValidateHostnameTemp("sub.domain$")
+	c.Check(res, C.Equals, false)
 }
 
 func (validator *Validator) TestValiateUsername(c *C.C) {
-	state, _ := validator.ValidateUsername("root")
+	state, _, _ := validator.ValidateUsername("root")
 	c.Check(state, C.Equals, UsernameSystemUsed)
 
-	state, _ = validator.ValidateUsername("nonexst")
+	state, _, _ = validator.ValidateUsername("nonexst")
 	c.Check(state, C.Equals, UsernameOk)
 
-	state, _ = validator.ValidateUsername("-first-char")
+	state, _, _ = validator.ValidateUsername("-first-char")
 	c.Check(state, C.Equals, UsernameFirstCharInvalid)
 
-	state, _ = validator.ValidateUsername("upperCase")
+	state, _, _ = validator.ValidateUsername("upperCase")
 	c.Check(state, C.Equals, UsernameInvalidChars)
 }

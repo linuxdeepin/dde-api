@@ -20,7 +20,7 @@
 package main
 
 import (
-	"pkg.deepin.io/lib/dbus1"
+	"github.com/godbus/dbus"
 	"pkg.deepin.io/lib/dbusutil"
 	libgdkpixbuf "pkg.deepin.io/lib/gdkpixbuf"
 	libgraphic "pkg.deepin.io/lib/graphic"

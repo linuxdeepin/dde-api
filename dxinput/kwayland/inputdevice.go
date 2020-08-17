@@ -7,7 +7,7 @@ import (
 
 	kwin "github.com/linuxdeepin/go-dbus-factory/org.kde.kwin"
 	. "pkg.deepin.io/dde/api/dxinput/common"
-	dbus "pkg.deepin.io/lib/dbus1"
+	"github.com/godbus/dbus"
 )
 
 const (

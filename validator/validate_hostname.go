@@ -21,6 +21,8 @@ package main
 
 import (
 	"regexp"
+
+	"github.com/godbus/dbus"
 )
 
 var hostnameRegex *regexp.Regexp
@@ -44,14 +46,14 @@ func init() {
 // hostname.
 // Dot(.) is used to separator domain and subdomains
 // Underscore(_) and dash(-) are used to concat letters and numbers.
-func (validator *Validator) ValidateHostname(hostname string) bool {
-	return hostnameRegex.MatchString(hostname)
+func (validator *Validator) ValidateHostname(hostname string) (bool, *dbus.Error) {
+	return hostnameRegex.MatchString(hostname), nil
 }
 
 // ValidateHostnameTemp validates part of hostname.
 // This function is used to check hostname when it is being input.
 // Unlike @ValidateHostname, dot(.), underscore(_) and dash(-) are allowed to
 // be at the end of hostname.
-func (validator *Validator) ValidateHostnameTemp(hostname string) bool {
-	return hostnameTempRegex.MatchString(hostname)
+func (validator *Validator) ValidateHostnameTemp(hostname string) (bool, *dbus.Error) {
+	return hostnameTempRegex.MatchString(hostname), nil
 }

@@ -20,16 +20,19 @@
 package main
 
 import (
-	"pkg.deepin.io/lib/dbus"
+	"pkg.deepin.io/lib/dbusutil"
 )
 
-type Validator struct{}
+type Validator struct {
+	service *dbusutil.Service
 
-// GetDBusInfo implements dbus.DBusObject interface
-func (validator *Validator) GetDBusInfo() dbus.DBusInfo {
-	return dbus.DBusInfo{
-		Dest:       DBusName,
-		ObjectPath: DBusPath,
-		Interface:  DBusInterface,
+	method *struct {
+		ValidateHostname     func() `in:"hostname",out:"res"`
+		ValidateHostnameTemp func() `in:"hostname",out:"res"`
+		ValidateUsername     func() `in:"username",out:"res"`
 	}
+}
+
+func (v *Validator) GetInterfaceName() string {
+	return DBusInterface
 }

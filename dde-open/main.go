@@ -29,7 +29,7 @@ import (
 
 	"github.com/linuxdeepin/go-dbus-factory/com.deepin.sessionmanager"
 	"pkg.deepin.io/gir/gio-2.0"
-	"pkg.deepin.io/lib/dbus1"
+	"github.com/godbus/dbus"
 	"pkg.deepin.io/lib/log"
 )
 

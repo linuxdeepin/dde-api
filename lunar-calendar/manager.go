@@ -26,7 +26,7 @@ import (
 
 	"pkg.deepin.io/lib/calendar"
 	"pkg.deepin.io/lib/calendar/lunar"
-	dbus "pkg.deepin.io/lib/dbus1"
+	"github.com/godbus/dbus"
 	"pkg.deepin.io/lib/dbusutil"
 	libdate "github.com/rickb777/date"
 )

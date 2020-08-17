@@ -33,7 +33,7 @@ import (
 
 	"pkg.deepin.io/lib/strv"
 
-	"pkg.deepin.io/lib/dbus1"
+	"github.com/godbus/dbus"
 	"pkg.deepin.io/lib/dbusutil"
 	"pkg.deepin.io/lib/log"
 	"pkg.deepin.io/lib/sound_effect"
