@@ -20,42 +20,43 @@
 package battery
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func Test_parseStatus(t *testing.T) {
-	Convey("parseStatus", t, func() {
-		So(parseStatus("Unknown"), ShouldEqual, StatusUnknown)
-		So(parseStatus("Charging"), ShouldEqual, StatusCharging)
-		So(parseStatus("Discharging"), ShouldEqual, StatusDischarging)
-		So(parseStatus("Not charging"), ShouldEqual, StatusNotCharging)
-		So(parseStatus("Full"), ShouldEqual, StatusFull)
-		So(parseStatus("Other"), ShouldEqual, StatusUnknown)
+	Convey("parseStatus", t, func(c C) {
+		c.So(parseStatus("Unknown"), ShouldEqual, StatusUnknown)
+		c.So(parseStatus("Charging"), ShouldEqual, StatusCharging)
+		c.So(parseStatus("Discharging"), ShouldEqual, StatusDischarging)
+		c.So(parseStatus("Not charging"), ShouldEqual, StatusNotCharging)
+		c.So(parseStatus("Full"), ShouldEqual, StatusFull)
+		c.So(parseStatus("Other"), ShouldEqual, StatusUnknown)
 	})
 }
 
 func Test_GetDisplayStatus(t *testing.T) {
-	Convey("GetDisplayStatus", t, func() {
+	Convey("GetDisplayStatus", t, func(c C) {
 		// one
 		one := []Status{StatusDischarging}
-		So(GetDisplayStatus(one), ShouldEqual, StatusDischarging)
+		c.So(GetDisplayStatus(one), ShouldEqual, StatusDischarging)
 		one[0] = StatusNotCharging
-		So(GetDisplayStatus(one), ShouldEqual, StatusNotCharging)
+		c.So(GetDisplayStatus(one), ShouldEqual, StatusNotCharging)
 
 		// two
 		two := []Status{StatusFull, StatusFull}
-		So(GetDisplayStatus(two), ShouldEqual, StatusFull)
+		c.So(GetDisplayStatus(two), ShouldEqual, StatusFull)
 		two[0] = StatusDischarging
 		two[1] = StatusFull
-		So(GetDisplayStatus(two), ShouldEqual, StatusDischarging)
+		c.So(GetDisplayStatus(two), ShouldEqual, StatusDischarging)
 
 		two[0] = StatusCharging
 		two[1] = StatusFull
-		So(GetDisplayStatus(two), ShouldEqual, StatusCharging)
+		c.So(GetDisplayStatus(two), ShouldEqual, StatusCharging)
 
 		two[0] = StatusCharging
 		two[1] = StatusDischarging
-		So(GetDisplayStatus(two), ShouldEqual, StatusDischarging)
+		c.So(GetDisplayStatus(two), ShouldEqual, StatusDischarging)
 	})
 }

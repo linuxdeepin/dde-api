@@ -20,54 +20,55 @@
 package scanner
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
 	"sort"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestListGtkTheme(t *testing.T) {
-	Convey("List gtk theme", t, func() {
+	Convey("List gtk theme", t, func(c C) {
 		list, err := ListGtkTheme("testdata/Themes")
 		sort.Strings(list)
-		So(list, ShouldResemble, []string{
+		c.So(list, ShouldResemble, []string{
 			"testdata/Themes/Gtk1",
 			"testdata/Themes/Gtk2"})
-		So(err, ShouldBeNil)
+		c.So(err, ShouldBeNil)
 	})
 }
 
 func TestListIconTheme(t *testing.T) {
-	Convey("List icon theme", t, func() {
+	Convey("List icon theme", t, func(c C) {
 		list, err := ListIconTheme("testdata/Icons")
 		sort.Strings(list)
-		So(list, ShouldResemble, []string{
+		c.So(list, ShouldResemble, []string{
 			"testdata/Icons/Icon1",
 			"testdata/Icons/Icon2"})
-		So(err, ShouldBeNil)
+		c.So(err, ShouldBeNil)
 	})
 }
 
 func TestListCursorTheme(t *testing.T) {
-	Convey("List cursor theme", t, func() {
+	Convey("List cursor theme", t, func(c C) {
 		list, err := ListCursorTheme("testdata/Icons")
 		sort.Strings(list)
-		So(list, ShouldResemble, []string{
+		c.So(list, ShouldResemble, []string{
 			"testdata/Icons/Icon1",
 			"testdata/Icons/Icon2"})
-		So(err, ShouldBeNil)
+		c.So(err, ShouldBeNil)
 	})
 }
 
 func TestThemeHidden(t *testing.T) {
-	Convey("Test theme is hidden", t, func() {
-		So(isHidden("testdata/gtk_paper.theme", ThemeTypeGtk),
+	Convey("Test theme is hidden", t, func(c C) {
+		c.So(isHidden("testdata/gtk_paper.theme", ThemeTypeGtk),
 			ShouldEqual, false)
-		So(isHidden("testdata/gtk_paper_hidden.theme", ThemeTypeGtk),
+		c.So(isHidden("testdata/gtk_paper_hidden.theme", ThemeTypeGtk),
 			ShouldEqual, true)
 
-		So(isHidden("testdata/icon_deepin.theme", ThemeTypeIcon),
+		c.So(isHidden("testdata/icon_deepin.theme", ThemeTypeIcon),
 			ShouldEqual, false)
-		So(isHidden("testdata/icon_deepin_hidden.theme", ThemeTypeIcon),
+		c.So(isHidden("testdata/icon_deepin_hidden.theme", ThemeTypeIcon),
 			ShouldEqual, true)
 	})
 }

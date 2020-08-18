@@ -20,35 +20,36 @@
 package themes
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
 	"os"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestGtk2Infos(t *testing.T) {
-	Convey("Test gtk2 infos", t, func() {
+	Convey("Test gtk2 infos", t, func(c C) {
 		infos := gtk2FileReader("testdata/gtkrc-2.0")
-		So(len(infos), ShouldEqual, 16)
+		c.So(len(infos), ShouldEqual, 16)
 
 		info := infos.Get("gtk-theme-name")
-		So(info.value, ShouldEqual, "\"Paper\"")
+		c.So(info.value, ShouldEqual, "\"Paper\"")
 
 		info.value = "\"Deepin\""
-		So(info.value, ShouldEqual, "\"Deepin\"")
+		c.So(info.value, ShouldEqual, "\"Deepin\"")
 
 		infos = infos.Add("gtk2-test", "test")
-		So(len(infos), ShouldEqual, 17)
+		c.So(len(infos), ShouldEqual, 17)
 	})
 
-	Convey("Test nil infos", t, func() {
+	Convey("Test nil infos", t, func(c C) {
 		var infos = gtk2FileReader("testdata/xxx")
 		infos = infos.Add("gtk2-test", "test")
-		So(len(infos), ShouldEqual, 1)
+		c.So(len(infos), ShouldEqual, 1)
 		info := infos.Get("gtk2-test")
-		So(info.value, ShouldEqual, "test")
+		c.So(info.value, ShouldEqual, "test")
 
 		err := gtk2FileWriter(infos, "testdata/tmp-gtk2rc")
 		defer os.Remove("testdata/tmp-gtk2rc")
-		So(err, ShouldBeNil)
+		c.So(err, ShouldBeNil)
 	})
 }

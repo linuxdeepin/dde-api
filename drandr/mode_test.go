@@ -20,12 +20,13 @@
 package drandr
 
 import (
-	"github.com/smartystreets/goconvey/convey"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestCommonModes(t *testing.T) {
-	convey.Convey("Test common modes", t, func() {
+	Convey("Test common modes", t, func(c C) {
 		var infos1 = ModeInfos{
 			{
 				Id:     71,
@@ -107,9 +108,9 @@ func TestCommonModes(t *testing.T) {
 
 		matches := doFoundCommonModes(infos1, infos2)
 		for i := 0; i < len(matches); i++ {
-			convey.ShouldEqual(matches[i].Width, result[i].Width)
-			convey.ShouldEqual(matches[i].Height, result[i].Height)
-			convey.ShouldEqual(matches[i].Rate, result[i].Rate)
+			ShouldEqual(matches[i].Width, result[i].Width)
+			ShouldEqual(matches[i].Height, result[i].Height)
+			ShouldEqual(matches[i].Rate, result[i].Rate)
 		}
 	})
 }

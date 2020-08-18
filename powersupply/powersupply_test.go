@@ -20,19 +20,20 @@
 package powersupply
 
 import (
-	. "github.com/smartystreets/goconvey/convey"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestACOnline(t *testing.T) {
-	Convey("ACOnline", t, func() {
+	Convey("ACOnline", t, func(c C) {
 		acExist, acOnline, err := ACOnline()
 		t.Logf("acExist %v, acOnline %v, err %v", acExist, acOnline, err)
 	})
 }
 
 func TestGetSystemBatteryInfos(t *testing.T) {
-	Convey("GetSystemBatteryInfos", t, func() {
+	Convey("GetSystemBatteryInfos", t, func(c C) {
 		batInfos, err := GetSystemBatteryInfos()
 		if err != nil {
 			t.Log("err", err)
