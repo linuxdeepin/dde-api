@@ -41,8 +41,6 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  rfkill, locales, libcanberra-pulse, blur-effect, librsvg2-bin, fonts-noto-cjk, ttf-unifont,
  bc, fontconfig, coreutils, alsa-utils, libsqlite3-0
-Description: Go-lang bingdings for dde-daemon
- Deepin Go-lang bindings for dde-daemon
 
 Package: dde-api-dev
 Architecture: all
@@ -63,4 +61,5 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  libpoppler-glib-dev,
 Description: Go-lang bingdings for dde-daemon
  Go-lang bindings for dde-daemon -- dev file
+ DDE API provides some dbus interfaces that is used for screen zone detecting, thumbnail generating, sound playing, etc.
 
