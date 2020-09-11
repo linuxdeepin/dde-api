@@ -40,7 +40,7 @@ Package: dde-api
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  rfkill, locales, libcanberra-pulse, blur-effect, librsvg2-bin, fonts-noto-cjk, ttf-unifont,
- bc, fontconfig, coreutils, alsa-utils, libsqlite3-0
+ bc, fontconfig, coreutils, alsa-utils, libsqlite3-0,hw-k-audio
 Description: Go-lang bingdings for dde-daemon
  Deepin Go-lang bindings for dde-daemon
 
@@ -60,7 +60,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  libgdk-pixbuf2.0-dev,
  libcairo2-dev,
  libfreetype6-dev,
- libpoppler-glib-dev,
+ libpoppler-glib-dev
 Description: Go-lang bingdings for dde-daemon
  Go-lang bindings for dde-daemon -- dev file
 

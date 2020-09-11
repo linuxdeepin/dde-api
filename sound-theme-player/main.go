@@ -33,7 +33,7 @@ import (
 
 	"pkg.deepin.io/lib/strv"
 
-	"pkg.deepin.io/lib/dbus1"
+	dbus "pkg.deepin.io/lib/dbus1"
 	"pkg.deepin.io/lib/dbusutil"
 	"pkg.deepin.io/lib/log"
 	"pkg.deepin.io/lib/sound_effect"
@@ -115,6 +115,7 @@ func (m *Manager) PlaySoundDesktopLogin(sender dbus.Sender) *dbus.Error {
 			device = fmt.Sprintf("plughw:CARD=%s,DEV=%s", cfg.Card, cfg.Device)
 		}
 		go func() {
+			m.player.Volume = cfg.Volume
 			m.doPlaySound(cfg.Theme, "desktop-login", device)
 			os.Exit(0)
 		}()
@@ -128,7 +129,21 @@ func (m *Manager) Play(theme, event, device string) *dbus.Error {
 	if theme == "" || event == "" {
 		return dbusutil.ToError(errors.New("invalid theme or event"))
 	}
+
+	//TODO: 此处建议dbus传参数的时候直接传递音量参数，从Login音效配置文件中获取音量是不太合理的一个方式
+	uid, err := getLastUser()
+	if err != nil {
+		return dbusutil.ToError(err)
+	}
+
+	var cfg config
+	err = loadUserConfig(int(uid), &cfg)
+	if err != nil && !os.IsNotExist(err) {
+		logger.Warning(err)
+	}
 	go func() {
+		m.player.Volume = cfg.Volume
+		logger.Info("volume: ", m.player.Volume)
 		m.doPlaySound(theme, event, device)
 		os.Exit(0)
 	}()
@@ -144,6 +159,8 @@ func (m *Manager) doPlaySound(theme, event, device string) {
 	m.playing = true
 	m.mu.Unlock()
 
+	//开机音效延迟1s，等待华为给出修复方案
+	time.Sleep(1 * time.Second)
 	logger.Debug("doPlaySound", theme, event, device)
 	err := m.player.Play(theme, event, device)
 
@@ -172,7 +189,12 @@ func (m *Manager) saveAudioState(uid int, activePlayback map[string]dbus.Variant
 	if !ok {
 		return errors.New("type of field mute is not bool")
 	}
-
+	var volume64 float64
+	volume64, ok = activePlayback["volume"].Value().(float64)
+	if !ok {
+		return errors.New("type of field mute is not bool")
+	}
+	cfg.Volume = float32(volume64)
 	err := m.saveUserConfig(uid)
 	if err != nil {
 		return err

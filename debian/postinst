@@ -83,9 +83,13 @@ fi
 #DEBHELPER#
 
 if [ "$1" = "configure" ]; then
-    if [ -f /etc/systemd/system/shutdown.target.wants/deepin-shutdown-sound.service ]; then
+    if [ ！ -f /etc/systemd/system/graphical.target.wants/deepin-shutdown-sound.service ]; then
         deb-systemd-helper purge 'deepin-shutdown-sound.service' >/dev/null || true
         deb-systemd-helper enable 'deepin-shutdown-sound.service' >/dev/null || true
+    fi
+	if [ ! -f /etc/systemd/system/multi-user.target.wants/deepin-login-sound.service ]; then
+        deb-systemd-helper purge 'deepin-login-sound.service' >/dev/null || true
+        deb-systemd-helper enable 'deepin-login-sound.service' >/dev/null || true
     fi
 fi
 
