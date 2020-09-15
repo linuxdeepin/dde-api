@@ -120,4 +120,4 @@ test: prepare
 	env GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}" go test -v ./...
 
 print_gopath: prepare
-	GOPATH="${CURDIR}/${GOPATH_DIR}:${GOPATH}"
+	GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}"
