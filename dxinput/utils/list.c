@@ -104,6 +104,7 @@ append_device(DeviceInfo** devs, XIDeviceInfo* xinfo, int idx)
     DeviceInfo* tmp = (DeviceInfo*)realloc(*devs, (idx+1)*sizeof(DeviceInfo));
     if (!tmp) {
         fprintf(stderr, "Alloc memory failed for '%d' DeviceInfo\n", idx+1);
+        free(name);
         return -1;
     }
 
