@@ -87,7 +87,6 @@ free_device_list(DeviceInfo* devs, int num)
     }
 
     free(devs);
-    devs = NULL;
 }
 
 static int

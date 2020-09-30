@@ -37,8 +37,8 @@ unsigned char*
 get_button_map(unsigned long xid, const char* name, int* nbuttons)
 {
     if (!name) {
-        fprintf(stderr, "[get_button_map] empty device name for %lu %s\n",
-                xid, name);
+        fprintf(stderr, "[get_button_map] empty device name for %lu\n",
+                xid);
         return NULL;
     }
 
