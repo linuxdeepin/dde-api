@@ -52,6 +52,10 @@ type SolarMonthInfo struct {
  * fill 是否用上下月数据补齐首尾空缺，首例数据从周日开始
  */
 func getLunarMonthCalendar(year, month int, fill bool) (LunarMonthInfo, SolarMonthInfo, bool) {
+	// check if month is invalid, in case month array out of range
+	if !IsMonthValid(month) {
+		return LunarMonthInfo{}, SolarMonthInfo{}, false
+	}
 	solarMonth, ok := getSolarMonthCalendar(year, month, fill)
 	if !ok {
 		return LunarMonthInfo{}, SolarMonthInfo{}, false
@@ -134,4 +138,11 @@ func (days DayInfoList) GetIDList() (list []int64) {
 		list = append(list, v)
 	}
 	return
+}
+
+func IsMonthValid(month int) bool {
+	if month < 1 || month > 12 {
+		return false
+	}
+	return true
 }

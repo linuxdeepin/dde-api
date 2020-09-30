@@ -24,11 +24,11 @@ import (
 	"fmt"
 	"strings"
 
+	libdate "github.com/rickb777/date"
 	"pkg.deepin.io/lib/calendar"
 	"pkg.deepin.io/lib/calendar/lunar"
 	dbus "pkg.deepin.io/lib/dbus1"
 	"pkg.deepin.io/lib/dbusutil"
-	libdate "github.com/rickb777/date"
 )
 
 const (
@@ -46,7 +46,7 @@ type Manager struct {
 		GetHuangLiDay         func() `in:"year,month,day" out:"json"`
 		GetHuangLiMonth       func() `in:"year,month,fill" out:"json"`
 		GetFestivalMonth      func() `in:"year,month" out:"json"`
-		GetFestivalsInRange func() `in:"startDate,endDate" out:"result"`
+		GetFestivalsInRange   func() `in:"startDate,endDate" out:"result"`
 	}
 }
 
@@ -65,6 +65,10 @@ func NewManager(service *dbusutil.Service) *Manager {
 // month 公历月
 // day 公历日
 func (m *Manager) GetLunarInfoBySolar(year, month, day int32) (calendar.LunarDayInfo, bool, *dbus.Error) {
+	// check if month is invalid, in case month array out of range
+	if !IsMonthValid(int(month)) {
+		return calendar.LunarDayInfo{}, false, dbusutil.ToError(fmt.Errorf("invalid date: %d-%d-%d", year, month, day))
+	}
 	m.service.DelayAutoQuit()
 	if info, ok := calendar.SolarToLunar(int(year), int(month), int(day)); !ok {
 		return calendar.LunarDayInfo{}, false, nil
@@ -74,9 +78,9 @@ func (m *Manager) GetLunarInfoBySolar(year, month, day int32) (calendar.LunarDay
 }
 
 type DayFestival struct {
-	Year int32
-	Month int32
-	Day int32
+	Year      int32
+	Month     int32
+	Day       int32
 	Festivals []string
 }
 
@@ -144,6 +148,10 @@ func (m *Manager) GetLunarMonthCalendar(year, month int32, fill bool) (LunarMont
 // GetHuangLiDay 获取指定公历日的黄历信息
 func (m *Manager) GetHuangLiDay(year, month, day int32) (string, *dbus.Error) {
 	m.service.DelayAutoQuit()
+	// check if month is invalid, in case month array out of range
+	if !IsMonthValid(int(month)) {
+		return "", dbusutil.ToError(fmt.Errorf("invalid date: %d-%d-%d", year, month, day))
+	}
 	info, ok := calendar.SolarToLunar(int(year), int(month), int(day))
 	if !ok {
 		return "", dbusutil.ToError(fmt.Errorf("invalid date: %d-%d-%d", year, month, day))
@@ -174,6 +182,10 @@ func (m *Manager) GetHuangLiMonth(year, month int32, fill bool) (string, *dbus.E
 
 // GetFestivalMonth 获取指定公历月的假日信息
 func (m *Manager) GetFestivalMonth(year, month int) (string, *dbus.Error) {
+	// check if month is invalid, in case month array out of range
+	if !IsMonthValid(int(month)) {
+		return "", dbusutil.ToError(fmt.Errorf("invalid date: %d-%d", year, month))
+	}
 	list, err := newFestivalList(year, month)
 	if err != nil {
 		return "", dbusutil.ToError(err)
