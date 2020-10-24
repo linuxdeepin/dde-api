@@ -2,8 +2,6 @@
 # postinst script for dde-api
 
 set -e
-set -x
-
 player_user=deepin-sound-player
 player_home=/var/lib/$player_user
 
@@ -85,9 +83,14 @@ fi
 #DEBHELPER#
 
 if [ "$1" = "configure" ]; then
-    systemctl enable 'deepin-shutdown-sound.service' >/dev/null || true
-
-    systemctl enable 'deepin-login-sound.service' >/dev/null || true
+    if [ ！ -f /etc/systemd/system/graphical.target.wants/deepin-shutdown-sound.service ]; then
+        deb-systemd-helper purge 'deepin-shutdown-sound.service' >/dev/null || true
+        deb-systemd-helper enable 'deepin-shutdown-sound.service' >/dev/null || true
+    fi
+	if [ ! -f /etc/systemd/system/multi-user.target.wants/deepin-login-sound.service ]; then
+        deb-systemd-helper purge 'deepin-login-sound.service' >/dev/null || true
+        deb-systemd-helper enable 'deepin-login-sound.service' >/dev/null || true
+    fi
 fi
 
 exit 0
