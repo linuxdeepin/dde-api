@@ -49,7 +49,7 @@ terminal-border: "0"
 
 + label {
     left = 0
-    top = 97%
+    top = 95%
     width = 100%
     align = "center"
     color = "#99E53E"
