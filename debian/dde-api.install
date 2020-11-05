@@ -1,8 +1,8 @@
+/lib
 /usr/bin
 /usr/lib
-/usr/share/icons/hicolor
 /usr/share/dbus-1
+/usr/share/dde-api
+/usr/share/icons/hicolor
 /usr/share/polkit-1
 /var/lib/polkit-1
-/lib
-/usr/share/dde-api
