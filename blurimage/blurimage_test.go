@@ -20,9 +20,11 @@
 package blurimage
 
 import (
+	"os"
 	"testing"
 
 	"github.com/disintegration/imaging"
+	"github.com/stretchr/testify/assert"
 )
 
 func BenchmarkIsTooBright(b *testing.B) {
@@ -40,21 +42,51 @@ func BenchmarkIsTooBright(b *testing.B) {
 
 func TestIsTooBright(t *testing.T) {
 	t.Skip("always skip")
-	img, err := imaging.Open("testdata/test1.jpg")
-	if err != nil {
-		t.Error(err)
+	tests := []struct {
+		Input  string
+		Expect bool
+	}{
+		{
+			"testdata/test1.jpg",
+			false,
+		},
+		{
+			"testdata/test2.jpg",
+			true,
+		},
 	}
-
-	if isTooBright(img) {
-		t.Error("Judge for test1.jpg is not correct.")
+	for _, data := range tests {
+		img, err := imaging.Open(data.Input)
+		if err != nil {
+			t.Error(err)
+		}
+		if !assert.Equal(t, data.Expect, isTooBright(img)) {
+			t.Errorf("Judge for %s is not correct.", data.Input)
+		}
 	}
+}
 
-	img, err = imaging.Open("testdata/test2.jpg")
-	if err != nil {
-		t.Error(err)
+func TestBlurImage(t *testing.T) {
+	tests := []struct {
+		file  string
+		sigma float64
+		dest  string
+	}{
+		{
+			"testdata/test1.jpg",
+			20,
+			"testdata/test1_blur.png",
+		},
+		{
+			"testdata/test2.jpg",
+			30,
+			"testdata/test2_blur.png",
+		},
 	}
-
-	if !isTooBright(img) {
-		t.Error("Judge for test2.jpg is not correct.")
+	for _, data := range tests {
+		err := BlurImage(data.file, data.sigma, data.dest)
+		assert.Nil(t, err)
+		assert.FileExists(t, data.dest)
+		_ = os.Remove(data.dest)
 	}
 }
