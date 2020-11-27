@@ -8,3 +8,4 @@ _*
 sound/dev_test.go
 graphic/testdata/test_*
 misc/polkit-action/*.policy
+coverage.csv
