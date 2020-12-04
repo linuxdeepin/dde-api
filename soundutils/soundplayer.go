@@ -63,6 +63,17 @@ func PlaySystemSound(event, device string) error {
 	return PlayThemeSound(GetSoundTheme(), event, device)
 }
 
+//PlaySound & Ignore soundEffect com.deepin.dde.sound-effect settings
+func PlaySystemSound_IgnoreSet(event, device string) error {
+	theme := GetSoundTheme()
+	if theme == "" {
+		theme = defaultSoundTheme
+	}
+
+	initPlayer()
+	return player.Play(theme, event, device)
+}
+
 var UseCache = true
 
 var player *sound_effect.Player
