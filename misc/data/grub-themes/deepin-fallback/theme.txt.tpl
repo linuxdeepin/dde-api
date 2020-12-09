@@ -38,7 +38,12 @@ terminal-border: "0"
   align = "center"
   id = "__timeout__"
   _text_en = "Booting in %d seconds"
+  # zh_CN
   _text_zh_CN = "在 %d 秒内启动"
+  # zh_TW
+  _text_zh_TW = "在 %d 秒內啟動"
+  # zh_HK
+  _text_zh_HK = "在 %d 秒內啟動"
   color = "#99E53E"
   font = "Unifont Regular 16"
 }
@@ -54,4 +59,8 @@ terminal-border: "0"
     _text_en = "Use ↑ and ↓ keys to change selection, Enter to confirm, E to edit the commands before booting or C for a command-line"
     # zh_CN
     _text_zh_CN = "使用 ↑ 和 ↓ 键移动选择条，Enter 键确认，E 键编辑启动命令，C 键进入命令行"
+    # zh_TW
+    _text_zh_TW = "使用 ↑ 和 ↓ 鍵移動選擇條，Enter 鍵確認，E 鍵編輯啟動命令，C 鍵進入命令行"
+    # zh_HK
+    _text_zh_HK = "使用 ↑ 和 ↓ 鍵移動選擇條，Enter 鍵確認，E 鍵編輯啟動命令，C 鍵進入命令行"
 }

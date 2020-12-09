@@ -57,6 +57,10 @@ terminal-border: "0"
   # text = "Автоматичне завантаження розпочнеться через %d сек."
   # zh_CN
   _text_zh_CN = "在 %d 秒内启动"
+  # zh_TW
+  _text_zh_TW = "在 %d 秒內啟動"
+  # zh_HK
+  _text_zh_HK = "在 %d 秒內啟動"
   color = "#99E53E"
   font = "Noto Sans CJK SC Regular;0.85"
 }
@@ -86,6 +90,10 @@ terminal-border: "0"
   # text = "Використовуйте ↑ та ↓ для вибору, Enter для підтвердження"
   # zh_CN
   _text_zh_CN = "使用 ↑ 和 ↓ 键移动选择条，Enter 键确认，E 键编辑启动命令，C 键进入命令行"
+  # zh_TW
+  _text_zh_TW = "使用 ↑ 和 ↓ 鍵移動選擇條，Enter 鍵確認，E 鍵編輯啟動命令，C 鍵進入命令行"
+  # zh_HK
+  _text_zh_HK = "使用 ↑ 和 ↓ 鍵移動選擇條，Enter 鍵確認，E 鍵編輯啟動命令，C 鍵進入命令行"
   color = "#99E53E"
   font = "Noto Sans CJK SC Regular;0.85"
 }
