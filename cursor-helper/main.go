@@ -30,21 +30,19 @@ import (
 	"sync"
 	"time"
 
-	"pkg.deepin.io/dde/api/themes"
 	"github.com/godbus/dbus"
+	"pkg.deepin.io/dde/api/themes"
 	"pkg.deepin.io/lib/dbusutil"
 	"pkg.deepin.io/lib/log"
 )
+
+//go:generate dbusutil-gen em -type Manager
 
 type Manager struct {
 	service    *dbusutil.Service
 	runningMu  sync.Mutex
 	running    bool
 	setThemeMu sync.Mutex
-	//nolint
-	methods *struct {
-		Set func() `in:"name"`
-	}
 }
 
 func (*Manager) GetInterfaceName() string {

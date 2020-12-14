@@ -31,6 +31,8 @@ import (
 	polkit "github.com/linuxdeepin/go-dbus-factory/org.freedesktop.policykit1"
 )
 
+//go:generate dbusutil-gen em -type Device
+
 const (
 	dbusServiceName                 = "com.deepin.api.Device"
 	dbusPath                        = "/com/deepin/api/Device"
@@ -44,10 +46,6 @@ type Device struct {
 	service      *dbusutil.Service
 	mu           sync.Mutex
 	callingCount int
-	//nolint
-	methods *struct {
-		HasBluetoothDeviceBlocked func() `out:"has"`
-	}
 }
 
 func (d *Device) incCallingCount() {
@@ -132,7 +130,7 @@ func getRfkillItems() ([]rfkillItem, error) {
 	return v[""], nil
 }
 
-func (d *Device) HasBluetoothDeviceBlocked() (bool, *dbus.Error) {
+func (d *Device) HasBluetoothDeviceBlocked() (has bool, busErr *dbus.Error) {
 	d.service.DelayAutoQuit()
 	d.incCallingCount()
 	defer d.decCallingCount()

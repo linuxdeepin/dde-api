@@ -32,6 +32,8 @@ import (
 	"pkg.deepin.io/lib/pinyin"
 )
 
+//go:generate dbusutil-gen em -type Manager
+
 const (
 	dbusServiceName = "com.deepin.api.Pinyin"
 	dbusPath        = "/com/deepin/api/Pinyin"
@@ -40,20 +42,15 @@ const (
 
 type Manager struct {
 	service *dbusutil.Service
-	//nolint
-	methods *struct {
-		Query     func() `in:"hans" out:"pinyin"`
-		QueryList func() `in:"hansList" out:"json"`
-	}
 }
 
-func (m *Manager) Query(hans string) ([]string, *dbus.Error) {
+func (m *Manager) Query(hans string) (pinyin []string, busErr *dbus.Error) {
 	m.service.DelayAutoQuit()
 	return queryPinyin(hans), nil
 }
 
 // QueryList query pinyin for hans list, return a json data.
-func (m *Manager) QueryList(hansList []string) (string, *dbus.Error) {
+func (m *Manager) QueryList(hansList []string) (jsonStr string, err *dbus.Error) {
 	m.service.DelayAutoQuit()
 	var data = make(map[string][]string)
 	for _, hans := range hansList {

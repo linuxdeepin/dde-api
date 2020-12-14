@@ -39,6 +39,8 @@ import (
 	"pkg.deepin.io/lib/sound_effect"
 )
 
+//go:generate dbusutil-gen em -type Manager
+
 const (
 	dbusServiceName = "com.deepin.api.SoundThemePlayer"
 	dbusPath        = "/com/deepin/api/SoundThemePlayer"
@@ -74,13 +76,6 @@ type Manager struct {
 	service *dbusutil.Service
 
 	configCache map[int]*config
-	//nolint
-	methods     *struct {
-		Play                    func() `in:"theme,event,device"`
-		SaveAudioState          func() `in:"activePlayback"`
-		SetSoundTheme           func() `in:"theme"`
-		EnableSoundDesktopLogin func() `in:"enabled"`
-	}
 }
 
 func (m *Manager) PlaySoundDesktopLogin(sender dbus.Sender) *dbus.Error {

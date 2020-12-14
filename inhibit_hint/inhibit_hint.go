@@ -5,10 +5,12 @@ import (
 	"sync"
 	"unicode/utf8"
 
-	"github.com/gosexy/gettext"
 	"github.com/godbus/dbus"
+	"github.com/gosexy/gettext"
 	"pkg.deepin.io/lib/dbusutil"
 )
+
+//go:generate dbusutil-gen em -type Object
 
 const (
 	dbusPath      = "/com/deepin/InhibitHint"
@@ -16,14 +18,10 @@ const (
 )
 
 type Object struct {
-	getMu   sync.Mutex
-	domain  string
-	name    interface{}
-	icon    interface{}
-	//nolint
-	methods *struct {
-		Get func() `in:"locale,why" out:"hint"`
-	}
+	getMu  sync.Mutex
+	domain string
+	name   interface{}
+	icon   interface{}
 }
 
 func New(domain string) *Object {
@@ -81,7 +79,7 @@ type HintInfo struct {
 	Why  string
 }
 
-func (o *Object) Get(locale string, why string) (*HintInfo, *dbus.Error) {
+func (o *Object) Get(locale string, why string) (hint *HintInfo, busErr *dbus.Error) {
 	o.getMu.Lock()
 	defer o.getMu.Unlock()
 

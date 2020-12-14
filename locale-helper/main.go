@@ -29,6 +29,8 @@ import (
 	"pkg.deepin.io/lib/log"
 )
 
+//go:generate dbusutil-gen em -type Helper
+
 const (
 	dbusServiceName = "com.deepin.api.LocaleHelper"
 	dbusPath        = "/com/deepin/api/LocaleHelper"
@@ -40,11 +42,6 @@ type Helper struct {
 	service *dbusutil.Service
 	mu      sync.Mutex
 	running bool
-	//nolint
-	methods *struct {
-		SetLocale      func() `in:"locale"`
-		GenerateLocale func() `in:"locale"`
-	}
 
 	//nolint
 	signals *struct {

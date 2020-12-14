@@ -54,7 +54,7 @@ func init() {
 // * Username can only contain lower letters(a~z), numbers(0~9), dash(-) and
 //   userscore(_).
 // * Username cannot be used by others or by system.
-func (validator *Validator) ValidateUsername(username string) (int, string, *dbus.Error) {
+func (validator *Validator) ValidateUsername(username string) (code int, result string, busErr *dbus.Error) {
 	if len(username) == 0 {
 		return UsernameEmpty, "Username can not be empty.", nil
 	}

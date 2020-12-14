@@ -23,14 +23,10 @@ import (
 	"pkg.deepin.io/lib/dbusutil"
 )
 
+//go:generate dbusutil-gen em -type Validator
+
 type Validator struct {
 	service *dbusutil.Service
-
-	method *struct {
-		ValidateHostname     func() `in:"hostname",out:"res"`
-		ValidateHostnameTemp func() `in:"hostname",out:"res"`
-		ValidateUsername     func() `in:"username",out:"res"`
-	}
 }
 
 func (v *Validator) GetInterfaceName() string {

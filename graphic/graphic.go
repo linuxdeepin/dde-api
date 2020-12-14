@@ -26,6 +26,8 @@ import (
 	libgraphic "pkg.deepin.io/lib/graphic"
 )
 
+//go:generate dbusutil-gen em -type Graphic
+
 const (
 	dbusServiceName = "com.deepin.api.Graphic"
 	dbusPath        = "/com/deepin/api/Graphic"
@@ -35,27 +37,6 @@ const (
 // Graphic is a dbus interface wrapper for pkg.deepin.io/lib/graphic.
 type Graphic struct {
 	service *dbusutil.Service
-	//nolint
-	methods *struct {
-		BlurImage               func() `in:"srcFile,dstFile,sigma,numSteps,format"`
-		ClipImage               func() `in:"srcFile,dstFile,x,y,w,h,format"`
-		ConvertImage            func() `in:"srcFile,dstFile,format"`
-		ConvertImageToDataUri   func() `in:"srcFile" out:"dataUri"`
-		ConvertDataUriToImage   func() `in:"dataUri,dstFile,format"`
-		CompositeImage          func() `in:"srcFile,compFile,dstFile,x,y,format"`
-		CompositeImageUri       func() `in:"srcDataUri,compDataUri,x,y,format" out:"resultDataUri"`
-		GetDominantColorOfImage func() `in:"imgFile" out:"h,s,v"`
-		FillImage               func() `in:"srcFile,dstFile,width,height,style,format"`
-		FlipImageHorizontal     func() `in:"srcFile,dstFile,format"`
-		FlipImageVertical       func() `in:"srcFile,dstFile,format"`
-		Rgb2Hsv                 func() `in:"r,g,b" out:"h,s,v"`
-		Hsv2Rgb                 func() `in:"h,s,v" out:"r,g,b"`
-		GetImageSize            func() `in:"imgFile" out:"width,height"`
-		ResizeImage             func() `in:"srcFile,dstFile,newWidth,newHeight,format"`
-		ThumbnailImage          func() `in:"srcFile,dstFile,maxWidth,maxHeight,format"`
-		RotateImageLeft         func() `in:"srcFile,dstFile,format"`
-		RotateImageRight        func() `in:"srcFile,dstFile,format"`
-	}
 }
 
 func (*Graphic) GetInterfaceName() string {
@@ -183,7 +164,7 @@ func (graphic *Graphic) Hsv2Rgb(h, s, v float64) (r, g, b uint8, err *dbus.Error
 }
 
 // GetImageSize return a image's width and height.
-func (graphic *Graphic) GetImageSize(imgFile string) (int32, int32, *dbus.Error) {
+func (graphic *Graphic) GetImageSize(imgFile string) (width int32, height int32, busErr *dbus.Error) {
 	graphic.service.DelayAutoQuit()
 	w, h, err := libgraphic.GetImageSize(imgFile)
 	if err != nil {

@@ -24,12 +24,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/godbus/dbus"
+	libdate "github.com/rickb777/date"
 	"pkg.deepin.io/lib/calendar"
 	"pkg.deepin.io/lib/calendar/lunar"
-	"github.com/godbus/dbus"
 	"pkg.deepin.io/lib/dbusutil"
-	libdate "github.com/rickb777/date"
 )
+
+//go:generate dbusutil-gen em -type Manager
 
 const (
 	dbusServiceName = "com.deepin.api.LunarCalendar"
@@ -39,15 +41,6 @@ const (
 
 type Manager struct {
 	service *dbusutil.Service
-	//nolint
-	methods *struct {
-		GetLunarInfoBySolar   func() `in:"year,month,day" out:"lunarDay,ok"`
-		GetLunarMonthCalendar func() `in:"year,month,fill" out:"lunarMonth,ok"`
-		GetHuangLiDay         func() `in:"year,month,day" out:"json"`
-		GetHuangLiMonth       func() `in:"year,month,fill" out:"json"`
-		GetFestivalMonth      func() `in:"year,month" out:"json"`
-		GetFestivalsInRange func() `in:"startDate,endDate" out:"result"`
-	}
 }
 
 func (*Manager) GetInterfaceName() string {
@@ -64,7 +57,7 @@ func NewManager(service *dbusutil.Service) *Manager {
 // year 公历年
 // month 公历月
 // day 公历日
-func (m *Manager) GetLunarInfoBySolar(year, month, day int32) (calendar.LunarDayInfo, bool, *dbus.Error) {
+func (m *Manager) GetLunarInfoBySolar(year, month, day int32) (lunarDay calendar.LunarDayInfo, ok bool, busErr *dbus.Error) {
 	m.service.DelayAutoQuit()
 	if info, ok := calendar.SolarToLunar(int(year), int(month), int(day)); !ok {
 		return calendar.LunarDayInfo{}, false, nil
@@ -74,13 +67,13 @@ func (m *Manager) GetLunarInfoBySolar(year, month, day int32) (calendar.LunarDay
 }
 
 type DayFestival struct {
-	Year int32
-	Month int32
-	Day int32
+	Year      int32
+	Month     int32
+	Day       int32
 	Festivals []string
 }
 
-func (m *Manager) GetFestivalsInRange(start, end string) ([]DayFestival, *dbus.Error) {
+func (m *Manager) GetFestivalsInRange(start, end string) (result []DayFestival, busErr *dbus.Error) {
 	m.service.DelayAutoQuit()
 
 	startDate, err := libdate.ParseISO(start)
@@ -95,7 +88,6 @@ func (m *Manager) GetFestivalsInRange(start, end string) ([]DayFestival, *dbus.E
 		return nil, dbusutil.ToError(errors.New("start date after end date"))
 	}
 	date := startDate
-	var result []DayFestival
 	for !date.After(endDate) {
 		// date <= endDate
 		cal := lunar.New(date.Year())
@@ -130,7 +122,7 @@ func (m *Manager) GetFestivalsInRange(start, end string) ([]DayFestival, *dbus.E
 // year 公历年
 // month 公历月
 // fill 是否用上下月数据补齐首尾空缺
-func (m *Manager) GetLunarMonthCalendar(year, month int32, fill bool) (LunarMonthInfo, bool, *dbus.Error) {
+func (m *Manager) GetLunarMonthCalendar(year, month int32, fill bool) (lunarMonth LunarMonthInfo, ok bool, busErr *dbus.Error) {
 	m.service.DelayAutoQuit()
 	logger.Debugf("LUNAR DATE: %v %v %v", year, month, fill)
 	if info, _, ok := getLunarMonthCalendar(int(year), int(month), fill); !ok {
@@ -142,7 +134,7 @@ func (m *Manager) GetLunarMonthCalendar(year, month int32, fill bool) (LunarMont
 }
 
 // GetHuangLiDay 获取指定公历日的黄历信息
-func (m *Manager) GetHuangLiDay(year, month, day int32) (string, *dbus.Error) {
+func (m *Manager) GetHuangLiDay(year, month, day int32) (jsonStr string, busErr *dbus.Error) {
 	m.service.DelayAutoQuit()
 	info, ok := calendar.SolarToLunar(int(year), int(month), int(day))
 	if !ok {
@@ -157,7 +149,7 @@ func (m *Manager) GetHuangLiDay(year, month, day int32) (string, *dbus.Error) {
 }
 
 // GetHuangLiMonth 获取指定公历月的黄历信息
-func (m *Manager) GetHuangLiMonth(year, month int32, fill bool) (string, *dbus.Error) {
+func (m *Manager) GetHuangLiMonth(year, month int32, fill bool) (jsonStr string, busErr *dbus.Error) {
 	m.service.DelayAutoQuit()
 	lunarDays, solarDays, ok := getLunarMonthCalendar(int(year), int(month), fill)
 	if !ok {
@@ -173,7 +165,7 @@ func (m *Manager) GetHuangLiMonth(year, month int32, fill bool) (string, *dbus.E
 }
 
 // GetFestivalMonth 获取指定公历月的假日信息
-func (m *Manager) GetFestivalMonth(year, month int) (string, *dbus.Error) {
+func (m *Manager) GetFestivalMonth(year, month int) (jsonStr string, busErr *dbus.Error) {
 	list, err := newFestivalList(year, month)
 	if err != nil {
 		return "", dbusutil.ToError(err)
