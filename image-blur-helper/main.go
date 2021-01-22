@@ -32,7 +32,6 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-
 const defaultOutDir = "/var/cache/image-blur/"
 
 var (
@@ -76,7 +75,7 @@ func main() {
 			continue
 		}
 
-		cmd := fmt.Sprintf("exec blur_image -l %v -s %v -r %v -p %v %q -o %s", *lightness, *saturation, *radius, *rounds, image, dest)
+		cmd := fmt.Sprintf("exec nice -n 18 blur_image -l %v -s %v -r %v -p %v %q -o %s", *lightness, *saturation, *radius, *rounds, image, dest)
 		out, err := exec.Command("/bin/sh", "-c", cmd).CombinedOutput()
 		if err != nil {
 			fmt.Printf("Blur '%s' via 'blur_image' failed: %v, %v, try again...\n", image, string(out), err)
@@ -93,5 +92,5 @@ func main() {
 
 func getDestPath(src string) string {
 	id, _ := dutils.SumStrMd5(src)
-	return filepath.Join(*outDir, id + filepath.Ext(src))
+	return filepath.Join(*outDir, id+filepath.Ext(src))
 }
