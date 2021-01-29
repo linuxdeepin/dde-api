@@ -64,10 +64,14 @@ var presentIcons = [][]string{
 	{"deepin-image-viewer", "eog", "gthumb", "gwenview", "gpicview", "showfoto", "phototonic"},
 	// media/video player:
 	{"deepin-movie", "media-player", "totem", "smplayer", "vlc", "dragonplayer", "kmplayer"},
-	// web browser:
-	{"google-chrome", "firefox", "chromium", "opera", "internet-web-browser", "browser"},
 	// system settings:
 	{"preferences-system"},
+	// trash
+	{"user-trash-full"},
+	// launcher
+	{"deepin-launcher"},
+	// web browser:
+	{"uosbrowser-cn", "google-chrome", "firefox", "chromium", "opera", "internet-web-browser", "browser"},
 	// text editor:
 	{"accessories-text-editor", "text-editor", "gedit", "kedit", "xfce-edit"},
 	// terminal:
