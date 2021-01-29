@@ -9,13 +9,13 @@ import (
 func (v *Device) GetExportedMethods() dbusutil.ExportedMethods {
 	return dbusutil.ExportedMethods{
 		{
-			Name: "UnblockBluetoothDevices",
-			Fn:   v.UnblockBluetoothDevices,
-		},
-		{
 			Name:    "HasBluetoothDeviceBlocked",
 			Fn:      v.HasBluetoothDeviceBlocked,
 			OutArgs: []string{"has"},
+		},
+		{
+			Name: "UnblockBluetoothDevices",
+			Fn:   v.UnblockBluetoothDevices,
 		},
 	}
 }

@@ -9,8 +9,9 @@ import (
 func (v *Manager) GetExportedMethods() dbusutil.ExportedMethods {
 	return dbusutil.ExportedMethods{
 		{
-			Name: "PlaySoundDesktopLogin",
-			Fn:   v.PlaySoundDesktopLogin,
+			Name:   "EnableSoundDesktopLogin",
+			Fn:     v.EnableSoundDesktopLogin,
+			InArgs: []string{"enabled"},
 		},
 		{
 			Name:   "Play",
@@ -18,14 +19,13 @@ func (v *Manager) GetExportedMethods() dbusutil.ExportedMethods {
 			InArgs: []string{"theme", "event", "device"},
 		},
 		{
+			Name: "PlaySoundDesktopLogin",
+			Fn:   v.PlaySoundDesktopLogin,
+		},
+		{
 			Name:   "SaveAudioState",
 			Fn:     v.SaveAudioState,
 			InArgs: []string{"activePlayback"},
-		},
-		{
-			Name:   "EnableSoundDesktopLogin",
-			Fn:     v.EnableSoundDesktopLogin,
-			InArgs: []string{"enabled"},
 		},
 		{
 			Name:   "SetSoundTheme",

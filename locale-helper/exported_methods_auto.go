@@ -9,13 +9,13 @@ import (
 func (v *Helper) GetExportedMethods() dbusutil.ExportedMethods {
 	return dbusutil.ExportedMethods{
 		{
-			Name:   "SetLocale",
-			Fn:     v.SetLocale,
+			Name:   "GenerateLocale",
+			Fn:     v.GenerateLocale,
 			InArgs: []string{"locale"},
 		},
 		{
-			Name:   "GenerateLocale",
-			Fn:     v.GenerateLocale,
+			Name:   "SetLocale",
+			Fn:     v.SetLocale,
 			InArgs: []string{"locale"},
 		},
 	}

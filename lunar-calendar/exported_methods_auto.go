@@ -9,22 +9,16 @@ import (
 func (v *Manager) GetExportedMethods() dbusutil.ExportedMethods {
 	return dbusutil.ExportedMethods{
 		{
-			Name:    "GetLunarInfoBySolar",
-			Fn:      v.GetLunarInfoBySolar,
-			InArgs:  []string{"year", "month", "day"},
-			OutArgs: []string{"lunarDay", "ok"},
+			Name:    "GetFestivalMonth",
+			Fn:      v.GetFestivalMonth,
+			InArgs:  []string{"year", "month"},
+			OutArgs: []string{"jsonStr"},
 		},
 		{
 			Name:    "GetFestivalsInRange",
 			Fn:      v.GetFestivalsInRange,
 			InArgs:  []string{"start", "end"},
 			OutArgs: []string{"result"},
-		},
-		{
-			Name:    "GetLunarMonthCalendar",
-			Fn:      v.GetLunarMonthCalendar,
-			InArgs:  []string{"year", "month", "fill"},
-			OutArgs: []string{"lunarMonth", "ok"},
 		},
 		{
 			Name:    "GetHuangLiDay",
@@ -39,10 +33,16 @@ func (v *Manager) GetExportedMethods() dbusutil.ExportedMethods {
 			OutArgs: []string{"jsonStr"},
 		},
 		{
-			Name:    "GetFestivalMonth",
-			Fn:      v.GetFestivalMonth,
-			InArgs:  []string{"year", "month"},
-			OutArgs: []string{"jsonStr"},
+			Name:    "GetLunarInfoBySolar",
+			Fn:      v.GetLunarInfoBySolar,
+			InArgs:  []string{"year", "month", "day"},
+			OutArgs: []string{"lunarDay", "ok"},
+		},
+		{
+			Name:    "GetLunarMonthCalendar",
+			Fn:      v.GetLunarMonthCalendar,
+			InArgs:  []string{"year", "month", "fill"},
+			OutArgs: []string{"lunarMonth", "ok"},
 		},
 	}
 }
