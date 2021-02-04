@@ -19,10 +19,6 @@
 
 package main
 
-// #cgo pkg-config: x11 xcursor xfixes gtk+-3.0
-// #include <stdlib.h>
-import "C"
-
 import (
 	"fmt"
 	"os"
