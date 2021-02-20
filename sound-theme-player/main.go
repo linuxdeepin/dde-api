@@ -83,17 +83,20 @@ type Manager struct {
 }
 
 func (m *Manager) PlaySoundDesktopLogin(sender dbus.Sender) *dbus.Error {
+	m.service.DelayAutoQuit()
+
 	autoLoginUser, err := getLightDMAutoLoginUser()
 	if err != nil {
 		logger.Warning(err)
 	}
 	if autoLoginUser != "" {
-		logger.Debug("autoLoginUser is not empty")
+		logger.Warning("autoLoginUser is not empty: ", autoLoginUser)
 		return nil
 	}
 
 	uid, err := getLastUser()
 	if err != nil {
+		logger.Warning("get lockService failed: ", err)
 		return dbusutil.ToError(err)
 	}
 
@@ -156,17 +159,14 @@ func (*Manager) GetInterfaceName() string {
 
 func (m *Manager) doPlaySound(theme, event, device string) {
 	m.mu.Lock()
-	m.playing = true
-	m.mu.Unlock()
+	defer m.mu.Unlock()
 
-	//开机音效延迟1s，等待华为给出修复方案
-	time.Sleep(1 * time.Second)
-	logger.Debug("doPlaySound", theme, event, device)
+	m.playing = true
+
+	logger.Debug("doPlaySound do: ", theme, event, device, m.player.Volume)
 	err := m.player.Play(theme, event, device)
 
-	m.mu.Lock()
 	m.playing = false
-	m.mu.Unlock()
 
 	if err != nil {
 		logger.Warning("failed to play:", err)

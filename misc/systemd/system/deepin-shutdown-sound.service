@@ -5,11 +5,11 @@ After=sound.target local-fs.target
 Before=systemd-logind.service
 
 [Service]
-Type=simple
+Type=forking
 ExecStart=/usr/bin/true
 ExecStop=/usr/lib/deepin-api/deepin-shutdown-sound
 RemainAfterExit=yes
-TimeoutStopSec=7s
+TimeoutStopSec=10s
 
 [Install]
 WantedBy=graphical.target
