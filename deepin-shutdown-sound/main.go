@@ -25,49 +25,15 @@ import (
 	"time"
 	"os/exec"
 	"strings"
-	"os/user"
-	"encoding/json"
-	"path/filepath"
-	"fmt"
-	"io/ioutil"
-	"strconv"
 
 	"pkg.deepin.io/dde/api/soundutils"
 	"pkg.deepin.io/lib/log"
 	"pkg.deepin.io/lib/sound_effect"
 )
 
-const (
-	defaultHomeDir  = "/var/lib/deepin-shut-player"
-)
-
 var (
 	logger      = log.NewLogger("api/shutdown-sound")
-	homeDir     string
-	curUid      int
 )
-
-func init() {
-	u, err := user.Current()
-	if err != nil {
-		logger.Warning(err)
-	} else {
-		_, err := os.Stat(defaultHomeDir)
-		if err != nil {
-			if os.IsNotExist(err) {
-				err := os.MkdirAll(defaultHomeDir, os.ModePerm)
-				if err != nil {
-					logger.Warning(err)
-				}
-			}
-		}
-		homeDir = defaultHomeDir
-		curUid, _ = strconv.Atoi(u.Uid)
-	}
-
-	logger.Info("home:", homeDir)
-	logger.Info("Uid:", curUid)
-}
 
 func main() {
 	handleSignal()
@@ -75,20 +41,7 @@ func main() {
 	cfg, err := soundutils.GetShutdownSoundConfig()
 	if err != nil {
 		logger.Warning("failed to get shutdown sound config:", err)
-
-		//加载已保存的配置，如果加载失败则退出
-		cfg, err = loadExistShutdownConfig()
-		if err != nil {
-			logger.Warning("load shutdown config failed: ", err)
-			return
-		}
-	} else {
-		logger.Info("save shutdown config.")
-		err = saveUpdateShutdownConfig(cfg)
-		if err != nil {
-			logger.Warning("save shutdown failed: ", err)
-			return
-		}
+		return
 	}
 
 	if !cfg.CanPlay {
@@ -182,74 +135,4 @@ func checkCurrentMachineIsPangu() (bool, error) {
 	}
 
 	return result, nil
-}
-
-func loadExistShutdownConfig() (*soundutils.ShutdownSoundConfig, error) {
-	logger.Info("loadUserConfig check user: ", curUid)
-
-	var cfg soundutils.ShutdownSoundConfig
-	err := loadUserConfig(curUid, &cfg)
-	if err != nil {
-		logger.Warning("loadUserConfig failed: ", err)
-		return nil, err
-	}
-
-	logger.Info("print cfg.CanPlay: ", cfg.CanPlay)
-
-	return &cfg, nil
-}
-
-func saveUpdateShutdownConfig(cfg *soundutils.ShutdownSoundConfig) error {
-	logger.Info("saveUserConfig check user: ", curUid)
-
-	err := saveUserConfig(curUid, cfg)
-	if err != nil {
-		logger.Warning("save user shutdown config faild: ", err)
-		return err
-	}
-
-	return nil
-}
-
-func getConfigFile(uid int) string {
-	return filepath.Join(homeDir, fmt.Sprintf("config-%d.json", uid))
-}
-
-func loadUserConfig(uid int, cfg *soundutils.ShutdownSoundConfig) error {
-	filename := getConfigFile(uid)
-	logger.Info("check filename: ", filename)
-	return loadConfig(filename, cfg)
-}
-
-func loadConfig(filename string, cfg *soundutils.ShutdownSoundConfig) error {
-	cfg.Theme = "deepin"
-	data, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return err
-	}
-	err = json.Unmarshal(data, cfg)
-	logger.Debugf("load config file %q: %#v", filename, cfg)
-	return err
-}
-
-
-func saveUserConfig(uid int, cfg *soundutils.ShutdownSoundConfig) error {
-	filename := getConfigFile(uid)
-	logger.Info("check filename: ", filename)
-	return saveConfig(filename, cfg)
-}
-
-func saveConfig(filename string, cfg *soundutils.ShutdownSoundConfig) error {
-	logger.Debugf("save config file %q: %#v", filename, cfg)
-	data, err := json.Marshal(cfg)
-	if err != nil {
-		return err
-	}
-
-	err = ioutil.WriteFile(filename, data, 0644)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
