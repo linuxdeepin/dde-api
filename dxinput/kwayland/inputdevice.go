@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/godbus/dbus"
 	kwin "github.com/linuxdeepin/go-dbus-factory/org.kde.kwin"
 	. "pkg.deepin.io/dde/api/dxinput/common"
-	"github.com/godbus/dbus"
 )
 
 const (
@@ -341,7 +341,7 @@ fill:
 	return &info, nil
 }
 
-func isMouseDevice(dev *kwin.InputDevice) bool {
+func isMouseDevice(dev kwin.InputDevice) bool {
 	fcount, _ := dev.TapFingerCount().Get(0)
 	suppLeftHanded, _ := dev.SupportsLeftHanded().Get(0)
 	suppBtns, _ := dev.SupportedButtons().Get(0)
@@ -349,6 +349,6 @@ func isMouseDevice(dev *kwin.InputDevice) bool {
 	return (fcount == 0) && suppLeftHanded && (suppBtns > 0) && (sbtn != 0)
 }
 
-func newInputDeviceObj(sysName string) (*kwin.InputDevice, error) {
+func newInputDeviceObj(sysName string) (kwin.InputDevice, error) {
 	return kwin.NewInputDevice(getSessionBus(), dbus.ObjectPath(eventPathPrefix+sysName))
 }
