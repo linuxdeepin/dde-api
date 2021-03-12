@@ -119,19 +119,19 @@ func adjustBackground(themeOutputDir string, img image.Image) (image.Image, erro
 	return img0, nil
 }
 
-func adjustResourcesOsLogos(themeInputDir, themeOutputDir string, width, height int) {
+func adjustResourcesOsLogos(themeInputDir, themeOutputDir string, width, height int) error {
 	srcDir := filepath.Join(themeInputDir, "resources/os-logos")
 	fileInfoList, err := ioutil.ReadDir(srcDir)
 	if err != nil {
 		logger.Warning(err)
-		return
+		return err
 	}
 
 	outDir := filepath.Join(themeOutputDir, "icons")
 	err = os.Mkdir(outDir, 0755)
 	if err != nil {
 		logger.Warning(err)
-		return
+		return err
 	}
 
 	for _, fileInfo := range fileInfoList {
@@ -149,8 +149,10 @@ func adjustResourcesOsLogos(themeInputDir, themeOutputDir string, width, height 
 		err = convertSvg(file, outFile, width, height)
 		if err != nil {
 			logger.Warning(err)
+			return err
 		}
 	}
+	return nil
 }
 
 const (
@@ -173,8 +175,8 @@ func getFontSize(screenWidth int, screenHeight int) int {
 	return round(y)
 }
 
-func getScreenSizeFromGrubParams() (w, h int, err error) {
-	params, err := loadGrubParams()
+func getScreenSizeFromGrubParams(grubParamsFilePath string) (w, h int, err error) {
+	params, err := loadGrubParams(grubParamsFilePath)
 	if err != nil {
 		return
 	}
@@ -349,7 +351,10 @@ func adjustThemeNormal() error {
 
 			iconWidth, _ := comp.GetPropInt("icon_width")
 			iconHeight, _ := comp.GetPropInt("icon_height")
-			adjustResourcesOsLogos(themeInputDir, themeOutputDir, iconWidth, iconHeight)
+			err = adjustResourcesOsLogos(themeInputDir, themeOutputDir, iconWidth, iconHeight)
+			if err != nil {
+				logger.Warning(err)
+			}
 
 		} else if comp.Type == tt.ComponentTypeLabel {
 			adjustLabel(themeOutputDir, comp, vars)
@@ -495,7 +500,7 @@ func main() {
 
 	if optScreenWidth == 0 || optScreenHeight == 0 {
 		var err error
-		optScreenWidth, optScreenHeight, err = getScreenSizeFromGrubParams()
+		optScreenWidth, optScreenHeight, err = getScreenSizeFromGrubParams(grubParamsFile)
 		if err != nil {
 			logger.Debug(err)
 			optScreenWidth = 1024

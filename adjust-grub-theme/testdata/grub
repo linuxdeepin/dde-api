@@ -1,0 +1,10 @@
+# Written by com.deepin.daemon.Grub2
+DEEPIN_GFXMODE_DETECT=2
+GRUB_BACKGROUND=/boot/grub/themes/deepin-fallback/background.jpg
+GRUB_CMDLINE_LINUX=""
+GRUB_CMDLINE_LINUX_DEFAULT="splash quiet"
+GRUB_DEFAULT=0
+GRUB_DISTRIBUTOR="`/usr/bin/lsb_release -d -s 2>/dev/null || echo UOS 20`"
+GRUB_GFXMODE=1024x768
+GRUB_THEME=/boot/grub/themes/deepin-fallback/theme.txt
+GRUB_TIMEOUT=5

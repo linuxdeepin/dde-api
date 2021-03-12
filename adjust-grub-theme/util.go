@@ -173,9 +173,9 @@ func getGfxMode(params map[string]string) (val string) {
 	return
 }
 
-func loadGrubParams() (map[string]string, error) {
+func loadGrubParams(grubParamsFilePath string) (map[string]string, error) {
 	params := make(map[string]string)
-	f, err := os.Open(grubParamsFile)
+	f, err := os.Open(grubParamsFilePath)
 	if err != nil {
 		return params, err
 	}
