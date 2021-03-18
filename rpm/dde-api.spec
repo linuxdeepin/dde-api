@@ -8,9 +8,6 @@
 %global debug_package   %{nil}
 %endif
 
-%global sname deepin-api
-%global release_name server-industry
-
 # out of memory on armv7hl
 %ifarch %{arm}
 %global _smp_mflags -j1
@@ -22,12 +19,12 @@
 %gometa
 
 Name:           dde-api
-Version:        5.4.3
+Version:        5.4.4
 Release:        1
 Summary:        Go-lang bingding for dde-daemon
 License:        GPLv3+
 URL:            https://shuttle.corp.deepin.com/cache/tasks/19177/unstable-amd64/
-Source0:        %{name}-%{version}-%{release_name}.orig.tar.xz
+Source0:        %{name}-%{version}.orig.tar.xz
 Patch1:         deepin-api_makefile.patch
 
 BuildRequires:  libcanberra-devel
@@ -67,7 +64,7 @@ building other packages which use import path with
 %{goipath} prefix.
 
 %prep
-%forgeautosetup -p1 -n %{name}-%{version}-%{release_name}
+%forgeautosetup -p1 -n %{name}-%{version}
 
 sed -i 's|/usr/lib|%{_libexecdir}|' misc/*services/*.service \
     misc/systemd/system/deepin-shutdown-sound.service \
@@ -120,7 +117,7 @@ exit 0
 %doc README.md
 %license LICENSE
 %{_bindir}/dde-open
-%{_libexecdir}/%{sname}/
+%{_libexecdir}/deepin-api/
 %{_unitdir}/*.service
 %{_datadir}/dbus-1/services/*.service
 %{_datadir}/dbus-1/system-services/*.service
@@ -138,5 +135,5 @@ exit 0
 %files -n %{name}-devel -f devel.file-list
 
 %changelog
-* Thu Mar 18 2021 uoser <uoser@uniontech.com> - 5.4.3-1
-- Update to 5.4.3
+* Thu Mar 18 2021 uoser <uoser@uniontech.com> - 5.4.4-1
+- Update to 5.4.4
