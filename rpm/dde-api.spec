@@ -8,6 +8,8 @@
 %global debug_package   %{nil}
 %endif
 
+%global sname deepin-api
+
 # out of memory on armv7hl
 %ifarch %{arm}
 %global _smp_mflags -j1
@@ -16,7 +18,6 @@
 %global goipath  pkg.deepin.io/dde/api
 %global forgeurl https://github.com/linuxdeepin/dde-api
 %global tag      %{version}
-%gometa
 
 Name:           dde-api
 Version:        5.4.4
@@ -25,14 +26,10 @@ Summary:        Go-lang bingding for dde-daemon
 License:        GPLv3+
 URL:            https://shuttle.corp.deepin.com/cache/tasks/19177/unstable-amd64/
 Source0:        %{name}-%{version}.orig.tar.xz
-Patch1:         deepin-api_makefile.patch
 
 BuildRequires:  libcanberra-devel
-BuildRequires:  go-lib-devel
 BuildRequires:  deepin-gettext-tools
-#BuildRequires:  deepin-gir-generator
 BuildRequires:  librsvg2-devel
-#BuildRequires:  libsqlite3x-devel
 BuildRequires:  sqlite-devel
 BuildRequires:  compiler(go-compiler)
 BuildRequires:  golang-github-linuxdeepin-go-x11-client-devel
@@ -43,7 +40,11 @@ BuildRequires:  poppler-glib-devel
 BuildRequires:  alsa-lib-devel
 BuildRequires:  alsa-lib
 BuildRequires:  pulseaudio-libs-devel
-BuildRequires:	gocode
+BuildRequires:  gocode
+BuildRequires:  deepin-gir-generator
+BuildRequires:  golang-github-linuxdeepin-go-dbus-factory-devel
+BuildRequires:  go-lib-devel
+BuildRequires:  libgudev-devel
 %{?systemd_requires}
 Requires:       deepin-desktop-base
 Requires:       rfkill
@@ -76,25 +77,18 @@ sed -i 's|PREFIX}${libdir|LIBDIR|; s|libdir|LIBDIR|' \
     Makefile adjust-grub-theme/main.go
 
 %build
-export GOPATH=/usr/share/gocode/src:$GOPATH
-%gobuildroot
-for cmd in $(make binaries); do
-    %gobuild -o _bin/$cmd %{goipath}/$cmd
-done
+export GOPATH=/usr/share/gocode/:$GOPATH
 %make_build
 
 %install
-rm -rf $(make binaries)
-gofiles=$(find $(make libraries) %{?gofindfilter} -print)
-%goinstall $gofiles
+for file in $(find . -iname "*.go" -o -iname "*.c" -o -iname "*.h" -o -iname "*.s"); do
+    install -d -p %{buildroot}/%{gopath}/src/%{goipath}/$(dirname $file)
+    cp -pav $file %{buildroot}/%{gopath}/src/%{goipath}/$file
+    echo "%{gopath}/src/%{goipath}/$file" >> devel.file-list
+done
 %make_install SYSTEMD_SERVICE_DIR="%{_unitdir}" LIBDIR="%{_libexecdir}"
 # HOME directory for user deepin-sound-player
 mkdir -p %{buildroot}%{_sharedstatedir}/deepin-sound-player
-
-%if %{with check}
-%check
-%gochecks
-%endif
 
 %pre
 getent group deepin-sound-player >/dev/null || groupadd -r deepin-sound-player
@@ -117,7 +111,7 @@ exit 0
 %doc README.md
 %license LICENSE
 %{_bindir}/dde-open
-%{_libexecdir}/deepin-api/
+%{_libexecdir}/%{sname}/
 %{_unitdir}/*.service
 %{_datadir}/dbus-1/services/*.service
 %{_datadir}/dbus-1/system-services/*.service
