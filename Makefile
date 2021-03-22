@@ -26,7 +26,6 @@ BINARIES =  \
     device \
     graphic \
     locale-helper \
-    lunar-calendar \
     thumbnailer \
     hans2pinyin \
     cursor-helper \
@@ -37,6 +36,7 @@ BINARIES =  \
 	adjust-grub-theme \
     image-blur \
     image-blur-helper
+    #lunar-calendar \
 
 all: build-binary build-dev ts-to-policy
 
