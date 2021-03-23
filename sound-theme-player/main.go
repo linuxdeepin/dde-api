@@ -79,6 +79,7 @@ type Manager struct {
 }
 
 func (m *Manager) PlaySoundDesktopLogin(sender dbus.Sender) *dbus.Error {
+	m.service.DelayAutoQuit()
 	autoLoginUser, err := getLightDMAutoLoginUser()
 	if err != nil {
 		logger.Warning(err)
