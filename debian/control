@@ -27,7 +27,6 @@ Build-Depends:
  golang-gopkg-check.v1-dev,
  libcairo2-dev,
  libcanberra-dev,
- libcroco3-dev,
  libfreetype6-dev,
  libgdk-pixbuf2.0-dev,
  libgtk-3-dev,
