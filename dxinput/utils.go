@@ -190,6 +190,20 @@ func setRotation(id int32, rotation uint8) error {
 	return utils.SetFloat32Prop(id, propCoordTransMatrix, v)
 }
 
+func setTransformationMatrix(id int32, m [9]float32) error {
+	values, err := getFloat32Prop(id, propCoordTransMatrix, 9)
+	if err != nil {
+		return err
+	}
+
+	v := m[:]
+	if isFloat32ListEqual(v, values) {
+		return nil
+	}
+
+	return utils.SetFloat32Prop(id, propCoordTransMatrix, v)
+}
+
 func getInt8Prop(id int32, prop string, nitems int32) ([]int8, error) {
 	datas, num := utils.GetProperty(id, prop)
 	if len(datas) == 0 || num != nitems {

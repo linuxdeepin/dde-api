@@ -73,3 +73,12 @@ func (touch *Touchscreen) SetRotation(direction uint8) error {
 	}
 	return setRotation(touch.Id, direction)
 }
+
+func (touch *Touchscreen) SetTransformationMatrix(m [9]float32) error {
+	// only supported libinput
+	if !touch.isLibinputUsed {
+		return fmt.Errorf("Unsupport transformation matrix for (%d - %s)", touch.Id, touch.Name)
+	}
+
+	return setTransformationMatrix(touch.Id, m)
+}
