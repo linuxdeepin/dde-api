@@ -24,7 +24,7 @@ import (
 	"os"
 
 	"github.com/linuxdeepin/go-dbus-factory/com.deepin.sessionmanager"
-	"pkg.deepin.io/lib/dbus1"
+	"github.com/godbus/dbus"
 	"pkg.deepin.io/lib/utils"
 )
 

@@ -23,7 +23,7 @@ import (
 	"fmt"
 
 	polkit "github.com/linuxdeepin/go-dbus-factory/org.freedesktop.policykit1"
-	"pkg.deepin.io/lib/dbus1"
+	"github.com/godbus/dbus"
 	"pkg.deepin.io/lib/dbusutil"
 	dutils "pkg.deepin.io/lib/utils"
 )

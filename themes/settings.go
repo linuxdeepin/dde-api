@@ -28,7 +28,7 @@ import (
 	"github.com/linuxdeepin/go-dbus-factory/com.deepin.wm"
 	"pkg.deepin.io/dde/api/themes/scanner"
 	"pkg.deepin.io/gir/glib-2.0"
-	"pkg.deepin.io/lib/dbus1"
+	"github.com/godbus/dbus"
 	dutils "pkg.deepin.io/lib/utils"
 )
 

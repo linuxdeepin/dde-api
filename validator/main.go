@@ -23,8 +23,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/godbus/dbus"
 	"pkg.deepin.io/lib"
-	"pkg.deepin.io/lib/dbus"
+	"pkg.deepin.io/lib/dbusutil"
 	"pkg.deepin.io/lib/log"
 )
 
@@ -39,20 +40,22 @@ func main() {
 		logger.Warning("Validator daemon is already running.")
 		return
 	}
-
-	validator := &Validator{}
-	err := dbus.InstallOnSession(validator)
+	bus, err := dbus.SessionBus()
 	if err != nil {
-		logger.Errorf("Failed to register dbus interface: %v", err)
+		logger.Error("failed to get session bus:", err)
 		os.Exit(1)
 	}
-	dbus.DealWithUnhandledMessage()
+	service := dbusutil.NewService(bus)
 
-	dbus.SetAutoDestroyHandler(30*time.Second, nil)
-	if err := dbus.Wait(); err != nil {
-		logger.Errorf("lost dbus session: %v", err)
-		os.Exit(1)
-	} else {
-		os.Exit(0)
+	validator := &Validator{
+		service: service,
 	}
+	
+	err = service.Export(DBusPath, validator)
+	if err != nil {
+		logger.Error("failed to export dbus service:", err)
+		os.Exit(1)
+	}
+	service.SetAutoQuitHandler(30*time.Second, nil)
+	service.Wait()
 }
