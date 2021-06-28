@@ -62,7 +62,10 @@ func (m *Manager) Set(name string) *dbus.Error {
 
 	go func() {
 		m.setThemeMu.Lock()
-		setTheme(name)
+		err := setTheme(name)
+		if err != nil {
+			logger.Warning(err)
+		}
 		m.setThemeMu.Unlock()
 
 		m.runningMu.Lock()
@@ -122,13 +125,15 @@ func main() {
 	service.Wait()
 }
 
-func setTheme(name string) {
+func setTheme(name string) error {
 	if name == themes.GetCursorTheme() {
-		return
+		return nil
 	}
 
 	err := themes.SetCursorTheme(name)
 	if err != nil {
 		logger.Warning("Set failed:", err)
+		return err
 	}
+	return nil
 }
