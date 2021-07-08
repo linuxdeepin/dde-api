@@ -32,6 +32,7 @@ const (
 	StatusDischarging
 	StatusNotCharging
 	StatusFull
+	StatusFullCharging
 )
 
 var StatusMap = map[string]Status{
@@ -40,6 +41,7 @@ var StatusMap = map[string]Status{
 	"Discharging":  StatusDischarging,
 	"Not charging": StatusNotCharging,
 	"Full":         StatusFull,
+	"FullCharging": StatusFullCharging,
 }
 
 func parseStatus(val string) Status {
@@ -61,6 +63,8 @@ func (state Status) String() string {
 		return "Not charging"
 	case StatusFull:
 		return "Full"
+	case StatusFullCharging:
+		return "FullCharging"
 	default:
 		return "Unknown"
 	}
