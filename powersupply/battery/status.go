@@ -41,7 +41,7 @@ var StatusMap = map[string]Status{
 	"Discharging":  StatusDischarging,
 	"Not charging": StatusNotCharging,
 	"Full":         StatusFull,
-	"FullCharging": StatusFullCharging,
+	"Full_charging": StatusFullCharging,
 }
 
 func parseStatus(val string) Status {
