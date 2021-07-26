@@ -25,9 +25,9 @@ func TestBashQuote(t *testing.T) {
 		result, err := bashQuote(value.in)
 		assert.Equal(t, value.expected, result)
 		if value.hasErr {
-			assert.NotNil(t, err)
+			assert.Error(t, err)
 		} else {
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		}
 	}
 }
@@ -54,16 +54,16 @@ func TestBashUnquote(t *testing.T) {
 		result, err := bashUnquote(value.in)
 		assert.Equal(t, value.expected, result)
 		if value.hasErr {
-			assert.NotNil(t, err)
+			assert.Error(t, err)
 		} else {
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		}
 	}
 }
 
 func TestLoadFromFile(t *testing.T) {
 	m, err := LoadFromFile("testdata/t1.txt")
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, map[string]string{
 		"ENV1": "abc",
 		"ENV2": "abc def",

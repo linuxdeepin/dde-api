@@ -9,7 +9,7 @@ import (
 
 func Test_LoadFont(t *testing.T) {
 	font, err := LoadFont("testdata/unifont-regular-16.pf2")
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.NotNil(t, font)
 }
 
@@ -32,14 +32,14 @@ func Test_getUint16BE(t *testing.T) {
 
 func Test_Close(t *testing.T) {
 	font, err := LoadFont("testdata/unifont-regular-16.pf2")
-	require.Nil(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, font)
 	assert.Nil(t, font.Close())
 }
 
 func Test_Height(t *testing.T) {
 	font, err := LoadFont("testdata/unifont-regular-16.pf2")
-	require.Nil(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, font)
 	assert.Equal(t, 16, font.Height())
 }

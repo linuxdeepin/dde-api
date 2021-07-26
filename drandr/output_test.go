@@ -158,7 +158,7 @@ func Test_getOutputEDID(t *testing.T) {
 	for _, output := range resource.Outputs {
 		t.Run("Test_getOutputEDID", func(t *testing.T) {
 			_, err := getOutputEDID(xConn, output)
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 		})
 	}
 

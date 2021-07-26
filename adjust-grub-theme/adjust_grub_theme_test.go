@@ -66,24 +66,24 @@ func (s *su) TestRound() {
 
 func (s *su) TestLoadBackgroundImage() {
 	img, err := loadBackgroundImage()
-	require.Nil(s.T(), err)
+	require.NoError(s.T(), err)
 	require.NotNil(s.T(), img)
 }
 
 func (s *su) TestAdjustBackground() {
 	themeOutputDir := "testdata"
 	img, err := loadBackgroundImage()
-	require.Nil(s.T(), err)
+	require.NoError(s.T(), err)
 	image, err := adjustBackground(themeOutputDir, img)
-	assert.Nil(s.T(), err)
+	assert.NoError(s.T(), err)
 	assert.NotNil(s.T(), image)
 
 	optScreenWidth = 0
 	optScreenHeight = 0
 	img, err = loadBackgroundImage()
-	require.Nil(s.T(), err)
+	require.NoError(s.T(), err)
 	image, err = adjustBackground(themeOutputDir, img)
-	assert.NotNil(s.T(), err)
+	assert.Error(s.T(), err)
 	assert.Nil(s.T(), image)
 	_ = os.RemoveAll(filepath.Join(themeOutputDir, "background.jpg"))
 }
@@ -96,7 +96,7 @@ func (s *su) TestAdjustResourcesOsLogos() {
 	themeInputDir := "testdata"
 	themeOutputDir := "testdata"
 	err = adjustResourcesOsLogos(themeInputDir, themeOutputDir, 720, 480)
-	assert.Nil(s.T(), err)
+	assert.NoError(s.T(), err)
 	_ = os.RemoveAll(filepath.Join(themeOutputDir, "icons"))
 
 }
@@ -134,7 +134,7 @@ func (s *su) TestGetScreenSizeFromGrubParams() {
 	grubParamsFilePath := "testdata/grub"
 	require.FileExists(s.T(), grubParamsFilePath)
 	w, h, err := getScreenSizeFromGrubParams(grubParamsFilePath)
-	assert.Nil(s.T(), err)
+	assert.NoError(s.T(), err)
 	assert.Equal(s.T(), 1024, w)
 	assert.Equal(s.T(), 768, h)
 }
@@ -154,7 +154,7 @@ var items = []string{
 func (s *su) TestCropSaveStyleBox() {
 	img, err := loadBackgroundImage()
 
-	require.Nil(s.T(), err)
+	require.NoError(s.T(), err)
 	require.NotNil(s.T(), img)
 	filenamePrefix := "testdata/crop"
 
@@ -211,7 +211,7 @@ func (s *su) TestAdjustThemeFallback() {
 
 func (s *su) TestCopyBgSource() {
 	err := copyBgSource("testdata/deepin/background.origin.jpg")
-	assert.Nil(s.T(), err)
+	assert.NoError(s.T(), err)
 	assert.FileExists(s.T(), "testdata/deepin/background_source")
 
 	_ = os.RemoveAll("testdata/deepin/background_source")
@@ -233,7 +233,7 @@ func (s *su) TestGenPF2Font() {
 	size := 20
 	frontName := fmt.Sprintf("ag-%s-%d-%d.pf2", fontBaseName, faceIndex, size)
 	pf2Font, err := genPF2Font("testdata", fontBaseName, faceIndex, size)
-	assert.Nil(s.T(), err)
+	assert.NoError(s.T(), err)
 	assert.NotNil(s.T(), pf2Font)
 	assert.FileExists(s.T(), filepath.Join("testdata", frontName))
 	_ = os.RemoveAll(filepath.Join("testdata", frontName))
@@ -249,13 +249,13 @@ func (s *su) TestAdjustFont() {
 	vars := map[string]float64{
 		"std_font_size": float64(18),
 	}
-	require.Nil(s.T(), err)
+	require.NoError(s.T(), err)
 	require.NotNil(s.T(), theme)
 	tmpDir := "testdata/tmp"
 	_ = os.Mkdir(tmpDir, 0755)
 	_, err = adjustFont(tmpDir, theme.Components[0], "item_font", vars)
 
-	assert.Nil(s.T(), err)
+	assert.NoError(s.T(), err)
 	_ = os.RemoveAll(tmpDir)
 }
 
@@ -268,13 +268,13 @@ func (s *su) TestAdjustTerminalFont() {
 	vars := map[string]float64{
 		"std_font_size": float64(18),
 	}
-	require.Nil(s.T(), err)
+	require.NoError(s.T(), err)
 	require.NotNil(s.T(), theme)
 	tmpDir := "testdata/tmp"
 	_ = os.Mkdir(tmpDir, 0755)
 	err = adjustTerminalFont(tmpDir, theme, vars)
 
-	assert.Nil(s.T(), err)
+	assert.NoError(s.T(), err)
 	_ = os.RemoveAll(tmpDir)
 }
 
@@ -284,7 +284,7 @@ func (s *su) TestAdjustProp() {
 		s.T().Skip(err)
 	}
 	theme, err := tt.ParseThemeFile("testdata/deepin/theme.txt.tpl")
-	require.Nil(s.T(), err)
+	require.NoError(s.T(), err)
 	require.NotNil(s.T(), theme)
 	itemHeight := adjustProp(theme.Components[0], "item_height", map[string]float64{
 		"font_height": float64(18),
@@ -292,14 +292,14 @@ func (s *su) TestAdjustProp() {
 	assert.Equal(s.T(), 28, itemHeight)
 
 	theme, err = tt.ParseThemeFile("testdata/deepin/theme.txt.tpl")
-	assert.Nil(s.T(), err)
+	assert.NoError(s.T(), err)
 	itemHeight = adjustProp(theme.Components[0], "item_height", map[string]float64{
 		"font_height": float64(5),
 	})
 	assert.Equal(s.T(), 8, itemHeight)
 
 	theme, err = tt.ParseThemeFile("testdata/deepin/theme.txt.tpl")
-	assert.Nil(s.T(), err)
+	assert.NoError(s.T(), err)
 	itemHeight = adjustProp(theme.Components[0], "item_height", map[string]float64{
 		"font_height": float64(10),
 	})
@@ -310,7 +310,7 @@ func (s *su) TestGetCurrentLocale() {
 	envVar := "DEEPIN_LASTORE_LANG"
 	currentEnv := os.Getenv(envVar)
 	err := os.Setenv(envVar, "zh_CN.UTF-8")
-	require.Nil(s.T(), err)
+	require.NoError(s.T(), err)
 	locale := getCurrentLocale()
 	assert.Equal(s.T(), "zh_CN.UTF-8", locale)
 	err = os.Setenv(envVar, currentEnv)

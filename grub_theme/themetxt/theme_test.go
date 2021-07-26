@@ -10,7 +10,7 @@ import (
 
 func Test_ParseThemeFile(t *testing.T) {
 	theme, err := ParseThemeFile("testdata/theme.txt.tpl")
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, theme)
 	assert.Equal(t, 10, len(theme.Props))
 	assert.Equal(t, 3, len(theme.Components))
@@ -18,7 +18,7 @@ func Test_ParseThemeFile(t *testing.T) {
 
 func Test_GetProp(t *testing.T) {
 	theme, err := ParseThemeFile("testdata/theme.txt.tpl")
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, theme)
 	var component *Component
 	for _, c := range theme.Components {
@@ -42,7 +42,7 @@ func Test_GetProp(t *testing.T) {
 
 func Test_GetPropString(t *testing.T) {
 	theme, err := ParseThemeFile("testdata/theme.txt.tpl")
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, theme)
 	var component *Component
 	for _, c := range theme.Components {
@@ -59,7 +59,7 @@ func Test_GetPropString(t *testing.T) {
 
 func Test_GetPropInt(t *testing.T) {
 	theme, err := ParseThemeFile("testdata/theme.txt.tpl")
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, theme)
 	var component *Component
 	for _, c := range theme.Components {
@@ -75,7 +75,7 @@ func Test_GetPropInt(t *testing.T) {
 
 func Test_SetProp(t *testing.T) {
 	theme, err := ParseThemeFile("testdata/theme.txt.tpl")
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.NotNil(t, theme)
 	theme.SetProp("NewProp", "utProp")
 	assert.Equal(t, 11, len(theme.Props))

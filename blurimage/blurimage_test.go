@@ -85,7 +85,7 @@ func TestBlurImage(t *testing.T) {
 	}
 	for _, data := range tests {
 		err := BlurImage(data.file, data.sigma, data.dest)
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 		assert.FileExists(t, data.dest)
 		_ = os.Remove(data.dest)
 	}

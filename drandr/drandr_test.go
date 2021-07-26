@@ -15,7 +15,7 @@ func Test_GetScreenInfo(t *testing.T) {
 
 	t.Run("Test_GetScreenInfo", func(t *testing.T) {
 		_, err := GetScreenInfo(xConn)
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 	})
 }
 
@@ -30,5 +30,5 @@ func Test_GetPrimary(t *testing.T) {
 	}
 
 	_, err = screenInfo.GetPrimary()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 }
