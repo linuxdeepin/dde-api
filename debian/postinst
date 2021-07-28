@@ -2,6 +2,7 @@
 # postinst script for dde-api
 
 set -e
+
 player_user=deepin-sound-player
 player_home=/var/lib/$player_user
 
@@ -22,46 +23,45 @@ setupFallbackTheme () {
 }
 
 adjustGrubTheme () {
-	themeToolVersion=$($adjustGrubThemeBin -version)
-	if [ -z "$themeToolVersion" ]; then
-		themeToolVersion=0
-	fi
-	echo themeToolVersion: $themeToolVersion
+    themeToolVersion=$($adjustGrubThemeBin -version)
+    if [ -z "$themeToolVersion" ]; then
+        themeToolVersion=0
+    fi
+    echo themeToolVersion: $themeToolVersion
 
-	# get current version
-	themeCurrentVersion=$(grep -m 1 '#version:' $themeDir/theme.txt | cut -d: -f 2)
-	if [ -z "$themeCurrentVersion" ]; then
-		themeCurrentVersion=0
-	fi
-	echo themeCurrentVersion: $themeCurrentVersion
+    # get current version
+    themeCurrentVersion=$(grep -m 1 '#version:' $themeDir/theme.txt | cut -d: -f 2)
+    if [ -z "$themeCurrentVersion" ]; then
+        themeCurrentVersion=0
+    fi
+    echo themeCurrentVersion: $themeCurrentVersion
 
-	if [ $themeToolVersion -gt $themeCurrentVersion ]; then
-		echo need adjust grub theme
-		$adjustGrubThemeBin -log-sys || true
-		update-grub || true
-	fi
+    if [ $themeToolVersion -gt $themeCurrentVersion ]; then
+        echo need adjust grub theme
+        $adjustGrubThemeBin -log-sys || true
+        update-grub || true
+    fi
 }
 
 case "$1" in
-	configure)
-		if ! getent group $player_user >/dev/null; then
-			addgroup --quiet --system $player_user
-		fi
-		if ! getent passwd $player_user >/dev/null; then
-			adduser --quiet --system --ingroup $player_user --home $player_home $player_user
-			adduser --quiet $player_user audio
-		fi
+    configure)
+        if ! getent group $player_user >/dev/null; then
+            addgroup --quiet --system $player_user
+        fi
+        if ! getent passwd $player_user >/dev/null; then
+            adduser --quiet --system --ingroup $player_user --home $player_home $player_user
+            adduser --quiet $player_user audio
+        fi
 
-		mkdir -p $player_home/.config/pulse
-		echo "autospawn = no" > $player_home/.config/pulse/client.conf
-		chown -R $player_user:$player_user $player_home/.config
+        runuser -u $player_user -- mkdir -p $player_home/.config/pulse
+        runuser - deepin-sound-player -s /bin/sh -c "echo 'autospawn = no' > $player_home/.config/pulse/client.conf"
 
-		if [ -f $grubCfgFile -a -f /etc/default/grub ]; then
-			adjustGrubTheme
-		fi
+        if [ -f $grubCfgFile -a -f /etc/default/grub ]; then
+            adjustGrubTheme
+        fi
         setupFallbackTheme
-	;;
-	abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+    abort-upgrade|abort-remove|abort-deconfigure)
     ;;
 
     *)
@@ -74,19 +74,12 @@ esac
 pc_arch=`dpkg --print-architecture`
 pc_64=amd64
 pc_32=i386
-if [ "$1" = "triggered"  ];then
-if [ $pc_arch = $pc_64  ] || [ $pc_arch = $pc_32  ];then
-/usr/lib/deepin-api/image-blur-helper /usr/share/wallpapers/deepin
-fi
+if [ "$1" = "triggered"  ]; then
+    if [ $pc_arch = $pc_64 ] || [ $pc_arch = $pc_32 ]; then
+        /usr/lib/deepin-api/image-blur-helper /usr/share/wallpapers/deepin
+    fi
 fi
 
 #DEBHELPER#
-
-if [ "$1" = "configure" ]; then
-    if [ -f /etc/systemd/system/shutdown.target.wants/deepin-shutdown-sound.service ]; then
-        deb-systemd-helper purge 'deepin-shutdown-sound.service' >/dev/null || true
-        deb-systemd-helper enable 'deepin-shutdown-sound.service' >/dev/null || true
-    fi
-fi
 
 exit 0

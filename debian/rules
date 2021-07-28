@@ -3,7 +3,7 @@ export GOCACHE = /tmp/gocache
 export GOPATH := /usr/share/gocode
 
 %:
-	dh $@ --with systemd
+	dh $@
 
 ifeq ($(DEB_BUILD_ARCH),sw_64)
 override_dh_strip:
@@ -15,5 +15,5 @@ override_dh_strip:
 	dh_strip --dbgsym-migration=dde-api-dbg
 endif
 
-override_dh_systemd_start:
-	true
+override_dh_installsystemd:
+	dh_installsystemd --no-start
