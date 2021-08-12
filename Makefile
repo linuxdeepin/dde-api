@@ -41,10 +41,8 @@ BINARIES =  \
 all: build-binary build-dev ts-to-policy
 
 prepare:
-	@if [ ! -d ${GOBUILD_DIR}/src/${GOPKG_PREFIX} ]; then \
-		mkdir -p ${GOBUILD_DIR}/src/$(dir ${GOPKG_PREFIX}); \
-		ln -sf ../../../.. ${GOBUILD_DIR}/src/${GOPKG_PREFIX}; \
-	fi
+	@mkdir -p ${GOBUILD_DIR}/src/$(dir ${GOPKG_PREFIX});
+	@ln -snf ../../../.. ${GOBUILD_DIR}/src/${GOPKG_PREFIX};
 
 ts:
 	deepin-policy-ts-convert policy2ts misc/polkit-action/com.deepin.api.locale-helper.policy.in misc/ts/com.deepin.api.locale-helper.policy
