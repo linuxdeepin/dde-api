@@ -20,6 +20,7 @@
 package main
 
 // #cgo pkg-config: gtk+-3.0
+// #cgo CFLAGS: -fPIC -fstack-protector-all -fstack-protector-strong
 // #include <stdlib.h>
 // void gtk_thumbnail(char *theme, char *dest, int width, int min_height);
 import "C"
