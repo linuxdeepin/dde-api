@@ -24,6 +24,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
+	"syscall"
 
 	"pkg.deepin.io/dde/api/blurimage"
 	"pkg.deepin.io/lib/graphic"
@@ -57,6 +59,8 @@ func main() {
 		return
 	}
 
+	syscall.Setpriority(syscall.PRIO_PROCESS, 0, 18)
+
 	var images []string
 	if dutils.IsDir(*src) {
 		tmp, err := graphic.GetImagesInDir(*src)
@@ -75,8 +79,15 @@ func main() {
 			continue
 		}
 
-		cmd := fmt.Sprintf("exec nice -n 18 blur_image -l %v -s %v -r %v -p %v %q -o %s", *lightness, *saturation, *radius, *rounds, image, dest)
-		out, err := exec.Command("/bin/sh", "-c", cmd).CombinedOutput()
+		args := []string{
+			"-l", strconv.FormatFloat(*lightness, 'f', -1, 64),
+			"-s", strconv.FormatFloat(*saturation, 'f', -1, 64),
+			"-r", strconv.FormatUint(uint64(*radius), 10),
+			"-p", strconv.FormatUint(uint64(*rounds), 10),
+			image,
+			"-o", dest,
+		}
+		out, err := exec.Command("blur_image", args...).CombinedOutput()
 		if err != nil {
 			fmt.Printf("Blur '%s' via 'blur_image' failed: %v, %v, try again...\n", image, string(out), err)
 		}
