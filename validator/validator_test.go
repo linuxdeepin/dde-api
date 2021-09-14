@@ -20,50 +20,65 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 
-	C "gopkg.in/check.v1"
+	"pkg.deepin.io/lib/dbusutil"
+
+	"github.com/stretchr/testify/suite"
 )
 
-func Test(t *testing.T) {
-	C.TestingT(t)
+type UnitTest struct {
+	suite.Suite
+	validator *Validator
 }
 
-var _ = C.Suite(&Validator{})
+func (ut *UnitTest) SetupSuite() {
+	var err error
+	ut.validator = &Validator{}
+	ut.validator.service, err = dbusutil.NewSessionService()
+	if err != nil {
+		ut.T().Skip(fmt.Sprintf("failed to get service: %v", err))
+	}
+}
 
-func (validator *Validator) TestValidateHostname(c *C.C) {
+func (ut *UnitTest) TestValidateHostname() {
 	var res bool
 
-	res, _ = validator.ValidateHostname("hostname")
-	c.Check(res, C.Equals, true)
+	res, _ = ut.validator.ValidateHostname("hostname")
+	ut.Equal(res, true)
 
-	res, _ = validator.ValidateHostname("#1")
-	c.Check(res, C.Equals, false)
+	res, _ = ut.validator.ValidateHostname("#1")
+	ut.Equal(res, false)
 
-	res, _ = validator.ValidateHostname("sub.domain.")
-	c.Check(res, C.Equals, false)
+	res, _ = ut.validator.ValidateHostname("sub.domain.")
+	ut.Equal(res, false)
 }
 
-func (validator *Validator) TestValidateHostnameTemp(c *C.C) {
+func (ut *UnitTest) TestValidateHostnameTemp() {
 	var res bool
 
-	res, _ = validator.ValidateHostnameTemp("sub.domain.")
-	c.Check(res, C.Equals, true)
+	res, _ = ut.validator.ValidateHostnameTemp("sub.domain.")
+	ut.Equal(res, true)
 
-	res, _ = validator.ValidateHostnameTemp("sub.domain$")
-	c.Check(res, C.Equals, false)
+	res, _ = ut.validator.ValidateHostnameTemp("sub.domain$")
+	ut.Equal(res, false)
 }
 
-func (validator *Validator) TestValiateUsername(c *C.C) {
-	state, _, _ := validator.ValidateUsername("root")
-	c.Check(state, C.Equals, UsernameSystemUsed)
+func (ut *UnitTest) TestValiateUsername() {
+	state, _, _ := ut.validator.ValidateUsername("root")
+	ut.Equal(state, UsernameSystemUsed)
 
-	state, _, _ = validator.ValidateUsername("nonexst")
-	c.Check(state, C.Equals, UsernameOk)
+	state, _, _ = ut.validator.ValidateUsername("nonexst")
+	ut.Equal(state, UsernameOk)
 
-	state, _, _ = validator.ValidateUsername("-first-char")
-	c.Check(state, C.Equals, UsernameFirstCharInvalid)
+	state, _, _ = ut.validator.ValidateUsername("-first-char")
+	ut.Equal(state, UsernameFirstCharInvalid)
 
-	state, _, _ = validator.ValidateUsername("upperCase")
-	c.Check(state, C.Equals, UsernameInvalidChars)
+	state, _, _ = ut.validator.ValidateUsername("upperCase")
+	ut.Equal(state, UsernameInvalidChars)
+}
+
+func TestUnitTestSuite(t *testing.T) {
+	suite.Run(t, new(UnitTest))
 }

@@ -22,15 +22,13 @@ package thumbnails
 import (
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/stretchr/testify/assert"
 	"pkg.deepin.io/dde/api/thumbnails/loader"
 )
 
 func TestCorrectSize(t *testing.T) {
-	Convey("Test size correct", t, func(c C) {
-		c.So(correctSize(64), ShouldEqual, loader.SizeFlagSmall)
-		c.So(correctSize(128), ShouldEqual, loader.SizeFlagNormal)
-		c.So(correctSize(176), ShouldEqual, loader.SizeFlagNormal)
-		c.So(correctSize(256), ShouldEqual, loader.SizeFlagLarge)
-	})
+	assert.Equal(t, correctSize(64), loader.SizeFlagSmall)
+	assert.Equal(t, correctSize(128), loader.SizeFlagNormal)
+	assert.Equal(t, correctSize(176), loader.SizeFlagNormal)
+	assert.Equal(t, correctSize(256), loader.SizeFlagLarge)
 }

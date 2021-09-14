@@ -20,55 +20,46 @@
 package main
 
 import (
-	C "gopkg.in/check.v1"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-type testWrapper struct{}
-
-func init() {
-	C.Suite(&testWrapper{})
-}
-
-func Test(t *testing.T) {
-	C.TestingT(t)
-}
-
-func (*testWrapper) TestLocaleFile(c *C.C) {
+func Test_LocaleFile(t *testing.T) {
 	finfo, err := NewLocaleFileInfo("testdata/locale.gen")
-	c.Check(err, C.Equals, nil)
-	c.Check(len(finfo.Infos), C.Equals, 471)
-	c.Check(len(finfo.GetEnabledLocales()), C.Equals, 5)
+	assert.Nil(t, err)
+	assert.Equal(t, len(finfo.Infos), 471)
+	assert.Equal(t, len(finfo.GetEnabledLocales()), 5)
 
 	// test locale valid
-	c.Check(finfo.IsLocaleValid("zh_CN.UTF-8"), C.Equals, true)
-	c.Check(finfo.IsLocaleValid("zh_CNN"), C.Equals, false)
+	assert.Equal(t, finfo.IsLocaleValid("zh_CN.UTF-8"), true)
+	assert.Equal(t, finfo.IsLocaleValid("zh_CNN"), false)
 
 	// enable
 	finfo.EnableLocale("zh_CN.UTF-8")
-	c.Check(len(finfo.GetEnabledLocales()), C.Equals, 5)
+	assert.Equal(t, len(finfo.GetEnabledLocales()), 5)
 	finfo.EnableLocale("zh_TW.UTF-8")
-	c.Check(len(finfo.GetEnabledLocales()), C.Equals, 6)
+	assert.Equal(t, len(finfo.GetEnabledLocales()), 6)
 	var tmp = "/tmp/test_locale"
 	err = finfo.Save(tmp)
-	c.Check(err, C.Equals, nil)
+	assert.Nil(t, err)
 
 	finfo, err = NewLocaleFileInfo(tmp)
-	c.Check(err, C.Equals, nil)
-	c.Check(len(finfo.Infos), C.Equals, 471)
-	c.Check(len(finfo.GetEnabledLocales()), C.Equals, 6)
+	assert.Nil(t, err)
+	assert.Equal(t, len(finfo.Infos), 471)
+	assert.Equal(t, len(finfo.GetEnabledLocales()), 6)
 
 	// disable
 	finfo.DisableLocale("zh_HK.UTF-8")
-	c.Check(len(finfo.GetEnabledLocales()), C.Equals, 6)
+	assert.Equal(t, len(finfo.GetEnabledLocales()), 6)
 	finfo.DisableLocale("zh_CN.UTF-8")
-	c.Check(len(finfo.GetEnabledLocales()), C.Equals, 5)
+	assert.Equal(t, len(finfo.GetEnabledLocales()), 5)
 	var tmp2 = "/tmp/test_locale2"
 	err = finfo.Save(tmp2)
-	c.Check(err, C.Equals, nil)
+	assert.Nil(t, err)
 
 	finfo, err = NewLocaleFileInfo(tmp2)
-	c.Check(err, C.Equals, nil)
-	c.Check(len(finfo.Infos), C.Equals, 471)
-	c.Check(len(finfo.GetEnabledLocales()), C.Equals, 5)
+	assert.Nil(t, err)
+	assert.Equal(t, len(finfo.Infos), 471)
+	assert.Equal(t, len(finfo.GetEnabledLocales()), 5)
 }

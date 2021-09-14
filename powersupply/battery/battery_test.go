@@ -22,41 +22,37 @@ package battery
 import (
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_parseStatus(t *testing.T) {
-	Convey("parseStatus", t, func(c C) {
-		c.So(parseStatus("Unknown"), ShouldEqual, StatusUnknown)
-		c.So(parseStatus("Charging"), ShouldEqual, StatusCharging)
-		c.So(parseStatus("Discharging"), ShouldEqual, StatusDischarging)
-		c.So(parseStatus("Not charging"), ShouldEqual, StatusNotCharging)
-		c.So(parseStatus("Full"), ShouldEqual, StatusFull)
-		c.So(parseStatus("Other"), ShouldEqual, StatusUnknown)
-	})
+	assert.Equal(t, parseStatus("Unknown"), StatusUnknown)
+	assert.Equal(t, parseStatus("Charging"), StatusCharging)
+	assert.Equal(t, parseStatus("Discharging"), StatusDischarging)
+	assert.Equal(t, parseStatus("Not charging"), StatusNotCharging)
+	assert.Equal(t, parseStatus("Full"), StatusFull)
+	assert.Equal(t, parseStatus("Other"), StatusUnknown)
 }
 
 func Test_GetDisplayStatus(t *testing.T) {
-	Convey("GetDisplayStatus", t, func(c C) {
-		// one
-		one := []Status{StatusDischarging}
-		c.So(GetDisplayStatus(one), ShouldEqual, StatusDischarging)
-		one[0] = StatusNotCharging
-		c.So(GetDisplayStatus(one), ShouldEqual, StatusNotCharging)
+	// one
+	one := []Status{StatusDischarging}
+	assert.Equal(t, GetDisplayStatus(one), StatusDischarging)
+	one[0] = StatusNotCharging
+	assert.Equal(t, GetDisplayStatus(one), StatusNotCharging)
 
-		// two
-		two := []Status{StatusFull, StatusFull}
-		c.So(GetDisplayStatus(two), ShouldEqual, StatusFull)
-		two[0] = StatusDischarging
-		two[1] = StatusFull
-		c.So(GetDisplayStatus(two), ShouldEqual, StatusDischarging)
+	// two
+	two := []Status{StatusFull, StatusFull}
+	assert.Equal(t, GetDisplayStatus(two), StatusFull)
+	two[0] = StatusDischarging
+	two[1] = StatusFull
+	assert.Equal(t, GetDisplayStatus(two), StatusDischarging)
 
-		two[0] = StatusCharging
-		two[1] = StatusFull
-		c.So(GetDisplayStatus(two), ShouldEqual, StatusCharging)
+	two[0] = StatusCharging
+	two[1] = StatusFull
+	assert.Equal(t, GetDisplayStatus(two), StatusCharging)
 
-		two[0] = StatusCharging
-		two[1] = StatusDischarging
-		c.So(GetDisplayStatus(two), ShouldEqual, StatusDischarging)
-	})
+	two[0] = StatusCharging
+	two[1] = StatusDischarging
+	assert.Equal(t, GetDisplayStatus(two), StatusDischarging)
 }

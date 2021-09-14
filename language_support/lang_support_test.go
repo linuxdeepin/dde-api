@@ -4,66 +4,60 @@ import (
 	"encoding/json"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestParsePkgDepends(t *testing.T) {
-	Convey("parsePkgDepends", t, func(c C) {
-		pkgDepnds, err := parsePkgDepends("testdata/pkg_depends")
-		jsonData, _ := json.Marshal(pkgDepnds)
-		t.Logf("%s", jsonData)
+	pkgDepnds, err := parsePkgDepends("testdata/pkg_depends")
+	jsonData, _ := json.Marshal(pkgDepnds)
 
-		c.So(err, ShouldBeNil)
-		c.So(pkgDepnds, ShouldNotBeNil)
-	})
+	assert.Nil(t, err)
+	assert.NotNil(t, pkgDepnds)
+	assert.NotNil(t, jsonData)
 }
 
 func TestLangCodeFromLocale(t *testing.T) {
-	Convey("langCodeFromLocale", t, func(c C) {
-		locale := langCodeFromLocale("zh_CN")
-		c.So(locale, ShouldEqual, "zh-hans")
+	locale := langCodeFromLocale("zh_CN")
+	assert.Equal(t, locale, "zh-hans")
 
-		locale = langCodeFromLocale("zh_SG")
-		c.So(locale, ShouldEqual, "zh-hans")
+	locale = langCodeFromLocale("zh_SG")
+	assert.Equal(t, locale, "zh-hans")
 
-		locale = langCodeFromLocale("zh_TW")
-		c.So(locale, ShouldEqual, "zh-hant")
+	locale = langCodeFromLocale("zh_TW")
+	assert.Equal(t, locale, "zh-hant")
 
-		locale = langCodeFromLocale("en_US")
-		c.So(locale, ShouldEqual, "en")
+	locale = langCodeFromLocale("en_US")
+	assert.Equal(t, locale, "en")
 
-		locale = langCodeFromLocale("en")
-		c.So(locale, ShouldEqual, "en")
+	locale = langCodeFromLocale("en")
+	assert.Equal(t, locale, "en")
 
-		locale = langCodeFromLocale("")
-		c.So(locale, ShouldEqual, "")
-	})
+	locale = langCodeFromLocale("")
+	assert.Equal(t, locale, "")
 }
 
 func TestExpendPkgPattern(t *testing.T) {
-	Convey("expendPkgPattern", t, func(c C) {
-		pkgs := expendPkgPattern("[p]", "en_US")
-		c.So(pkgs, ShouldResemble, []string{"[p]", "[p]en", "[p]enus", "[p]en-us"})
+	pkgs := expendPkgPattern("[p]", "en_US")
+	assert.ElementsMatch(t, pkgs, []string{"[p]", "[p]en", "[p]enus", "[p]en-us"})
 
-		pkgs = expendPkgPattern("[p]", "en")
-		c.So(pkgs, ShouldResemble, []string{"[p]", "[p]en"})
+	pkgs = expendPkgPattern("[p]", "en")
+	assert.ElementsMatch(t, pkgs, []string{"[p]", "[p]en"})
 
-		pkgs = expendPkgPattern("[p]", "")
-		c.So(pkgs, ShouldResemble, []string{"[p]", "[p]"})
+	pkgs = expendPkgPattern("[p]", "")
+	assert.ElementsMatch(t, pkgs, []string{"[p]", "[p]"})
 
-		pkgs = expendPkgPattern("[p]", "zh_CN")
-		c.So(pkgs, ShouldResemble, []string{"[p]", "[p]zh", "[p]zhcn", "[p]zh-cn", "[p]zh-hans"})
+	pkgs = expendPkgPattern("[p]", "zh_CN")
+	assert.ElementsMatch(t, pkgs, []string{"[p]", "[p]zh", "[p]zhcn", "[p]zh-cn", "[p]zh-hans"})
 
-		pkgs = expendPkgPattern("[p]", "zh_SG")
-		c.So(pkgs, ShouldResemble, []string{"[p]", "[p]zh", "[p]zhsg", "[p]zh-sg", "[p]zh-hans"})
+	pkgs = expendPkgPattern("[p]", "zh_SG")
+	assert.ElementsMatch(t, pkgs, []string{"[p]", "[p]zh", "[p]zhsg", "[p]zh-sg", "[p]zh-hans"})
 
-		pkgs = expendPkgPattern("[p]", "zh_TW")
-		c.So(pkgs, ShouldResemble, []string{"[p]", "[p]zh", "[p]zhtw", "[p]zh-tw", "[p]zh-hant"})
+	pkgs = expendPkgPattern("[p]", "zh_TW")
+	assert.ElementsMatch(t, pkgs, []string{"[p]", "[p]zh", "[p]zhtw", "[p]zh-tw", "[p]zh-hant"})
 
-		pkgs = expendPkgPattern("[p]", "zh_HK")
-		c.So(pkgs, ShouldResemble, []string{"[p]", "[p]zh", "[p]zhhk", "[p]zh-hk", "[p]zh-hant"})
+	pkgs = expendPkgPattern("[p]", "zh_HK")
+	assert.ElementsMatch(t, pkgs, []string{"[p]", "[p]zh", "[p]zhhk", "[p]zh-hk", "[p]zh-hant"})
 
-		pkgs = expendPkgPattern("[p]", "wa_BE@euro")
-		c.So(pkgs, ShouldResemble, []string{"[p]", "[p]wa", "[p]wabe", "[p]wa-be", "[p]wa-euro", "[p]wa-be-euro"})
-	})
+	pkgs = expendPkgPattern("[p]", "wa_BE@euro")
+	assert.ElementsMatch(t, pkgs, []string{"[p]", "[p]wa", "[p]wabe", "[p]wa-be", "[p]wa-euro", "[p]wa-be-euro"})
 }

@@ -23,33 +23,29 @@ import (
 	"os"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGtk2Infos(t *testing.T) {
-	Convey("Test gtk2 infos", t, func(c C) {
-		infos := gtk2FileReader("testdata/gtkrc-2.0")
-		c.So(len(infos), ShouldEqual, 16)
+	infos := gtk2FileReader("testdata/gtkrc-2.0")
+	assert.Equal(t, len(infos), 16)
 
-		info := infos.Get("gtk-theme-name")
-		c.So(info.value, ShouldEqual, "\"Paper\"")
+	info := infos.Get("gtk-theme-name")
+	assert.Equal(t, info.value, "\"Paper\"")
 
-		info.value = "\"Deepin\""
-		c.So(info.value, ShouldEqual, "\"Deepin\"")
+	info.value = "\"Deepin\""
+	assert.Equal(t, info.value, "\"Deepin\"")
 
-		infos = infos.Add("gtk2-test", "test")
-		c.So(len(infos), ShouldEqual, 17)
-	})
+	infos = infos.Add("gtk2-test", "test")
+	assert.Equal(t, len(infos), 17)
 
-	Convey("Test nil infos", t, func(c C) {
-		var infos = gtk2FileReader("testdata/xxx")
-		infos = infos.Add("gtk2-test", "test")
-		c.So(len(infos), ShouldEqual, 1)
-		info := infos.Get("gtk2-test")
-		c.So(info.value, ShouldEqual, "test")
+	infos = gtk2FileReader("testdata/xxx")
+	infos = infos.Add("gtk2-test", "test")
+	assert.Equal(t, len(infos), 1)
+	info = infos.Get("gtk2-test")
+	assert.Equal(t, info.value, "test")
 
-		err := gtk2FileWriter(infos, "testdata/tmp-gtk2rc")
-		defer os.Remove("testdata/tmp-gtk2rc")
-		c.So(err, ShouldBeNil)
-	})
+	err := gtk2FileWriter(infos, "testdata/tmp-gtk2rc")
+	defer os.Remove("testdata/tmp-gtk2rc")
+	assert.Nil(t, err)
 }

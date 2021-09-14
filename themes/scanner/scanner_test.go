@@ -23,52 +23,40 @@ import (
 	"sort"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestListGtkTheme(t *testing.T) {
-	Convey("List gtk theme", t, func(c C) {
-		list, err := ListGtkTheme("testdata/Themes")
-		sort.Strings(list)
-		c.So(list, ShouldResemble, []string{
-			"testdata/Themes/Gtk1",
-			"testdata/Themes/Gtk2"})
-		c.So(err, ShouldBeNil)
-	})
+	list, err := ListGtkTheme("testdata/Themes")
+	sort.Strings(list)
+	assert.ElementsMatch(t, list, []string{
+		"testdata/Themes/Gtk1",
+		"testdata/Themes/Gtk2"})
+	assert.Nil(t, err)
 }
 
 func TestListIconTheme(t *testing.T) {
-	Convey("List icon theme", t, func(c C) {
-		list, err := ListIconTheme("testdata/Icons")
-		sort.Strings(list)
-		c.So(list, ShouldResemble, []string{
-			"testdata/Icons/Icon1",
-			"testdata/Icons/Icon2"})
-		c.So(err, ShouldBeNil)
-	})
+	list, err := ListIconTheme("testdata/Icons")
+	sort.Strings(list)
+	assert.ElementsMatch(t, list, []string{
+		"testdata/Icons/Icon1",
+		"testdata/Icons/Icon2"})
+	assert.Nil(t, err)
 }
 
 func TestListCursorTheme(t *testing.T) {
-	Convey("List cursor theme", t, func(c C) {
-		list, err := ListCursorTheme("testdata/Icons")
-		sort.Strings(list)
-		c.So(list, ShouldResemble, []string{
-			"testdata/Icons/Icon1",
-			"testdata/Icons/Icon2"})
-		c.So(err, ShouldBeNil)
-	})
+	list, err := ListCursorTheme("testdata/Icons")
+	sort.Strings(list)
+	assert.ElementsMatch(t, list, []string{
+		"testdata/Icons/Icon1",
+		"testdata/Icons/Icon2"})
+	assert.Nil(t, err)
 }
 
 func TestThemeHidden(t *testing.T) {
-	Convey("Test theme is hidden", t, func(c C) {
-		c.So(isHidden("testdata/gtk_paper.theme", ThemeTypeGtk),
-			ShouldEqual, false)
-		c.So(isHidden("testdata/gtk_paper_hidden.theme", ThemeTypeGtk),
-			ShouldEqual, true)
+	assert.Equal(t, isHidden("testdata/gtk_paper.theme", ThemeTypeGtk), false)
+	assert.Equal(t, isHidden("testdata/gtk_paper_hidden.theme", ThemeTypeGtk), true)
 
-		c.So(isHidden("testdata/icon_deepin.theme", ThemeTypeIcon),
-			ShouldEqual, false)
-		c.So(isHidden("testdata/icon_deepin_hidden.theme", ThemeTypeIcon),
-			ShouldEqual, true)
-	})
+	assert.Equal(t, isHidden("testdata/icon_deepin.theme", ThemeTypeIcon), false)
+	assert.Equal(t, isHidden("testdata/icon_deepin_hidden.theme", ThemeTypeIcon), true)
 }

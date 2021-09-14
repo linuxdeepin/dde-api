@@ -1,7 +1,9 @@
 /*
- * Copyright (C) 2017 ~ 2018 Deepin Technology Co., Ltd.
+ * Copyright (C) 2019 ~ 2021 Uniontech Software Technology Co.,Ltd
  *
- * Author:     jouyouyun <jouyouwen717@gmail.com>
+ * Author:     dengbo <dengbo@uniontech.com>
+ *
+ * Maintainer: dengbo <dengbo@uniontech.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,24 +19,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package powersupply
+package common
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestACOnline(t *testing.T) {
-	acExist, acOnline, err := ACOnline()
-	t.Logf("acExist %v, acOnline %v, err %v", acExist, acOnline, err)
-}
+func Test_Get(t *testing.T) {
+	info := DeviceInfo{
+		Id:      111,
+		Type:    1,
+		Name:    "test",
+		Enabled: true,
+	}
 
-func TestGetSystemBatteryInfos(t *testing.T) {
-	batInfos, err := GetSystemBatteryInfos()
-	if err != nil {
-		t.Log("err", err)
-		return
+	infos := DeviceInfos{
+		&info,
 	}
-	for _, batInfo := range batInfos {
-		t.Logf("%+v", batInfo)
-	}
+
+	assert.Equal(t, infos.Get(111).Id, info.Id)
 }

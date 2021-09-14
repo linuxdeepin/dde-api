@@ -23,23 +23,19 @@ import (
 	"os"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMergeThemeList(t *testing.T) {
-	Convey("Merge theme list", t, func(c C) {
-		src := []string{"Deepin", "Adwaita", "Zukitwo"}
-		target := []string{"Deepin", "Evolve"}
-		ret := []string{"Deepin", "Adwaita", "Zukitwo", "Evolve"}
+	src := []string{"Deepin", "Adwaita", "Zukitwo"}
+	target := []string{"Deepin", "Evolve"}
+	ret := []string{"Deepin", "Adwaita", "Zukitwo", "Evolve"}
 
-		c.So(mergeThemeList(src, target), ShouldResemble, ret)
-	})
+	assert.ElementsMatch(t, mergeThemeList(src, target), ret)
 }
 
 func TestSetQt4Theme(t *testing.T) {
-	Convey("Set qt4 theme", t, func(c C) {
-		config := "/tmp/Trolltech.conf"
-		c.So(setQt4Theme(config), ShouldEqual, true)
-		os.Remove(config)
-	})
+	config := "/tmp/Trolltech.conf"
+	assert.Equal(t, setQt4Theme(config), true)
+	os.Remove(config)
 }

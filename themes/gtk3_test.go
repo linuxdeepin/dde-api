@@ -23,27 +23,25 @@ import (
 	"os"
 	"testing"
 
-	. "github.com/smartystreets/goconvey/convey"
+	"github.com/stretchr/testify/assert"
 	dutils "pkg.deepin.io/lib/utils"
 )
 
 func TestGtk3Prop(t *testing.T) {
-	Convey("Test gtk3 prop setting", t, func(c C) {
-		kfile, err := dutils.NewKeyFileFromFile("testdata/settings.ini")
-		c.So(err, ShouldBeNil)
-		defer kfile.Free()
+	kfile, err := dutils.NewKeyFileFromFile("testdata/settings.ini")
+	assert.Nil(t, err)
+	defer kfile.Free()
 
-		c.So(isGtk3PropEqual(gtk3KeyTheme, "Paper",
-			kfile), ShouldEqual, true)
-		c.So(isGtk3PropEqual("gtk-menu-images", "1",
-			kfile), ShouldEqual, true)
-		c.So(isGtk3PropEqual("gtk-modules", "gail:atk-bridge",
-			kfile), ShouldEqual, true)
-		c.So(isGtk3PropEqual("test-list", "1;2;3;",
-			kfile), ShouldEqual, true)
+	assert.Equal(t, isGtk3PropEqual(gtk3KeyTheme, "Paper",
+		kfile), true)
+	assert.Equal(t, isGtk3PropEqual("gtk-menu-images", "1",
+		kfile), true)
+	assert.Equal(t, isGtk3PropEqual("gtk-modules", "gail:atk-bridge",
+		kfile), true)
+	assert.Equal(t, isGtk3PropEqual("test-list", "1;2;3;",
+		kfile), true)
 
-		err = setGtk3Prop("test-gtk3", "test", "testdata/tmp-gtk3")
-		defer os.Remove("testdata/tmp-gtk3")
-		c.So(err, ShouldBeNil)
-	})
+	err = setGtk3Prop("test-gtk3", "test", "testdata/tmp-gtk3")
+	defer os.Remove("testdata/tmp-gtk3")
+	assert.Nil(t, err)
 }
