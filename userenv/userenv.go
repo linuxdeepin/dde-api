@@ -146,7 +146,9 @@ func SaveToFile(filename string, m map[string]string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() {
+		_ = f.Close()
+	}()
 	bw := bufio.NewWriter(f)
 	err = writeTo(bw, m)
 	if err != nil {

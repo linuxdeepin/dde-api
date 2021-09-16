@@ -47,6 +47,7 @@ func round(f float64) int {
 }
 
 func convertSvg(svgFile, outFile string, width, height int) error {
+	// #nosec G204
 	cmd := exec.Command("rsvg-convert", "-o", outFile,
 		"-w", strconv.Itoa(width),
 		"-h", strconv.Itoa(height),
@@ -74,7 +75,9 @@ func saveJpeg(img image.Image, filename string) error {
 	if err != nil {
 		return err
 	}
-	defer fh.Close()
+	defer func() {
+		_ = fh.Close()
+	}()
 	bw := bufio.NewWriter(fh)
 	err = jpeg.Encode(bw, img, nil)
 	if err != nil {
@@ -96,7 +99,7 @@ func findFont(pattern string) (fontFile string, faceIndex int, err error) {
 	if ok {
 		return cache.fontFile, cache.faceIndex, nil
 	}
-
+	// #nosec G204
 	cmd := exec.Command("fc-match", "--format", "%{file}\n%{index}", pattern)
 	out, err := cmd.Output()
 	if err != nil {
@@ -153,6 +156,7 @@ func eval(vars map[string]float64, expr string) (float64, error) {
 }
 
 func decodeShellValue(in string) string {
+	// #nosec G204
 	output, err := exec.Command("/bin/sh", "-c", "echo -n "+in).Output()
 	if err != nil {
 		// fallback
@@ -179,7 +183,9 @@ func loadGrubParams(grubParamsFilePath string) (map[string]string, error) {
 	if err != nil {
 		return params, err
 	}
-	defer f.Close()
+	defer func() {
+		_ = f.Close()
+	}()
 
 	r := kv.NewReader(f)
 	r.TrimSpace = kv.TrimLeadingTailingSpace
@@ -282,7 +288,9 @@ func getLocaleFromFile(file string) string {
 	if err != nil {
 		return ""
 	}
-	defer f.Close()
+	defer func() {
+		_ = f.Close()
+	}()
 
 	r := kv.NewReader(f)
 	r.Delim = '='
@@ -317,13 +325,17 @@ func copyFile(src, dst string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer source.Close()
+	defer func() {
+		_ = source.Close()
+	}()
 
 	destination, err := os.Create(dst)
 	if err != nil {
 		return 0, err
 	}
-	defer destination.Close()
+	defer func() {
+		_ = destination.Close()
+	}()
 	nBytes, err := io.Copy(destination, source)
 	return nBytes, err
 }

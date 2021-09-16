@@ -44,7 +44,7 @@ const (
 	cmdKeyThreshold     string = "Threshold"
 	cmdKeyRawSample     string = "RawSample"
 	// such as 'VGA1'
-	cmdKeyMapToOutput   string = "MapToOutput"
+	cmdKeyMapToOutput string = "MapToOutput"
 )
 
 const (
@@ -256,6 +256,7 @@ func (w *Wacom) MapToOutput(output string) error {
 }
 
 func doAction(cmd string) error {
+	// #nosec G204
 	out, err := exec.Command("/bin/sh", "-c", cmd).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf(string(out))

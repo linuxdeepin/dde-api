@@ -238,7 +238,9 @@ func txQueryHuangLi(tx *sql.Tx, id int64) (*HuangLi, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer stmt.Close()
+	defer func() {
+		_ = stmt.Close()
+	}()
 
 	var info HuangLi
 	err = stmt.QueryRow(id).Scan(&info.ID, &info.Avoid, &info.Suit)
@@ -253,7 +255,9 @@ func txCreateHuangLi(tx *sql.Tx, info *HuangLi) error {
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	defer func() {
+		_ = stmt.Close()
+	}()
 
 	_, err = stmt.Exec(info.ID, info.Avoid, info.Suit)
 	return err
@@ -274,7 +278,9 @@ func txQueryFestival(tx *sql.Tx, table, id string) (*Festival, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer stmt.Close()
+	defer func() {
+		_ = stmt.Close()
+	}()
 
 	var info Festival
 	err = stmt.QueryRow(id).Scan(&info.ID, &info.Month, &info.Name, &info.Description,
@@ -301,7 +307,9 @@ func txQueryFestivalList(tx *sql.Tx, table string, month int) (FestivalList, err
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		_ = rows.Close()
+	}()
 
 	var list FestivalList
 	for rows.Next() {
@@ -324,7 +332,9 @@ func txCreateFestival(tx *sql.Tx, table string, info *Festival) error {
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+	defer func() {
+		_ = stmt.Close()
+	}()
 
 	info.EncodeHolidayList()
 	_, err = stmt.Exec(info.ID, info.Month, info.Name, info.Description,

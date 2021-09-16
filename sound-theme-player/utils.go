@@ -39,7 +39,9 @@ func runAlsaCtlStore(uid int) error {
 	if err != nil {
 		return err
 	}
-	defer fh.Close()
+	defer func() {
+		_ = fh.Close()
+	}()
 
 	bufWriter := bufio.NewWriter(fh)
 	gzipWriter := gzip.NewWriter(bufWriter)

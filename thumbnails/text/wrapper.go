@@ -123,7 +123,9 @@ func readFile(file string, info *thumbInfo) ([]*C.char, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer fr.Close()
+	defer func() {
+		_ = fr.Close()
+	}()
 
 	var (
 		cnt   int

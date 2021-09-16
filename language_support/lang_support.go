@@ -12,7 +12,7 @@ import (
 )
 
 type LanguageSupport struct {
-	pkgDepends     map[string]map[string]map[string][]string
+	pkgDepends map[string]map[string]map[string][]string
 	//nolint
 	langCountryMap int
 }
@@ -226,7 +226,9 @@ func parsePkgDepends(filename string) (ret map[string]map[string]map[string][]st
 	if err != nil {
 		return nil, err
 	}
-	defer fh.Close()
+	defer func() {
+		_ = fh.Close()
+	}()
 
 	reader := csv.NewReader(fh)
 	reader.Comma = ':'

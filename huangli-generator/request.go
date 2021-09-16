@@ -207,7 +207,9 @@ func doGet(uri string) ([]byte, error) {
 	if resp.Body == nil {
 		return nil, fmt.Errorf("no data return")
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

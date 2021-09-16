@@ -108,7 +108,9 @@ func listSubDir(dir string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer fr.Close()
+	defer func() {
+		fr.Close()
+	}()
 
 	names, err := fr.Readdirnames(-1)
 	if err != nil {

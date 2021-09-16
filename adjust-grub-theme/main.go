@@ -366,7 +366,9 @@ func adjustThemeNormal() error {
 	if err != nil {
 		return err
 	}
-	defer themeOutputFh.Close()
+	defer func() {
+		_ = themeOutputFh.Close()
+	}()
 	bw := bufio.NewWriter(themeOutputFh)
 	// write head
 	_, err = fmt.Fprintf(bw, "#version:%d\n", VERSION)
@@ -450,7 +452,9 @@ func adjustThemeFallback() error {
 	if err != nil {
 		return err
 	}
-	defer themeOutputFh.Close()
+	defer func() {
+		_ = themeOutputFh.Close()
+	}()
 	bw := bufio.NewWriter(themeOutputFh)
 	// write head
 	_, err = fmt.Fprintf(bw, "#version:%d\n", VERSION)
@@ -570,12 +574,12 @@ func cleanupThemeOutputDir(dir string) {
 	for _, fileInfo := range fileInfoList {
 		filename := filepath.Join(dir, fileInfo.Name())
 		if fileInfo.IsDir() {
-			os.RemoveAll(filename)
+			_ = os.RemoveAll(filename)
 		} else {
 			if fileInfo.Name() == "background_source" {
 				// do not delete it
 			} else {
-				os.Remove(filename)
+				_ = os.Remove(filename)
 			}
 		}
 	}
@@ -610,6 +614,7 @@ func genPF2Font(themeOutputDir, fontFile string, faceIndex, size int) (*font.Fac
 	fontBaseName = fmt.Sprintf("ag-%s-%d-%d.pf2", fontBaseName, faceIndex, size)
 	output := filepath.Join(themeOutputDir, fontBaseName)
 
+	// #nosec G204
 	cmd := exec.Command("grub-mkfont", "-i", faceIndexStr,
 		"-s", sizeStr, "-o", output, fontFile)
 	logger.Debugf("$ grub-mkfont -i %d -s %d -o %s %s",
