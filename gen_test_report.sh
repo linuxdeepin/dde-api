@@ -6,6 +6,8 @@
 gThirdpartPath="gobuild"
 # 设置忽略目录列表，列表的目录及其子目录不统计
 gIgnorePaths=("gobuild" "gopath" "vendor" "huangli" "huangli-generator" "lunar-calendar")
+# 设置忽略的文件名列表
+gIgnoreFiles=("exported_methods_auto.go")
 
 
 # 生成的测试报告文件
@@ -40,15 +42,33 @@ function getThirdpartPath() {
 
 # 获取需要统计的目录
 function getTestPath() {
-    currentDirectory=$(pwd)
-    cmd=""
-    for dir in "${gIgnorePaths[@]}"
-    do
-        cmd=$cmd" | grep -v ^_"$currentDirectory/$dir".*"
-    done
-    cmd="go list ./..."$cmd
-    ret=$(eval $cmd)
-    echo ${ret//"_"$currentDirectory/.}
+    # go list在GOPATH设置不一样时，结果不一样
+    pathType=$(go list ./... | head -n 1 | grep -c '^_/')
+
+    if [ "$pathType" == "1" ]; then
+        # 1 - 绝对路径
+        currentDirectory=$(pwd)
+        cmd=""
+        for dir in "${gIgnorePaths[@]}"
+        do
+            cmd=$cmd" | grep -v ^_"$currentDirectory/$dir".*"
+        done
+        cmd="go list ./..."$cmd
+        ret=$(eval $cmd)
+        echo ${ret//"_"$currentDirectory/.}
+    else
+        #  0 - 相对路径
+        currentDirectory=$(pwd)
+        currentDirectory="${currentDirectory##*/}"
+        cmd=""
+        for dir in "${gIgnorePaths[@]}"
+        do
+            cmd=$cmd" | grep -v ^"$currentDirectory/$dir".*"
+        done
+        cmd="go list ./..."$cmd
+        ret=$(eval $cmd)
+        echo ${ret//$currentDirectory/.}
+    fi
 }
 
 # 获取因缺少测试文件导致会遗漏的目录（包）的列表
@@ -88,16 +108,12 @@ function getGoDirect() {
 # 单元测试用例数统计
 function TestCasesNum() {
     # 官方gotest
-    gTestCaseNumTotal=$(grep -c '^=== RUN[^\/]*$' ${gReportDir}/test.log)
-    gTestCaseNumFailed=$(grep -c '^--- FAIL[^\/]*$' ${gReportDir}/test.log)
+    gTestCaseNumTotal=$(grep -c '^=== RUN.*' ${gReportDir}/test.log)
+    gTestCaseNumFailed=$(grep -c '.*--- FAIL.*' ${gReportDir}/test.log)
 
     # 第三方测试框架
     TestCasesNumByGoCheck
     TestCasesNumByGoConvey
-
-    if [ ${gDeleteCoverageData} == 1 ]; then
-        rm ${gReportDir}/test.log -f
-    fi
 }
 
 # 单元测试用例数统计 - 测试框架gocheck(gopkg.in/check)
@@ -227,6 +243,41 @@ function TestCasesNumByTestFile() {
     echo $gTestCaseNumFailed
 }
 
+# 过滤文件列表处理，项目目录下的该文件名的文件都不再统计，不管在几级目录
+function ignoreFilesDeal() {
+    # 行统计校正
+    # 先找到需要过滤的文件的行覆盖率，然后在总数中减掉
+    ignoreRowTotal=0
+    ignoreRowHit=0
+    for file in "${gIgnoreFiles[@]}"
+    do
+        while read -r line
+        do
+            arrData=($line)
+            if [ ${#arrData[*]} != 3 ]; then
+                continue
+            fi
+            if [ "${arrData[1]}" == "0" ]; then
+                continue
+            fi
+            ignoreRowTotal=$((ignoreRowTotal+arrData[1]))
+
+            if [ "${arrData[2]}" != "0" ]; then
+                ignoreRowHit=$((ignoreRowHit+arrData[1]))
+            fi
+        done  <<< $(grep "$file" "${gReportDir}/coverage.data")
+    done
+    gRowTotal=$((gRowTotal-ignoreRowTotal))
+    gRowHit=$((gRowHit-ignoreRowHit))
+
+    # 函数统计校正
+    # 数据文件中该文件数据，后面再统计
+    for file in "${gIgnoreFiles[@]}"
+    do
+        sed -i "/.*""$file"":.*/d" ${gReportDir}/coverage.txt
+    done
+}
+
 # 开始单元测试
 function makeTest() {
     mkdir -pv $gReportDir
@@ -271,9 +322,9 @@ function makeTest() {
             gRowHit=$((gRowHit+arrData[1]))
         fi
     done  < ${gReportDir}/coverage.data
-    if [ ${gDeleteCoverageData} == 1 ]; then
-        rm ${gReportDir}/coverage.data -f
-    fi
+
+    # 忽略文件列表处理，会去掉coverage.txt中需要过滤的数据，在函数覆盖率统计前运行
+    ignoreFilesDeal
 
     while read -r line
     do
@@ -286,6 +337,7 @@ function makeTest() {
     ((gFuncHit--))
     ((gFuncTotal--))
 
+    # 测试用例数统计
     TestCasesNum
 }
 
@@ -345,10 +397,16 @@ function genHtml() {
     done  < ${gReportDir}/coverage.txt
 
     echo "</table></body></html>" >> $gHTMLFile
+}
+
+function clearCacheFile() {
     if [ ${gDeleteCoverageData} == 1 ]; then
+        rm ${gReportDir}/coverage.data -f
         rm ${gReportDir}/coverage.txt -f
+        rm ${gReportDir}/test.log -f
     fi
 }
 
 makeTest
 genHtml
+clearCacheFile
