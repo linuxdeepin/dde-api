@@ -20,7 +20,8 @@ LIBRARIES = \
     language_support \
 	userenv \
 	inhibit_hint \
-    powersupply
+    powersupply	\
+    polkit
 
 BINARIES =  \
     device \
