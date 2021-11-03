@@ -6,6 +6,7 @@ libdir = /lib
 SYSTEMD_LIB_DIR = ${libdir}
 SYSTEMD_SERVICE_DIR = ${SYSTEMD_LIB_DIR}/systemd/system/
 GOBUILD = env GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}" go build
+export GO111MODULE=off
 
 LIBRARIES = \
     thumbnails \
