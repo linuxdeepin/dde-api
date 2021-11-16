@@ -55,7 +55,7 @@ ts-to-policy:
 	deepin-policy-ts-convert ts2policy misc/polkit-action/com.deepin.api.device.unblock-bluetooth-devices.policy.in misc/ts/com.deepin.api.device.unblock-bluetooth-devices.policy misc/polkit-action/com.deepin.api.device.unblock-bluetooth-devices.policy
 
 out/bin/%:
-	${GOBUILD} -o $@  ${GOPKG_PREFIX}/${@F}
+	${GOBUILD} -o $@ ${GOBUILD_OPTIONS} ${GOPKG_PREFIX}/${@F}
 
 # Install go packages
 build-dep:
