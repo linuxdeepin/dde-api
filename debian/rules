@@ -5,6 +5,10 @@ ifeq ($(DEB_BUILD_ARCH),sw_64)
 	export GOFLAGS = -vet=off
 endif
 
+ifneq ($(DEB_BUILD_ARCH), mips64el)
+	export GOBUILD_OPTIONS=-ldflags '-linkmode=external -extldflags "-pie"'
+endif
+
 %:
 	dh $@
 
