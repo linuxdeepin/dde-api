@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/godbus/dbus"
+	. "github.com/linuxdeepin/dde-api/dxinput/common"
 	kwin "github.com/linuxdeepin/go-dbus-factory/org.kde.kwin"
-	. "pkg.deepin.io/dde/api/dxinput/common"
 )
 
 const (

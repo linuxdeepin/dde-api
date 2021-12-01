@@ -27,7 +27,7 @@ import (
 	"time"
 
 	"github.com/godbus/dbus"
-	"pkg.deepin.io/dde/api/themes"
+	"github.com/linuxdeepin/dde-api/themes"
 	"github.com/linuxdeepin/go-lib/dbusutil"
 	"github.com/linuxdeepin/go-lib/log"
 )

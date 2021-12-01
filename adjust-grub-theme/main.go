@@ -40,8 +40,8 @@ import (
 
 	"github.com/disintegration/imaging"
 
-	"pkg.deepin.io/dde/api/grub_theme/font"
-	tt "pkg.deepin.io/dde/api/grub_theme/themetxt"
+	"github.com/linuxdeepin/dde-api/grub_theme/font"
+	tt "github.com/linuxdeepin/dde-api/grub_theme/themetxt"
 	"github.com/linuxdeepin/go-lib/locale"
 )
 

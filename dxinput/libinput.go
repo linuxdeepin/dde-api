@@ -20,8 +20,9 @@
 package dxinput
 
 import (
-	"pkg.deepin.io/dde/api/dxinput/utils"
 	"errors"
+
+	"github.com/linuxdeepin/dde-api/dxinput/utils"
 )
 
 const (

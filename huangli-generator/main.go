@@ -26,7 +26,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 
-	"pkg.deepin.io/dde/api/huangli"
+	"github.com/linuxdeepin/dde-api/huangli"
 )
 
 var (

@@ -22,7 +22,8 @@ package pdf
 
 import (
 	"fmt"
-	. "pkg.deepin.io/dde/api/thumbnails/loader"
+
+	. "github.com/linuxdeepin/dde-api/thumbnails/loader"
 	"github.com/linuxdeepin/go-lib/mime"
 	dutils "github.com/linuxdeepin/go-lib/utils"
 )

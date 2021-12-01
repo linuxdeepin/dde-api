@@ -20,7 +20,7 @@
 package dxinput
 
 import (
-	"pkg.deepin.io/dde/api/dxinput/utils"
+	"github.com/linuxdeepin/dde-api/dxinput/utils"
 )
 
 func SetKeyboardRepeat(enabled bool, delay, interval uint32) error {

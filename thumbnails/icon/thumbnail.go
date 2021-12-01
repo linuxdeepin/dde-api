@@ -22,8 +22,9 @@ package icon
 import (
 	"os"
 	"path/filepath"
-	"pkg.deepin.io/dde/api/thumbnails/images"
-	"pkg.deepin.io/dde/api/thumbnails/loader"
+
+	"github.com/linuxdeepin/dde-api/thumbnails/images"
+	"github.com/linuxdeepin/dde-api/thumbnails/loader"
 	"github.com/linuxdeepin/go-lib/graphic"
 	dutils "github.com/linuxdeepin/go-lib/utils"
 )

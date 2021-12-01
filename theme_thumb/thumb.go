@@ -8,9 +8,9 @@ import (
 	"syscall"
 	"time"
 
-	"pkg.deepin.io/dde/api/theme_thumb/cursor"
-	"pkg.deepin.io/dde/api/theme_thumb/gtk"
-	"pkg.deepin.io/dde/api/theme_thumb/icon"
+	"github.com/linuxdeepin/dde-api/theme_thumb/cursor"
+	"github.com/linuxdeepin/dde-api/theme_thumb/gtk"
+	"github.com/linuxdeepin/dde-api/theme_thumb/icon"
 	"github.com/linuxdeepin/go-lib/xdg/basedir"
 )
 

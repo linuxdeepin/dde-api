@@ -31,7 +31,7 @@ import (
 	"os"
 	"unsafe"
 
-	"pkg.deepin.io/dde/api/thumbnails/loader"
+	"github.com/linuxdeepin/dde-api/thumbnails/loader"
 )
 
 type thumbInfo struct {

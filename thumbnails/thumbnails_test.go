@@ -23,7 +23,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"pkg.deepin.io/dde/api/thumbnails/loader"
+	"github.com/linuxdeepin/dde-api/thumbnails/loader"
 )
 
 func TestCorrectSize(t *testing.T) {

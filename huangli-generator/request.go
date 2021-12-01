@@ -27,7 +27,7 @@ import (
 	"strconv"
 	"strings"
 
-	"pkg.deepin.io/dde/api/huangli"
+	"github.com/linuxdeepin/dde-api/huangli"
 )
 
 const (

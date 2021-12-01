@@ -22,9 +22,9 @@ package dxinput
 import (
 	"fmt"
 
-	. "pkg.deepin.io/dde/api/dxinput/common"
-	"pkg.deepin.io/dde/api/dxinput/kwayland"
-	"pkg.deepin.io/dde/api/dxinput/utils"
+	. "github.com/linuxdeepin/dde-api/dxinput/common"
+	"github.com/linuxdeepin/dde-api/dxinput/kwayland"
+	"github.com/linuxdeepin/dde-api/dxinput/utils"
 )
 
 const (

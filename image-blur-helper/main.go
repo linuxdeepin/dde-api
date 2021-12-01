@@ -27,7 +27,7 @@ import (
 	"strconv"
 	"syscall"
 
-	"pkg.deepin.io/dde/api/blurimage"
+	"github.com/linuxdeepin/dde-api/blurimage"
 	"github.com/linuxdeepin/go-lib/graphic"
 	dutils "github.com/linuxdeepin/go-lib/utils"
 

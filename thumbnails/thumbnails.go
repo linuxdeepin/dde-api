@@ -21,14 +21,15 @@ package thumbnails
 
 import (
 	"fmt"
-	_ "pkg.deepin.io/dde/api/thumbnails/cursor"
-	_ "pkg.deepin.io/dde/api/thumbnails/font"
-	_ "pkg.deepin.io/dde/api/thumbnails/gtk"
-	_ "pkg.deepin.io/dde/api/thumbnails/icon"
-	_ "pkg.deepin.io/dde/api/thumbnails/images"
-	"pkg.deepin.io/dde/api/thumbnails/loader"
-	_ "pkg.deepin.io/dde/api/thumbnails/pdf"
-	_ "pkg.deepin.io/dde/api/thumbnails/text"
+
+	_ "github.com/linuxdeepin/dde-api/thumbnails/cursor"
+	_ "github.com/linuxdeepin/dde-api/thumbnails/font"
+	_ "github.com/linuxdeepin/dde-api/thumbnails/gtk"
+	_ "github.com/linuxdeepin/dde-api/thumbnails/icon"
+	_ "github.com/linuxdeepin/dde-api/thumbnails/images"
+	"github.com/linuxdeepin/dde-api/thumbnails/loader"
+	_ "github.com/linuxdeepin/dde-api/thumbnails/pdf"
+	_ "github.com/linuxdeepin/dde-api/thumbnails/text"
 	"github.com/linuxdeepin/go-lib/mime"
 )
 

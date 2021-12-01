@@ -24,7 +24,7 @@ import (
 	"os/signal"
 	"time"
 
-	"pkg.deepin.io/dde/api/soundutils"
+	"github.com/linuxdeepin/dde-api/soundutils"
 	"github.com/linuxdeepin/go-lib/log"
 	"github.com/linuxdeepin/go-lib/sound_effect"
 )

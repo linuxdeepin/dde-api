@@ -23,7 +23,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	"pkg.deepin.io/dde/api/thumbnails/loader"
+
+	"github.com/linuxdeepin/dde-api/thumbnails/loader"
 	dutils "github.com/linuxdeepin/go-lib/utils"
 )
 

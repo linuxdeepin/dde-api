@@ -27,8 +27,9 @@ import "C"
 import (
 	"fmt"
 	"os"
-	. "pkg.deepin.io/dde/api/thumbnails/loader"
 	"unsafe"
+
+	. "github.com/linuxdeepin/dde-api/thumbnails/loader"
 )
 
 func doGenThumbnail(uri, dest string, width, height int) (string, error) {

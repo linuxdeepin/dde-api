@@ -21,9 +21,10 @@ package powersupply
 
 import (
 	"errors"
-	"github.com/linuxdeepin/go-gir/gudev-1.0"
-	"pkg.deepin.io/dde/api/powersupply/battery"
 	"strings"
+
+	"github.com/linuxdeepin/dde-api/powersupply/battery"
+	"github.com/linuxdeepin/go-gir/gudev-1.0"
 )
 
 const (

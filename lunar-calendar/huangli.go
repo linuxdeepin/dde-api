@@ -27,7 +27,7 @@ import (
 
 	"io/ioutil"
 
-	"pkg.deepin.io/dde/api/huangli"
+	"github.com/linuxdeepin/dde-api/huangli"
 	"github.com/linuxdeepin/go-lib/calendar"
 	"github.com/linuxdeepin/go-lib/utils"
 	"github.com/linuxdeepin/go-lib/xdg/basedir"

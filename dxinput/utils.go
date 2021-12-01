@@ -23,7 +23,7 @@ import (
 	"fmt"
 	"os"
 
-	"pkg.deepin.io/dde/api/dxinput/utils"
+	"github.com/linuxdeepin/dde-api/dxinput/utils"
 )
 
 const (

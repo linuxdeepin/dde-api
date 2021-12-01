@@ -3,7 +3,8 @@ package main
 import (
 	"flag"
 	"log"
-	"pkg.deepin.io/dde/api/blurimage"
+
+	"github.com/linuxdeepin/dde-api/blurimage"
 )
 
 var sigma = flag.Float64("sigma", 20.0, "control the strength of the blurring effect")

@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"pkg.deepin.io/dde/api/themes"
+	"github.com/linuxdeepin/dde-api/themes"
 )
 
 func Test_setTheme(t *testing.T) {

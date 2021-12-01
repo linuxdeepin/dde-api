@@ -23,7 +23,8 @@ package themes
 import (
 	"os"
 	"path"
-	"pkg.deepin.io/dde/api/themes/scanner"
+
+	"github.com/linuxdeepin/dde-api/themes/scanner"
 )
 
 // Check whether 'theme' in 'list'

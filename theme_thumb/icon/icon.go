@@ -44,8 +44,8 @@ import (
 	"strings"
 	"unsafe"
 
+	"github.com/linuxdeepin/dde-api/theme_thumb/common"
 	"github.com/nfnt/resize"
-	"pkg.deepin.io/dde/api/theme_thumb/common"
 )
 
 const (

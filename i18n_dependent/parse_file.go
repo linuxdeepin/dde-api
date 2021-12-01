@@ -22,9 +22,10 @@ package i18n_dependent
 import (
 	"encoding/json"
 	"io/ioutil"
-	"pkg.deepin.io/dde/api/lang_info"
 	"regexp"
 	"strings"
+
+	"github.com/linuxdeepin/dde-api/lang_info"
 )
 
 const (

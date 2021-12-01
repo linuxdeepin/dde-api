@@ -15,7 +15,7 @@
 %global _smp_mflags -j1
 %endif
 
-%global goipath  pkg.deepin.io/dde/api
+%global goipath  github.com/linuxdeepin/dde-api
 %global forgeurl https://github.com/linuxdeepin/dde-api
 %global tag      %{version}
 

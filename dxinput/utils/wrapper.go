@@ -32,8 +32,8 @@ import (
 	"os"
 	"unsafe"
 
-	. "pkg.deepin.io/dde/api/dxinput/common"
-	"pkg.deepin.io/dde/api/dxinput/kwayland"
+	. "github.com/linuxdeepin/dde-api/dxinput/common"
+	"github.com/linuxdeepin/dde-api/dxinput/kwayland"
 )
 
 const (
