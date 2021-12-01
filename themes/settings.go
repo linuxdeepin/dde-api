@@ -27,9 +27,9 @@ import (
 
 	"github.com/linuxdeepin/go-dbus-factory/com.deepin.wm"
 	"pkg.deepin.io/dde/api/themes/scanner"
-	"pkg.deepin.io/gir/glib-2.0"
+	"github.com/linuxdeepin/go-gir/glib-2.0"
 	"github.com/godbus/dbus"
-	dutils "pkg.deepin.io/lib/utils"
+	dutils "github.com/linuxdeepin/go-lib/utils"
 )
 
 const (

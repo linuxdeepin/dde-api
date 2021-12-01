@@ -35,14 +35,14 @@ import (
 
 	"github.com/fogleman/gg"
 
-	"pkg.deepin.io/lib/graphic"
-	"pkg.deepin.io/lib/log"
+	"github.com/linuxdeepin/go-lib/graphic"
+	"github.com/linuxdeepin/go-lib/log"
 
 	"github.com/disintegration/imaging"
 
 	"pkg.deepin.io/dde/api/grub_theme/font"
 	tt "pkg.deepin.io/dde/api/grub_theme/themetxt"
-	"pkg.deepin.io/lib/locale"
+	"github.com/linuxdeepin/go-lib/locale"
 )
 
 const (

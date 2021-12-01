@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/godbus/dbus"
-	"pkg.deepin.io/lib/keyfile"
+	"github.com/linuxdeepin/go-lib/keyfile"
 )
 
 func getLightDMAutoLoginUser() (string, error) {

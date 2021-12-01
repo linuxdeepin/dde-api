@@ -12,7 +12,7 @@ import (
 	"sort"
 	"strings"
 
-	"pkg.deepin.io/lib/xdg/basedir"
+	"github.com/linuxdeepin/go-lib/xdg/basedir"
 )
 
 var defaultFile = filepath.Join(basedir.GetUserHomeDir(), ".dde_env")

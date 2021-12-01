@@ -28,9 +28,9 @@ import (
 	"io/ioutil"
 
 	"pkg.deepin.io/dde/api/huangli"
-	"pkg.deepin.io/lib/calendar"
-	"pkg.deepin.io/lib/utils"
-	"pkg.deepin.io/lib/xdg/basedir"
+	"github.com/linuxdeepin/go-lib/calendar"
+	"github.com/linuxdeepin/go-lib/utils"
+	"github.com/linuxdeepin/go-lib/xdg/basedir"
 )
 
 // HuangLiInfo huang li

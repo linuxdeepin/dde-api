@@ -25,7 +25,7 @@ import (
 
 	"github.com/linuxdeepin/go-dbus-factory/com.deepin.sessionmanager"
 	"github.com/godbus/dbus"
-	"pkg.deepin.io/lib/utils"
+	"github.com/linuxdeepin/go-lib/utils"
 )
 
 // Register will register to session manager if program is started from startdde.

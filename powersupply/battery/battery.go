@@ -20,7 +20,7 @@
 package battery
 
 import (
-	"pkg.deepin.io/gir/gudev-1.0"
+	"github.com/linuxdeepin/go-gir/gudev-1.0"
 	"math"
 )
 

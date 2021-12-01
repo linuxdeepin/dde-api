@@ -33,8 +33,8 @@ import (
 	"strconv"
 	"strings"
 
-	"pkg.deepin.io/lib/encoding/kv"
-	"pkg.deepin.io/lib/imgutil"
+	"github.com/linuxdeepin/go-lib/encoding/kv"
+	"github.com/linuxdeepin/go-lib/imgutil"
 )
 
 // copy from go source

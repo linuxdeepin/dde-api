@@ -28,9 +28,9 @@ import (
 	"path/filepath"
 
 	"github.com/linuxdeepin/go-dbus-factory/com.deepin.sessionmanager"
-	"pkg.deepin.io/gir/gio-2.0"
+	"github.com/linuxdeepin/go-gir/gio-2.0"
 	"github.com/godbus/dbus"
-	"pkg.deepin.io/lib/log"
+	"github.com/linuxdeepin/go-lib/log"
 )
 
 var logger = log.NewLogger("dde-open")

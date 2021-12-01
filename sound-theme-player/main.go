@@ -31,12 +31,12 @@ import (
 	"sync"
 	"time"
 
-	"pkg.deepin.io/lib/strv"
+	"github.com/linuxdeepin/go-lib/strv"
 
 	"github.com/godbus/dbus"
-	"pkg.deepin.io/lib/dbusutil"
-	"pkg.deepin.io/lib/log"
-	"pkg.deepin.io/lib/sound_effect"
+	"github.com/linuxdeepin/go-lib/dbusutil"
+	"github.com/linuxdeepin/go-lib/log"
+	"github.com/linuxdeepin/go-lib/sound_effect"
 )
 
 //go:generate dbusutil-gen em -type Manager

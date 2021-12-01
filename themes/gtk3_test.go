@@ -24,7 +24,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	dutils "pkg.deepin.io/lib/utils"
+	dutils "github.com/linuxdeepin/go-lib/utils"
 )
 
 func TestGtk3Prop(t *testing.T) {

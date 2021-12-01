@@ -7,7 +7,7 @@ import (
 
 	"github.com/godbus/dbus"
 	"github.com/gosexy/gettext"
-	"pkg.deepin.io/lib/dbusutil"
+	"github.com/linuxdeepin/go-lib/dbusutil"
 )
 
 //go:generate dbusutil-gen em -type Object

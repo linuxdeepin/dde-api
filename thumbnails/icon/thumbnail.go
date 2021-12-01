@@ -24,8 +24,8 @@ import (
 	"path/filepath"
 	"pkg.deepin.io/dde/api/thumbnails/images"
 	"pkg.deepin.io/dde/api/thumbnails/loader"
-	"pkg.deepin.io/lib/graphic"
-	dutils "pkg.deepin.io/lib/utils"
+	"github.com/linuxdeepin/go-lib/graphic"
+	dutils "github.com/linuxdeepin/go-lib/utils"
 )
 
 const (

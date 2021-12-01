@@ -11,7 +11,7 @@ import (
 	"pkg.deepin.io/dde/api/theme_thumb/cursor"
 	"pkg.deepin.io/dde/api/theme_thumb/gtk"
 	"pkg.deepin.io/dde/api/theme_thumb/icon"
-	"pkg.deepin.io/lib/xdg/basedir"
+	"github.com/linuxdeepin/go-lib/xdg/basedir"
 )
 
 var scaleFactor float64

@@ -23,7 +23,7 @@ import (
 	"fmt"
 	"testing"
 
-	"pkg.deepin.io/lib/dbusutil"
+	"github.com/linuxdeepin/go-lib/dbusutil"
 
 	"github.com/stretchr/testify/suite"
 )

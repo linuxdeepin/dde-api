@@ -26,9 +26,9 @@ import (
 
 	"github.com/godbus/dbus"
 	libdate "github.com/rickb777/date"
-	"pkg.deepin.io/lib/calendar"
-	"pkg.deepin.io/lib/calendar/lunar"
-	"pkg.deepin.io/lib/dbusutil"
+	"github.com/linuxdeepin/go-lib/calendar"
+	"github.com/linuxdeepin/go-lib/calendar/lunar"
+	"github.com/linuxdeepin/go-lib/dbusutil"
 )
 
 //go:generate dbusutil-gen em -type Manager

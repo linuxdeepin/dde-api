@@ -23,8 +23,8 @@ import (
 	"os"
 	"time"
 
-	"pkg.deepin.io/lib/dbusutil"
-	"pkg.deepin.io/lib/log"
+	"github.com/linuxdeepin/go-lib/dbusutil"
+	"github.com/linuxdeepin/go-lib/log"
 )
 
 var logger = log.NewLogger(dbusServiceName)

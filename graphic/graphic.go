@@ -21,9 +21,9 @@ package main
 
 import (
 	"github.com/godbus/dbus"
-	"pkg.deepin.io/lib/dbusutil"
-	libgdkpixbuf "pkg.deepin.io/lib/gdkpixbuf"
-	libgraphic "pkg.deepin.io/lib/graphic"
+	"github.com/linuxdeepin/go-lib/dbusutil"
+	libgdkpixbuf "github.com/linuxdeepin/go-lib/gdkpixbuf"
+	libgraphic "github.com/linuxdeepin/go-lib/graphic"
 )
 
 //go:generate dbusutil-gen em -type Graphic
@@ -34,7 +34,7 @@ const (
 	dbusInterface   = "com.deepin.api.Graphic"
 )
 
-// Graphic is a dbus interface wrapper for pkg.deepin.io/lib/graphic.
+// Graphic is a dbus interface wrapper for github.com/linuxdeepin/go-lib/graphic.
 type Graphic struct {
 	service *dbusutil.Service
 }

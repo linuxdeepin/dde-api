@@ -25,8 +25,8 @@ import (
 	"path"
 	"sync"
 
-	"pkg.deepin.io/gir/glib-2.0"
-	dutils "pkg.deepin.io/lib/utils"
+	"github.com/linuxdeepin/go-gir/glib-2.0"
+	dutils "github.com/linuxdeepin/go-lib/utils"
 )
 
 const (

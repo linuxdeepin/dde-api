@@ -22,9 +22,9 @@ package soundutils
 import (
 	"sync"
 
-	"pkg.deepin.io/gir/gio-2.0"
-	"pkg.deepin.io/lib/sound_effect"
-	"pkg.deepin.io/lib/strv"
+	"github.com/linuxdeepin/go-gir/gio-2.0"
+	"github.com/linuxdeepin/go-lib/sound_effect"
+	"github.com/linuxdeepin/go-lib/strv"
 )
 
 const (

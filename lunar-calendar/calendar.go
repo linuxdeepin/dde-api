@@ -23,8 +23,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"pkg.deepin.io/lib/calendar"
-	"pkg.deepin.io/lib/calendar/util"
+	"github.com/linuxdeepin/go-lib/calendar"
+	"github.com/linuxdeepin/go-lib/calendar/util"
 )
 
 type DayInfo struct {

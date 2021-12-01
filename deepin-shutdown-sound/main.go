@@ -25,8 +25,8 @@ import (
 	"time"
 
 	"pkg.deepin.io/dde/api/soundutils"
-	"pkg.deepin.io/lib/log"
-	"pkg.deepin.io/lib/sound_effect"
+	"github.com/linuxdeepin/go-lib/log"
+	"github.com/linuxdeepin/go-lib/sound_effect"
 )
 
 var logger = log.NewLogger("api/shutdown-sound")

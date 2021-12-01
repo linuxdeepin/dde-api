@@ -28,8 +28,8 @@ import (
 	"syscall"
 
 	"pkg.deepin.io/dde/api/blurimage"
-	"pkg.deepin.io/lib/graphic"
-	dutils "pkg.deepin.io/lib/utils"
+	"github.com/linuxdeepin/go-lib/graphic"
+	dutils "github.com/linuxdeepin/go-lib/utils"
 
 	"gopkg.in/alecthomas/kingpin.v2"
 )

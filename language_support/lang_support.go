@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"strings"
 
-	libLocale "pkg.deepin.io/lib/locale"
+	libLocale "github.com/linuxdeepin/go-lib/locale"
 )
 
 type LanguageSupport struct {

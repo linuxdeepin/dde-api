@@ -29,7 +29,7 @@ import (
 	"pkg.deepin.io/dde/api/thumbnails/loader"
 	_ "pkg.deepin.io/dde/api/thumbnails/pdf"
 	_ "pkg.deepin.io/dde/api/thumbnails/text"
-	"pkg.deepin.io/lib/mime"
+	"github.com/linuxdeepin/go-lib/mime"
 )
 
 func GenThumbnail(uri string, size int) (string, error) {

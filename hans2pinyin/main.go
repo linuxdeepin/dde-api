@@ -28,8 +28,8 @@ import (
 	"log"
 
 	"github.com/godbus/dbus"
-	"pkg.deepin.io/lib/dbusutil"
-	"pkg.deepin.io/lib/pinyin"
+	"github.com/linuxdeepin/go-lib/dbusutil"
+	"github.com/linuxdeepin/go-lib/pinyin"
 )
 
 //go:generate dbusutil-gen em -type Manager

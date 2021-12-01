@@ -24,9 +24,9 @@ import (
 	"time"
 
 	"github.com/godbus/dbus"
-	"pkg.deepin.io/lib"
-	"pkg.deepin.io/lib/dbusutil"
-	"pkg.deepin.io/lib/log"
+	"github.com/linuxdeepin/go-lib"
+	"github.com/linuxdeepin/go-lib/dbusutil"
+	"github.com/linuxdeepin/go-lib/log"
 )
 
 var logger = log.NewLogger(DBusName)

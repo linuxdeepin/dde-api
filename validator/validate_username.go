@@ -24,7 +24,7 @@ import (
 	"regexp"
 
 	"github.com/godbus/dbus"
-	"pkg.deepin.io/lib/users/passwd"
+	"github.com/linuxdeepin/go-lib/users/passwd"
 )
 
 const (

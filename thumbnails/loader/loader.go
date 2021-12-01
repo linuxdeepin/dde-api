@@ -25,9 +25,9 @@ import (
 	"math/rand"
 	"os"
 	"path"
-	"pkg.deepin.io/lib/graphic"
-	dutils "pkg.deepin.io/lib/utils"
-	"pkg.deepin.io/lib/xdg/basedir"
+	"github.com/linuxdeepin/go-lib/graphic"
+	dutils "github.com/linuxdeepin/go-lib/utils"
+	"github.com/linuxdeepin/go-lib/xdg/basedir"
 	"sync"
 	"time"
 )

@@ -18,7 +18,7 @@
 *   chore: modify GOPATH directroy order
 
 [3.17.1] 2019-03-01
-*   chore: use pkg.deepin.io/gir
+*   chore: use github.com/linuxdeepin/go-gir
 
 [3.17.0] 2019-02-22
 *   chore: `pkg_depends` remove fcitx-sogoupinyin-uk
@@ -84,7 +84,7 @@
 ## [3.3.0] - 2018-11-01
 *   chore(adjust-grub-theme): small appearance adjustment
 *   fix: update-grub not executed after adjust grub theme
-*   feat(adjust-grub-theme): use pkg.deepin.io/lib/log
+*   feat(adjust-grub-theme): use github.com/linuxdeepin/go-lib/log
 *   fix(adjust-grub-theme): save boot menu position rel value into theme.txt
 *   auto sync po files from transifex
 
@@ -110,7 +110,7 @@
 *   feat(mouse): interface to config accel profile via libinput
 *   auto sync po files from transifex
 *   fix(drandr): rate calculation inaccuracies
-*   chore(locale-helper): no use pkg.deepin.io/lib/polkit
+*   chore(locale-helper): no use github.com/linuxdeepin/go-lib/polkit
 *   chore: use go-dbus-factory
 *   fix(dde-open): panic when run dde-open xxxxxxx:///xxxxxxxx
 *   chore(debian): update debian control

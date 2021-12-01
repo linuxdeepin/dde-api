@@ -24,8 +24,8 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"pkg.deepin.io/lib/mime"
-	dutils "pkg.deepin.io/lib/utils"
+	"github.com/linuxdeepin/go-lib/mime"
+	dutils "github.com/linuxdeepin/go-lib/utils"
 )
 
 const (

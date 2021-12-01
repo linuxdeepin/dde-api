@@ -26,7 +26,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
-	"pkg.deepin.io/lib/dbusutil"
+	"github.com/linuxdeepin/go-lib/dbusutil"
 )
 
 type UnitTestSuite struct {
