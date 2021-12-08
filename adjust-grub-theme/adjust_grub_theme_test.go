@@ -9,11 +9,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/linuxdeepin/dde-api/grub_theme/font"
+	tt "github.com/linuxdeepin/dde-api/grub_theme/themetxt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	"github.com/linuxdeepin/dde-api/grub_theme/font"
-	tt "github.com/linuxdeepin/dde-api/grub_theme/themetxt"
 )
 
 type su struct {
