@@ -415,7 +415,7 @@ func (m *Mouse) CanNaturalScroll() bool {
 
 func (m *Mouse) SetMotionAcceleration(accel float32) error {
 	if globalWayland {
-		return kwayland.SetPointerAccel(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id), float64(accel))
+		return kwayland.SetPointerAccel(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id), float64(accel*-0.67+0.26))
 	}
 	if m.isLibinputUsed {
 		return libinputSetAccel(m.Id, 1-accel/1.5)

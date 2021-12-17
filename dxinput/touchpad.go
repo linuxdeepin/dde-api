@@ -437,7 +437,7 @@ func (tpad *Touchpad) ScrollDistance() (int32, int32) {
 
 func (tpad *Touchpad) SetMotionAcceleration(accel float32) error {
 	if globalWayland {
-		return kwayland.SetPointerAccel(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id), float64(accel))
+		return kwayland.SetPointerAccel(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id), float64(accel*-0.67+0.26))
 	}
 	if tpad.isLibinputUsed {
 		return libinputSetAccel(tpad.Id, 1-accel/1.5)
