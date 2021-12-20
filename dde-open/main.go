@@ -54,7 +54,7 @@ func main() {
 	}
 	arg := flag.Arg(0)
 
-	u, err := url.Parse(url.QueryEscape(arg))
+	u, err := url.Parse(arg)
 	if err != nil {
 		logger.Warningf("failed to parse url %q: %v", arg, err)
 		err = openFile(arg)
