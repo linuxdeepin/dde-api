@@ -102,14 +102,6 @@ func runALSARestore(uid int) error {
 		cmd.Stdin = contentReader
 		cmd.Stderr = &errBuf
 		err = cmd.Run()
-
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			if exitErr.ExitCode() == 99 {
-				// 99 是 alsactl 的 init 过程的报错，可以忽略。
-				err = nil
-			}
-		}
-
 		if err != nil {
 			time.Sleep(500 * time.Millisecond)
 		} else {
