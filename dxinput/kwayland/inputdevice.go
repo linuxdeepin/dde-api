@@ -194,7 +194,7 @@ func CanAdaptiveAccelProfile(sysName string) bool {
 	if err != nil {
 		return false
 	}
-	enabled, _ := dev.PointerAccelerationProfileAdaptive().Get(0)
+	enabled, _ := dev.SupportsPointerAccelerationProfileAdaptive().Get(0)
 	return enabled
 }
 
