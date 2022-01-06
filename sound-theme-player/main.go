@@ -31,12 +31,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/linuxdeepin/go-lib/strv"
-
 	"github.com/godbus/dbus"
+	"github.com/linuxdeepin/dde-api/soundutils"
 	"github.com/linuxdeepin/go-lib/dbusutil"
 	"github.com/linuxdeepin/go-lib/log"
 	"github.com/linuxdeepin/go-lib/sound_effect"
+	"github.com/linuxdeepin/go-lib/strv"
 )
 
 //go:generate dbusutil-gen em -type Manager
@@ -95,13 +95,13 @@ func (m *Manager) PlaySoundDesktopLogin(sender dbus.Sender) *dbus.Error {
 	}
 
 	var cfg config
-	err = loadUserConfig(int(uid), &cfg)
+	err = loadUserConfig(uid, &cfg)
 	if err != nil && !os.IsNotExist(err) {
 		logger.Warning(err)
 	}
 
-	if cfg.DesktopLoginEnabled && !cfg.Mute {
-		err = runALSARestore(int(uid))
+	if cfg.Enabled && cfg.DesktopLoginEnabled && !cfg.Mute {
+		err = runALSARestore(uid)
 		if err != nil && !os.IsNotExist(err) {
 			logger.Warning("failed to restore ALSA state:", err)
 			return dbusutil.ToError(err)
@@ -130,6 +130,39 @@ func (m *Manager) Play(theme, event, device string) *dbus.Error {
 		os.Exit(0)
 	}()
 	return nil
+}
+
+// PrepareShutdownSound 准备播放关闭音效需要的配置文件，用于 greeter UI 界面调用。
+// uid 参数是 greeter UI 界面中准备登录的用户的 uid。
+func (m *Manager) PrepareShutdownSound(uid int) *dbus.Error {
+	logger.Debug("PrepareShutdownSound", uid)
+	m.service.DelayAutoQuit()
+
+	var cfg config
+	err := loadUserConfig(uid, &cfg)
+	if err != nil && !os.IsNotExist(err) {
+		logger.Warning(err)
+	}
+	shutdownCfg := &soundutils.ShutdownSoundConfig{}
+	if cfg.Enabled && cfg.SystemShutdownEnabled && !cfg.Mute {
+		err = runALSARestore(uid)
+		if err != nil && !os.IsNotExist(err) {
+			logger.Warning("failed to restore ALSA state:", err)
+			return dbusutil.ToError(err)
+		}
+
+		device := "default"
+		if cfg.Card != "" && cfg.Device != "" {
+			device = fmt.Sprintf("plughw:CARD=%s,DEV=%s", cfg.Card, cfg.Device)
+		}
+		shutdownCfg.CanPlay = true
+		shutdownCfg.Theme = cfg.Theme
+		shutdownCfg.Event = soundutils.EventSystemShutdown
+		shutdownCfg.Device = device
+	}
+	logger.Debugf("set shutdown sound config %#v", shutdownCfg)
+	err = soundutils.SetShutdownSoundConfig(shutdownCfg)
+	return dbusutil.ToError(err)
 }
 
 func (*Manager) GetInterfaceName() string {
@@ -240,6 +273,40 @@ func (m *Manager) enableSoundDesktopLogin(uid int, enabled bool) error {
 	return m.saveUserConfig(uid)
 }
 
+func (m *Manager) EnableSound(sender dbus.Sender, name string, enabled bool) *dbus.Error {
+	uid, err := m.service.GetConnUID(string(sender))
+	if err != nil {
+		return dbusutil.ToError(err)
+	}
+	err = m.enableSound(int(uid), name, enabled)
+	return dbusutil.ToError(err)
+}
+
+func (m *Manager) enableSound(uid int, name string, enabled bool) error {
+	cfg := m.getUserConfig(uid)
+	switch name {
+	case "":
+		if cfg.Enabled == enabled {
+			return nil
+		}
+		cfg.Enabled = enabled
+
+	case soundutils.EventDesktopLogin:
+		if cfg.DesktopLoginEnabled == enabled {
+			return nil
+		}
+		cfg.DesktopLoginEnabled = enabled
+	case soundutils.EventSystemShutdown:
+		if cfg.SystemShutdownEnabled == enabled {
+			return nil
+		}
+		cfg.SystemShutdownEnabled = enabled
+	default:
+		return fmt.Errorf("invalid sound name: %s", name)
+	}
+	return m.saveUserConfig(uid)
+}
+
 func (m *Manager) SetSoundTheme(sender dbus.Sender, theme string) *dbus.Error {
 	uid, err := m.service.GetConnUID(string(sender))
 	if err != nil {
@@ -290,6 +357,8 @@ func main() {
 		logger.Fatalf("name %q already has the owner", dbusServiceName)
 	}
 
+	// 实际运行时才从 gsettings 加载默认设置，测试环境下没安装相关 gsettings schema 会导致崩溃。
+	_loadDefaultCfgFromGSettings = true
 	m := newManager(service)
 	err = service.Export(dbusPath, m)
 	if err != nil {
