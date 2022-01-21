@@ -29,13 +29,13 @@ import (
 )
 
 const (
-	propMidBtnEmulation        string = "Evdev Middle Button Emulation"
-	propMidBtnEmulationTimeout string = "Evdev Middle Button Timeout"
-	propWheelEmulation         string = "Evdev Wheel Emulation"
-	propWheelEmulationButton   string = "Evdev Wheel Emulation Button"
-	propWheelEmulationTimeout  string = "Evdev Wheel Emulation Timeout"
-	propWheelEmulationAxes     string = "Evdev Wheel Emulation Axes"
-	propEvdevScrollDistance    string = "Evdev Scrolling Distance"
+	propMidBtnEmulation        = "Evdev Middle Button Emulation"
+	propMidBtnEmulationTimeout = "Evdev Middle Button Timeout"
+	propWheelEmulation         = "Evdev Wheel Emulation"
+	propWheelEmulationButton   = "Evdev Wheel Emulation Button"
+	propWheelEmulationTimeout  = "Evdev Wheel Emulation Timeout"
+	propWheelEmulationAxes     = "Evdev Wheel Emulation Axes"
+	propEvdevScrollDistance    = "Evdev Scrolling Distance"
 )
 
 type Mouse struct {

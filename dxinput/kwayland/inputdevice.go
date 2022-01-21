@@ -333,7 +333,16 @@ func NewDeviceInfo(sysName string) (*DeviceInfo, error) {
 	return nil, nil
 
 fill:
-	id, _ := strconv.Atoi(strings.Split(sysName, SysNamePrefix)[1])
+	idSlice := strings.Split(sysName, SysNamePrefix)
+	if len(idSlice) < 2 {
+		return nil, nil
+	}
+
+	id, err := strconv.ParseInt(idSlice[1], 10, 32)
+	if err != nil {
+		fmt.Printf("Failed to strconv.Atoi err: %v, id: %s\n", err, idSlice[1])
+	}
+
 	info.Id = int32(id)
 	info.Name, _ = dev.Name().Get(0)
 	info.Enabled, _ = dev.Enabled().Get(0)
