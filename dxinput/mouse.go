@@ -31,10 +31,10 @@ import (
 const (
 	propMidBtnEmulation        = "Evdev Middle Button Emulation"
 	propMidBtnEmulationTimeout = "Evdev Middle Button Timeout"
-	propWheelEmulation         = "Evdev Wheel Emulation"
-	propWheelEmulationButton   = "Evdev Wheel Emulation Button"
-	propWheelEmulationTimeout  = "Evdev Wheel Emulation Timeout"
-	propWheelEmulationAxes     = "Evdev Wheel Emulation Axes"
+	propWheelEmulation         = "Evdev Wheel Emulation" // #nosec G101
+	propWheelEmulationButton   = "Evdev Wheel Emulation Button" // #nosec G101
+	propWheelEmulationTimeout  = "Evdev Wheel Emulation Timeout" // #nosec G101
+	propWheelEmulationAxes     = "Evdev Wheel Emulation Axes" // #nosec G101
 	propEvdevScrollDistance    = "Evdev Scrolling Distance"
 )
 
