@@ -22,6 +22,7 @@ package dxinput
 import (
 	"fmt"
 	"strings"
+	"errors"
 
 	. "pkg.deepin.io/dde/api/dxinput/common"
 	"pkg.deepin.io/dde/api/dxinput/kwayland"
@@ -48,7 +49,13 @@ type Mouse struct {
 }
 
 func NewMouse(id int32) (*Mouse, error) {
-	info := utils.ListDevice().Get(id)
+	infos := utils.ListDevice()
+	if infos == nil {
+		return nil, errors.New("No device")
+	}
+
+	info := infos.Get(id)
+
 	if info == nil {
 		return nil, fmt.Errorf("Invalid device id: %v", id)
 	}

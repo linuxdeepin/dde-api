@@ -48,17 +48,22 @@ func ListDevice() DeviceInfos {
 			return infos
 		}
 	}
+
 	var cNum C.int = 0
 	cInfos := C.list_device(&cNum)
-	if cNum == 0 && cInfos == nil {
+	if cNum == 0 || cInfos == nil {
 		return nil
 	}
 	defer C.free_device_list(cInfos, cNum)
 
 	var infos DeviceInfos
+
 	itemLen := unsafe.Sizeof(*cInfos)
 	for i := C.int(0); i < cNum; i++ {
 		cInfo := (*C.DeviceInfo)(unsafe.Pointer(uintptr(unsafe.Pointer(cInfos)) + uintptr(i)*itemLen))
+		if cInfo == nil {
+			break
+		}
 		infos = append(infos, &DeviceInfo{
 			Id:      int32(cInfo.id),
 			Type:    int32(cInfo.ty),
@@ -94,7 +99,13 @@ func IsPropertyExist(id int32, prop string) bool {
 	}
 
 	cprop := C.CString(prop)
-	defer C.free(unsafe.Pointer(cprop))
+
+	defer func() { 
+		if cprop != nil { 
+			C.free(unsafe.Pointer(cprop)) 
+		}
+	}()
+
 	ret := C.is_property_exist(C.int(id), cprop)
 	return int(ret) != 0
 }
@@ -105,7 +116,13 @@ func GetProperty(id int32, prop string) ([]byte, int32) {
 	}
 
 	cprop := C.CString(prop)
-	defer C.free(unsafe.Pointer(cprop))
+
+	defer func() { 
+		if cprop != nil { 
+			C.free(unsafe.Pointer(cprop)) 
+		}
+	}()
+
 	nitems := C.int(0)
 	cdatas := C.get_prop(C.int(id), cprop, &nitems)
 	if cdatas == nil {
@@ -119,7 +136,13 @@ func GetProperty(id int32, prop string) ([]byte, int32) {
 func SetInt8Prop(id int32, prop string, values []int8) error {
 	cdatas := byteArrayToUChar(WriteInt8(values))
 	cprop := C.CString(prop)
-	defer C.free(unsafe.Pointer(cprop))
+
+	defer func() { 
+		if cprop != nil { 
+			C.free(unsafe.Pointer(cprop)) 
+		}
+	}()
+
 	ret := C.set_prop_int(C.int(id), cprop, &(cdatas[0]),
 		C.int(len(values)), 8)
 	if int(ret) == -1 {
@@ -132,7 +155,13 @@ func SetInt8Prop(id int32, prop string, values []int8) error {
 func SetInt16Prop(id int32, prop string, values []int16) error {
 	cdatas := byteArrayToUChar(WriteInt16(values))
 	cprop := C.CString(prop)
-	defer C.free(unsafe.Pointer(cprop))
+
+	defer func() { 
+		if cprop != nil { 
+			C.free(unsafe.Pointer(cprop)) 
+		}
+	}()
+
 	ret := C.set_prop_int(C.int(id), cprop, &(cdatas[0]),
 		C.int(len(values)), 16)
 	if int(ret) == -1 {
@@ -145,7 +174,13 @@ func SetInt16Prop(id int32, prop string, values []int16) error {
 func SetInt32Prop(id int32, prop string, values []int32) error {
 	cdatas := byteArrayToUChar(WriteInt32(values))
 	cprop := C.CString(prop)
-	defer C.free(unsafe.Pointer(cprop))
+
+	defer func() { 
+		if cprop != nil { 
+			C.free(unsafe.Pointer(cprop)) 
+		}
+	}()
+
 	ret := C.set_prop_int(C.int(id), cprop, &(cdatas[0]),
 		C.int(len(values)), 32)
 	if int(ret) == -1 {
@@ -158,7 +193,13 @@ func SetInt32Prop(id int32, prop string, values []int32) error {
 func SetFloat32Prop(id int32, prop string, values []float32) error {
 	cdatas := byteArrayToUChar(WriteFloat32(values))
 	cprop := C.CString(prop)
-	defer C.free(unsafe.Pointer(cprop))
+
+	defer func() { 
+		if cprop != nil { 
+			C.free(unsafe.Pointer(cprop)) 
+		}
+	}()
+
 	ret := C.set_prop_float(C.int(id), cprop, &(cdatas[0]),
 		C.int(len(values)))
 	if int(ret) == -1 {

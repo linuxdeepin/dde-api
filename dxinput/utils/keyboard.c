@@ -22,15 +22,24 @@
  **/
 
 #include <stdio.h>
+#include <pthread.h>
+
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
+#include "type.h"
+
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int
 set_keyboard_repeat(int repeated, unsigned int delay, unsigned int interval)
 {
+    pthread_mutex_lock(&mutex);
+    setErrorHandler();
+
     Display *disp = XOpenDisplay(0);
     if (!disp) {
         fprintf(stderr, "Open display failed\n");
+        pthread_mutex_unlock(&mutex);
         return -1;
     }
 
@@ -54,6 +63,8 @@ set_keyboard_repeat(int repeated, unsigned int delay, unsigned int interval)
 
     XSync(disp, False);
     XCloseDisplay(disp);
+
+    pthread_mutex_unlock(&mutex);
 
     return ret;
 }

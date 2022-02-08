@@ -21,6 +21,7 @@ package dxinput
 
 import (
 	"fmt"
+	"errors"
 
 	. "pkg.deepin.io/dde/api/dxinput/common"
 	"pkg.deepin.io/dde/api/dxinput/kwayland"
@@ -53,7 +54,13 @@ type Touchpad struct {
  * Also use 'xinput list-props <id>' to list these props.
  **/
 func NewTouchpad(id int32) (*Touchpad, error) {
-	info := utils.ListDevice().Get(id)
+	infos := utils.ListDevice()
+	if infos == nil {
+		return nil, errors.New("No device")
+	}
+
+	info := infos.Get(id)
+
 	if info == nil {
 		return nil, fmt.Errorf("Invalid device id: %v", id)
 	}
