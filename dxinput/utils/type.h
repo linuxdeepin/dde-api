@@ -29,6 +29,10 @@ enum DEVICE_TYPE {
     TYPE_TOUCHSCREEN,
 };
 
+void setErrorHandler();
+int listener_error_handler(Display * display, XErrorEvent * event);
+int listener_ioerror_handler(Display * display);
+
 int query_device_type(int deviceid);
 int is_property_exist(int deviceid, const char* prop);
 

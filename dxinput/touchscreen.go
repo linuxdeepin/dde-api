@@ -21,6 +21,7 @@ package dxinput
 
 import (
 	"fmt"
+	"errors"
 
 	. "github.com/linuxdeepin/dde-api/dxinput/common"
 	"github.com/linuxdeepin/dde-api/dxinput/utils"
@@ -39,7 +40,13 @@ type Touchscreen struct {
 }
 
 func NewTouchscreen(id int32) (*Touchscreen, error) {
-	info := utils.ListDevice().Get(id)
+	infos := utils.ListDevice()
+	if infos == nil {
+		return nil, errors.New("No device")
+	}
+
+	info := infos.Get(id)
+
 	if info == nil {
 		return nil, fmt.Errorf("Invalid device id: %d", id)
 	}

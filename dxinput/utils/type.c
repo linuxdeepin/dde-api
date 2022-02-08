@@ -19,6 +19,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <pthread.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
@@ -31,6 +32,33 @@ static int is_touchpad_device(int deviceid);
 static int is_touchscreen_device(int deviceid);
 static int is_wacom_device(int deviceid);
 static XIDeviceInfo* get_xdevice_by_id(int deviceid);
+
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
+int
+listener_error_handler(Display * display, XErrorEvent * event)
+{
+    if(display && event){
+        char msg[256];
+        XGetErrorText(display, event->error_code, msg, 255);
+        fprintf(stderr, "Ignore Xlib error : %s\n", msg);
+    } else{
+        fprintf(stderr, "listener_error_handler error\n");
+    }
+    return 0;
+}
+
+int
+listener_ioerror_handler(Display * display)
+{
+    return 0;
+}
+
+void
+setErrorHandler(){
+    XSetErrorHandler(listener_error_handler);
+    XSetIOErrorHandler(listener_ioerror_handler);
+}
 
 int
 query_device_type(int deviceid)
@@ -61,9 +89,13 @@ is_property_exist(int deviceid, const char* prop)
         return 0;
     }
 
+    pthread_mutex_lock(&mutex);
+    setErrorHandler();
+
     Display* disp = XOpenDisplay(0);
     if (!disp) {
         fprintf(stderr, "Open display failed at check prop exist\n");
+        pthread_mutex_unlock(&mutex);
         return 0;
     }
 
@@ -72,6 +104,7 @@ is_property_exist(int deviceid, const char* prop)
     if (!props) {
         XCloseDisplay(disp);
         fprintf(stderr, "List '%d' properties failed\n", deviceid);
+        pthread_mutex_unlock(&mutex);
         return 0;
     }
 
@@ -89,6 +122,8 @@ is_property_exist(int deviceid, const char* prop)
     }
     XCloseDisplay(disp);
     XFree(props);
+
+    pthread_mutex_unlock(&mutex);
 
     return exist;
 }

@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
@@ -30,25 +31,33 @@
 
 static int append_device(DeviceInfo** devs, XIDeviceInfo* xinfo, int idx);
 static void free_device_info(DeviceInfo* dev);
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 DeviceInfo*
 list_device(int* num)
 {
+    pthread_mutex_lock(&mutex);
+    setErrorHandler();
+
     if (!num) {
+        fprintf(stderr, "list_device failed, !num\n");
+        pthread_mutex_unlock(&mutex);
         return NULL;
     }
 
     Display* disp = XOpenDisplay(0);
     if (!disp) {
         fprintf(stderr, "Open display failed\n");
+        pthread_mutex_unlock(&mutex);
         return NULL;
     }
 
-    int all_num;
+    int all_num = 0; 
     XIDeviceInfo* xinfos = XIQueryDevice(disp, XIAllDevices, &all_num);
     XCloseDisplay(disp);
     if (!xinfos) {
         fprintf(stderr, "List xinput device failed\n");
+        pthread_mutex_unlock(&mutex);
         return NULL;
     }
 
@@ -71,6 +80,8 @@ list_device(int* num)
     XIFreeDeviceInfo(xinfos);
     *num = j;
 
+    pthread_mutex_unlock(&mutex);
+
     return devs;
 }
 
@@ -92,6 +103,11 @@ free_device_list(DeviceInfo* devs, int num)
 static int
 append_device(DeviceInfo** devs, XIDeviceInfo* xinfo, int idx)
 {
+    if(!devs || !xinfo || !xinfo->name){
+        fprintf(stderr, "append_device failed for %d\n", idx);
+        return -1;
+    }
+
     unsigned long size = strlen(xinfo->name);
     char* name = (char*)calloc(size+1, sizeof(char));
     if (!name) {
@@ -125,6 +141,8 @@ free_device_info(DeviceInfo* dev)
         return;
     }
 
-    free(dev->name);
-    dev->name = NULL;
+    if(dev->name){
+        free(dev->name);
+        dev->name = NULL;
+    }
 }

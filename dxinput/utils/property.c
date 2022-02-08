@@ -18,13 +18,17 @@
  */
 
 #include <stdio.h>
+#include <pthread.h>
 
 #include <X11/Xatom.h>
 #include <X11/extensions/XInput2.h>
 
 #include "property.h"
+#include "type.h"
 
 #define MAX_BUF_LEN 1000
+
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /**
  *  The return data type if 'char' must be convert to 'int8_t*'
@@ -39,14 +43,18 @@ get_prop(int id, const char* prop, int* nitems)
         return NULL;
     }
 
-    if (nitems == NULL) {
+    if (!nitems) {
         fprintf(stderr, "[get_prop] Invalid item number for %d\n", id);
         return NULL;
     }
 
+    pthread_mutex_lock(&mutex);
+    setErrorHandler();
+
     Display* disp = XOpenDisplay(0);
     if (!disp) {
         fprintf(stderr, "[get_prop] Open display failed for %d\n", id);
+        pthread_mutex_unlock(&mutex);
         return NULL;
     }
 
@@ -54,6 +62,7 @@ get_prop(int id, const char* prop, int* nitems)
     if (prop_id == None) {
         XCloseDisplay(disp);
         fprintf(stderr, "[get_prop] Intern atom %s failed\n", prop);
+        pthread_mutex_unlock(&mutex);
         return NULL;
     }
 
@@ -67,11 +76,15 @@ get_prop(int id, const char* prop, int* nitems)
     if (ret != Success) {
         XCloseDisplay(disp);
         fprintf(stderr, "[get_prop] Get %s data failed for %d\n", prop, id);
+        pthread_mutex_unlock(&mutex);
         return NULL;
     }
 
     *nitems = (int)num_items;
     XCloseDisplay(disp);
+
+    pthread_mutex_unlock(&mutex);
+
     return data;
 }
 
@@ -85,9 +98,13 @@ set_prop_int(int id, const char* prop, unsigned char* data, int nitems, int bit)
 int
 set_prop_float(int id, const char* prop, unsigned char* data, int nitems)
 {
+    pthread_mutex_lock(&mutex);
+    setErrorHandler();
+
     Display* disp = XOpenDisplay(NULL);
     if (!disp) {
         fprintf(stderr, "[set_prop_float] open display failed\n");
+        pthread_mutex_unlock(&mutex);
         return -1;
     }
 
@@ -95,10 +112,15 @@ set_prop_float(int id, const char* prop, unsigned char* data, int nitems)
     XCloseDisplay(disp);
     if (type == None) {
         fprintf(stderr, "[set_prop_float] Intern 'FLOAT' atom failed\n");
+        pthread_mutex_unlock(&mutex);
         return -1;
     }
+
+    pthread_mutex_unlock(&mutex);
+
     // Format must be 32
     int ret = set_prop(id, prop, data, nitems, type, 32);
+
     return ret;
 }
 
@@ -116,9 +138,13 @@ set_prop(int id, const char* prop, unsigned char* data, int nitems,
         return -1;
     }
 
+    pthread_mutex_lock(&mutex);
+    setErrorHandler();
+
     Display* disp = XOpenDisplay(0);
     if (!disp) {
         fprintf(stderr, "[set_prop] Open display failed for %d\n", id);
+        pthread_mutex_unlock(&mutex);
         return -1;
     }
 
@@ -126,6 +152,7 @@ set_prop(int id, const char* prop, unsigned char* data, int nitems,
     if (prop_id == None) {
         XCloseDisplay(disp);
         fprintf(stderr, "[set_prop] Intern atom %s failed\n", prop);
+        pthread_mutex_unlock(&mutex);
         return -1;
     }
 
@@ -133,5 +160,8 @@ set_prop(int id, const char* prop, unsigned char* data, int nitems,
                      XIPropModeReplace, data, nitems);
     /* XFree(&prop_id); */
     XCloseDisplay(disp);
+
+    pthread_mutex_unlock(&mutex);
+
     return 0;
 }
