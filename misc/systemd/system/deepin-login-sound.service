@@ -5,7 +5,7 @@ After=dbus.service lightdm.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/dbus-send --system --dest=com.deepin.api.SoundThemePlayer --print-reply /com/deepin/api/SoundThemePlayer com.deepin.api.SoundThemePlayer.PlaySoundDesktopLogin
+ExecStart=/usr/bin/dbus-send --system --dest=com.deepin.api.SoundThemePlayer --type=method_call /com/deepin/api/SoundThemePlayer com.deepin.api.SoundThemePlayer.PlaySoundDesktopLogin
 RemainAfterExit=yes
 
 [Install]
