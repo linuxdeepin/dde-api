@@ -20,6 +20,7 @@
 package pdf
 
 // #cgo pkg-config: poppler-glib cairo
+// #cgo CFLAGS: -W -Wall -fPIC -fstack-protector-all
 // #include <stdlib.h>
 // #include "thumbnail.h"
 import "C"

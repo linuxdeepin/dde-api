@@ -21,6 +21,7 @@
 package text
 
 // #cgo pkg-config: gdk-3.0
+// #cgo CFLAGS: -W -Wall -fPIC -fstack-protector-all
 // #include <stdlib.h>
 // #include "text.h"
 import "C"

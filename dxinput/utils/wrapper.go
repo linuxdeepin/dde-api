@@ -20,6 +20,7 @@
 package utils
 
 // #cgo pkg-config: x11 xi
+// #cgo CFLAGS: -W -Wall -fPIC -fstack-protector-all
 // #include <stdlib.h>
 // #include "property.h"
 // #include "list.h"

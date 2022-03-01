@@ -1,6 +1,7 @@
 package themes
 
 // #cgo pkg-config: x11 xcursor xfixes gtk+-3.0
+// #cgo CFLAGS: -W -Wall -fPIC -fstack-protector-all
 // #include <stdlib.h>
 // #include "cursor.h"
 import "C"

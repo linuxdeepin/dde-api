@@ -21,6 +21,7 @@ package cursor
 
 /*
 #cgo pkg-config: xcursor
+#cgo CFLAGS: -W -Wall -fPIC -fstack-protector-all
 #include <stdlib.h>
 #include <X11/Xcursor/Xcursor.h>
 */

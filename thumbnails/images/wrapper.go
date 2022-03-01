@@ -20,6 +20,7 @@
 package images
 
 // #cgo pkg-config: gdk-3.0 librsvg-2.0
+// #cgo CFLAGS: -W -Wall -fPIC -fstack-protector-all
 // #include <stdlib.h>
 // #include "convert.h"
 import "C"

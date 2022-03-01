@@ -20,6 +20,7 @@
 package font
 
 // #cgo pkg-config: cairo-ft glib-2.0
+// #cgo CFLAGS: -W -Wall -fPIC -fstack-protector-all
 // #cgo LDFLAGS: -lm
 // #include <stdlib.h>
 // #include "thumbnail.h"

@@ -2,6 +2,7 @@ package icon
 
 /*
 #cgo pkg-config: gtk+-3.0 gdk-pixbuf-2.0
+#cgo CFLAGS: -W -Wall -fPIC -fstack-protector-all
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <glib/gprintf.h>
