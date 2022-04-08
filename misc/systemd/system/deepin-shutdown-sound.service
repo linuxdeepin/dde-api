@@ -2,7 +2,8 @@
 Description=Deepin shutdown sound
 Requisite=sound.target local-fs.target
 After=sound.target local-fs.target
-Before=systemd-logind.service
+Conflicts=shutdown.target
+Before=shutdown.target
 
 [Service]
 Type=simple
