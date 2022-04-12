@@ -279,7 +279,11 @@ func (m *Manager) EnableSound(sender dbus.Sender, name string, enabled bool) *db
 		return dbusutil.ToError(err)
 	}
 	err = m.enableSound(int(uid), name, enabled)
-	return dbusutil.ToError(err)
+	if err != nil {
+		return dbusutil.ToError(err)
+	}
+
+	return m.PrepareShutdownSound(int(uid))
 }
 
 func (m *Manager) enableSound(uid int, name string, enabled bool) error {
