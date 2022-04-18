@@ -10,7 +10,7 @@ ifneq ($(DEB_BUILD_ARCH), mips64el)
 endif
 
 %:
-	dh $@
+	dh $@ --buildsystem=makefile
 
 override_dh_strip:
 	dh_strip --dbgsym-migration=dde-api-dbg
