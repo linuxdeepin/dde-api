@@ -49,8 +49,6 @@ Depends:
  fontconfig,
  fonts-noto-cjk,
  libcanberra-pulse,
- librsvg2-bin,
- libsqlite3-0,
  locales,
  rfkill,
  fonts-unifont,
