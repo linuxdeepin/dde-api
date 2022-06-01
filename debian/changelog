@@ -1,3 +1,9 @@
+dde-api (6.0.0.0) UNRELEASED; urgency=medium
+
+  * 6.0.0.0 pre-release
+
+ --  <tanfeng@uniontech.com>  Wed, 01 Jun 2022 11:21:57 +0800
+
 dde-api (3.0.10-1) unstable; urgency=low
 
   * Autobuild Tag 3.0.10 
