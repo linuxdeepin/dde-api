@@ -65,10 +65,10 @@ var presentIcons = [][]string{
 	{"deepin-image-viewer", "eog", "gthumb", "gwenview", "gpicview", "showfoto", "phototonic"},
 	// media/video player:
 	{"deepin-movie", "media-player", "totem", "smplayer", "vlc", "dragonplayer", "kmplayer"},
-	// web browser:
-	{"google-chrome", "firefox", "chromium", "opera", "internet-web-browser", "browser"},
-	// system settings:
-	{"preferences-system"},
+	// launcher:
+	{"deepin-launcher"},
+	// trash:
+	{"user-trash-full"},
 	// text editor:
 	{"accessories-text-editor", "text-editor", "gedit", "kedit", "xfce-edit"},
 	// terminal:
