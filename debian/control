@@ -53,7 +53,7 @@ Depends:
  libsqlite3-0,
  locales,
  rfkill,
- ttf-unifont,
+ ttf-unifont | fonts-unifont,
  ${misc:Depends},
  ${shlibs:Depends},
 Description: Go-lang bingdings for dde-daemon
