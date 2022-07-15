@@ -34,6 +34,7 @@ type ShutdownSoundConfig struct {
 	Theme   string
 	Event   string
 	Device  string
+	Volume  float32
 }
 
 func GetShutdownSoundConfig() (*ShutdownSoundConfig, error) {
