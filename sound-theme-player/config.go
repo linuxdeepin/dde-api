@@ -18,6 +18,7 @@ type config struct {
 	Card                  string
 	Device                string
 	Mute                  bool
+	Volume                float32
 }
 
 func getConfigFile(uid int) string {

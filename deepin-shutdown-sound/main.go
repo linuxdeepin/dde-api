@@ -44,7 +44,7 @@ func main() {
 		return
 	}
 
-	err = doPlayShutdownSound(cfg.Theme, cfg.Event, cfg.Device)
+	err = doPlayShutdownSound(cfg.Theme, cfg.Event, cfg.Device, cfg.Volume)
 	if err != nil {
 		logger.Error("failed to play shutdown sound:", err)
 	}
@@ -63,9 +63,10 @@ func handleSignal() {
 	}()
 }
 
-func doPlayShutdownSound(theme, event, device string) error {
-	logger.Infof("play theme: %s, event: %s, device: %s", theme, event, device)
+func doPlayShutdownSound(theme, event, device string, volume float32) error {
+	logger.Infof("play theme: %s, event: %s, device: %s,volume %f", theme, event, device, volume)
 	player := sound_effect.NewPlayer(false, sound_effect.PlayBackendALSA)
+	player.Volume = volume
 	duration, _ := player.GetDuration(theme, event)
 	logger.Info("duration:", duration)
 	if duration > 0 {

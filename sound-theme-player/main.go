@@ -112,6 +112,8 @@ func (m *Manager) PlaySoundDesktopLogin(sender dbus.Sender) *dbus.Error {
 			device = fmt.Sprintf("plughw:CARD=%s,DEV=%s", cfg.Card, cfg.Device)
 		}
 		go func() {
+			m.player.Volume = cfg.Volume
+			logger.Info("volume: ", m.player.Volume)
 			m.doPlaySound(cfg.Theme, "desktop-login", device)
 			os.Exit(0)
 		}()
@@ -125,7 +127,20 @@ func (m *Manager) Play(theme, event, device string) *dbus.Error {
 	if theme == "" || event == "" {
 		return dbusutil.ToError(errors.New("invalid theme or event"))
 	}
+	uid, err := getLastUser()
+	if err != nil {
+		return dbusutil.ToError(err)
+	}
+	var cfg config
+	err = loadUserConfig(int(uid), &cfg)
+	if err != nil && !os.IsNotExist(err) {
+		logger.Warning(err)
+		return dbusutil.ToError(err)
+	}
+
 	go func() {
+		m.player.Volume = cfg.Volume
+		logger.Info("volume: ", m.player.Volume)
 		m.doPlaySound(theme, event, device)
 		os.Exit(0)
 	}()
@@ -159,6 +174,7 @@ func (m *Manager) PrepareShutdownSound(uid int) *dbus.Error {
 		shutdownCfg.Theme = cfg.Theme
 		shutdownCfg.Event = soundutils.EventSystemShutdown
 		shutdownCfg.Device = device
+		shutdownCfg.Volume = cfg.Volume
 	}
 	logger.Debugf("set shutdown sound config %#v", shutdownCfg)
 	err = soundutils.SetShutdownSoundConfig(shutdownCfg)
@@ -202,6 +218,14 @@ func (m *Manager) saveAudioState(uid int, activePlayback map[string]dbus.Variant
 	if !ok {
 		return errors.New("type of field mute is not bool")
 	}
+
+	var volume64 float64
+	volume64, ok = activePlayback["volume"].Value().(float64) //防止dde-daemon 与dde-api 之间的版本差异导致问题
+	if !ok {
+		logger.Warning("There is no volume type")
+		volume64 = 50.0
+	}
+	cfg.Volume = float32(volume64)
 
 	err := m.saveUserConfig(uid)
 	if err != nil {
