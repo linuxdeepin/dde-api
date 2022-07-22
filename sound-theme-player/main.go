@@ -246,7 +246,10 @@ func (m *Manager) SaveAudioState(sender dbus.Sender,
 	}
 
 	err = m.saveAudioState(int(uid), activePlayback)
-	return dbusutil.ToError(err)
+	if err != nil {
+		return dbusutil.ToError(err)
+	}
+	return m.PrepareShutdownSound(int(uid))
 }
 
 func (m *Manager) getUserConfig(uid int) *config {
