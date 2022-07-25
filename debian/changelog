@@ -1,3 +1,9 @@
+dde-api (6.0.0.1) unstable; urgency=medium
+
+ * 6.0.0.1 Modified go-lib to trigger DDE-API synchronously
+
+ --  <lixi@uniontech.com>  Mon, 25 Jul 2022 07:25:57 +0800
+
 dde-api (6.0.0.0) UNRELEASED; urgency=medium
 
   * 6.0.0.0 pre-release
