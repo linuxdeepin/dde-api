@@ -1,3 +1,10 @@
+dde-api (6.0.1) unstable; urgency=medium
+
+  [ cxr@cxr-PC ]
+  * UNRELEASED
+
+ -- caixiangrong <caixiangrong@uniontech.com>  Mon, 25 Jul 2022 14:06:59 +0800
+
 dde-api (6.0.0.1) unstable; urgency=medium
 
  * 6.0.0.1 Modified go-lib to trigger DDE-API synchronously
