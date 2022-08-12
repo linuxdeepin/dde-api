@@ -68,6 +68,7 @@ build-binary: prepare $(addprefix out/bin/, ${BINARIES})
 install-binary:
 	mkdir -pv ${DESTDIR}${PREFIX}${libdir}/deepin-api
 	cp out/bin/* ${DESTDIR}${PREFIX}${libdir}/deepin-api/
+	cp misc/scripts/* ${DESTDIR}${PREFIX}${libdir}/deepin-api/
 
 	mkdir -pv ${DESTDIR}${PREFIX}/bin
 	cp out/bin/dde-open ${DESTDIR}${PREFIX}/bin
