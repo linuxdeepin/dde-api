@@ -1,3 +1,9 @@
+dde-api (3.0.11) unstable; urgency=low
+
+  * update deepin-boot-sound.sh interpreter
+
+ -- lichangze <lichangze@uniontech.com>  Fri, 30 Aug 2022 18:44:23 +0000
+
 dde-api (3.0.10-1) unstable; urgency=low
 
   * Autobuild Tag 3.0.10 
