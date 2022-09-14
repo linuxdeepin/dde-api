@@ -43,6 +43,7 @@ prepare() {
   go get -v github.com/godbus/dbus/prop
   go get -v github.com/disintegration/imaging
   go get -v gopkg.in/yaml.v3
+  go get -v github.com/stretchr/testify/
 }
 
 build(){
