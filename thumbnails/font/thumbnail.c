@@ -41,7 +41,7 @@ font_thumbnail(char* file, char* dest, int size)
 {
         gchar* contents;
         gsize length = read_file(file, &contents);
-        if (length == -1) {
+        if (length == 0) {
                 return -1;
         }
 
@@ -132,7 +132,7 @@ read_file(gchar* file, gchar** contents)
                 g_printerr("Read '%s' contents failed: %s\n",
                            file, error->message);
                 g_error_free(error);
-                return -1;
+                return 0;
         }
 
         return length;
