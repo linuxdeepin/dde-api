@@ -1,0 +1,79 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: dde-api
+Upstream-Contact: UnionTech Software Technology Co., Ltd.  <>
+Source: https://github.com/linuxdeepin/dde-api
+
+# gitignore clang-format gitreview .tx
+Files: *.gitignore .clang-format .gitreview .mailmap .tx/config
+Copyright: None
+License: CC0-1.0
+
+# README
+Files: *.md README README.zh_CN.md
+Copyright: UnionTech Software Technology Co., Ltd.
+License: CC-BY-4.0
+
+# Project file
+Files: *Makefile*
+Copyright: None
+License: CC0-1.0
+
+# ci
+Files: .github/* .gitlab-ci.yml
+Copyright: None
+License: CC0-1.0
+
+# sh
+Files: gen.sh gen_test_report.sh
+Copyright: None
+License: CC0-1.0
+
+# debian rpm archlinux
+Files: debian/* rpm/* archlinux/*
+Copyright: None
+License: CC0-1.0
+
+# README
+Files: *.md src/gi/README README.zh_CN.md
+Copyright: UnionTech Software Technology Co., Ltd.
+License: CC-BY-4.0
+
+# docs documentation
+Files: docs/* documentation/*
+Copyright: UnionTech Software Technology Co., Ltd.
+License: GPL-3.0-or-later
+
+# org xml json yaml html yml css in ui peg
+Files: *.org *.xml *.json *.yaml *.html *.yml *.css *.devhelp2 *.in *.ui *.peg
+Copyright: UnionTech Software Technology Co., Ltd.
+License: GPL-3.0-or-later
+
+# Project config file: peg db
+Files: *.peg *.db
+Copyright: UnionTech Software Technology Co., Ltd.
+License: GPL-3.0-or-later
+
+# png svg jpg gif
+Files: *.png *.svg *.jpg *.gif
+Copyright: UnionTech Software Technology Co., Ltd.
+License: GPL-3.0-or-later
+
+# test file
+Files: *testdata/*
+Copyright: UnionTech Software Technology Co., Ltd.
+License: GPL-3.0-or-later
+
+# auto generation files
+Files: *_methods_auto.go *_dbusutil.go *_gen.go grub_theme/themetxt/grub_theme.peg.go
+Copyright: UnionTech Software Technology Co., Ltd.
+License: GPL-3.0-or-later
+
+# go vendor dir
+Files: vendor/*
+Copyright: UnionTech Software Technology Co., Ltd.
+License: CC0-1.0
+
+# translation or configuration files
+Files: misc/*
+Copyright: UnionTech Software Technology Co., Ltd.
+License: GPL-3.0-or-later
