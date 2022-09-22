@@ -65,4 +65,4 @@ We encourage you to report issues and contribute changes.
 
 ## License
 
-DDE API is licensed under [GPLv3](LICENSE).
+DDE API is licensed under [GPL-3.0-or-later](LICENSE).
