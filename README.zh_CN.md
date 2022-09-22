@@ -64,4 +64,4 @@ sudo make install
 
 ## 开源协议
 
-dde-api项目在LGPL-3.0-or-later开源协议下发布。
+dde-api项目在 [GPL-3.0-or-later](LICENSE)下发布。
