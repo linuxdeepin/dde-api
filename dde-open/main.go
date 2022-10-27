@@ -12,9 +12,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/godbus/dbus"
 	"github.com/linuxdeepin/go-dbus-factory/com.deepin.sessionmanager"
 	"github.com/linuxdeepin/go-gir/gio-2.0"
-	"github.com/godbus/dbus"
 	"github.com/linuxdeepin/go-lib/log"
 )
 
@@ -38,23 +38,26 @@ func main() {
 		os.Exit(1)
 	}
 	arg := flag.Arg(0)
-
+	var scheme string
 	u, err := url.Parse(arg)
 	if err != nil {
-		logger.Warningf("failed to parse url %q: %v", arg, err)
+		gFile := gio.FileNewForCommandlineArg(arg)
+		scheme = gFile.GetUriScheme()
+		if scheme == "" {
+			logger.Warningf("failed to parse url %q: %v", arg, err)
+		}
+	} else {
+		scheme = u.Scheme
+	}
+	switch scheme {
+	case "file":
+		err = openFile(u.Path)
+
+	case "":
 		err = openFile(arg)
 
-	} else {
-		switch u.Scheme {
-		case "file":
-			err = openFile(u.Path)
-
-		case "":
-			err = openFile(arg)
-
-		default:
-			err = openScheme(u.Scheme, arg)
-		}
+	default:
+		err = openScheme(scheme, arg)
 	}
 	if err != nil {
 		logger.Warning("open failed:", err)
