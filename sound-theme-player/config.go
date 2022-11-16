@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/linuxdeepin/dde-api/soundutils"
-	"github.com/linuxdeepin/go-gir/gio-2.0"
+	gio "github.com/linuxdeepin/go-gir/gio-2.0"
 )
 
 type config struct {

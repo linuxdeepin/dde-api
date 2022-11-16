@@ -47,12 +47,12 @@ prepare:
 	@ln -snf ../../../.. ${GOBUILD_DIR}/src/${GOPKG_PREFIX};
 
 ts:
-	deepin-policy-ts-convert policy2ts misc/polkit-action/com.deepin.api.locale-helper.policy.in misc/ts/com.deepin.api.locale-helper.policy
-	deepin-policy-ts-convert policy2ts misc/polkit-action/com.deepin.api.device.unblock-bluetooth-devices.policy.in misc/ts/com.deepin.api.device.unblock-bluetooth-devices.policy
+	deepin-policy-ts-convert policy2ts misc/polkit-action/org.deepin.dde.locale-helper.policy.in misc/ts/org.deepin.dde.locale-helper.policy
+	deepin-policy-ts-convert policy2ts misc/polkit-action/org.deepin.dde.device.unblock-bluetooth-devices.policy.in misc/ts/org.deepin.dde.device.unblock-bluetooth-devices.policy
 
 ts-to-policy:
-	deepin-policy-ts-convert ts2policy misc/polkit-action/com.deepin.api.locale-helper.policy.in misc/ts/com.deepin.api.locale-helper.policy misc/polkit-action/com.deepin.api.locale-helper.policy
-	deepin-policy-ts-convert ts2policy misc/polkit-action/com.deepin.api.device.unblock-bluetooth-devices.policy.in misc/ts/com.deepin.api.device.unblock-bluetooth-devices.policy misc/polkit-action/com.deepin.api.device.unblock-bluetooth-devices.policy
+	deepin-policy-ts-convert ts2policy misc/polkit-action/org.deepin.dde.locale-helper.policy.in misc/ts/org.deepin.dde.locale-helper.policy misc/polkit-action/org.deepin.dde.locale-helper.policy
+	deepin-policy-ts-convert ts2policy misc/polkit-action/org.deepin.dde.device.unblock-bluetooth-devices.policy.in misc/ts/org.deepin.dde.device.unblock-bluetooth-devices.policy misc/polkit-action/org.deepin.dde.device.unblock-bluetooth-devices.policy
 
 out/bin/%:
 	${GOBUILD} -o $@ ${GOBUILD_OPTIONS} ${GOPKG_PREFIX}/${@F}

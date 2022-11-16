@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.deepin.dde.Graphic1
+Exec=/usr/lib/deepin-api/graphic

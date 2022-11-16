@@ -42,8 +42,8 @@ import (
 //go:generate dbusutil-gen em -type Manager
 
 const (
-	dbusServiceName = "com.deepin.api.SoundThemePlayer"
-	dbusPath        = "/com/deepin/api/SoundThemePlayer"
+	dbusServiceName = "org.deepin.dde.SoundThemePlayer1"
+	dbusPath        = "/org/deepin/dde/SoundThemePlayer1"
 	dbusInterface   = dbusServiceName
 	defaultHomeDir  = "/var/lib/deepin-sound-player"
 	alsaCtlBin      = "/usr/sbin/alsactl"

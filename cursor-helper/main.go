@@ -46,9 +46,9 @@ func (*Manager) GetInterfaceName() string {
 }
 
 const (
-	dbusServiceName = "com.deepin.api.CursorHelper"
-	dbusPath        = "/com/deepin/api/CursorHelper"
-	dbusInterface   = "com.deepin.api.CursorHelper"
+	dbusServiceName = "org.deepin.dde.CursorHelper1"
+	dbusPath        = "/org/deepin/dde/CursorHelper1"
+	dbusInterface   = "org.deepin.dde.CursorHelper1"
 )
 
 var logger = log.NewLogger("api/cursor-helper")

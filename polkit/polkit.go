@@ -2,9 +2,10 @@ package polkit
 
 import (
 	"errors"
-	"github.com/godbus/dbus"
-	polkit "github.com/linuxdeepin/go-dbus-factory/org.freedesktop.policykit1"
 	"strconv"
+
+	"github.com/godbus/dbus"
+	polkit "github.com/linuxdeepin/go-dbus-factory/system/org.freedesktop.policykit1"
 )
 
 var errAuthFailed = errors.New("authentication failed")
