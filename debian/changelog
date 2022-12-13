@@ -1,3 +1,10 @@
+dde-api (6.0.3) unstable; urgency=medium
+
+  [ TagBuilder ]
+  * feat: 接口更变，增加V23接口(Task: 207483)(Influence: 接口更变)
+
+ -- zhaoyingzhen <zhaoyingzhen@uniontech.com>  Tue, 13 Dec 2022 18:40:51 +0800
+
 dde-api (6.0.2) unstable; urgency=medium
 
   * release 6.0.2
