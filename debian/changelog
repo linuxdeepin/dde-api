@@ -1,3 +1,10 @@
+dde-api (6.0.4) unstable; urgency=medium
+
+  [ TagBuilder ]
+  * fix: grub2主题配置不生效(Task: 177439)(Influence: grub主题)
+
+ -- zhaoyingzhen <zhaoyingzhen@uniontech.com>  Thu, 29 Dec 2022 14:59:32 +0800
+
 dde-api (6.0.3) unstable; urgency=medium
 
   [ TagBuilder ]
