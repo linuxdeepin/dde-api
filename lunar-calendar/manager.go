@@ -10,18 +10,18 @@ import (
 	"strings"
 
 	"github.com/godbus/dbus"
-	libdate "github.com/rickb777/date"
 	"github.com/linuxdeepin/go-lib/calendar"
 	"github.com/linuxdeepin/go-lib/calendar/lunar"
 	"github.com/linuxdeepin/go-lib/dbusutil"
+	libdate "github.com/rickb777/date"
 )
 
 //go:generate dbusutil-gen em -type Manager
 
 const (
-	dbusServiceName = "com.deepin.api.LunarCalendar"
-	dbusPath        = "/com/deepin/api/LunarCalendar"
-	dbusInterface   = "com.deepin.api.LunarCalendar"
+	dbusServiceName = "org.deepin.dde.LunarCalendar1"
+	dbusPath        = "/org/deepin/dde/LunarCalendar1"
+	dbusInterface   = "org.deepin.dde.LunarCalendar1"
 )
 
 type Manager struct {

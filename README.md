@@ -4,7 +4,6 @@ DDE API provides some dbus interfaces that is used for screen zone detecting, th
 
 ## Dependencies
 
-
 ### Build Dependencies
 
 * [go-lib](https://github.com/linuxdeepin/go-lib)

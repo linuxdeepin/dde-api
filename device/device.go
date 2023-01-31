@@ -13,18 +13,18 @@ import (
 	"github.com/godbus/dbus"
 	"github.com/linuxdeepin/go-lib/dbusutil"
 
-	polkit "github.com/linuxdeepin/go-dbus-factory/org.freedesktop.policykit1"
+	polkit "github.com/linuxdeepin/go-dbus-factory/system/org.freedesktop.policykit1"
 )
 
 //go:generate dbusutil-gen em -type Device
 
 const (
-	dbusServiceName                 = "com.deepin.api.Device"
-	dbusPath                        = "/com/deepin/api/Device"
+	dbusServiceName                 = "org.deepin.dde.Device1"
+	dbusPath                        = "/org/deepin/dde/Device1"
 	dbusInterface                   = dbusServiceName
 	rfkillBin                       = "rfkill"
 	rfkillDeviceTypeBluetooth       = "bluetooth"
-	unblockBluetoothDevicesActionId = "com.deepin.api.device.unblock-bluetooth-devices"
+	unblockBluetoothDevicesActionId = "org.deepin.dde.device.unblock-bluetooth-devices"
 )
 
 type Device struct {

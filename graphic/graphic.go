@@ -14,9 +14,9 @@ import (
 //go:generate dbusutil-gen em -type Graphic
 
 const (
-	dbusServiceName = "com.deepin.api.Graphic"
-	dbusPath        = "/com/deepin/api/Graphic"
-	dbusInterface   = "com.deepin.api.Graphic"
+	dbusServiceName = "org.deepin.dde.Graphic1"
+	dbusPath        = "/org/deepin/dde/Graphic1"
+	dbusInterface   = "org.deepin.dde.Graphic1"
 )
 
 // Graphic is a dbus interface wrapper for github.com/linuxdeepin/go-lib/graphic.

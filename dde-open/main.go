@@ -13,8 +13,8 @@ import (
 	"path/filepath"
 
 	"github.com/godbus/dbus"
-	"github.com/linuxdeepin/go-dbus-factory/com.deepin.sessionmanager"
-	"github.com/linuxdeepin/go-gir/gio-2.0"
+	startmanager "github.com/linuxdeepin/go-dbus-factory/session/org.deepin.dde.startmanager1"
+	gio "github.com/linuxdeepin/go-gir/gio-2.0"
 	"github.com/linuxdeepin/go-lib/log"
 )
 
@@ -70,7 +70,7 @@ func launchApp(desktopFile, filename string) error {
 	if err != nil {
 		return err
 	}
-	startManager := sessionmanager.NewStartManager(sessionBus)
+	startManager := startmanager.NewStartManager(sessionBus)
 	err = startManager.LaunchApp(dbus.FlagNoAutoStart, desktopFile, 0,
 		[]string{filename})
 	return err

@@ -49,11 +49,9 @@ Depends:
  fontconfig,
  fonts-noto-cjk,
  libcanberra-pulse,
- librsvg2-bin,
- libsqlite3-0,
  locales,
  rfkill,
- ttf-unifont | fonts-unifont,
+ fonts-unifont,
  ${misc:Depends},
  ${shlibs:Depends},
 Description: Go-lang bingdings for dde-daemon

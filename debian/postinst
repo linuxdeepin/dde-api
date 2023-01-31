@@ -56,9 +56,7 @@ case "$1" in
         runuser -u $player_user -- mkdir -p $player_home/.config/pulse
         runuser - deepin-sound-player -s /bin/sh -c "echo 'autospawn = no' > $player_home/.config/pulse/client.conf"
 
-        if [ -f $grubCfgFile -a -f /etc/default/grub ]; then
-            adjustGrubTheme
-        fi
+        adjustGrubTheme
         setupFallbackTheme
     ;;
     abort-upgrade|abort-remove|abort-deconfigure)

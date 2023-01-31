@@ -17,8 +17,8 @@ import (
 //go:generate dbusutil-gen em -type Helper
 
 const (
-	dbusServiceName = "com.deepin.api.LocaleHelper"
-	dbusPath        = "/com/deepin/api/LocaleHelper"
+	dbusServiceName = "org.deepin.dde.LocaleHelper1"
+	dbusPath        = "/org/deepin/dde/LocaleHelper1"
 	dbusInterface   = dbusServiceName
 	localeGenBin    = "locale-gen"
 )

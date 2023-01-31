@@ -95,7 +95,7 @@ getent group deepin-sound-player >/dev/null || groupadd -r deepin-sound-player
 getent passwd deepin-sound-player >/dev/null || \
     useradd -r -g deepin-sound-player -d %{_sharedstatedir}/deepin-sound-player\
     -s /sbin/nologin \
-    -c "User of com.deepin.api.SoundThemePlayer.service" deepin-sound-player
+    -c "User of org.deepin.dde.SoundThemePlayer1.service" deepin-sound-player
 exit 0
 
 %post
@@ -121,9 +121,9 @@ exit 0
 %{_datadir}/dde-api/data/huangli.version
 %{_datadir}/dde-api/data/pkg_depends
 %{_datadir}/dde-api/data/grub-themes/
-%{_datadir}/polkit-1/actions/com.deepin.api.locale-helper.policy
-%{_datadir}/polkit-1/actions/com.deepin.api.device.unblock-bluetooth-devices.policy
-%{_var}/lib/polkit-1/localauthority/10-vendor.d/com.deepin.api.device.pkla
+%{_datadir}/polkit-1/actions/org.deepin.dde.locale-helper.policy
+%{_datadir}/polkit-1/actions/org.deepin.dde.device.unblock-bluetooth-devices.policy
+%{_var}/lib/polkit-1/localauthority/10-vendor.d/org.deepin.dde.device.pkla
 %attr(-, deepin-sound-player, deepin-sound-player) %{_sharedstatedir}/deepin-sound-player
 
 %files -n %{name}-devel -f devel.file-list

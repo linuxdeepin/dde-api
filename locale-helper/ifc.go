@@ -7,14 +7,14 @@ package main
 import (
 	"fmt"
 
-	polkit "github.com/linuxdeepin/go-dbus-factory/org.freedesktop.policykit1"
 	"github.com/godbus/dbus"
+	polkit "github.com/linuxdeepin/go-dbus-factory/system/org.freedesktop.policykit1"
 	"github.com/linuxdeepin/go-lib/dbusutil"
 	dutils "github.com/linuxdeepin/go-lib/utils"
 )
 
 const (
-	polkitManageLocale = "com.deepin.api.locale-helper.manage-locale"
+	polkitManageLocale = "org.deepin.dde.locale-helper.manage-locale"
 
 	defaultLocaleFile    = "/etc/default/locale"
 	defaultLocaleGenFile = "/etc/locale.gen"

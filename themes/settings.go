@@ -12,8 +12,8 @@ import (
 
 	"github.com/godbus/dbus"
 	"github.com/linuxdeepin/dde-api/themes/scanner"
-	wm "github.com/linuxdeepin/go-dbus-factory/com.deepin.wm"
-	"github.com/linuxdeepin/go-gir/glib-2.0"
+	wm "github.com/linuxdeepin/go-dbus-factory/session/com.deepin.wm"
+	glib "github.com/linuxdeepin/go-gir/glib-2.0"
 	dutils "github.com/linuxdeepin/go-lib/utils"
 )
 

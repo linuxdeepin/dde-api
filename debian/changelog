@@ -1,8 +1,41 @@
-dde-api (3.0.11) unstable; urgency=low
+dde-api (6.0.4) unstable; urgency=medium
 
-  * update deepin-boot-sound.sh interpreter
+  [ TagBuilder ]
+  * fix: grub2主题配置不生效(Task: 177439)(Influence: grub主题)
 
- -- lichangze <lichangze@uniontech.com>  Fri, 30 Aug 2022 18:44:23 +0000
+ -- zhaoyingzhen <zhaoyingzhen@uniontech.com>  Thu, 29 Dec 2022 14:59:32 +0800
+
+dde-api (6.0.3) unstable; urgency=medium
+
+  [ TagBuilder ]
+  * feat: 接口更变，增加V23接口(Task: 207483)(Influence: 接口更变)
+
+ -- zhaoyingzhen <zhaoyingzhen@uniontech.com>  Tue, 13 Dec 2022 18:40:51 +0800
+
+dde-api (6.0.2) unstable; urgency=medium
+
+  * release 6.0.2
+
+ -- <lvpeilong@uniontech.com>  Wed, 19 Oct 2022 11:24:27 +0800
+
+dde-api (6.0.1) unstable; urgency=medium
+
+  [ cxr@cxr-PC ]
+  * UNRELEASED
+
+ -- caixiangrong <caixiangrong@uniontech.com>  Mon, 25 Jul 2022 14:06:59 +0800
+
+dde-api (6.0.0.1) unstable; urgency=medium
+
+ * 6.0.0.1 Modified go-lib to trigger DDE-API synchronously
+
+ --  <lixi@uniontech.com>  Mon, 25 Jul 2022 07:25:57 +0800
+
+dde-api (6.0.0.0) UNRELEASED; urgency=medium
+
+  * 6.0.0.0 pre-release
+
+ --  <tanfeng@uniontech.com>  Wed, 01 Jun 2022 11:21:57 +0800
 
 dde-api (3.0.10-1) unstable; urgency=low
 

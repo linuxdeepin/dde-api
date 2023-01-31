@@ -132,10 +132,10 @@ func getLastUser() (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	lockServiceObj := sysBus.Object("com.deepin.dde.LockService",
-		"/com/deepin/dde/LockService")
+	lockServiceObj := sysBus.Object("org.deepin.dde.LockService1",
+		"/org/deepin/dde/LockService1")
 	var userJson string
-	err = lockServiceObj.Call("com.deepin.dde.LockService.CurrentUser", 0).Store(&userJson)
+	err = lockServiceObj.Call("org.deepin.dde.LockService1.CurrentUser", 0).Store(&userJson)
 	if err != nil {
 		return -1, err
 	}

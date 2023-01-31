@@ -5,7 +5,7 @@ After=dbus.service lightdm.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/lib/deepin-api/deepin-boot-sound.sh
+ExecStart=/usr/bin/dbus-send --system --print-reply --dest=org.deepin.dde.SoundThemePlayer1 /org/deepin/dde/SoundThemePlayer1 org.deepin.dde.SoundThemePlayer1.PlaySoundDesktopLogin
 RemainAfterExit=yes
 
 [Install]

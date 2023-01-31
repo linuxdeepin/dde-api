@@ -5,7 +5,7 @@
 package main
 
 const (
-	DBusName      = "com.deepin.api.Validator"
-	DBusPath      = "/com/deepin/api/Validator"
-	DBusInterface = "com.deepin.api.Validator"
+	DBusName      = "org.deepin.dde.Validator1"
+	DBusPath      = "/org/deepin/dde/Validator1"
+	DBusInterface = "org.deepin.dde.Validator1"
 )

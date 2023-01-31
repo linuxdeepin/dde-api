@@ -17,8 +17,8 @@ import (
 //go:generate dbusutil-gen em -type Object
 
 const (
-	dbusPath      = "/com/deepin/InhibitHint"
-	dbusInterface = "com.deepin.InhibitHint"
+	dbusPath      = "/org/deepin/dde/InhibitHint1"
+	dbusInterface = "org.deepin.dde.InhibitHint1"
 )
 
 type Object struct {

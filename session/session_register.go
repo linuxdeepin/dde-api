@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/linuxdeepin/go-dbus-factory/com.deepin.sessionmanager"
 	"github.com/godbus/dbus"
+	sessionmanager "github.com/linuxdeepin/go-dbus-factory/session/org.deepin.dde.sessionmanager1"
 	"github.com/linuxdeepin/go-lib/utils"
 )
 
@@ -26,7 +26,7 @@ func Register() {
 	if err != nil {
 		fmt.Println("unsetenv DDE_SESSION_PROCESS_COOKIE_ID failed")
 	}
-	
+
 	go func() {
 		sessionBus, err := dbus.SessionBus()
 		if err != nil {

@@ -20,8 +20,8 @@ import (
 //go:generate dbusutil-gen em -type Manager
 
 const (
-	dbusServiceName = "com.deepin.api.Pinyin"
-	dbusPath        = "/com/deepin/api/Pinyin"
+	dbusServiceName = "org.deepin.dde.Pinyin1"
+	dbusPath        = "/org/deepin/dde/Pinyin1"
 	dbusInterface   = dbusServiceName
 )
 
