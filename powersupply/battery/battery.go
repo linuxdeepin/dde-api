@@ -298,7 +298,7 @@ func GetBatteryInfo(bat *gudev.Device) *BatteryInfo {
 		}
 	}
 
-	/* check the remaining thime is under a set limit, to deal with broken
+	/* check the remaining time is under a set limit, to deal with broken
 	primary batteries rate */
 	if timeToEmpty > 240*60*60 { /* ten days for discharging */
 		timeToEmpty = 0
