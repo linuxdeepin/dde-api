@@ -9,7 +9,7 @@ import (
 	"sync"
 	"unicode/utf8"
 
-	"github.com/godbus/dbus"
+	"github.com/godbus/dbus/v5"
 	"github.com/gosexy/gettext"
 	"github.com/linuxdeepin/go-lib/dbusutil"
 )

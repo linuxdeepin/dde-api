@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/godbus/dbus"
+	"github.com/godbus/dbus/v5"
 	sessionmanager "github.com/linuxdeepin/go-dbus-factory/session/org.deepin.dde.sessionmanager1"
 	"github.com/linuxdeepin/go-lib/utils"
 )

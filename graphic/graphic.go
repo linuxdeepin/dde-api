@@ -5,7 +5,7 @@
 package main
 
 import (
-	"github.com/godbus/dbus"
+	"github.com/godbus/dbus/v5"
 	"github.com/linuxdeepin/go-lib/dbusutil"
 	libgdkpixbuf "github.com/linuxdeepin/go-lib/gdkpixbuf"
 	libgraphic "github.com/linuxdeepin/go-lib/graphic"
