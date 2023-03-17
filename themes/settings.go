@@ -10,7 +10,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/godbus/dbus"
+	"github.com/godbus/dbus/v5"
 	"github.com/linuxdeepin/dde-api/themes/scanner"
 	wm "github.com/linuxdeepin/go-dbus-factory/session/com.deepin.wm"
 	glib "github.com/linuxdeepin/go-gir/glib-2.0"

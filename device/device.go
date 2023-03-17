@@ -10,7 +10,7 @@ import (
 	"os/exec"
 	"sync"
 
-	"github.com/godbus/dbus"
+	"github.com/godbus/dbus/v5"
 	"github.com/linuxdeepin/go-lib/dbusutil"
 
 	polkit "github.com/linuxdeepin/go-dbus-factory/system/org.freedesktop.policykit1"
