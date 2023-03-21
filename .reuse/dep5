@@ -77,3 +77,8 @@ License: CC0-1.0
 Files: misc/*
 Copyright: UnionTech Software Technology Co., Ltd.
 License: GPL-3.0-or-later
+
+# gomod files
+Files: go.mod go.sum
+Copyright: None
+License: CC0-1.0
