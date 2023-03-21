@@ -5,7 +5,6 @@
 package main
 
 import (
-	"os"
 	"os/exec"
 	"sync"
 	"time"
@@ -45,7 +44,6 @@ var (
 )
 
 func main() {
-	os.Setenv("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin")
 	logger.BeginTracing()
 	defer logger.EndTracing()
 
