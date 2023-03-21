@@ -1,11 +1,12 @@
 PREFIX = /usr
 GOBUILD_DIR = gobuild
+GODEP_DIR = godep
 GOPKG_PREFIX = github.com/linuxdeepin/dde-api
 GOSITE_DIR = ${PREFIX}/share/gocode
 libdir = /lib
 SYSTEMD_LIB_DIR = ${libdir}
 SYSTEMD_SERVICE_DIR = ${SYSTEMD_LIB_DIR}/systemd/system/
-GOBUILD = env GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}" go build
+GOBUILD = env GOPATH="${CURDIR}/${GOBUILD_DIR}:${CURDIR}/${GODEP_DIR}:${GOPATH}" go build
 export GO111MODULE=off
 
 LIBRARIES = \
@@ -19,9 +20,9 @@ LIBRARIES = \
     i18n_dependent \
     session \
     language_support \
-	userenv \
-	inhibit_hint \
-    powersupply	\
+    userenv \
+    inhibit_hint \
+    powersupply \
     polkit
 
 BINARIES =  \
@@ -35,14 +36,69 @@ BINARIES =  \
     sound-theme-player \
     deepin-shutdown-sound \
     dde-open \
-	adjust-grub-theme \
+    adjust-grub-theme \
     image-blur \
     image-blur-helper
     #lunar-calendar \
 
+TESTS = \
+    ./adjust-grub-theme \
+    ./blurimage \
+    ./cursor-helper \
+    ./dde-open \
+    ./deepin-shutdown-sound \
+    ./device \
+    ./drandr \
+    ./dxinput \
+    ./dxinput/common \
+    ./dxinput/kwayland \
+    ./dxinput/utils \
+    ./graphic \
+    ./grub_theme/font \
+    ./grub_theme/themetxt \
+    ./gtk-thumbnailer \
+    ./hans2pinyin \
+    ./huangli \
+    ./huangli-generator \
+    ./i18n_dependent \
+    ./image-blur \
+    ./image-blur-helper \
+    ./inhibit_hint \
+    ./lang_info \
+    ./language_support \
+    ./locale-helper \
+    ./lunar-calendar \
+    ./polkit \
+    ./powersupply \
+    ./powersupply/battery \
+    ./session \
+    ./sound-theme-player \
+    ./soundutils \
+    ./theme_thumb \
+    ./theme_thumb/common \
+    ./theme_thumb/cursor \
+    ./theme_thumb/gtk \
+    ./theme_thumb/icon \
+    ./themes \
+    ./themes/scanner \
+    ./thumbnailer \
+    ./thumbnails \
+    ./thumbnails/cursor \
+    ./thumbnails/font \
+    ./thumbnails/gtk \
+    ./thumbnails/icon \
+    ./thumbnails/images \
+    ./thumbnails/loader \
+    ./thumbnails/pdf \
+    ./thumbnails/text \
+    ./userenv \
+    ./validator \
+
 all: build-binary build-dev ts-to-policy
 
 prepare:
+	@mkdir -p ${GODEP_DIR}/src/github.com/godbus/dbus/v5
+	@cp -r /usr/share/gocode/src/github.com/godbus/dbus/* ${GODEP_DIR}/src/github.com/godbus/dbus/v5
 	@mkdir -p ${GOBUILD_DIR}/src/$(dir ${GOPKG_PREFIX});
 	@ln -snf ../../../.. ${GOBUILD_DIR}/src/${GOPKG_PREFIX};
 
@@ -118,10 +174,10 @@ check_code_quality: prepare
 	env GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}" go vet ./...
 
 test: prepare
-	env GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}" go test -v ./...
+	env GOPATH="${CURDIR}/${GOBUILD_DIR}:${CURDIR}/${GODEP_DIR}:${GOPATH}" go test -v ${TESTS}
 
 print_gopath: prepare
-	GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}"
+	GOPATH="${CURDIR}/${GOBUILD_DIR}:${CURDIR}/${GODEP_DIR}:${GOPATH}"
 
 test-coverage: prepare
-	env GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}" go test -cover -v ./... | awk '$$1 ~ "^(ok|\\?)" {print $$2","$$5}' | sed "s:${CURDIR}::g" | sed 's/files\]/0\.0%/g' > coverage.csv
+	env GOPATH="${CURDIR}/${GOBUILD_DIR}:${CURDIR}/${GODEP_DIR}:${GOPATH}" go test -cover -v ./... | awk '$$1 ~ "^(ok|\\?)" {print $$2","$$5}' | sed "s:${CURDIR}::g" | sed 's/files\]/0\.0%/g' > coverage.csv
