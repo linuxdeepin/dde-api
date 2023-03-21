@@ -5,7 +5,6 @@
 package main
 
 import (
-	"os"
 	"time"
 
 	"github.com/linuxdeepin/go-lib/dbusutil"
@@ -15,7 +14,6 @@ import (
 var logger = log.NewLogger(dbusServiceName)
 
 func main() {
-	os.Setenv("PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin")
 	service, err := dbusutil.NewSystemService()
 	if err != nil {
 		logger.Fatal("failed to new system service:", err)
