@@ -1,3 +1,10 @@
+dde-api (6.0.5) unstable; urgency=medium
+
+  [ TagBuilder ]
+  * release dde-api 6.0.5
+
+ -- dengbo <dengbo@uniontech.com>  Wed, 29 Mar 2023 16:38:52 +0800
+
 dde-api (6.0.4) unstable; urgency=medium
 
   [ TagBuilder ]
