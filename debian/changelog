@@ -1,3 +1,10 @@
+dde-api (6.0.6) unstable; urgency=medium
+
+  [ TagBuilder ]
+  * remove install packages of fcitx
+
+ -- chenhongtao <chenhongtao@uniontech.com>  Fri, 31 Mar 2023 14:59:52 +0800
+
 dde-api (6.0.5) unstable; urgency=medium
 
   [ TagBuilder ]
