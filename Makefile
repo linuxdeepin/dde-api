@@ -8,6 +8,59 @@ SYSTEMD_SERVICE_DIR = ${SYSTEMD_LIB_DIR}/systemd/system/
 GOBUILD = env GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}" go build
 export GO111MODULE=off
 
+TESTS = \
+	${GOPKG_PREFIX}/adjust-grub-theme \
+	${GOPKG_PREFIX}/blurimage \
+	${GOPKG_PREFIX}/cursor-helper \
+	${GOPKG_PREFIX}/dde-open \
+	${GOPKG_PREFIX}/deepin-shutdown-sound \
+	${GOPKG_PREFIX}/device \
+	${GOPKG_PREFIX}/drandr \
+	${GOPKG_PREFIX}/dxinput \
+	${GOPKG_PREFIX}/dxinput/common \
+	${GOPKG_PREFIX}/dxinput/kwayland \
+	${GOPKG_PREFIX}/dxinput/utils \
+	${GOPKG_PREFIX}/graphic \
+	${GOPKG_PREFIX}/grub_theme/font \
+	${GOPKG_PREFIX}/grub_theme/themetxt \
+	${GOPKG_PREFIX}/gtk-thumbnailer \
+	${GOPKG_PREFIX}/hans2pinyin \
+	${GOPKG_PREFIX}/huangli \
+	${GOPKG_PREFIX}/huangli-generator \
+	${GOPKG_PREFIX}/i18n_dependent \
+	${GOPKG_PREFIX}/image-blur \
+	${GOPKG_PREFIX}/image-blur-helper \
+	${GOPKG_PREFIX}/inhibit_hint \
+	${GOPKG_PREFIX}/lang_info \
+	${GOPKG_PREFIX}/language_support \
+	${GOPKG_PREFIX}/locale-helper \
+	${GOPKG_PREFIX}/lunar-calendar \
+	${GOPKG_PREFIX}/polkit \
+	${GOPKG_PREFIX}/powersupply \
+	${GOPKG_PREFIX}/powersupply/battery \
+	${GOPKG_PREFIX}/session \
+	${GOPKG_PREFIX}/sound-theme-player \
+	${GOPKG_PREFIX}/soundutils \
+	${GOPKG_PREFIX}/theme_thumb \
+	${GOPKG_PREFIX}/theme_thumb/common \
+	${GOPKG_PREFIX}/theme_thumb/cursor \
+	${GOPKG_PREFIX}/theme_thumb/gtk \
+	${GOPKG_PREFIX}/theme_thumb/icon \
+	${GOPKG_PREFIX}/themes \
+	${GOPKG_PREFIX}/themes/scanner \
+	${GOPKG_PREFIX}/thumbnailer \
+	${GOPKG_PREFIX}/thumbnails \
+	${GOPKG_PREFIX}/thumbnails/cursor \
+	${GOPKG_PREFIX}/thumbnails/font \
+	${GOPKG_PREFIX}/thumbnails/gtk \
+	${GOPKG_PREFIX}/thumbnails/icon \
+	${GOPKG_PREFIX}/thumbnails/images \
+	${GOPKG_PREFIX}/thumbnails/loader \
+	${GOPKG_PREFIX}/thumbnails/pdf \
+	${GOPKG_PREFIX}/thumbnails/text \
+	${GOPKG_PREFIX}/userenv \
+	${GOPKG_PREFIX}/validator
+
 LIBRARIES = \
     thumbnails \
     themes \
@@ -19,10 +72,15 @@ LIBRARIES = \
     i18n_dependent \
     session \
     language_support \
-	userenv \
-	inhibit_hint \
-    powersupply	\
-    polkit
+    userenv \
+    inhibit_hint \
+    powersupply \
+    polkit \
+
+ININSTALLS = \
+    ${LIBRARIES} \
+    go.sum \
+    go.mod
 
 BINARIES =  \
     device \
@@ -35,7 +93,7 @@ BINARIES =  \
     sound-theme-player \
     deepin-shutdown-sound \
     dde-open \
-	adjust-grub-theme \
+    adjust-grub-theme \
     image-blur \
     image-blur-helper
     #lunar-calendar \
@@ -105,7 +163,7 @@ install/lib/%:
 	mkdir -pv ${DESTDIR}${GOSITE_DIR}/src/${GOPKG_PREFIX}
 	cp -R ${CURDIR}/${GOBUILD_DIR}/src/${GOPKG_PREFIX}/${@F} ${DESTDIR}${GOSITE_DIR}/src/${GOPKG_PREFIX}
 
-install-dev: ${addprefix install/lib/, ${LIBRARIES}}
+install-dev: ${addprefix install/lib/, ${ININSTALLS}}
 
 install: install-binary install-dev
 
@@ -118,7 +176,7 @@ check_code_quality: prepare
 	env GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}" go vet ./...
 
 test: prepare
-	env GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}" go test -v ./...
+	env GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}" go test -v ${TESTS}
 
 print_gopath: prepare
 	GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}"
