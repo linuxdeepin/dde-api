@@ -5,8 +5,8 @@
 package dxinput
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 
 	. "github.com/linuxdeepin/dde-api/dxinput/common"
 	"github.com/linuxdeepin/dde-api/dxinput/kwayland"
@@ -428,11 +428,13 @@ func (tpad *Touchpad) ScrollDistance() (int32, int32) {
 }
 
 func (tpad *Touchpad) SetMotionAcceleration(accel float32) error {
+	value := 1 - accel/1.5
+
 	if globalWayland {
-		return kwayland.SetPointerAccel(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id), float64(accel*-0.67+0.26))
+		return kwayland.SetPointerAccel(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, tpad.Id), float64(value))
 	}
 	if tpad.isLibinputUsed {
-		return libinputSetAccel(tpad.Id, 1-accel/1.5)
+		return libinputSetAccel(tpad.Id, value)
 	}
 	return setMotionAcceleration(tpad.Id, accel)
 }
