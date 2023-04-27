@@ -5,9 +5,9 @@
 package dxinput
 
 import (
+	"errors"
 	"fmt"
 	"strings"
-	"errors"
 
 	. "github.com/linuxdeepin/dde-api/dxinput/common"
 	"github.com/linuxdeepin/dde-api/dxinput/kwayland"
@@ -17,10 +17,10 @@ import (
 const (
 	propMidBtnEmulation        = "Evdev Middle Button Emulation"
 	propMidBtnEmulationTimeout = "Evdev Middle Button Timeout"
-	propWheelEmulation         = "Evdev Wheel Emulation" // #nosec G101
-	propWheelEmulationButton   = "Evdev Wheel Emulation Button" // #nosec G101
+	propWheelEmulation         = "Evdev Wheel Emulation"         // #nosec G101
+	propWheelEmulationButton   = "Evdev Wheel Emulation Button"  // #nosec G101
 	propWheelEmulationTimeout  = "Evdev Wheel Emulation Timeout" // #nosec G101
-	propWheelEmulationAxes     = "Evdev Wheel Emulation Axes" // #nosec G101
+	propWheelEmulationAxes     = "Evdev Wheel Emulation Axes"    // #nosec G101
 	propEvdevScrollDistance    = "Evdev Scrolling Distance"
 )
 
@@ -406,11 +406,13 @@ func (m *Mouse) CanNaturalScroll() bool {
 }
 
 func (m *Mouse) SetMotionAcceleration(accel float32) error {
+	value := 1 - accel/1.5
+
 	if globalWayland {
-		return kwayland.SetPointerAccel(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id), float64(accel*-0.67+0.26))
+		return kwayland.SetPointerAccel(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id), float64(value))
 	}
 	if m.isLibinputUsed {
-		return libinputSetAccel(m.Id, 1-accel/1.5)
+		return libinputSetAccel(m.Id, value)
 	}
 	return setMotionAcceleration(m.Id, accel)
 }
