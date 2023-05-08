@@ -19,7 +19,7 @@ const (
 	dbusServiceName = "org.deepin.dde.LocaleHelper1"
 	dbusPath        = "/org/deepin/dde/LocaleHelper1"
 	dbusInterface   = dbusServiceName
-	localeGenBin    = "locale-gen"
+	localeGenBin    = "/usr/sbin/locale-gen"
 )
 
 type Helper struct {
