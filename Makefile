@@ -114,12 +114,6 @@ ts-to-policy:
 out/bin/%:
 	${GOBUILD} -o $@ ${GOBUILD_OPTIONS} ${GOPKG_PREFIX}/${@F}
 
-# Install go packages
-build-dep:
-	go get github.com/disintegration/imaging
-	go get gopkg.in/check.v1
-	go get github.com/linuxdeepin/go-x11-client
-
 build-binary: prepare $(addprefix out/bin/, ${BINARIES})
 
 install-binary:
