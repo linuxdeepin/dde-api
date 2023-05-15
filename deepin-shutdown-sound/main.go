@@ -17,6 +17,9 @@ import (
 var logger = log.NewLogger("api/shutdown-sound")
 
 func main() {
+	// TODO: fix noise when shutdown
+	return
+
 	handleSignal()
 
 	cfg, err := soundutils.GetShutdownSoundConfig()
