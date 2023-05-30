@@ -20,7 +20,7 @@
 %global tag      %{version}
 
 Name:           dde-api
-Version:        5.4.4
+Version:        6.0.7
 Release:        1
 Summary:        Go-lang bingding for dde-daemon
 License:        GPLv3+
@@ -45,6 +45,7 @@ BuildRequires:  deepin-gir-generator
 BuildRequires:  golang-github-linuxdeepin-go-dbus-factory-devel
 BuildRequires:  go-lib-devel
 BuildRequires:  libgudev-devel
+BuildRequires:  make
 %{?systemd_requires}
 Requires:       deepin-desktop-base
 Requires:       rfkill
