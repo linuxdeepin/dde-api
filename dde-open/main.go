@@ -11,12 +11,30 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/godbus/dbus/v5"
 	startmanager "github.com/linuxdeepin/go-dbus-factory/session/org.deepin.dde.startmanager1"
 	gio "github.com/linuxdeepin/go-gir/gio-2.0"
 	"github.com/linuxdeepin/go-lib/log"
 )
+
+const (
+	alpha    = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`
+	num      = `0123456789`
+	alphanum = alpha + num
+)
+
+const (
+	dbusServiceName = "org.desktopspec.ApplicationManager1"
+	dbusPath        = "/org/desktopspec/ApplicationManager1"
+	dbusInterface   = dbusServiceName + ".Application"
+)
+
+type AppInfo struct {
+	appId       string
+	desktopFile string
+}
 
 var logger = log.NewLogger("dde-open")
 
@@ -65,15 +83,62 @@ func main() {
 	}
 }
 
-func launchApp(desktopFile, filename string) error {
+// PathBusEscape sanitizes a constituent string of a dbus ObjectPath using the
+// rules that systemd uses for serializing special characters.
+func pathBusEscape(path string) string {
+	// Special case the empty string
+	if len(path) == 0 {
+		return "_"
+	}
+	n := []byte{}
+	for i := 0; i < len(path); i++ {
+		c := path[i]
+		if needsEscape(i, c) {
+			e := fmt.Sprintf("_%x", c)
+			n = append(n, []byte(e)...)
+		} else {
+			n = append(n, c)
+		}
+	}
+	return string(n)
+}
+
+// needsEscape checks whether a byte in a potential dbus ObjectPath needs to be escaped
+func needsEscape(i int, b byte) bool {
+	// Escape everything that is not a-z-A-Z-0-9
+	// Also escape 0-9 if it's the first character
+	return strings.IndexByte(alphanum, b) == -1 ||
+		(i == 0 && strings.IndexByte(num, b) != -1)
+}
+
+func combineDBusObjectPath(appId string) string {
+	escapeId := pathBusEscape(strings.TrimSuffix(appId, ".desktop"))
+	return dbusPath + "/" + escapeId
+}
+
+func launchApp(appInfo AppInfo, filename string) error {
 	sessionBus, err := dbus.SessionBus()
 	if err != nil {
 		return err
 	}
-	startManager := startmanager.NewStartManager(sessionBus)
-	err = startManager.LaunchApp(dbus.FlagNoAutoStart, desktopFile, 0,
-		[]string{filename})
+	obj := sessionBus.Object("org.desktopspec.ApplicationManager1", dbus.ObjectPath(combineDBusObjectPath(appInfo.appId)))
+	err = obj.Call("org.desktopspec.ApplicationManager1.Application.Launch", 0, "", []string{filename}, make(map[string]dbus.Variant)).Err
+	if err != nil {
+		startManager := startmanager.NewStartManager(sessionBus)
+		err = startManager.LaunchApp(dbus.FlagNoAutoStart, appInfo.desktopFile, 0, []string{filename})
+	}
 	return err
+}
+
+func getAppInfo(appInfo *gio.AppInfo) AppInfo {
+	dAppInfo := gio.ToDesktopAppInfo(appInfo)
+	appId := dAppInfo.GetId()
+	desktopFile := dAppInfo.GetFilename()
+	info := AppInfo{
+		appId:       appId,
+		desktopFile: desktopFile,
+	}
+	return info
 }
 
 func openFile(filename string) error {
@@ -104,11 +169,7 @@ func openFile(filename string) error {
 		return errors.New("failed to get appInfo")
 	}
 	defer appInfo.Unref()
-
-	dAppInfo := gio.ToDesktopAppInfo(appInfo)
-	desktopFile := dAppInfo.GetFilename()
-	logger.Debug("desktop file:", desktopFile)
-	err = launchApp(desktopFile, filename)
+	err = launchApp(getAppInfo(appInfo), filename)
 	if err != nil {
 		return err
 	}
@@ -123,10 +184,7 @@ func openScheme(scheme, url string) error {
 	}
 	defer appInfo.Unref()
 
-	dAppInfo := gio.ToDesktopAppInfo(appInfo)
-	desktopFile := dAppInfo.GetFilename()
-	logger.Debug("desktop file:", desktopFile)
-	err := launchApp(desktopFile, url)
+	err := launchApp(getAppInfo(appInfo), url)
 	if err != nil {
 		return err
 	}
