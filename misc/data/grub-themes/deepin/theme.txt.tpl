@@ -16,7 +16,7 @@ terminal-border: "0"
   top = "(screen_height - height) / 2"
   width = "1.7 * height"
   height = "6*item_spacing + 8*item_height + 2*item_r + 3"
-  item_font = "Noto Sans CJK SC Regular;1"
+  item_font = "Noto Sans CJK SC :style=Regular;1"
   item_color = "#dddddd"
   selected_item_color = "#ffffff"
   item_height = "font_height * 1.574"
@@ -62,7 +62,7 @@ terminal-border: "0"
   # zh_HK
   _text_zh_HK = "在 %d 秒內啟動"
   color = "#99E53E"
-  font = "Noto Sans CJK SC Regular;0.85"
+  font = "Noto Sans CJK SC :style=Regular;0.85"
 }
 
 # Navigation keys hint 
@@ -95,6 +95,6 @@ terminal-border: "0"
   # zh_HK
   _text_zh_HK = "使用 ↑ 和 ↓ 鍵移動選擇條，Enter 鍵確認，E 鍵編輯啟動命令，C 鍵進入命令行"
   color = "#99E53E"
-  font = "Noto Sans CJK SC Regular;0.85"
+  font = "Noto Sans CJK SC :style=Regular;0.85"
 }
 
