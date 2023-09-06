@@ -117,24 +117,37 @@ func needsEscape(i int, b byte) bool {
 		(i == 0 && strings.IndexByte(num, b) != -1)
 }
 
-func combineDBusObjectPath(appId string) string {
+func getDBusObjectFromAPPID(appId string) (dbus.BusObject, error) {
+	sessionBus, err := dbus.SessionBus()
+	if err != nil {
+		return nil, err
+	}
+
 	escapeId := pathBusEscape(strings.TrimSuffix(appId, ".desktop"))
-	return dbusPath + "/" + escapeId
+	return sessionBus.Object(
+		"org.desktopspec.ApplicationManager1",
+		dbus.ObjectPath(dbusPath+"/"+escapeId),
+	), nil
 }
 
 func launchApp(appInfo AppInfo, filename string) error {
-	sessionBus, err := dbus.SessionBus()
+	obj, err := getDBusObjectFromAPPID(appInfo.appId)
 	if err != nil {
 		return err
 	}
-	obj := sessionBus.Object("org.desktopspec.ApplicationManager1", dbus.ObjectPath(combineDBusObjectPath(appInfo.appId)))
-	err = obj.Call("org.desktopspec.ApplicationManager1.Application.Launch", 0, "", []string{filename}, make(map[string]dbus.Variant)).Err
+	err = obj.Call(
+		"org.desktopspec.ApplicationManager1.Application.Launch", 0,
+		"", []string{filename}, make(map[string]dbus.Variant)).Err
 	if err == nil {
 		return err
 	}
 
 	// NOTE: fallback to use old startmanager
 
+	sessionBus, err := dbus.SessionBus()
+	if err != nil {
+		return err
+	}
 	startManager := startmanager.NewStartManager(sessionBus)
 	err = startManager.LaunchApp(dbus.FlagNoAutoStart, appInfo.desktopFile, 0, []string{filename})
 
