@@ -145,6 +145,7 @@ func getAppInfo(appInfo *gio.AppInfo) AppInfo {
 	dAppInfo := gio.ToDesktopAppInfo(appInfo)
 	appId := dAppInfo.GetId()
 	desktopFile := dAppInfo.GetFilename()
+	logger.Debug("desktop file:", desktopFile)
 	info := AppInfo{
 		appId:       appId,
 		desktopFile: desktopFile,
