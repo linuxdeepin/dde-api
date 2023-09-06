@@ -1,3 +1,20 @@
+dde-api (6.0.8) unstable; urgency=medium
+
+  [ Felix Yan ]
+  * chore: correct a typo in battery.go
+
+  [ 范朋程 ]
+  * chore: 函数返回值不合法
+
+  [ hotime ]
+  * fix: deepin grub主题配置文件模板theme.txt.tpl中，部分font内容不规范，导致adjust-grub-theme生成了不符合预期的字体
+
+  [ linxin ] 
+  * feat: modify dde-open
+    dde-open module launch app with new AM
+
+ -- Tianyu Chen <sweetyfish@deepin.org>  Wed, 06 Sep 2023 10:38:59 +0800
+
 dde-api (6.0.7) unstable; urgency=medium
 
   * fix: 关机音效存在杂音

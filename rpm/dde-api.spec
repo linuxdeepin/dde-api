@@ -20,7 +20,7 @@
 %global tag      %{version}
 
 Name:           dde-api
-Version:        6.0.7
+Version:        6.0.8
 Release:        1
 Summary:        Go-lang bingding for dde-daemon
 License:        GPLv3+
