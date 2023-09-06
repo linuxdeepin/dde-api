@@ -20,12 +20,6 @@ import (
 )
 
 const (
-	alpha    = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`
-	num      = `0123456789`
-	alphanum = alpha + num
-)
-
-const (
 	dbusServiceName = "org.desktopspec.ApplicationManager1"
 	dbusPath        = "/org/desktopspec/ApplicationManager1"
 	dbusInterface   = dbusServiceName + ".Application"
@@ -83,8 +77,18 @@ func main() {
 	}
 }
 
+// NOTE: these consts is copied from systemd-go
+// https://github.com/coreos/go-systemd/blob/d843340ab4bd3815fda02e648f9b09ae2dc722a7/dbus/dbus.go#L30-L35
+const (
+	alpha    = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`
+	num      = `0123456789`
+	alphanum = alpha + num
+)
+
 // PathBusEscape sanitizes a constituent string of a dbus ObjectPath using the
 // rules that systemd uses for serializing special characters.
+// NOTE: this function is copied from systemd-go
+// https://github.com/coreos/go-systemd/blob/d843340ab4bd3815fda02e648f9b09ae2dc722a7/dbus/dbus.go#L47
 func pathBusEscape(path string) string {
 	// Special case the empty string
 	if len(path) == 0 {
@@ -104,6 +108,8 @@ func pathBusEscape(path string) string {
 }
 
 // needsEscape checks whether a byte in a potential dbus ObjectPath needs to be escaped
+// NOTE: this function is copied from systemd-go
+// https://github.com/coreos/go-systemd/blob/d843340ab4bd3815fda02e648f9b09ae2dc722a7/dbus/dbus.go#L38
 func needsEscape(i int, b byte) bool {
 	// Escape everything that is not a-z-A-Z-0-9
 	// Also escape 0-9 if it's the first character
