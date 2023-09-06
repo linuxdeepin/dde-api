@@ -129,10 +129,15 @@ func launchApp(appInfo AppInfo, filename string) error {
 	}
 	obj := sessionBus.Object("org.desktopspec.ApplicationManager1", dbus.ObjectPath(combineDBusObjectPath(appInfo.appId)))
 	err = obj.Call("org.desktopspec.ApplicationManager1.Application.Launch", 0, "", []string{filename}, make(map[string]dbus.Variant)).Err
-	if err != nil {
-		startManager := startmanager.NewStartManager(sessionBus)
-		err = startManager.LaunchApp(dbus.FlagNoAutoStart, appInfo.desktopFile, 0, []string{filename})
+	if err == nil {
+		return err
 	}
+
+	// NOTE: fallback to use old startmanager
+
+	startManager := startmanager.NewStartManager(sessionBus)
+	err = startManager.LaunchApp(dbus.FlagNoAutoStart, appInfo.desktopFile, 0, []string{filename})
+
 	return err
 }
 
