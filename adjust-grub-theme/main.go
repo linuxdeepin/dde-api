@@ -15,7 +15,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -172,44 +171,6 @@ func getScreenSizeFromGrubParams(grubParamsFilePath string) (w, h int, err error
 		return
 	}
 	return
-}
-
-func getScreenSizeFromXrandr() (w, h int, err error) {
-	out, err := exec.Command("xrandr").Output()
-	if err != nil {
-		return 0, 0, err
-	}
-	// try to get primary screen resolution, for example, extract 1440x900
-	// from "LVDS1 connected primary 1440x900+0+0 (normal left inverted
-	// right x axis y axis)"
-	re := regexp.MustCompile(` connected primary (\d+)x(\d+)`)
-	matches := re.FindStringSubmatch(string(out))
-	if len(matches) == 3 {
-		w, err := strconv.Atoi(matches[1])
-		if err != nil {
-			return 0, 0, err
-		}
-		h, err := strconv.Atoi(matches[2])
-		if err != nil {
-			return 0, 0, err
-		}
-		return w, h, nil
-	}
-	// if failed, try to get the master screen resolution
-	re = regexp.MustCompile(`Screen 0: .*current (\d+) x (\d+)`)
-	matches = re.FindStringSubmatch(string(out))
-	if len(matches) == 3 {
-		w, err := strconv.Atoi(matches[1])
-		if err != nil {
-			return 0, 0, err
-		}
-		h, err := strconv.Atoi(matches[2])
-		if err != nil {
-			return 0, 0, err
-		}
-		return w, h, nil
-	}
-	return 0, 0, fmt.Errorf("Failed to extract primary screen resolution")
 }
 
 func cropSaveStyleBox(img image.Image, filenamePrefix string, r int) {
@@ -531,12 +492,8 @@ func main() {
 		optScreenWidth, optScreenHeight, err = getScreenSizeFromGrubParams(grubParamsFile)
 		if err != nil {
 			logger.Debug(err)
-			optScreenWidth, optScreenHeight, err = getScreenSizeFromXrandr()
-			if err != nil {
-				logger.Debug(err)
-				optScreenWidth = 1024
-				optScreenHeight = 768
-			}
+			optScreenWidth = 1024
+			optScreenHeight = 768
 		}
 		logger.Debug("screen width:", optScreenWidth)
 		logger.Debug("screen height:", optScreenHeight)
