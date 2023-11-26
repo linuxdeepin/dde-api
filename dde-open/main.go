@@ -14,7 +14,7 @@ import (
 	"strings"
 
 	"github.com/godbus/dbus/v5"
-	startmanager "github.com/linuxdeepin/go-dbus-factory/session/org.deepin.dde.startmanager1"
+	appmanager "github.com/linuxdeepin/go-dbus-factory/session/org.deepin.dde.application1"
 	gio "github.com/linuxdeepin/go-gir/gio-2.0"
 	"github.com/linuxdeepin/go-lib/log"
 )
@@ -142,14 +142,14 @@ func launchApp(appInfo AppInfo, filename string) error {
 		return err
 	}
 
-	// NOTE: fallback to use old startmanager
+	// NOTE: fallback to use old appmanager
 
 	sessionBus, err := dbus.SessionBus()
 	if err != nil {
 		return err
 	}
-	startManager := startmanager.NewStartManager(sessionBus)
-	err = startManager.LaunchApp(dbus.FlagNoAutoStart, appInfo.desktopFile, 0, []string{filename})
+	appManager := appmanager.NewManager(sessionBus)
+	err = appManager.LaunchApp(dbus.FlagNoAutoStart, appInfo.desktopFile, 0, []string{filename})
 
 	return err
 }
