@@ -1,3 +1,10 @@
+dde-api (6.0.8) unstable; urgency=medium
+
+  * fix: dde-api error when use old am
+  * chore: switch dep from libfreetype6 to freetype
+
+ -- chenhongtao <chenhongtao@deepin.org>  Mon, 27 Nov 2023 09:33:19 +0800
+
 dde-api (6.0.7) unstable; urgency=medium
 
   * fix: 关机音效存在杂音
