@@ -1,3 +1,11 @@
+dde-api (6.0.9) unstable; urgency=medium
+
+  * because 6.0.8 is not integrate to deepin, so the important fix is not in,
+  * so we think we would better make a new tag
+  * commit is : https://github.com/linuxdeepin/dde-api/commit/c39c19c4ffee35a76d46fe9e103f982dc3cecbd6
+
+ -- chenhongtao <chenhongtao@deepin.org>  Wed, 29 Nov 2023 15:32:08 +0800
+
 dde-api (6.0.8) unstable; urgency=medium
 
   * fix: dde-api error when use old am
