@@ -204,6 +204,12 @@ func openFile(filename string) error {
 func openScheme(scheme, url string) error {
 	logger.Debugf("openScheme: %q, %q", scheme, url)
 	appInfo := gio.AppInfoGetDefaultForUriScheme(scheme)
+	if appInfo == nil && (scheme == "trash" || scheme == "computer") {
+		// As file manager do not register scheme for trash and computer, which are the private protocols
+		// supported by gio. To keep compatibility, we forward these protocols to inode/directory's handler.
+		// By default, it will be the default file manager like dde-file-manager.
+		appInfo = gio.AppInfoGetDefaultForType("inode/directory", true)
+	}
 	if appInfo == nil {
 		return errors.New("failed to get appInfo")
 	}
