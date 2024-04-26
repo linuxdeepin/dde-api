@@ -204,6 +204,9 @@ func openFile(filename string) error {
 func openScheme(scheme, url string) error {
 	logger.Debugf("openScheme: %q, %q", scheme, url)
 	appInfo := gio.AppInfoGetDefaultForUriScheme(scheme)
+	if appInfo == nil && (scheme == "trash" || scheme == "computer") {
+		appInfo = gio.AppInfoGetDefaultForType("inode/directory", true)
+	}
 	if appInfo == nil {
 		return errors.New("failed to get appInfo")
 	}
