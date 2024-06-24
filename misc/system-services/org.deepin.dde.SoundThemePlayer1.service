@@ -2,3 +2,4 @@
 Name=org.deepin.dde.SoundThemePlayer1
 Exec=/usr/lib/deepin-api/sound-theme-player
 User=deepin-sound-player
+SystemdService=dbus-org.deepin.dde.SoundThemePlayer1.service

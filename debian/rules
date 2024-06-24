@@ -13,6 +13,10 @@ endif
 %:
 	dh $@ --buildsystem=makefile
 
+override_dh_auto_install:
+	dh_auto_install
+	dh_installsysusers dde-api.sysusers
+
 override_dh_strip:
 	dh_strip --dbgsym-migration=dde-api-dbg
 
