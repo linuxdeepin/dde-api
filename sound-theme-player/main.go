@@ -125,6 +125,9 @@ func (m *Manager) Play(theme, event, device string) *dbus.Error {
 
 	go func() {
 		m.player.Volume = cfg.Volume
+		if device == "" {
+			device = generateDevice(cfg.Card, cfg.Device)
+		}
 		logger.Info("volume: ", m.player.Volume)
 		m.doPlaySound(theme, event, device)
 		os.Exit(0)
@@ -151,10 +154,7 @@ func (m *Manager) PrepareShutdownSound(uid int) *dbus.Error {
 			return dbusutil.ToError(err)
 		}
 
-		device := "default"
-		if cfg.Card != "" && cfg.Device != "" {
-			device = fmt.Sprintf("plughw:CARD=%s,DEV=%s", cfg.Card, cfg.Device)
-		}
+		device := generateDevice(cfg.Card, cfg.Device)
 		shutdownCfg.CanPlay = true
 		shutdownCfg.Theme = cfg.Theme
 		shutdownCfg.Event = soundutils.EventSystemShutdown
@@ -164,6 +164,14 @@ func (m *Manager) PrepareShutdownSound(uid int) *dbus.Error {
 	logger.Debugf("set shutdown sound config %#v", shutdownCfg)
 	err = soundutils.SetShutdownSoundConfig(shutdownCfg)
 	return dbusutil.ToError(err)
+}
+
+func generateDevice(card, device string) string {
+	if card != "" && device != "" {
+		return fmt.Sprintf("plughw:CARD=%s,DEV=%s", card, device)
+	}
+
+	return "default"
 }
 
 func (*Manager) GetInterfaceName() string {
