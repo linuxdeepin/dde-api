@@ -1,13 +1,19 @@
 [Unit]
-Description=Deepin login sound
-Requires=sound.target
-After=dbus.service lightdm.service
+Description=Deepin Locale Helper
+
+# Ask for the dbus socket.
+Wants=dbus.socket
+After=dbus.socket
 
 [Service]
-Type=oneshot
-User=deepin-sound-player
-ExecStart=/usr/bin/dbus-send --system --print-reply --dest=org.deepin.dde.SoundThemePlayer1 /org/deepin/dde/SoundThemePlayer1 org.deepin.dde.SoundThemePlayer1.PlaySoundDesktopLogin
-RemainAfterExit=yes
+Type=dbus
+BusName=org.deepin.dde.LocaleHelper1
+ExecStart=/usr/lib/deepin-api/locale-helper
+
+ReadWritePaths=/etc/default/locale
+ReadWritePaths=/etc/locale.gen
+ReadWritePaths=/usr/lib/locale/
+ExecPaths=/usr/sbin/locale-gen
 
 DevicePolicy=closed
 
@@ -30,4 +36,4 @@ RestrictSUIDSGID=yes
 RemoveIPC=yes
 
 [Install]
-WantedBy=multi-user.target
+Alias=dbus-org.deepin.dde.LocaleHelper1.service

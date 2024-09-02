@@ -1,27 +1,27 @@
 [Unit]
-Description=Deepin shutdown sound
-Requisite=sound.target local-fs.target
-After=sound.target local-fs.target
-Conflicts=shutdown.target
-Before=shutdown.target
+Description=Deepin Sound Theme Player
+
+Requisite=sound.target
+After=sound.target
+
+# Ask for the dbus socket.
+Wants=dbus.socket
+After=dbus.socket
 
 [Service]
-Type=simple
+Type=dbus
+BusName=org.deepin.dde.SoundThemePlayer1
 User=deepin-sound-player
-ExecStart=/usr/bin/true
-ExecStop=/usr/lib/deepin-api/deepin-shutdown-sound
-RemainAfterExit=yes
-TimeoutStopSec=7s
+ExecStart=/usr/lib/deepin-api/sound-theme-player
 
-ReadOnlyPaths=/var/lib/deepin-sound-player
-BindReadOnlyPaths=-/tmp/deepin-shutdown-sound.json
+StateDirectory=deepin-sound-player
 
 DeviceAllow=char-alsa rw
 DevicePolicy=closed
 
 ProtectSystem=full
 ProtectHome=yes
-PrivateTmp=yes
+#PrivateTmp=yes
 #PrivateDevices=yes
 PrivateNetwork=yes
 ProtectHostname=yes
@@ -38,4 +38,4 @@ RestrictSUIDSGID=yes
 RemoveIPC=yes
 
 [Install]
-WantedBy=graphical.target
+Alias=dbus-org.deepin.dde.SoundThemePlayer1.service
