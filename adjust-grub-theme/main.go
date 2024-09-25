@@ -410,7 +410,7 @@ func adjustThemeFallback() error {
 	}
 	copyThemeFiles(themeInputDir, themeOutputDir)
 
-	bgImg, err := loadBackgroundImage()
+	bgImg, themeBgImg, err := loadV25BackgroundImage()
 	if err != nil {
 		return err
 	}
@@ -418,6 +418,18 @@ func adjustThemeFallback() error {
 	err = saveJpeg(bgImg, filepath.Join(themeOutputDir, "background.jpg"))
 	if err != nil {
 		return err
+	}
+	if themeBgImg != nil {
+		err = saveJpeg(themeBgImg, filepath.Join(themeOutputDir, "background_in_theme.jpg"))
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err = copyFile(filepath.Join(themeOutputDir, "background.jpg"),
+			filepath.Join(themeOutputDir, "background_in_theme.jpg"))
+		if err != nil {
+			return err
+		}
 	}
 
 	themeFile := filepath.Join(themeInputDir, "theme.txt.tpl")
@@ -474,6 +486,80 @@ func adjustThemeFallback() error {
 	}
 	err = bw.Flush()
 	return err
+}
+
+// getSystemNameFromOSVersionFile parses the /etc/os-version file and returns the
+// value of SystemName,which is used to determine whether it is a community version.
+func getSystemNameFromOSVersionFile(filePath string) (string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	var systemName string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "SystemName=") {
+			parts := strings.SplitN(line, "=", 2)
+			if len(parts) == 2 {
+				systemName = parts[1]
+				break
+			}
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return "", err
+	}
+
+	return systemName, nil
+}
+
+// The v25 theme has 2 background images
+func loadV25BackgroundImage() (image.Image, image.Image, error) {
+	img, err := loadImage(filepath.Join(optThemeOutputDir, themeNameNormal, "background_source"))
+	if err == nil {
+		return img, nil, nil
+	}
+	logger.Warning("failed to load image background_source:", err)
+
+	systemName, err := getSystemNameFromOSVersionFile("/etc/os-version")
+	if err != nil || systemName == "" {
+		logger.Warningf("error get systemName %s: %v\n", systemName, err)
+		return nil, nil, err
+	}
+
+	var backgroundFilename, themeBackgroundFilename string
+	if strings.Contains(strings.ToLower(systemName), "deepin") {
+		backgroundFilename = "deepin_background.jpg"
+		themeBackgroundFilename = "deepin_background_in_theme.jpg"
+	} else {
+		backgroundFilename = "uos_background.jpg"
+		themeBackgroundFilename = "uos_background_in_theme.jpg"
+	}
+
+	backgroundFile := filepath.Join(optThemeInputDir, themeNameFallback, backgroundFilename)
+	themeBackgroundFile := filepath.Join(optThemeInputDir, themeNameFallback, themeBackgroundFilename)
+	img, err = loadImage(backgroundFile)
+	if err == nil {
+		cmdImg, err := loadImage(themeBackgroundFile)
+		if err == nil {
+			return img, cmdImg, nil
+		}
+		logger.Warning(err)
+	} else {
+		logger.Warning(err)
+	}
+
+	originDesktopImageFile := filepath.Join(optThemeInputDir, themeNameNormal, "background.origin.jpg")
+	img, err = loadImage(originDesktopImageFile)
+	if err != nil {
+		logger.Warning(err)
+		return nil, nil, err
+	}
+	return img, nil, nil
 }
 
 func main() {
