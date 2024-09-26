@@ -36,7 +36,7 @@ adjustGrubTheme () {
     fi
     echo themeCurrentVersion: $themeCurrentVersion
 
-    if [ $themeToolVersion -gt $themeCurrentVersion ]; then
+    if [ $themeToolVersion -gt $themeCurrentVersion ] || [ ! -d "$fallbackThemeDir" ]; then
         echo need adjust grub theme
         $adjustGrubThemeBin -log-sys || true
         update-grub || true

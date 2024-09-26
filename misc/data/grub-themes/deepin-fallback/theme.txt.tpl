@@ -3,9 +3,9 @@
 
 # Global Property
 title-text: ""
-desktop-image: "background.jpg"
+desktop-image: "background_in_theme.jpg"
 desktop-color: "#000000"
-terminal-font: "Unifont Regular 16"
+terminal-font: "Unifont Regular 14"
 terminal-box: "terminal_box_*.png"
 terminal-left: "0"
 terminal-top: "0"
@@ -15,28 +15,25 @@ terminal-border: "0"
 
 # Show the boot menu
 + boot_menu {
-  left = 15%
-  top = 20%
-  width = 70%
-  height = 60%
+  left = 34%
+  top = 51%
+  width = 32%
+  height = 50%
   item_font = "Unifont Regular 16"
-  item_color = "#cccccc"
-  selected_item_color = "#0099ff"
-  item_height = 24
-  item_spacing = 12
-  selected_item_pixmap_style = "select_*.png"
-  scrollbar_thumb = "scrollbar_thumb_*.png"
-  scrollbar_width = 6
-  menu_pixmap_style = "menu_*.png"
+  item_color = "#dddddd"
+  selected_item_color = "#ffffff"
+  item_height = 18
+  item_spacing = 25
+  selected_item_pixmap_style = "selected_item_*.png"
 }
 
 # Show a countdown message using the label component
 + label {
-  left = 0
-  top = 97%
-  width = 100%
-  align = "center"
-  id = "__timeout__"
+    left = 0
+    top = 97%
+    width = 100%
+    align = "center"
+    id = "__timeout__"
   _text_en = "Booting in %d seconds"
   # zh_CN
   _text_zh_CN = "在 %d 秒内启动"
@@ -44,16 +41,15 @@ terminal-border: "0"
   _text_zh_TW = "在 %d 秒內啟動"
   # zh_HK
   _text_zh_HK = "在 %d 秒內啟動"
-  color = "#99E53E"
-  font = "Unifont Regular 16"
+    color = "#7d7d7d"
+    font = "Unifont Regular 16"
 }
-
 + label {
     left = 0
     top = 94%
     width = 100%
     align = "center"
-    color = "#99E53E"
+    color = "#7d7d7d"
     font = "Unifont Regular 16"
     # EN
     _text_en = "Use ↑ and ↓ keys to change selection, Enter to confirm, E to edit the commands before booting or C for a command-line"
