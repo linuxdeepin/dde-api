@@ -207,6 +207,7 @@ func (s *su) TestAdjustThemeNormal() {
 }
 
 func (s *su) TestAdjustThemeFallback() {
+	osVersionFile = "testdata/os-version"
 	optThemeOutputDir = "testdata/tmp"
 	err := adjustThemeFallback()
 	assert.Equal(s.T(), nil, err)

@@ -51,6 +51,8 @@ var optTerminalFontName string
 var optFallbackOnly bool
 var logger *log.Logger
 
+var osVersionFile = "/etc/os-version"
+
 func init() {
 	logger = log.NewLogger("adjust-grub-theme")
 
@@ -525,7 +527,7 @@ func loadV25BackgroundImage() (image.Image, image.Image, error) {
 	}
 	logger.Warning("failed to load image background_source:", err)
 
-	systemName, err := getSystemNameFromOSVersionFile("/etc/os-version")
+	systemName, err := getSystemNameFromOSVersionFile(osVersionFile)
 	if err != nil || systemName == "" {
 		logger.Warningf("error get systemName %s: %v\n", systemName, err)
 		return nil, nil, err
