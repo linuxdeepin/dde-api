@@ -1,3 +1,9 @@
+dde-api (6.0.14) unstable; urgency=medium
+
+  * feat: add new grub theme (linuxdeepin#122)
+
+ -- fuleyi <fuleyi@uniontech.com>  Fri, 18 Oct 2024 14:42:20 +0800
+
 dde-api (6.0.13) unstable; urgency=medium
 
   * feat: add new grub theme.
