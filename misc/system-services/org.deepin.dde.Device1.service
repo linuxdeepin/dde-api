@@ -1,4 +1,5 @@
 [D-BUS Service]
 Name=org.deepin.dde.Device1
 Exec=/usr/lib/deepin-api/device
-User=root
+User=deepin-api-device
+SystemdService=dbus-org.deepin.dde.Device1.service
