@@ -114,7 +114,8 @@ func (m *Manager) Play(theme, event, device string) *dbus.Error {
 	}
 	uid, err := getLastUser()
 	if err != nil {
-		return dbusutil.ToError(err)
+		logger.Warning(err)
+		return nil
 	}
 	var cfg config
 	err = loadUserConfig(int(uid), &cfg)
