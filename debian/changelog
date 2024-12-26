@@ -1,3 +1,10 @@
+dde-api (6.0.15) unstable; urgency=medium
+
+  * fix: get 'libinput Accel Profiles Available' failed
+  * chore: ignore the error of getLastUser 
+
+ -- zsien <quezhiyong@deepin.org>  Thu, 26 Dec 2024 13:39:45 +0800
+
 dde-api (6.0.14) unstable; urgency=medium
 
   * feat: add new grub theme (linuxdeepin#122)
