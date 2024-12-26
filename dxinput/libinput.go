@@ -43,33 +43,33 @@ const (
 	libinputPropDisableWhileTyping = "libinput Disable While Typing Enabled"
 )
 
-// for mouse: check if both "adaptive" and "flat" profile are avaliable
+// for mouse: check if both "adaptive", "flat" and "custom" profile are avaliable
 func libinputIsBothAccelProfileAvaliable(id int32) bool {
-	available, err := getInt8Prop(id, libinputPropAccelProfileAvaliable, 2)
+	available, err := getInt8Prop(id, libinputPropAccelProfileAvaliable, 3)
 	if err != nil {
 		return false
 	}
 
-	return (available[0] == 1) && (available[1] == 1)
+	return (available[0] == 1) && (available[1] == 1) && (available[2] == 1)
 }
 
-// for mouse: get enabled accel profile, in order "adaptive", "flat".
-func libinputGetAccelProfile(id int32) (bool, bool) {
-	enabled, err := getInt8Prop(id, libinputPropAccelProfileEnabled, 2)
+// for mouse: get enabled accel profile, in order "adaptive", "flat", "custom".
+func libinputGetAccelProfile(id int32) (bool, bool, bool) {
+	enabled, err := getInt8Prop(id, libinputPropAccelProfileEnabled, 3)
 	if err != nil {
-		return false, false
+		return false, false, false
 	}
 
-	return enabled[0] == 1, enabled[1] == 1
+	return enabled[0] == 1, enabled[1] == 1, enabled[2] == 1
 }
 
-// for mouse: set enabled accel profile, in order "adaptive", "flat".
+// for mouse: set enabled accel profile, in order "adaptive", "flat", "custom".
 func libinputSetAccelProfile(id int32, useAdaptiveProfile bool) error {
 	if !libinputIsBothAccelProfileAvaliable(id) {
 		return errors.New("dde-api: device doesn't support both accel profile")
 	}
 
-	prop, err := getInt8Prop(id, libinputPropAccelProfileEnabled, 2)
+	prop, err := getInt8Prop(id, libinputPropAccelProfileEnabled, 3)
 	if err != nil {
 		return err
 	}
@@ -77,9 +77,11 @@ func libinputSetAccelProfile(id int32, useAdaptiveProfile bool) error {
 	if useAdaptiveProfile {
 		prop[0] = 1
 		prop[1] = 0
+		prop[2] = 0
 	} else {
 		prop[0] = 0
 		prop[1] = 1
+		prop[2] = 0
 	}
 
 	return utils.SetInt8Prop(id, libinputPropAccelProfileEnabled, prop)

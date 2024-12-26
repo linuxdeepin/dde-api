@@ -129,13 +129,14 @@ func (m *Mouse) IsAdaptiveAccelProfileEnabled() bool {
 	if globalWayland {
 		return kwayland.CanAdaptiveAccelProfile(fmt.Sprintf("%s%d", kwayland.SysNamePrefix, m.Id))
 	}
-	adaptive, _ := libinputGetAccelProfile(m.Id)
+	adaptive, _, _ := libinputGetAccelProfile(m.Id)
 	return adaptive
 }
 
 // EnableMiddleButtonEmulation enable mouse middle button emulation
 // "Evdev Middle Button Emulation"
-//     1 boolean value (8 bit, 0 or 1).
+//
+//	1 boolean value (8 bit, 0 or 1).
 func (m *Mouse) EnableMiddleButtonEmulation(enabled bool) error {
 	if enabled == m.CanMiddleButtonEmulation() {
 		return nil
@@ -176,7 +177,8 @@ func (m *Mouse) CanMiddleButtonEmulation() bool {
 
 // SetMiddleButtonEmulationTimeout set middle button emulation timeout
 // "Evdev Middle Button Timeout"
-//     1 16-bit positive value.
+//
+//	1 16-bit positive value.
 func (m *Mouse) SetMiddleButtonEmulationTimeout(timeout int16) error {
 	if m.isLibinputUsed || globalWayland {
 		return fmt.Errorf("Libinput unsupport the property")
@@ -204,7 +206,8 @@ func (m *Mouse) MiddleButtonEmulationTimeout() (int16, error) {
 
 // EnableWheelEmulation enable mouse wheel emulation
 // "Evdev Wheel Emulation"
-//    1 boolean value (8 bit, 0 or 1).
+//
+//	1 boolean value (8 bit, 0 or 1).
 func (m *Mouse) EnableWheelEmulation(enabled bool) error {
 	if enabled == m.CanWheelEmulation() {
 		return nil
@@ -252,7 +255,8 @@ func (m *Mouse) CanWheelEmulation() bool {
 
 // SetWheelEmulationButton set wheel emulation button
 // "Evdev Wheel Emulation Button"
-//    1 8-bit value, allowed range 0-32, 0 disables the button.
+//
+//	1 8-bit value, allowed range 0-32, 0 disables the button.
 func (m *Mouse) SetWheelEmulationButton(btnNum int8) error {
 	old, _ := m.WheelEmulationButton()
 	if btnNum == old {
@@ -289,7 +293,8 @@ func (m *Mouse) WheelEmulationButton() (int8, error) {
 
 // SetWheelEmulationTimeout set wheel emulation timeout
 // "Evdev Wheel Emulation Timeout"
-//     1 16-bit positive value.
+//
+//	1 16-bit positive value.
 func (m *Mouse) SetWheelEmulationTimeout(timeout int16) error {
 	if m.isLibinputUsed || globalWayland {
 		return fmt.Errorf("Libinput unsupport the property")
