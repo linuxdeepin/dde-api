@@ -51,7 +51,8 @@ list_device(int* num)
     DeviceInfo* devs = NULL;
     for (i = 0; i < all_num; i++) {
         if ((xinfos[i].use != XISlavePointer &&
-                xinfos[i].use != XISlaveKeyboard)) {
+                xinfos[i].use != XISlaveKeyboard &&
+                xinfos[i].use != XIFloatingSlave)) {
             continue;
         }
 
