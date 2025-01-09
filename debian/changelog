@@ -1,3 +1,9 @@
+dde-api (6.0.16) unstable; urgency=medium
+
+  *  fix: ps2触控板有事件上报，但是无法使用 (#128)
+
+ -- fuleyi <fuleyi@uniontech.com>  Thu, 09 Jan 2025 10:09:22 +0800
+
 dde-api (6.0.15) unstable; urgency=medium
 
   * fix: get 'libinput Accel Profiles Available' failed
