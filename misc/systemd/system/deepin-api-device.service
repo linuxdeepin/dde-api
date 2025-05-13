@@ -10,7 +10,7 @@ After=dbus.socket
 
 [Service]
 Type=dbus
-User=deepin-api-device
+User=deepin-daemon
 BusName=org.deepin.dde.Device1
 ExecStart=/usr/lib/deepin-api/device
 
