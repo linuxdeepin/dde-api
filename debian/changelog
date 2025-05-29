@@ -1,3 +1,11 @@
+dde-api (6.0.17) unstable; urgency=medium
+
+  * refactor: migrate from deepin-api-device to deepin-daemon user
+  * chore: bump version to 6.0.16 (#130)
+  * fix: ps2触控板有事件上报，但是无法使用 (#128)
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 29 May 2025 11:12:54 +0800
+
 dde-api (6.0.16) unstable; urgency=medium
 
   *  fix: ps2触控板有事件上报，但是无法使用 (#128)
