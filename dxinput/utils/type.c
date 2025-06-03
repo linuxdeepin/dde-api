@@ -16,6 +16,7 @@ static int is_mouse_device(int deviceid);
 static int is_touchpad_device(int deviceid);
 static int is_touchscreen_device(int deviceid);
 static int is_wacom_device(int deviceid);
+static int is_keyboard_device(int deviceid);
 static XIDeviceInfo* get_xdevice_by_id(int deviceid);
 
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -63,6 +64,11 @@ query_device_type(int deviceid)
     if (is_mouse_device(deviceid)) {
         return TYPE_MOUSE;
     }
+
+    if (is_keyboard_device(deviceid)) {
+        return TYPE_KEYBOARD;
+    }
+
 
     return TYPE_UNKNOWN;
 }
@@ -125,6 +131,49 @@ is_touchpad_device(int deviceid)
 {
     return (is_property_exist(deviceid, "Synaptics Off") ||
             is_property_exist(deviceid, "libinput Tapping Enabled"));
+}
+
+static int 
+is_keyboard_device(int deviceid)
+{
+    Display *display;
+    int num_devices, i;
+
+    pthread_mutex_lock(&mutex);
+    // 打开 X11 显示
+    display = XOpenDisplay(NULL);
+    if (display == NULL) {
+        fprintf(stderr, "Open display failed at check prop exist\n");
+        pthread_mutex_unlock(&mutex);
+        return 0;
+    }
+
+    // 获取所有输入设备
+    XIDeviceInfo *devices = XIQueryDevice(display, deviceid, &num_devices);
+    if (devices == NULL || num_devices != 1) {
+        fprintf(stderr, "Error getting device information.\n");
+        pthread_mutex_unlock(&mutex);
+        XCloseDisplay(display);
+        return 0;
+    }
+
+    if(devices[0].use != XISlaveKeyboard)
+    {
+        fprintf(stderr, "Device is not keyboard.\n");
+        pthread_mutex_unlock(&mutex);
+        XIFreeDeviceInfo(devices);
+        XCloseDisplay(display);
+        return 0;
+    }
+
+    // 释放设备信息内存
+    XIFreeDeviceInfo(devices);
+
+    // 关闭 X11 显示
+    XCloseDisplay(display);
+    pthread_mutex_unlock(&mutex);
+
+    return 1;
 }
 
 // TODO: support libinput
