@@ -1,3 +1,9 @@
+dde-api (6.0.18) unstable; urgency=medium
+
+  * feat: implement keyboard device management (#134)
+
+ -- fuleyi <fuleyi@uniontech.com>  Wed, 04 Jun 2025 15:40:30 +0800
+
 dde-api (6.0.17) unstable; urgency=medium
 
   * refactor: migrate from deepin-api-device to deepin-daemon user
