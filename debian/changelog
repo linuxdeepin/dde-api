@@ -1,3 +1,9 @@
+dde-api (6.0.19) unstable; urgency=medium
+
+  * feat: use `deepin-immutable-ctrl` to wrap and call `locale-gen`
+
+ -- zhangkun <zhangkun2@uniontech.com>  Mon, 23 Jun 2025 21:06:19 +0800
+
 dde-api (6.0.18) unstable; urgency=medium
 
   * feat: implement keyboard device management (#134)
