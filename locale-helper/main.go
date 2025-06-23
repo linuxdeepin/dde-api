@@ -11,15 +11,17 @@ import (
 
 	"github.com/linuxdeepin/go-lib/dbusutil"
 	"github.com/linuxdeepin/go-lib/log"
+	dutils "github.com/linuxdeepin/go-lib/utils"
 )
 
 //go:generate dbusutil-gen em -type Helper
 
 const (
-	dbusServiceName = "org.deepin.dde.LocaleHelper1"
-	dbusPath        = "/org/deepin/dde/LocaleHelper1"
-	dbusInterface   = dbusServiceName
-	localeGenBin    = "/usr/sbin/locale-gen"
+	dbusServiceName       = "org.deepin.dde.LocaleHelper1"
+	dbusPath              = "/org/deepin/dde/LocaleHelper1"
+	dbusInterface         = dbusServiceName
+	localeGenBin          = "/usr/sbin/locale-gen"
+	deepinImmutableCtlBin = "/usr/sbin/deepin-immutable-ctl"
 )
 
 type Helper struct {
@@ -90,10 +92,32 @@ func (h *Helper) canQuit() bool {
 }
 
 func (h *Helper) doGenLocale() error {
-	return exec.Command(localeGenBin).Run()
+	if !dutils.IsFileExist(deepinImmutableCtlBin) {
+		logger.Warning("deepin-immutable-ctl not found, use locale-gen directly")
+		return exec.Command(localeGenBin).Run()
+	} else {
+		// TODO 在磐石适配 locale-gen 前使用 deepin-immutable-ctl 执行 locale-gen，否则有权限问题
+		output, err := exec.Command(deepinImmutableCtlBin, "admin", "exec", localeGenBin).CombinedOutput()
+		if err != nil {
+			logger.Warning("deepin-immutable-ctl exec locale-gen failed, err:", err, "output:", string(output))
+			return err
+		}
+		return nil
+	}
 }
 
 // locales version <= 2.13
 func (h *Helper) doGenLocaleWithParam(locale string) error {
-	return exec.Command(localeGenBin, locale).Run()
+	if !dutils.IsFileExist(deepinImmutableCtlBin) {
+		logger.Warning("deepin-immutable-ctl not found, use locale-gen directly")
+		return exec.Command(localeGenBin, locale).Run()
+	} else {
+		// TODO 在磐石适配 locale-gen 前使用 deepin-immutable-ctl 执行 locale-gen，否则有权限问题
+		output, err := exec.Command(deepinImmutableCtlBin, "admin", "exec", "--", localeGenBin, locale).CombinedOutput()
+		if err != nil {
+			logger.Warning("deepin-immutable-ctl exec locale-gen failed, err:", err, "output:", string(output))
+			return err
+		}
+		return nil
+	}
 }
