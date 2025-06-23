@@ -11,7 +11,7 @@ ifneq ($(DEB_BUILD_ARCH), mips64el)
 endif
 
 %:
-	dh $@ --buildsystem=makefile
+	GO111MODULE=off dh $@ --buildsystem=makefile
 
 override_dh_auto_install:
 	dh_auto_install
