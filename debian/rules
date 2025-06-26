@@ -20,4 +20,11 @@ override_dh_strip:
 	dh_strip --dbgsym-migration=dde-api-dbg
 
 override_dh_installsystemd:
-	dh_installsystemd --no-start
+	# 需要开机启动
+	dh_installsystemd --name=deepin-login-sound --no-start
+	dh_installsystemd --name=deepin-shutdown-sound --no-start
+
+	# 不需要开机启动
+	dh_installsystemd --name=deepin-api-device --no-enable --no-start
+	dh_installsystemd --name=deepin-locale-helper --no-enable --no-start
+	dh_installsystemd --name=deepin-sound-theme-player --no-enable --no-start
