@@ -28,6 +28,3 @@ LockPersonality=yes
 RestrictRealtime=yes
 RestrictSUIDSGID=yes
 RemoveIPC=yes
-
-[Install]
-WantedBy=multi-user.target
