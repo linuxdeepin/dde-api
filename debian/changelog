@@ -1,3 +1,11 @@
+dde-api (6.0.20) unstable; urgency=medium
+
+  * fix: remove Install sections from systemd sound services
+  * Revert "chore: prohibit the startup and auto start of some services"
+  * chore: prohibit the startup and auto start of some services
+
+ -- zhangkun <zhangkun2@uniontech.com>  Wed, 16 Jul 2025 14:23:40 +0800
+
 dde-api (6.0.19) unstable; urgency=medium
 
   * feat: use `deepin-immutable-ctrl` to wrap and call `locale-gen`
