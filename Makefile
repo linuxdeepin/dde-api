@@ -24,8 +24,6 @@ TESTS = \
 	${GOPKG_PREFIX}/grub_theme/themetxt \
 	${GOPKG_PREFIX}/gtk-thumbnailer \
 	${GOPKG_PREFIX}/hans2pinyin \
-	${GOPKG_PREFIX}/huangli \
-	${GOPKG_PREFIX}/huangli-generator \
 	${GOPKG_PREFIX}/i18n_dependent \
 	${GOPKG_PREFIX}/image-blur \
 	${GOPKG_PREFIX}/image-blur-helper \
@@ -33,7 +31,6 @@ TESTS = \
 	${GOPKG_PREFIX}/lang_info \
 	${GOPKG_PREFIX}/language_support \
 	${GOPKG_PREFIX}/locale-helper \
-	${GOPKG_PREFIX}/lunar-calendar \
 	${GOPKG_PREFIX}/polkit \
 	${GOPKG_PREFIX}/powersupply \
 	${GOPKG_PREFIX}/powersupply/battery \
@@ -95,7 +92,6 @@ BINARIES =  \
     adjust-grub-theme \
     image-blur \
     image-blur-helper
-    #lunar-calendar \
 
 all: build-binary build-dev ts-to-policy
 

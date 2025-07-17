@@ -118,8 +118,6 @@ exit 0
 %{_datadir}/dbus-1/system-services/*.service
 %{_datadir}/dbus-1/system.d/*.conf
 %{_datadir}/icons/hicolor/*/actions/*
-%{_datadir}/dde-api/data/huangli.db
-%{_datadir}/dde-api/data/huangli.version
 %{_datadir}/dde-api/data/pkg_depends
 %{_datadir}/dde-api/data/grub-themes/
 %{_datadir}/polkit-1/actions/org.deepin.dde.locale-helper.policy
