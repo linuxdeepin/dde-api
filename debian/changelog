@@ -1,3 +1,9 @@
+dde-api (6.0.21) unstable; urgency=medium
+
+  * chore: remove huangli and lunar calendar components
+
+ -- zhangkun <zhangkun2@uniontech.com>  Fri, 18 Jul 2025 11:07:14 +0800
+
 dde-api (6.0.20) unstable; urgency=medium
 
   * fix: remove Install sections from systemd sound services
