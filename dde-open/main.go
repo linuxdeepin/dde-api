@@ -54,16 +54,24 @@ func main() {
 	u, err := url.Parse(arg)
 	if err != nil {
 		gFile := gio.FileNewForCommandlineArg(arg)
-		scheme = gFile.GetUriScheme()
+		if gFile != nil {
+			scheme = gFile.GetUriScheme()
+		}
 		if scheme == "" {
 			logger.Warningf("failed to parse url %q: %v", arg, err)
 		}
 	} else {
 		scheme = u.Scheme
 	}
+	logger.Debugf("scheme: %q", scheme)
 	switch scheme {
 	case "file":
-		err = openFile(u.Path)
+		if u != nil {
+			err = openFile(u.Path)
+		} else {
+			// 如果u为nil，说明url.Parse失败了，应该作为普通文件路径处理
+			err = openFile(arg)
+		}
 
 	case "":
 		err = openFile(arg)
