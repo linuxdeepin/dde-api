@@ -88,15 +88,15 @@ for file in $(find . -iname "*.go" -o -iname "*.c" -o -iname "*.h" -o -iname "*.
     echo "%{gopath}/src/%{goipath}/$file" >> devel.file-list
 done
 %make_install SYSTEMD_SERVICE_DIR="%{_unitdir}" LIBDIR="%{_libexecdir}"
-# HOME directory for user deepin-sound-player
-mkdir -p %{buildroot}%{_sharedstatedir}/deepin-sound-player
+# HOME directory for user deepin-daemon
+mkdir -p %{buildroot}%{_sharedstatedir}/deepin-daemon
 
 %pre
-getent group deepin-sound-player >/dev/null || groupadd -r deepin-sound-player
-getent passwd deepin-sound-player >/dev/null || \
-    useradd -r -g deepin-sound-player -d %{_sharedstatedir}/deepin-sound-player\
+getent group deepin-daemon >/dev/null || groupadd -r deepin-daemon
+getent passwd deepin-daemon >/dev/null || \
+    useradd -r -g deepin-daemon -d %{_sharedstatedir}/deepin-daemon\
     -s /sbin/nologin \
-    -c "User of org.deepin.dde.SoundThemePlayer1.service" deepin-sound-player
+    -c "User of org.deepin.dde.SoundThemePlayer1.service" deepin-daemon
 exit 0
 
 %post
@@ -122,8 +122,8 @@ exit 0
 %{_datadir}/dde-api/data/grub-themes/
 %{_datadir}/polkit-1/actions/org.deepin.dde.locale-helper.policy
 %{_datadir}/polkit-1/actions/org.deepin.dde.device.unblock-bluetooth-devices.policy
-%{_var}/lib/polkit-1/localauthority/10-vendor.d/org.deepin.dde.device.pkla
-%attr(-, deepin-sound-player, deepin-sound-player) %{_sharedstatedir}/deepin-sound-player
+%{_var}/lib/polkit-1/rules.d/org.deepin.dde.device.rules
+%attr(-, deepin-daemon, deepin-daemon) %{_sharedstatedir}/deepin-daemon
 
 %files -n %{name}-devel -f devel.file-list
 

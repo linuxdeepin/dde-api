@@ -7,13 +7,14 @@ Before=shutdown.target
 
 [Service]
 Type=simple
-User=deepin-sound-player
+User=deepin-daemon
+Environment=HOME=/var/lib/deepin-sound-player
 ExecStart=/usr/bin/true
 ExecStop=/usr/lib/deepin-api/deepin-shutdown-sound
 RemainAfterExit=yes
 TimeoutStopSec=7s
 
-ReadOnlyPaths=/var/lib/deepin-sound-player
+StateDirectory=deepin-sound-player
 BindReadOnlyPaths=-/tmp/deepin-shutdown-sound.json
 
 DeviceAllow=char-alsa rw
@@ -36,3 +37,6 @@ LockPersonality=yes
 RestrictRealtime=yes
 RestrictSUIDSGID=yes
 RemoveIPC=yes
+
+[Install]
+WantedBy=graphical.target
