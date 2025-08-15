@@ -87,17 +87,10 @@ for file in $(find . -iname "*.go" -o -iname "*.c" -o -iname "*.h" -o -iname "*.
     cp -pav $file %{buildroot}/%{gopath}/src/%{goipath}/$file
     echo "%{gopath}/src/%{goipath}/$file" >> devel.file-list
 done
+install -D -m 0644 misc/sysusers/deepin-daemon.conf %{buildroot}%{_sysusersdir}/deepin-daemon.conf
 %make_install SYSTEMD_SERVICE_DIR="%{_unitdir}" LIBDIR="%{_libexecdir}"
 # HOME directory for user deepin-daemon
 mkdir -p %{buildroot}%{_sharedstatedir}/deepin-daemon
-
-%pre
-getent group deepin-daemon >/dev/null || groupadd -r deepin-daemon
-getent passwd deepin-daemon >/dev/null || \
-    useradd -r -g deepin-daemon -d %{_sharedstatedir}/deepin-daemon\
-    -s /sbin/nologin \
-    -c "User of org.deepin.dde.SoundThemePlayer1.service" deepin-daemon
-exit 0
 
 %post
 %systemd_post deepin-shutdown-sound.service
@@ -124,6 +117,7 @@ exit 0
 %{_datadir}/polkit-1/actions/org.deepin.dde.device.unblock-bluetooth-devices.policy
 %{_var}/lib/polkit-1/rules.d/org.deepin.dde.device.rules
 %attr(-, deepin-daemon, deepin-daemon) %{_sharedstatedir}/deepin-daemon
+%{_sysusersdir}/deepin-daemon.conf
 
 %files -n %{name}-devel -f devel.file-list
 
