@@ -143,12 +143,12 @@ install-binary:
 	mkdir -pv ${DESTDIR}${SYSTEMD_SERVICE_DIR}
 	cp -R misc/systemd/system/*.service ${DESTDIR}${SYSTEMD_SERVICE_DIR}
 	# 默认不安装 deepin-locale-helper.service，只有显式开启时才保留
-	if [ "${INSTALL_LOCALE_HELPER}" != "1" ]; then \
-		rm -f ${DESTDIR}${SYSTEMD_SERVICE_DIR}/deepin-locale-helper.service; \
-		rm -f ${DESTDIR}${PREFIX}/share/dbus-1/system-services/org.deepin.dde.LocaleHelper1.service; \
-		rm -f ${DESTDIR}${PREFIX}/share/polkit-1/actions/org.deepin.dde.locale-helper.policy; \
-		rm -f ${DESTDIR}${PREFIX}/share/dbus-1/system.d/org.deepin.dde.LocaleHelper1.conf; \
-	fi
+ifneq ($(INSTALL_LOCALE_HELPER), 1)
+	rm -f ${DESTDIR}${SYSTEMD_SERVICE_DIR}/deepin-locale-helper.service; 
+	rm -f ${DESTDIR}${PREFIX}/share/dbus-1/system-services/org.deepin.dde.LocaleHelper1.service; 
+	rm -f ${DESTDIR}${PREFIX}/share/polkit-1/actions/org.deepin.dde.locale-helper.policy; 
+	rm -f ${DESTDIR}${PREFIX}/share/dbus-1/system.d/org.deepin.dde.LocaleHelper1.conf; 
+endif
 
 	mkdir -pv ${DESTDIR}${PREFIX}/share/icons/hicolor
 	cp -R misc/icons/* ${DESTDIR}${PREFIX}/share/icons/hicolor

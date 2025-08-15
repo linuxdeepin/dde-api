@@ -14,6 +14,8 @@ endif
 	dh $@ --buildsystem=makefile
 
 override_dh_auto_install:
+	cp -f misc/sysusers/deepin-daemon.conf debian/deepin-daemon.sysusers
+	dh_installsysusers  --name=deepin-daemon
 	dh_auto_install -- INSTALL_LOCALE_HELPER=1
 
 override_dh_strip:
