@@ -5,7 +5,8 @@ After=dbus.service lightdm.service
 
 [Service]
 Type=oneshot
-User=deepin-sound-player
+User=deepin-daemon
+Environment=HOME=/var/lib/deepin-sound-player
 ExecStart=/usr/bin/dbus-send --system --print-reply --dest=org.deepin.dde.SoundThemePlayer1 /org/deepin/dde/SoundThemePlayer1 org.deepin.dde.SoundThemePlayer1.PlaySoundDesktopLogin
 RemainAfterExit=yes
 
@@ -28,3 +29,6 @@ LockPersonality=yes
 RestrictRealtime=yes
 RestrictSUIDSGID=yes
 RemoveIPC=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -42,12 +42,7 @@ var (
 
 func init() {
 	flag.BoolVar(&optAutoQuit, "auto-quit", true, "auto quit")
-	u, err := user.Current()
-	if err != nil {
-		logger.Warning(err)
-	} else {
-		homeDir = u.HomeDir
-	}
+	homeDir = os.Getenv("HOME")
 	if homeDir == "" {
 		homeDir = defaultHomeDir
 	}
@@ -382,8 +377,6 @@ func main() {
 		logger.Fatalf("name %q already has the owner", dbusServiceName)
 	}
 
-	// 实际运行时才从 gsettings 加载默认设置，测试环境下没安装相关 gsettings schema 会导致崩溃。
-	_loadDefaultCfgFromGSettings = true
 	m := newManager(service)
 	err = service.Export(dbusPath, m)
 	if err != nil {

@@ -9,9 +9,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
-
-	"github.com/linuxdeepin/dde-api/soundutils"
-	gio "github.com/linuxdeepin/go-gir/gio-2.0"
 )
 
 type config struct {
@@ -39,22 +36,7 @@ func saveUserConfig(uid int, cfg *config) error {
 	return saveConfig(filename, cfg)
 }
 
-var _loadDefaultCfgFromGSettings bool = false
-
 func loadConfig(filename string, cfg *config) error {
-	if _loadDefaultCfgFromGSettings {
-		// 从 gsettings 获取默认值
-		soundEffectGs := gio.NewSettings("com.deepin.dde.sound-effect")
-		defer soundEffectGs.Unref()
-		appearanceGs := gio.NewSettings("com.deepin.dde.appearance")
-		defer appearanceGs.Unref()
-
-		cfg.Enabled = soundEffectGs.GetBoolean("enabled")
-		cfg.DesktopLoginEnabled = soundEffectGs.GetBoolean(soundutils.EventDesktopLogin)
-		cfg.SystemShutdownEnabled = soundEffectGs.GetBoolean(soundutils.EventSystemShutdown)
-		cfg.Theme = appearanceGs.GetString("sound-theme")
-	}
-
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return err

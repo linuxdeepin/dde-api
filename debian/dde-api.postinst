@@ -3,9 +3,6 @@
 
 set -e
 
-player_user=deepin-sound-player
-player_home=/var/lib/$player_user
-
 themeDir="/boot/grub/themes/deepin"
 fallbackThemeDir=$themeDir-fallback
 adjustGrubThemeBin="/usr/lib/deepin-api/adjust-grub-theme"
@@ -45,17 +42,6 @@ adjustGrubTheme () {
 
 case "$1" in
     configure)
-        if ! getent group $player_user >/dev/null; then
-            addgroup --quiet --system $player_user
-        fi
-        if ! getent passwd $player_user >/dev/null; then
-            adduser --quiet --system --ingroup $player_user --home $player_home $player_user
-            adduser --quiet $player_user audio
-        fi
-
-        runuser -u $player_user -- mkdir -p $player_home/.config/pulse
-        runuser - deepin-sound-player -s /bin/sh -c "echo 'autospawn = no' > $player_home/.config/pulse/client.conf"
-
         adjustGrubTheme
         setupFallbackTheme
     ;;
