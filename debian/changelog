@@ -1,3 +1,9 @@
+dde-api (6.0.23) unstable; urgency=medium
+
+  * chore: bump 1st-party dependencies revision in go.mod
+
+ -- fuleyi <fuleyi@uniontech.com>  Fri, 15 Aug 2025 09:02:57 +0800
+
 dde-api (6.0.22) unstable; urgency=medium
 
   * fix(dde-open): Fix dde open crash issue
