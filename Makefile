@@ -6,6 +6,7 @@ libdir = /lib
 SYSTEMD_LIB_DIR = ${libdir}
 SYSTEMD_SERVICE_DIR = ${SYSTEMD_LIB_DIR}/systemd/system/
 GOBUILD = env GOPATH="${CURDIR}/${GOBUILD_DIR}:${GOPATH}" go build
+INSTALL_LOCALE_HELPER ?= 0
 
 TESTS = \
 	${GOPKG_PREFIX}/adjust-grub-theme \
@@ -133,14 +134,21 @@ install-binary:
 	mkdir -pv ${DESTDIR}${PREFIX}/share/polkit-1/actions
 	cp misc/polkit-action/*.policy ${DESTDIR}${PREFIX}/share/polkit-1/actions/
 
-	mkdir -pv ${DESTDIR}/var/lib/polkit-1/localauthority/10-vendor.d
-	cp misc/polkit-localauthority/*.pkla ${DESTDIR}/var/lib/polkit-1/localauthority/10-vendor.d/
-
+	mkdir -pv ${DESTDIR}/var/lib/polkit-1/rules.d
+	cp misc/polkit-rules/*.rules ${DESTDIR}/var/lib/polkit-1/rules.d/
+	
 	mkdir -pv ${DESTDIR}${PREFIX}/share/dde-api
 	cp -R misc/data ${DESTDIR}${PREFIX}/share/dde-api
 
 	mkdir -pv ${DESTDIR}${SYSTEMD_SERVICE_DIR}
 	cp -R misc/systemd/system/*.service ${DESTDIR}${SYSTEMD_SERVICE_DIR}
+	# 默认不安装 deepin-locale-helper.service，只有显式开启时才保留
+ifneq ($(INSTALL_LOCALE_HELPER), 1)
+	rm -f ${DESTDIR}${SYSTEMD_SERVICE_DIR}/deepin-locale-helper.service; 
+	rm -f ${DESTDIR}${PREFIX}/share/dbus-1/system-services/org.deepin.dde.LocaleHelper1.service; 
+	rm -f ${DESTDIR}${PREFIX}/share/polkit-1/actions/org.deepin.dde.locale-helper.policy; 
+	rm -f ${DESTDIR}${PREFIX}/share/dbus-1/system.d/org.deepin.dde.LocaleHelper1.conf; 
+endif
 
 	mkdir -pv ${DESTDIR}${PREFIX}/share/icons/hicolor
 	cp -R misc/icons/* ${DESTDIR}${PREFIX}/share/icons/hicolor

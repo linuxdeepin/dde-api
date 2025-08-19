@@ -17,23 +17,32 @@ ExecStart=/usr/lib/deepin-api/device
 DeviceAllow=/dev/rfkill rw
 DevicePolicy=closed
 
-ProtectSystem=full
+ProtectSystem=strict
+
+InaccessiblePaths=/etc/shadow
+InaccessiblePaths=-/etc/NetworkManager/system-connections
+InaccessiblePaths=-/etc/pam.d
+InaccessiblePaths=-/usr/share/uadp/
+
+NoNewPrivileges=yes
 ProtectHome=yes
-PrivateTmp=yes
-#PrivateDevices=yes
-PrivateNetwork=yes
-ProtectHostname=yes
-ProtectClock=yes
 ProtectKernelTunables=yes
 ProtectKernelModules=yes
-ProtectKernelLogs=yes
 ProtectControlGroups=yes
-RestrictAddressFamilies=AF_UNIX
+PrivateMounts=yes
+PrivateTmp=yes
+# 需要操作rfkill
+#PrivateDevices=yes
+PrivateNetwork=yes
+# 需要读取/proc的exe字段数据
+#PrivateUsers=yes
 RestrictNamespaces=yes
 LockPersonality=yes
 RestrictRealtime=yes
-RestrictSUIDSGID=yes
 RemoveIPC=yes
+# 和golang -pie参数冲突，导致进程无法启动
+#MemoryDenyWriteExecute=yes
+MemoryLimit=100M
 
 [Install]
 Alias=dbus-org.deepin.dde.Device1.service
