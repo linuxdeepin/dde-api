@@ -1,6 +1,7 @@
 [Unit]
 Description=Deepin shutdown sound
-Requisite=sound.target local-fs.target
+Requisite=
+Wants=sound.target local-fs.target
 After=sound.target local-fs.target
 Conflicts=shutdown.target
 Before=shutdown.target
