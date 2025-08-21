@@ -1,3 +1,10 @@
+dde-api (6.0.24) unstable; urgency=medium
+
+  * fix: 解决没有关机音效的问题 (#148)
+  * feat: dde-api安全整改 (#146)
+
+ -- fuleyi <fuleyi@uniontech.com>  Thu, 21 Aug 2025 14:12:51 +0800
+
 dde-api (6.0.23) unstable; urgency=medium
 
   * chore: bump 1st-party dependencies revision in go.mod
