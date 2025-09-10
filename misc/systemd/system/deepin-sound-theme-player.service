@@ -12,6 +12,7 @@ After=dbus.socket
 Type=dbus
 BusName=org.deepin.dde.SoundThemePlayer1
 User=deepin-daemon
+SupplementaryGroups=audio
 Environment=HOME=/var/lib/deepin-sound-player
 ExecStart=/usr/lib/deepin-api/sound-theme-player
 
