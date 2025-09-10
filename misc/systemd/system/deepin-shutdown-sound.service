@@ -9,6 +9,7 @@ Before=shutdown.target
 [Service]
 Type=simple
 User=deepin-daemon
+SupplementaryGroups=audio
 Environment=HOME=/var/lib/deepin-sound-player
 ExecStart=/usr/bin/true
 ExecStop=/usr/lib/deepin-api/deepin-shutdown-sound
