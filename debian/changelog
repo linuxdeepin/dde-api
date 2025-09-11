@@ -1,3 +1,12 @@
+dde-api (6.0.25) unstable; urgency=medium
+
+  * fix: copy background image to avoid re-encoding
+  * feat: migrate from gsettings to dconfig for sound settings
+  * fix: add audio group permission to login and shutdown sound services
+  * fix: add audio group permission to sound theme player service
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 11 Sep 2025 20:57:19 +0800
+
 dde-api (6.0.24) unstable; urgency=medium
 
   * fix: 解决没有关机音效的问题 (#148)
