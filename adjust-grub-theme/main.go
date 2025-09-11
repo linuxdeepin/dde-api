@@ -254,7 +254,15 @@ func setBackground(bgFile string) {
 	fallbackDir := getFallbackDir()
 	_, err = os.Stat(fallbackDir)
 	if err == nil {
-		err = saveJpeg(bgImg, filepath.Join(fallbackDir, "background.jpg"))
+		// 使用复制文件的方式避免重复编码
+		backgroundFile := filepath.Join(fallbackDir, "background.jpg")
+		err = saveJpeg(bgImg, backgroundFile)
+		if err != nil {
+			logger.Fatal(err)
+		}
+		// 复制文件到background_in_theme.jpg，确保desktop-image字段指向的文件也被更新
+		backgroundInThemeFile := filepath.Join(fallbackDir, "background_in_theme.jpg")
+		_, err = copyFile(backgroundFile, backgroundInThemeFile)
 		if err != nil {
 			logger.Fatal(err)
 		}
