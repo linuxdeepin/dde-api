@@ -5,9 +5,12 @@
 package soundutils
 
 import (
+	"errors"
 	"sync"
 
-	gio "github.com/linuxdeepin/go-gir/gio-2.0"
+	"github.com/godbus/dbus/v5"
+	configManager "github.com/linuxdeepin/go-dbus-factory/org.desktopspec.ConfigManager"
+	"github.com/linuxdeepin/go-lib/log"
 	"github.com/linuxdeepin/go-lib/sound_effect"
 	"github.com/linuxdeepin/go-lib/strv"
 )
@@ -36,13 +39,18 @@ const (
 )
 
 const (
-	soundEffectSchema = "com.deepin.dde.sound-effect"
-	appearanceSchema  = "com.deepin.dde.appearance"
-	keySoundTheme     = "sound-theme"
+	dconfigDaemonAppId     = "org.deepin.dde.daemon"
+	dconfigSoundEffectId   = "org.deepin.dde.daemon.soundeffect"
+	dconfigAppearanceAppId = "org.deepin.dde.appearance"
+	dconfigAppearanceId    = dconfigAppearanceAppId
+
+	keySoundTheme     = "Sound_Theme"
 	keyEnabled        = "enabled"
 	keyPlayer         = "player"
 	defaultSoundTheme = "deepin"
 )
+
+var logger = log.NewLogger("soundplayer")
 
 func PlaySystemSound(event, device string) error {
 	return PlayThemeSound(GetSoundTheme(), event, device)
@@ -57,6 +65,31 @@ func initPlayer() {
 	playerOnce.Do(func() {
 		player = sound_effect.NewPlayer(UseCache, sound_effect.PlayBackendPulseAudio)
 	})
+}
+
+// TODO: 后续此部分dconfig逻辑封装成库到go-lib中
+func makeDConfigManager(appID string, id string) (configManager.Manager, error) {
+	bus, err := dbus.SystemBus()
+	if err != nil {
+		return nil, errors.New("bus cannot be nil")
+	}
+	dsMgr := configManager.NewConfigManager(bus)
+
+	if dsMgr == nil {
+		return nil, errors.New("dsManager cannot be nil")
+	}
+
+	dsPath, err := dsMgr.AcquireManager(0, appID, id, "")
+	if err != nil {
+		logger.Warning(err)
+	}
+
+	dconfigMgr, err := configManager.NewManager(bus, dsPath)
+	if err != nil {
+		logger.Warning(err)
+		return nil, err
+	}
+	return dconfigMgr, nil
 }
 
 func PlayThemeSound(theme, event, device string) error {
@@ -77,26 +110,51 @@ func CanPlayEvent(event string) bool {
 		return false
 	}
 
-	settings := gio.NewSettings(soundEffectSchema)
-	defer settings.Unref()
-
-	// check main switch
-	if !settings.GetBoolean(keyEnabled) {
+	soundeffectDconfig, err := makeDConfigManager(dconfigDaemonAppId, dconfigSoundEffectId)
+	if err != nil {
+		logger.Warning(err)
 		return false
 	}
 
-	keys := strv.Strv(settings.ListKeys())
+	soundeffectEnabledValue, err := soundeffectDconfig.Value(0, keyEnabled)
+
+	if err != nil {
+		logger.Warning(err)
+		return false
+	}
+
+	// check main switch
+	if !soundeffectEnabledValue.Value().(bool) {
+		return false
+	}
+
+	keyList, _ := soundeffectDconfig.KeyList().Get(0)
+
+	keys := strv.Strv(keyList)
 	if keys.Contains(event) {
 		// has key
-		return settings.GetBoolean(event)
+		soundEnabled, err := soundeffectDconfig.Value(0, event)
+		if err != nil {
+			return false
+		}
+		return soundEnabled.Value().(bool)
 	}
 	return true
 }
 
 func GetSoundTheme() string {
-	s := gio.NewSettings(appearanceSchema)
-	defer s.Unref()
-	return s.GetString(keySoundTheme)
+	appeearanceDconfig, err := makeDConfigManager(dconfigAppearanceAppId, dconfigAppearanceId)
+	if err != nil {
+		logger.Warning(err)
+		return defaultSoundTheme
+	}
+
+	soundeffectEnabledValue, err := appeearanceDconfig.Value(0, keySoundTheme)
+	if err != nil {
+		logger.Warning(err)
+		return defaultSoundTheme
+	}
+	return soundeffectEnabledValue.Value().(string)
 }
 
 func GetThemeSoundFile(theme, event string) string {
