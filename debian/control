@@ -25,6 +25,7 @@ Build-Depends:
  golang-github-stretchr-testify-dev,
  golang-gopkg-alecthomas-kingpin.v2-dev,
  golang-gopkg-check.v1-dev,
+ golang-golang-x-sys-dev,
  libcairo2-dev,
  libcanberra-dev,
  libfreetype-dev | libfreetype6-dev,
