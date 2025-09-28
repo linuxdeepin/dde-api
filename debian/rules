@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 export GOCACHE = /tmp/gocache
 export GOPATH := /usr/share/gocode
-export DEB_BUILD_OPTIONS = parallel=16
+export DEB_BUILD_OPTIONS = parallel=4
 export GO111MODULE=off
 ifeq ($(DEB_BUILD_ARCH),sw_64)
 	export GOFLAGS = -vet=off
