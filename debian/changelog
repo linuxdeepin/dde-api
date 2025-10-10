@@ -1,3 +1,11 @@
+dde-api (6.0.29) unstable; urgency=medium
+
+  * feat: 减少构建并发 (#161)
+  * fix: Add golang-x-sys dependency for syscall operations (#160)
+  * feat: parallel build option for debian packaging (#159)
+
+ -- fuleyi <fuleyi@uniontech.com>  Fri, 10 Oct 2025 15:38:55 +0800
+
 dde-api (6.0.28) unstable; urgency=medium
 
   * fix: 解决新装镜像创建用户后出现开机音效服务启动失败的问题 (#155)
