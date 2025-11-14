@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 	"runtime/debug"
+	"sync"
 
 	"github.com/disintegration/imaging"
 )
@@ -40,12 +41,14 @@ func BlurImage(file string, sigma float64, dest string) error {
 func isTooBright(img image.Image) bool {
 	var pixCount float64 = 0
 	var totalBrightness float64 = 0
+	var mu sync.Mutex
 
 	imaging.AdjustFunc(img, func(c color.NRGBA) color.NRGBA {
 		brightness := 0.2126*float64(c.R) + 0.7152*float64(c.G) + 0.0722*float64(c.B)
+		mu.Lock()
 		totalBrightness += brightness
 		pixCount++
-
+		mu.Unlock()
 		return c
 	})
 
