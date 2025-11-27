@@ -1,3 +1,10 @@
+dde-api (6.0.30) unstable; urgency=medium
+
+  * fix: 修复dde-open识别不了空文件的问题
+  * fix: add thread safety to brightness calculation
+
+ -- fuleyi <fuleyi@uniontech.com>  Thu, 27 Nov 2025 20:07:07 +0800
+
 dde-api (6.0.29) unstable; urgency=medium
 
   * feat: 减少构建并发 (#161)
