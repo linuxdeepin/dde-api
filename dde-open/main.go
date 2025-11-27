@@ -196,6 +196,22 @@ func openFile(filename string) error {
 	if contentType == "" {
 		return errors.New("failed to get file content type")
 	}
+	logger.Debugf("content type: %q", contentType)
+
+	// 处理空文件的情况，根据文件扩展名猜测 content type
+	if contentType == "application/x-zerosize" {
+		uncerten, guessedType := gio.ContentTypeGuess(filename, nil)
+		// 不确定，使用默认本文打开
+		if uncerten || guessedType == "" {
+			contentType = "text/plain"
+		} else if guessedType == "application/x-zerosize" {
+			contentType = "text/plain"
+		} else {
+			logger.Debugf("empty file detected, guessed content type: %q", guessedType)
+			contentType = guessedType
+
+		}
+	}
 
 	appInfo := gio.AppInfoGetDefaultForType(contentType, false)
 	if appInfo == nil {

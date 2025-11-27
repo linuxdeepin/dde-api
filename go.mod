@@ -7,9 +7,9 @@ require (
 	github.com/fogleman/gg v1.3.0
 	github.com/godbus/dbus/v5 v5.1.0
 	github.com/gosexy/gettext v0.0.0-20160830220431-74466a0a0c4a
-	github.com/linuxdeepin/go-dbus-factory v0.0.0-20250808013927-6368d3237cee
-	github.com/linuxdeepin/go-gir v0.0.0-20250812023606-b28aaee32ac9
-	github.com/linuxdeepin/go-lib v0.0.0-20250812091504-ef74b917a73a
+	github.com/linuxdeepin/go-dbus-factory v0.0.0-20251106065250-e58866b2c218
+	github.com/linuxdeepin/go-gir v0.0.0-20251127080441-d9c47dbb6da4
+	github.com/linuxdeepin/go-lib v0.0.0-20251106065207-1fdf101312e6
 	github.com/linuxdeepin/go-x11-client v0.0.0-20230131052004-7503e2337ee1
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/stretchr/testify v1.8.1
