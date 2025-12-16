@@ -52,7 +52,7 @@ func main() {
 	arg := flag.Arg(0)
 	var scheme string
 	u, err := url.Parse(arg)
-	if err != nil {
+	if err != nil || u == nil {
 		gFile := gio.FileNewForCommandlineArg(arg)
 		if gFile != nil {
 			scheme = gFile.GetUriScheme()
