@@ -1,3 +1,0 @@
-[D-BUS Service]
-Name=org.deepin.dde.CursorHelper1
-Exec=/usr/lib/deepin-api/cursor-helper

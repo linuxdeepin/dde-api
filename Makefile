@@ -11,7 +11,6 @@ INSTALL_LOCALE_HELPER ?= 0
 TESTS = \
 	${GOPKG_PREFIX}/adjust-grub-theme \
 	${GOPKG_PREFIX}/blurimage \
-	${GOPKG_PREFIX}/cursor-helper \
 	${GOPKG_PREFIX}/dde-open \
 	${GOPKG_PREFIX}/deepin-shutdown-sound \
 	${GOPKG_PREFIX}/device \
@@ -38,30 +37,10 @@ TESTS = \
 	${GOPKG_PREFIX}/session \
 	${GOPKG_PREFIX}/sound-theme-player \
 	${GOPKG_PREFIX}/soundutils \
-	${GOPKG_PREFIX}/theme_thumb \
-	${GOPKG_PREFIX}/theme_thumb/common \
-	${GOPKG_PREFIX}/theme_thumb/cursor \
-	${GOPKG_PREFIX}/theme_thumb/gtk \
-	${GOPKG_PREFIX}/theme_thumb/icon \
-	${GOPKG_PREFIX}/themes \
-	${GOPKG_PREFIX}/themes/scanner \
-	${GOPKG_PREFIX}/thumbnailer \
-	${GOPKG_PREFIX}/thumbnails \
-	${GOPKG_PREFIX}/thumbnails/cursor \
-	${GOPKG_PREFIX}/thumbnails/font \
-	${GOPKG_PREFIX}/thumbnails/gtk \
-	${GOPKG_PREFIX}/thumbnails/icon \
-	${GOPKG_PREFIX}/thumbnails/images \
-	${GOPKG_PREFIX}/thumbnails/loader \
-	${GOPKG_PREFIX}/thumbnails/pdf \
-	${GOPKG_PREFIX}/thumbnails/text \
 	${GOPKG_PREFIX}/userenv \
 	${GOPKG_PREFIX}/validator
 
 LIBRARIES = \
-    thumbnails \
-    themes \
-    theme_thumb\
     dxinput \
     drandr \
     soundutils \
@@ -83,9 +62,7 @@ BINARIES =  \
     device \
     graphic \
     locale-helper \
-    thumbnailer \
     hans2pinyin \
-    cursor-helper \
     gtk-thumbnailer \
     sound-theme-player \
     deepin-shutdown-sound \
