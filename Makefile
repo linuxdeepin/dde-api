@@ -22,7 +22,6 @@ TESTS = \
 	${GOPKG_PREFIX}/graphic \
 	${GOPKG_PREFIX}/grub_theme/font \
 	${GOPKG_PREFIX}/grub_theme/themetxt \
-	${GOPKG_PREFIX}/gtk-thumbnailer \
 	${GOPKG_PREFIX}/hans2pinyin \
 	${GOPKG_PREFIX}/i18n_dependent \
 	${GOPKG_PREFIX}/image-blur \
@@ -63,7 +62,6 @@ BINARIES =  \
     graphic \
     locale-helper \
     hans2pinyin \
-    gtk-thumbnailer \
     sound-theme-player \
     deepin-shutdown-sound \
     dde-open \
