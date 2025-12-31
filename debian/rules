@@ -8,7 +8,7 @@ ifeq ($(DEB_BUILD_ARCH),sw_64)
 endif
 
 ifneq ($(DEB_BUILD_ARCH), mips64el)
-	export GOBUILD_OPTIONS=-ldflags '-linkmode=external -extldflags "-Wl,-z,relro,-z,now,-pie"'
+	export GOBUILD_OPTIONS=-ldflags '-linkmode=external -extldflags "-Wl,-z,relro,-z,now,-pie,-z,noexecstack"'
 endif
 
 %:
