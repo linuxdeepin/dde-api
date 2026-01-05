@@ -13,27 +13,27 @@
 
 #include "list.h"
 #include "type.h"
+#include "x11_mutex.h"
 
 static int append_device(DeviceInfo** devs, XIDeviceInfo* xinfo, int idx);
 static void free_device_info(DeviceInfo* dev);
-static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 DeviceInfo*
 list_device(int* num)
 {
-    pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&x11_global_mutex);
     setErrorHandler();
 
     if (!num) {
         fprintf(stderr, "list_device failed, !num\n");
-        pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(&x11_global_mutex);
         return NULL;
     }
 
     Display* disp = XOpenDisplay(0);
     if (!disp) {
         fprintf(stderr, "Open display failed\n");
-        pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(&x11_global_mutex);
         return NULL;
     }
 
@@ -42,7 +42,7 @@ list_device(int* num)
     XCloseDisplay(disp);
     if (!xinfos) {
         fprintf(stderr, "List xinput device failed\n");
-        pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(&x11_global_mutex);
         return NULL;
     }
 
@@ -66,7 +66,7 @@ list_device(int* num)
     XIFreeDeviceInfo(xinfos);
     *num = j;
 
-    pthread_mutex_unlock(&mutex);
+    pthread_mutex_unlock(&x11_global_mutex);
 
     return devs;
 }
@@ -115,7 +115,7 @@ append_device(DeviceInfo** devs, XIDeviceInfo* xinfo, int idx)
     tmp[idx].name = name;
     tmp[idx].id = xinfo->deviceid;
     tmp[idx].enabled = xinfo->enabled;
-    tmp[idx].ty = query_device_type(xinfo->deviceid);
+    tmp[idx].ty = query_device_type_unlocked(xinfo->deviceid);
 
     return 0;
 }

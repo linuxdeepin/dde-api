@@ -1,0 +1,14 @@
+// SPDX-FileCopyrightText: 2018 - 2022 UnionTech Software Technology Co., Ltd.
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+#ifndef X11_MUTEX_H
+#define X11_MUTEX_H
+
+#include <pthread.h>
+
+// Global mutex for all X11 operations to prevent race conditions
+// across different source files (list.c, type.c, property.c)
+extern pthread_mutex_t x11_global_mutex;
+
+#endif

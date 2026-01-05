@@ -19,6 +19,7 @@ int listener_error_handler(Display * display, XErrorEvent * event);
 int listener_ioerror_handler(Display * display);
 
 int query_device_type(int deviceid);
+int query_device_type_unlocked(int deviceid);  // Internal version, caller must hold x11_global_mutex
 int is_property_exist(int deviceid, const char* prop);
 
 #endif

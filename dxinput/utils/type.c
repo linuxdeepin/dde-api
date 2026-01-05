@@ -11,6 +11,7 @@
 #include <X11/extensions/XInput2.h>
 
 #include "type.h"
+#include "x11_mutex.h"
 
 static int is_mouse_device(int deviceid);
 static int is_touchpad_device(int deviceid);
@@ -18,8 +19,7 @@ static int is_touchscreen_device(int deviceid);
 static int is_wacom_device(int deviceid);
 static int is_keyboard_device(int deviceid);
 static XIDeviceInfo* get_xdevice_by_id(int deviceid);
-
-static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+static int is_property_exist_unlocked(int deviceid, const char* prop);
 
 int
 listener_error_handler(Display * display, XErrorEvent * event)
@@ -46,8 +46,9 @@ setErrorHandler(){
     XSetIOErrorHandler(listener_ioerror_handler);
 }
 
+// Internal version without locking - assumes caller holds x11_global_mutex
 int
-query_device_type(int deviceid)
+query_device_type_unlocked(int deviceid)
 {
     if (is_wacom_device(deviceid)) {
         return TYPE_WACOM;
@@ -69,24 +70,34 @@ query_device_type(int deviceid)
         return TYPE_KEYBOARD;
     }
 
-
     return TYPE_UNKNOWN;
 }
 
+// External API - with locking
 int
-is_property_exist(int deviceid, const char* prop)
+query_device_type(int deviceid)
+{
+    pthread_mutex_lock(&x11_global_mutex);
+    
+    int result = query_device_type_unlocked(deviceid);
+
+    pthread_mutex_unlock(&x11_global_mutex);
+    return result;
+}
+
+// Internal version without locking - assumes caller holds x11_global_mutex
+static int
+is_property_exist_unlocked(int deviceid, const char* prop)
 {
     if (!prop) {
         return 0;
     }
 
-    pthread_mutex_lock(&mutex);
     setErrorHandler();
 
     Display* disp = XOpenDisplay(0);
     if (!disp) {
         fprintf(stderr, "Open display failed at check prop exist\n");
-        pthread_mutex_unlock(&mutex);
         return 0;
     }
 
@@ -95,17 +106,18 @@ is_property_exist(int deviceid, const char* prop)
     if (!props) {
         XCloseDisplay(disp);
         fprintf(stderr, "List '%d' properties failed\n", deviceid);
-        pthread_mutex_unlock(&mutex);
         return 0;
     }
 
     int exist = 0;
     while (nprops--) {
         char* name = XGetAtomName(disp, props[nprops]);
-        if (strcmp(name, prop) == 0) {
+        if (name && strcmp(name, prop) == 0) {
             exist = 1;
         }
-        XFree(name);
+        if (name) {
+            XFree(name);
+        }
 
         if (exist == 1) {
             break;
@@ -114,23 +126,31 @@ is_property_exist(int deviceid, const char* prop)
     XCloseDisplay(disp);
     XFree(props);
 
-    pthread_mutex_unlock(&mutex);
-
     return exist;
+}
+
+// External API - with locking
+int
+is_property_exist(int deviceid, const char* prop)
+{
+    pthread_mutex_lock(&x11_global_mutex);
+    int result = is_property_exist_unlocked(deviceid, prop);
+    pthread_mutex_unlock(&x11_global_mutex);
+    return result;
 }
 
 static int
 is_mouse_device(int deviceid)
 {
-    return (is_property_exist(deviceid, "Button Labels") ||
-            is_property_exist(deviceid, "libinput Button Scrolling Button"));
+    return (is_property_exist_unlocked(deviceid, "Button Labels") ||
+            is_property_exist_unlocked(deviceid, "libinput Button Scrolling Button"));
 }
 
 static int
 is_touchpad_device(int deviceid)
 {
-    return (is_property_exist(deviceid, "Synaptics Off") ||
-            is_property_exist(deviceid, "libinput Tapping Enabled"));
+    return (is_property_exist_unlocked(deviceid, "Synaptics Off") ||
+            is_property_exist_unlocked(deviceid, "libinput Tapping Enabled"));
 }
 
 static int 
@@ -139,12 +159,11 @@ is_keyboard_device(int deviceid)
     Display *display;
     int num_devices, i;
 
-    pthread_mutex_lock(&mutex);
+    // NOTE: No mutex lock here - called from query_device_type which already holds the lock
     // 打开 X11 显示
     display = XOpenDisplay(NULL);
     if (display == NULL) {
         fprintf(stderr, "Open display failed at check prop exist\n");
-        pthread_mutex_unlock(&mutex);
         return 0;
     }
 
@@ -152,7 +171,6 @@ is_keyboard_device(int deviceid)
     XIDeviceInfo *devices = XIQueryDevice(display, deviceid, &num_devices);
     if (devices == NULL || num_devices != 1) {
         fprintf(stderr, "Error getting device information.\n");
-        pthread_mutex_unlock(&mutex);
         XCloseDisplay(display);
         return 0;
     }
@@ -160,7 +178,6 @@ is_keyboard_device(int deviceid)
     if(devices[0].use != XISlaveKeyboard)
     {
         fprintf(stderr, "Device is not keyboard.\n");
-        pthread_mutex_unlock(&mutex);
         XIFreeDeviceInfo(devices);
         XCloseDisplay(display);
         return 0;
@@ -171,7 +188,6 @@ is_keyboard_device(int deviceid)
 
     // 关闭 X11 显示
     XCloseDisplay(display);
-    pthread_mutex_unlock(&mutex);
 
     return 1;
 }
@@ -180,14 +196,14 @@ is_keyboard_device(int deviceid)
 static int
 is_wacom_device(int deviceid)
 {
-    return is_property_exist(deviceid, "Wacom Tool Type");
+    return is_property_exist_unlocked(deviceid, "Wacom Tool Type");
 }
 
 static int
 is_touchscreen_device(int deviceid)
 {
     // for libinput
-    if (is_property_exist(deviceid, "libinput Calibration Matrix")) {
+    if (is_property_exist_unlocked(deviceid, "libinput Calibration Matrix")) {
         return 1;
     }
     // Now XInput2 library detect touchscreen as mouse

@@ -7,6 +7,7 @@ package utils
 // #cgo pkg-config: x11 xi
 // #cgo CFLAGS: -W -Wall -fPIC -fstack-protector-all
 // #include <stdlib.h>
+// #include "x11_mutex.h"
 // #include "property.h"
 // #include "list.h"
 // #include "type.h"
@@ -86,9 +87,9 @@ func IsPropertyExist(id int32, prop string) bool {
 
 	cprop := C.CString(prop)
 
-	defer func() { 
-		if cprop != nil { 
-			C.free(unsafe.Pointer(cprop)) 
+	defer func() {
+		if cprop != nil {
+			C.free(unsafe.Pointer(cprop))
 		}
 	}()
 
@@ -103,15 +104,15 @@ func GetProperty(id int32, prop string) ([]byte, int32) {
 
 	cprop := C.CString(prop)
 
-	defer func() { 
-		if cprop != nil { 
-			C.free(unsafe.Pointer(cprop)) 
+	defer func() {
+		if cprop != nil {
+			C.free(unsafe.Pointer(cprop))
 		}
 	}()
 
 	nitems := C.int(0)
 	cdatas := C.get_prop(C.int(id), cprop, &nitems)
-	if cdatas == nil {
+	if cdatas == nil || nitems == 0 {
 		return nil, 0
 	}
 
@@ -123,9 +124,9 @@ func SetInt8Prop(id int32, prop string, values []int8) error {
 	cdatas := byteArrayToUChar(WriteInt8(values))
 	cprop := C.CString(prop)
 
-	defer func() { 
-		if cprop != nil { 
-			C.free(unsafe.Pointer(cprop)) 
+	defer func() {
+		if cprop != nil {
+			C.free(unsafe.Pointer(cprop))
 		}
 	}()
 
@@ -142,9 +143,9 @@ func SetInt16Prop(id int32, prop string, values []int16) error {
 	cdatas := byteArrayToUChar(WriteInt16(values))
 	cprop := C.CString(prop)
 
-	defer func() { 
-		if cprop != nil { 
-			C.free(unsafe.Pointer(cprop)) 
+	defer func() {
+		if cprop != nil {
+			C.free(unsafe.Pointer(cprop))
 		}
 	}()
 
@@ -161,9 +162,9 @@ func SetInt32Prop(id int32, prop string, values []int32) error {
 	cdatas := byteArrayToUChar(WriteInt32(values))
 	cprop := C.CString(prop)
 
-	defer func() { 
-		if cprop != nil { 
-			C.free(unsafe.Pointer(cprop)) 
+	defer func() {
+		if cprop != nil {
+			C.free(unsafe.Pointer(cprop))
 		}
 	}()
 
@@ -180,9 +181,9 @@ func SetFloat32Prop(id int32, prop string, values []float32) error {
 	cdatas := byteArrayToUChar(WriteFloat32(values))
 	cprop := C.CString(prop)
 
-	defer func() { 
-		if cprop != nil { 
-			C.free(unsafe.Pointer(cprop)) 
+	defer func() {
+		if cprop != nil {
+			C.free(unsafe.Pointer(cprop))
 		}
 	}()
 
@@ -203,7 +204,9 @@ func ucharArrayToByte(cData *C.uchar, length int) []byte {
 
 	var data []byte
 	for i := 0; i < length; i++ {
-		cdata := (*C.uchar)(unsafe.Pointer(uintptr(unsafe.Pointer(cData)) + uintptr(i)*cItemSize))
+		offset := uintptr(i) * cItemSize
+		addr := uintptr(unsafe.Pointer(cData)) + offset
+		cdata := (*C.uchar)(unsafe.Pointer(addr))
 		if cdata == nil {
 			break
 		}

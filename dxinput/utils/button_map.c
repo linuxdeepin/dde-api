@@ -12,6 +12,7 @@
 
 #include "button_map.h"
 #include "type.h"
+#include "x11_mutex.h"
 
 static int get_button_number(Display* disp, const char* name);
 static const XDeviceInfo* find_device_by_name(const XDeviceInfo* devs,
@@ -19,8 +20,6 @@ static const XDeviceInfo* find_device_by_name(const XDeviceInfo* devs,
 static int get_device_button_number(const XDeviceInfo* dev);
 static unsigned char* do_get_button_map(Display* disp,
                                         unsigned long xid, int nbuttons);
-
-static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 unsigned char*
 get_button_map(unsigned long xid, const char* name, int* nbuttons)
@@ -37,14 +36,14 @@ get_button_map(unsigned long xid, const char* name, int* nbuttons)
         return NULL;
     }
 
-    pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&x11_global_mutex);
     setErrorHandler();
 
     Display* disp = XOpenDisplay(NULL);
     if (!disp) {
         fprintf(stderr, "[get_button_map] open display failed for %lu %s\n",
                 xid, name);
-        pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(&x11_global_mutex);
         return NULL;
     }
 
@@ -53,7 +52,7 @@ get_button_map(unsigned long xid, const char* name, int* nbuttons)
         XCloseDisplay(disp);
         fprintf(stderr, "[get_button_map] get button number failed for %lu %s\n",
                 xid, name);
-        pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(&x11_global_mutex);
         return NULL;
     }
 
@@ -61,7 +60,7 @@ get_button_map(unsigned long xid, const char* name, int* nbuttons)
     unsigned char* map = do_get_button_map(disp, xid, num_btn);
     XCloseDisplay(disp);
 
-    pthread_mutex_unlock(&mutex);
+    pthread_mutex_unlock(&x11_global_mutex);
 
     return map;
 }
@@ -75,14 +74,14 @@ set_button_map(unsigned long xid, const char* name,
         return -1;
     }
 
-    pthread_mutex_lock(&mutex);
+    pthread_mutex_lock(&x11_global_mutex);
     setErrorHandler();
 
     Display* disp = XOpenDisplay(0);
     if (!disp) {
         fprintf(stderr, "[set_button_map] open display failed: %lu %s\n",
                 xid, name);
-        pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(&x11_global_mutex);
         return -1;
     }
 
@@ -91,7 +90,7 @@ set_button_map(unsigned long xid, const char* name,
         XCloseDisplay(disp);
         fprintf(stderr, "[set_button_map] open device failed for %lu %s\n",
                 xid, name);
-        pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(&x11_global_mutex);
         return -1;
     }
 
@@ -101,7 +100,7 @@ set_button_map(unsigned long xid, const char* name,
     XCloseDevice(disp, dev);
     XCloseDisplay(disp);
 
-    pthread_mutex_unlock(&mutex);
+    pthread_mutex_unlock(&x11_global_mutex);
 
     // TODO: if ret == MappingBusy, try again
     if (ret != MappingSuccess) {
