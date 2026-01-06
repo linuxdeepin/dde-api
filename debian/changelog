@@ -1,3 +1,11 @@
+dde-api (6.0.33) unstable; urgency=medium
+
+  * fix(dxinput): use global mutex to prevent X11 thread race condition
+  * fix: add noexecstack linker flag for security hardening
+  * chore: remove unused gtk-thumbnailer module
+
+ -- zhangkun <zhangkun2@uniontech.com>  Tue, 06 Jan 2026 20:58:09 +0800
+
 dde-api (6.0.32) unstable; urgency=medium
 
   * chore: remove deprecated theme and thumbnail modules
