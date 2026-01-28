@@ -37,6 +37,7 @@ listener_error_handler(Display * display, XErrorEvent * event)
 int
 listener_ioerror_handler(Display * display)
 {
+    (void)display;  // Suppress unused parameter warning
     return 0;
 }
 
@@ -157,7 +158,7 @@ static int
 is_keyboard_device(int deviceid)
 {
     Display *display;
-    int num_devices, i;
+    int num_devices;
 
     // NOTE: No mutex lock here - called from query_device_type which already holds the lock
     // 打开 X11 显示

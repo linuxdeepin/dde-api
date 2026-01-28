@@ -6,11 +6,11 @@ package dxinput
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os/exec"
 	"strconv"
 	"strings"
-	"errors"
 
 	. "github.com/linuxdeepin/dde-api/dxinput/common"
 	"github.com/linuxdeepin/dde-api/dxinput/utils"
@@ -251,7 +251,7 @@ func doAction(cmd string) error {
 	// #nosec G204
 	out, err := exec.Command("/bin/sh", "-c", cmd).CombinedOutput()
 	if err != nil {
-		return fmt.Errorf(string(out))
+		return errors.New(string(out))
 	}
 	return nil
 }

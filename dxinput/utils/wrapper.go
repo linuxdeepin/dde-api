@@ -23,11 +23,6 @@ import (
 	"github.com/linuxdeepin/dde-api/dxinput/kwayland"
 )
 
-const (
-	// see 'property.c' MAX_BUF_LEN
-	maxBufferLen = 1000
-)
-
 func ListDevice() DeviceInfos {
 	if len(os.Getenv("WAYLAND_DISPLAY")) != 0 {
 		infos, _ := kwayland.ListDevice()
@@ -103,21 +98,19 @@ func GetProperty(id int32, prop string) ([]byte, int32) {
 	}
 
 	cprop := C.CString(prop)
+	defer C.free(unsafe.Pointer(cprop))
 
-	defer func() {
-		if cprop != nil {
-			C.free(unsafe.Pointer(cprop))
-		}
-	}()
-
-	nitems := C.int(0)
-	cdatas := C.get_prop(C.int(id), cprop, &nitems)
-	if cdatas == nil || nitems == 0 {
+	// nbytes now represents the actual byte length returned by C layer
+	nbytes := C.int(0)
+	cdatas := C.get_prop(C.int(id), cprop, &nbytes)
+	if cdatas == nil || nbytes == 0 {
 		return nil, 0
 	}
+	// XIGetProperty allocates memory for data, caller must free it with XFree
+	defer C.free_prop_data(cdatas)
 
-	datas := ucharArrayToByte(cdatas, maxBufferLen)
-	return datas, int32(nitems)
+	datas := C.GoBytes(unsafe.Pointer(cdatas), nbytes)
+	return datas, int32(nbytes)
 }
 
 func SetInt8Prop(id int32, prop string, values []int8) error {
@@ -194,25 +187,6 @@ func SetFloat32Prop(id int32, prop string, values []float32) error {
 			id, prop, values)
 	}
 	return nil
-}
-
-func ucharArrayToByte(cData *C.uchar, length int) []byte {
-	if cData == nil {
-		return nil
-	}
-	cItemSize := unsafe.Sizeof(*cData)
-
-	var data []byte
-	for i := 0; i < length; i++ {
-		offset := uintptr(i) * cItemSize
-		addr := uintptr(unsafe.Pointer(cData)) + offset
-		cdata := (*C.uchar)(unsafe.Pointer(addr))
-		if cdata == nil {
-			break
-		}
-		data = append(data, byte(*cdata))
-	}
-	return data
 }
 
 func byteArrayToUChar(datas []byte) []C.uchar {

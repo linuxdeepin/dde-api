@@ -29,7 +29,7 @@ func GetButtonMap(xid uint32, devName string) ([]byte, error) {
 	}
 	defer C.free(unsafe.Pointer(cbtnMap))
 
-	return ucharArrayToByte(cbtnMap, int(cbtnNum)), nil
+	return C.GoBytes(unsafe.Pointer(cbtnMap), cbtnNum), nil
 }
 
 func SetButtonMap(xid uint32, devName string, btnMap []byte) error {
