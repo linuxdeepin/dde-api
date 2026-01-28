@@ -190,43 +190,78 @@ func setTransformationMatrix(id int32, m [9]float32) error {
 }
 
 func getInt8Prop(id int32, prop string, nitems int32) ([]int8, error) {
-	datas, num := utils.GetProperty(id, prop)
-	if len(datas) == 0 || num != nitems {
-		return nil, fmt.Errorf("Get prop '%v -- %s' values failed",
+	datas, nBytes := utils.GetProperty(id, prop)
+	if len(datas) == 0 {
+		return nil, fmt.Errorf("Get prop '%v -- %s' failed: property data is empty",
 			id, prop)
+	}
+	// For int8, nBytes should equal nitems (1 byte per item)
+	if nBytes != nitems {
+		return nil, fmt.Errorf("Get prop '%v -- %s' failed: expected %d items but got %d bytes",
+			id, prop, nitems, nBytes)
 	}
 
 	return utils.ReadInt8(datas, nitems), nil
 }
 
 func getInt16Prop(id int32, prop string, nitems int32) ([]int16, error) {
-	datas, num := utils.GetProperty(id, prop)
-	if len(datas) == 0 || num != nitems {
-		return nil, fmt.Errorf("Get prop '%v -- %s' values failed",
+	datas, nBytes := utils.GetProperty(id, prop)
+	if len(datas) == 0 {
+		return nil, fmt.Errorf("Get prop '%v -- %s' failed: property data is empty",
 			id, prop)
+	}
+	// Check if nBytes is divisible by 2 (int16 size)
+	if nBytes%2 != 0 {
+		return nil, fmt.Errorf("Get prop '%v -- %s' failed: byte count %d is not divisible by 2 (int16 size)",
+			id, prop, nBytes)
+	}
+	// For int16, nBytes should equal nitems * 2 (2 bytes per item)
+	if nBytes/2 != nitems {
+		return nil, fmt.Errorf("Get prop '%v -- %s' failed: expected %d items but got %d bytes (%d items)",
+			id, prop, nitems, nBytes, nBytes/2)
 	}
 
 	return utils.ReadInt16(datas, nitems), nil
 }
 
 func getInt32Prop(id int32, prop string, nitems int32) ([]int32, error) {
-	datas, num := utils.GetProperty(id, prop)
-	if len(datas) == 0 || num != nitems {
-		return nil, fmt.Errorf("Get prop '%v -- %s' values failed",
+	datas, nBytes := utils.GetProperty(id, prop)
+	if len(datas) == 0 {
+		return nil, fmt.Errorf("Get prop '%v -- %s' failed: property data is empty",
 			id, prop)
+	}
+	// Check if nBytes is divisible by 4 (int32 size)
+	if nBytes%4 != 0 {
+		return nil, fmt.Errorf("Get prop '%v -- %s' failed: byte count %d is not divisible by 4 (int32 size)",
+			id, prop, nBytes)
+	}
+	// For int32, nBytes should equal nitems * 4 (4 bytes per item)
+	if nBytes/4 != nitems {
+		return nil, fmt.Errorf("Get prop '%v -- %s' failed: expected %d items but got %d bytes (%d items)",
+			id, prop, nitems, nBytes, nBytes/4)
 	}
 
 	return utils.ReadInt32(datas, nitems), nil
 }
 
-func getFloat32Prop(id int32, prop string, nitems int32) ([]float32, error) {
-	datas, num := utils.GetProperty(id, prop)
-	if len(datas) == 0 || num != nitems {
-		return nil, fmt.Errorf("Get prop '%v -- %s' values failed",
+func getFloat32Prop(id int32, prop string, nItems int32) ([]float32, error) {
+	datas, nBytes := utils.GetProperty(id, prop)
+	if len(datas) == 0 {
+		return nil, fmt.Errorf("Get prop '%v -- %s' failed: property data is empty",
 			id, prop)
 	}
+	// Check if nBytes is divisible by 4 (float32 size)
+	if nBytes%4 != 0 {
+		return nil, fmt.Errorf("Get prop '%v -- %s' failed: byte count %d is not divisible by 4 (float32 size)",
+			id, prop, nBytes)
+	}
+	// utils.GetProperty returns byte count, float32 occupies 4 bytes, divide by 4 to get item count
+	if nBytes/4 != nItems {
+		return nil, fmt.Errorf("Get prop '%v -- %s' failed: expected %d items but got %d bytes (%d items)",
+			id, prop, nItems, nBytes, nBytes/4)
+	}
 
-	return utils.ReadFloat32(datas, nitems), nil
+	return utils.ReadFloat32(datas, nItems), nil
 }
 
 func absInt32(v int32) int32 {

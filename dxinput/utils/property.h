@@ -7,7 +7,8 @@
 
 #include <X11/Xlib.h>
 
-unsigned char* get_prop(int id, const char* prop, int* nitems);
+unsigned char* get_prop(int id, const char* prop, int* nbytes);
+void free_prop_data(unsigned char* data);
 int set_prop_int(int id, const char* prop, unsigned char* data, int nitems, int bit);
 int set_prop_float(int id, const char* prop, unsigned char* data, int nitems);
 int set_prop(int id, const char* prop, unsigned char* data, int nitems,

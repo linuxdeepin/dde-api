@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <stdio.h>
+#include <limits.h>
 #include <pthread.h>
 
 #include <X11/Xatom.h>
@@ -12,25 +13,28 @@
 #include "type.h"
 #include "x11_mutex.h"
 
-#define MAX_BUF_LEN 1000
-
 /**
  *  The return data type if 'char' must be convert to 'int8_t*'
  * if 'int' must be convert to 'int32_t*'
  * if 'float' must be convert to 'float*'
+ *
+ * Returns the property data and sets nbytes to the actual byte length.
+ * The caller is responsible for calling XFree() on the returned data.
  **/
 unsigned char*
-get_prop(int id, const char* prop, int* nitems)
+get_prop(int id, const char* prop, int* nbytes)
 {
     if (!prop) {
         fprintf(stderr, "[get_prop] Empty property for %d\n", id);
         return NULL;
     }
 
-    if (!nitems) {
-        fprintf(stderr, "[get_prop] Invalid item number for %d\n", id);
+    if (!nbytes) {
+        fprintf(stderr, "[get_prop] Invalid nbytes pointer for %d\n", id);
         return NULL;
     }
+
+    *nbytes = 0;
 
     pthread_mutex_lock(&x11_global_mutex);
     setErrorHandler();
@@ -54,22 +58,80 @@ get_prop(int id, const char* prop, int* nitems)
     int act_format;
     unsigned long num_items, bytes_after;
     unsigned char* data = NULL;
-    int ret = XIGetProperty(disp, id, prop_id, 0, MAX_BUF_LEN, False,
+
+    // Step 1: Query property size (length=0 to get bytes_after)
+    int ret = XIGetProperty(disp, id, prop_id, 0, 0, False,
                             AnyPropertyType, &act_type, &act_format,
                             &num_items, &bytes_after, &data);
+    if (ret != Success || act_type == None) {
+        if (data) {
+            XFree(data);
+        }
+        XCloseDisplay(disp);
+        pthread_mutex_unlock(&x11_global_mutex);
+        return NULL;
+    }
+
+    if (data) {
+        XFree(data);
+        data = NULL;
+    }
+
+    if (bytes_after == 0) {
+        // Property exists but has no data
+        XCloseDisplay(disp);
+        pthread_mutex_unlock(&x11_global_mutex);
+        return NULL;
+    }
+
+    // Step 2: Read all property data
+    // length is in 32-bit units, so divide bytes_after by 4 (round up)
+    unsigned long length = (bytes_after + 3) / 4;
+
+    ret = XIGetProperty(disp, id, prop_id, 0, length, False,
+                        AnyPropertyType, &act_type, &act_format,
+                        &num_items, &bytes_after, &data);
     if (ret != Success) {
+        if (data) {
+            XFree(data);
+        }
         XCloseDisplay(disp);
         fprintf(stderr, "[get_prop] Get %s data failed for %d\n", prop, id);
         pthread_mutex_unlock(&x11_global_mutex);
         return NULL;
     }
 
-    *nitems = (int)num_items;
-    XCloseDisplay(disp);
+    // Calculate actual byte length based on format and num_items
+    // format is 8, 16, or 32 bits per item
+    // Guard against integer overflow when converting unsigned long to int
+    unsigned long nbytes_ul = num_items * (act_format / 8);
+    if (nbytes_ul > INT_MAX) {
+        if (data) {
+            XFree(data);
+        }
+        XCloseDisplay(disp);
+        fprintf(stderr, "[get_prop] Property data too large: %lu bytes (max %d)\n", nbytes_ul, INT_MAX);
+        pthread_mutex_unlock(&x11_global_mutex);
+        return NULL;
+    }
+    *nbytes = (int)nbytes_ul;
 
+    XCloseDisplay(disp);
     pthread_mutex_unlock(&x11_global_mutex);
 
     return data;
+}
+
+/**
+ * Free the property data returned by get_prop.
+ * This is a wrapper for XFree to be called from Go.
+ */
+void
+free_prop_data(unsigned char* data)
+{
+    if (data) {
+        XFree(data);
+    }
 }
 
 // bit: range(8,16,32)
