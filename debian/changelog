@@ -1,3 +1,10 @@
+dde-api (6.0.34) unstable; urgency=medium
+
+  * fix(dxinput): fix property reading and button mapping data
+    processing logic
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 29 Jan 2026 20:35:35 +0800
+
 dde-api (6.0.33) unstable; urgency=medium
 
   * fix(dxinput): use global mutex to prevent X11 thread race condition
