@@ -50,6 +50,20 @@ func main() {
 		os.Exit(1)
 	}
 	arg := flag.Arg(0)
+
+	// 优先检查是否为本地文件路径
+	// 如果文件存在，直接作为文件处理，避免文件名中的冒号被误判为 URL scheme
+	if _, err := os.Stat(arg); err == nil {
+		// 文件存在，直接打开
+		err = openFile(arg)
+		if err != nil {
+			logger.Warning("open failed:", err)
+			os.Exit(2)
+		}
+		return
+	}
+
+	// 文件不存在，尝试作为 URL 处理
 	var scheme string
 	u, err := url.Parse(arg)
 	if err != nil || u == nil {
