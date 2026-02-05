@@ -1,3 +1,9 @@
+dde-api (6.0.35) unstable; urgency=medium
+
+  * fix: 修复xdg-open 无法打开文件名中不带路径的文件
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 05 Feb 2026 19:22:33 +0800
+
 dde-api (6.0.34) unstable; urgency=medium
 
   * fix(dxinput): fix property reading and button mapping data
