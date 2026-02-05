@@ -12,7 +12,7 @@ ifneq ($(DEB_BUILD_ARCH), mips64el)
 endif
 
 %:
-	dh $@ --buildsystem=makefile
+	GO111MODULE=off dh $@ --buildsystem=makefile
 
 override_dh_auto_install:
 	cp -f misc/sysusers/deepin-daemon.conf debian/deepin-daemon.sysusers
