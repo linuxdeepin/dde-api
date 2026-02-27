@@ -1,0 +1,4 @@
+# Local settings - highest priority
+GRUB_DEFAULT=saved
+GRUB_SAVEDEFAULT=true
+GRUB_GFXMODE=1024x768
