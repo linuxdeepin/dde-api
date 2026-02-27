@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2022 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -135,9 +135,14 @@ func (s *su) TestGetFontSize() {
 }
 
 func (s *su) TestGetScreenSizeFromGrubParams() {
-	grubParamsFilePath := "testdata/grub"
-	require.FileExists(s.T(), grubParamsFilePath)
-	w, h, err := getScreenSizeFromGrubParams(grubParamsFilePath)
+	require.FileExists(s.T(), "testdata/grub")
+	require.FileExists(s.T(), "testdata/grub.d/00_test")
+	require.FileExists(s.T(), "testdata/grub.d/99_local")
+	w, h, err := getScreenSizeFromGrubParams([]string{
+		"testdata/grub",
+		"testdata/grub.d/00_test",
+		"testdata/grub.d/99_local",
+	})
 	assert.NoError(s.T(), err)
 	assert.Equal(s.T(), 1024, w)
 	assert.Equal(s.T(), 768, h)
@@ -201,7 +206,7 @@ func (s *su) TestAdjustThemeNormal() {
 	defer func() {
 		_ = os.RemoveAll(optThemeOutputDir)
 	}()
-	err = adjustThemeNormal()
+	err = adjustThemeNormalV20()
 	assert.Equal(s.T(), nil, err)
 
 }

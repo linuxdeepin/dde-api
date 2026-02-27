@@ -1,0 +1,2 @@
+# Test config for GRUB_GFXMODE override
+GRUB_GFXMODE=1920x1080

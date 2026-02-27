@@ -25,6 +25,7 @@ terminal-border: "0"
   item_height = 18
   item_spacing = 25
   selected_item_pixmap_style = "selected_item_*.png"
+  icon_width = 0
 }
 
 # Show a countdown message using the label component

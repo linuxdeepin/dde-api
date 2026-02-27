@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2018 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2018 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -262,6 +262,16 @@ func (t *Theme) Dump() {
 	for _, comp := range t.Components {
 		comp.Dump(0)
 	}
+}
+
+// FindComponentByType finds the first component by component type
+func (t *Theme) FindComponentByType(compType string) *Component {
+	for _, comp := range t.Components {
+		if comp.Type == compType {
+			return comp
+		}
+	}
+	return nil
 }
 
 func (t *Theme) WriteTo(w io.Writer) (n int64, err error) {

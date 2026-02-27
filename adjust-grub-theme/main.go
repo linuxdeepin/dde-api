@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2018 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2018 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -162,11 +162,8 @@ func getFontSize(screenWidth int, screenHeight int) int {
 	return round(y)
 }
 
-func getScreenSizeFromGrubParams(grubParamsFilePath string) (w, h int, err error) {
-	params, err := loadGrubParams(grubParamsFilePath)
-	if err != nil {
-		return
-	}
+func getScreenSizeFromGrubParams(grubParamsFilePaths []string) (w, h int, err error) {
+	params := loadGrubParams(grubParamsFilePaths)
 
 	w, h, err = parseResolution(getGfxMode(params))
 	if err != nil {
@@ -306,13 +303,13 @@ func adjustTheme() {
 	if optFallbackOnly {
 		return
 	}
-	err = adjustThemeNormal()
+	err = adjustThemeNormalV25()
 	if err != nil {
 		logger.Fatal(err)
 	}
 }
 
-func adjustThemeNormal() error {
+func adjustThemeNormalV20() error {
 	themeInputDir := filepath.Join(optThemeInputDir, themeNameNormal)
 	themeOutputDir := filepath.Join(optThemeOutputDir, themeNameNormal)
 
@@ -392,6 +389,100 @@ func adjustThemeNormal() error {
 		return err
 	}
 	_, err = fmt.Fprintf(bw, "#screenHeight:%d\n", optScreenHeight)
+	if err != nil {
+		return err
+	}
+
+	_, err = fmt.Fprintln(bw, "#head end")
+	if err != nil {
+		return err
+	}
+
+	_, err = theme.WriteTo(bw)
+	if err != nil {
+		return err
+	}
+	err = bw.Flush()
+	return err
+}
+
+func adjustThemeNormalV25() error {
+	themeInputDir := filepath.Join(optThemeInputDir, themeNameNormal)
+	themeOutputDir := filepath.Join(optThemeOutputDir, themeNameNormal)
+
+	cleanupThemeOutputDir(themeOutputDir)
+	err := os.MkdirAll(themeOutputDir, 0755)
+	if err != nil {
+		return err
+	}
+	copyThemeFiles(themeInputDir, themeOutputDir)
+
+	bgImg, themeBgImg, err := loadV25BackgroundImage()
+	if err != nil {
+		return err
+	}
+
+	err = saveJpeg(bgImg, filepath.Join(themeOutputDir, "background.jpg"))
+	if err != nil {
+		return err
+	}
+	if themeBgImg != nil {
+		err = saveJpeg(themeBgImg, filepath.Join(themeOutputDir, "background_in_theme.jpg"))
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err = copyFile(filepath.Join(themeOutputDir, "background.jpg"),
+			filepath.Join(themeOutputDir, "background_in_theme.jpg"))
+		if err != nil {
+			return err
+		}
+	}
+
+	themeFile := filepath.Join(themeInputDir, "theme.txt.tpl")
+	theme, err := tt.ParseThemeFile(themeFile)
+	if err != nil {
+		return err
+	}
+
+	bootMenu := theme.FindComponentByType(tt.ComponentTypeBootMenu)
+	if bootMenu != nil {
+		adjustBootMenuV25(bootMenu, optScreenWidth, optScreenHeight)
+	}
+
+	for _, comp := range theme.Components {
+		if comp.Type == tt.ComponentTypeLabel {
+			adjustLabelText(comp)
+		}
+	}
+
+	themeOutput := filepath.Join(themeOutputDir, "theme.txt")
+	themeOutputFh, err := os.Create(themeOutput)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = themeOutputFh.Close()
+	}()
+	bw := bufio.NewWriter(themeOutputFh)
+	// write head
+	_, err = fmt.Fprintf(bw, "#version:%d\n", VERSION)
+	if err != nil {
+		return err
+	}
+	_, err = fmt.Fprintf(bw, "#lang:%s\n", optLang)
+	if err != nil {
+		return err
+	}
+
+	var inputDir string
+	inputDir, err = filepath.Abs(themeInputDir)
+	if err != nil {
+		logger.Warning(err)
+		inputDir = themeInputDir
+	}
+
+	_, err = fmt.Fprintf(bw, "#themeInputDir:%s\n", inputDir)
 	if err != nil {
 		return err
 	}
@@ -585,7 +676,10 @@ func main() {
 
 	if optScreenWidth == 0 || optScreenHeight == 0 {
 		var err error
-		optScreenWidth, optScreenHeight, err = getScreenSizeFromGrubParams(grubParamsFile)
+		optScreenWidth, optScreenHeight, err = getScreenSizeFromGrubParams([]string{
+			grubParamsFile,
+			ddeGrubParamsFile,
+		})
 		if err != nil {
 			logger.Debug(err)
 			optScreenWidth = 1024
@@ -982,6 +1076,16 @@ func adjustBootMenu(themeOutputDir string, comp *tt.Component, vars map[string]f
 	adjustSelectedItemPixmapStyle(itemR)
 	adjustItemPixmapStyle(itemR)
 	adjustScrollbarThumbPixmapStyle(scrollbarThumbR)
+}
+
+func adjustBootMenuV25(comp *tt.Component, width, height int) {
+	if width == 1024 && height == 768 {
+		// halfWidthPercent represents half of the boot menu width percentage.
+		// The boot menu is centered, so width = halfWidthPercent * 2, left = 50% - halfWidthPercent,
+		halfWidthPercent := 22
+		comp.SetProp("width", tt.RelNum(halfWidthPercent*2))
+		comp.SetProp("left", tt.RelNum(50-halfWidthPercent))
+	}
 }
 
 const (

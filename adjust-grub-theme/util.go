@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2018 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2018 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -153,6 +153,7 @@ func decodeShellValue(in string) string {
 const defaultGrubGfxMode = "auto"
 const grubGfxMode = "GRUB_GFXMODE"
 const grubParamsFile = "/etc/default/grub"
+const ddeGrubParamsFile = "/etc/default/grub.d/11_dde.cfg"
 
 func getGfxMode(params map[string]string) (val string) {
 	val = decodeShellValue(params[grubGfxMode])
@@ -162,31 +163,52 @@ func getGfxMode(params map[string]string) (val string) {
 	return
 }
 
-func loadGrubParams(grubParamsFilePath string) (map[string]string, error) {
+func loadGrubParams(grubParamsFilePaths []string) map[string]string {
 	params := make(map[string]string)
-	f, err := os.Open(grubParamsFilePath)
+
+	// First read the main configuration file
+	for _, grubParamsFilePath := range grubParamsFilePaths {
+		if err := readGrubParamsFile(grubParamsFilePath, params); err != nil {
+			logger.Warningf("Failed to read grub params file %s: %v", grubParamsFilePath, err)
+		}
+	}
+
+	return params
+}
+
+func readGrubParamsFile(filePath string, params map[string]string) error {
+	f, err := os.Open(filePath)
 	if err != nil {
-		return params, err
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
 	}
 	defer func() {
 		_ = f.Close()
 	}()
 
-	r := kv.NewReader(f)
-	r.TrimSpace = kv.TrimLeadingTailingSpace
-	r.Comment = '#'
-	for {
-		pair, err := r.Read()
-		if err != nil {
-			break
-		}
-		if pair.Key == "" {
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		// Skip empty lines and comment lines
+		if line == "" || strings.HasPrefix(line, "#") {
 			continue
 		}
-		params[pair.Key] = pair.Value
+		// Find the position of the first equal sign
+		eqIdx := strings.Index(line, "=")
+		if eqIdx == -1 {
+			// Not in key=value format, skip
+			continue
+		}
+		key := strings.TrimSpace(line[:eqIdx])
+		value := strings.TrimSpace(line[eqIdx+1:])
+		if key == "" {
+			continue
+		}
+		params[key] = value
 	}
-
-	return params, nil
+	return scanner.Err()
 }
 
 type InvalidResolutionError struct {
