@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2018 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2018 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -53,14 +53,24 @@ func NewTouchpad(id int32) (*Touchpad, error) {
 }
 
 func NewTouchpadFromDevInfo(dev *DeviceInfo) (*Touchpad, error) {
-	if dev == nil || dev.Type != DevTypeTouchpad {
-		return nil, fmt.Errorf("Not a touchpad device(%d - %s)", dev.Id, dev.Name)
+	if dev == nil {
+		return nil, errors.New("device info is nil")
+	}
+
+	if dev.Type != DevTypeTouchpad && dev.Type != DevTypeMouse {
+		return nil, fmt.Errorf("unsupported device type: %v (device: %d - %s)",
+			dev.Type, dev.Id, dev.Name)
+	}
+
+	isLibinputUsed := utils.IsPropertyExist(dev.Id, libinputPropTapEnabled)
+	if !isLibinputUsed && dev.Type == DevTypeMouse {
+		isLibinputUsed = utils.IsPropertyExist(dev.Id, libinputPropButtonScrollingButton)
 	}
 
 	return &Touchpad{
 		Id:             dev.Id,
 		Name:           dev.Name,
-		isLibinputUsed: utils.IsPropertyExist(dev.Id, libinputPropTapEnabled),
+		isLibinputUsed: isLibinputUsed,
 	}, nil
 }
 
