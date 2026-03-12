@@ -1,3 +1,9 @@
+dde-api (6.0.37) unstable; urgency=medium
+
+  * fix: 适配PS鼠标类型的触控板
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 12 Mar 2026 21:22:06 +0800
+
 dde-api (6.0.36) unstable; urgency=medium
 
   * fix(grub-theme): Fix incomplete display of GRUB theme menu text on
