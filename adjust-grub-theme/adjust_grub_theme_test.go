@@ -183,18 +183,16 @@ func (s *su) TestGetFallbackDir() {
 func (s *su) TestSetBackground() {
 	defer func() {
 		_ = os.RemoveAll(filepath.Join("testdata/deepin", "background.jpg"))
+		_ = os.RemoveAll(filepath.Join("testdata/deepin", "background_in_theme.jpg"))
 		_ = os.RemoveAll(filepath.Join("testdata/deepin", "background_source"))
 		_ = os.RemoveAll(filepath.Join("testdata/deepin-fallback", "background.jpg"))
+		_ = os.RemoveAll(filepath.Join("testdata/deepin-fallback", "background_in_theme.jpg"))
 	}()
-	filenamePrefix := "menu"
 	setBackground("testdata/deepin/background.origin.jpg")
-	for _, name := range items {
-		fileName := strings.Join([]string{filenamePrefix, "_", name, ".png"}, "")
-		fileNamePath := filepath.Join("testdata/deepin", fileName)
-		assert.FileExists(s.T(), fileNamePath)
-		_ = os.RemoveAll(fileNamePath)
-	}
-
+	assert.FileExists(s.T(), filepath.Join("testdata/deepin", "background.jpg"))
+	assert.FileExists(s.T(), filepath.Join("testdata/deepin", "background_in_theme.jpg"))
+	assert.FileExists(s.T(), filepath.Join("testdata/deepin-fallback", "background.jpg"))
+	assert.FileExists(s.T(), filepath.Join("testdata/deepin-fallback", "background_in_theme.jpg"))
 }
 
 func (s *su) TestAdjustThemeNormal() {

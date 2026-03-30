@@ -243,7 +243,7 @@ func setBackground(bgFile string) {
 		logger.Fatal(err)
 	}
 
-	bgImg, err := loadBackgroundImage()
+	bgImg, themeBgImg, err := loadV25BackgroundImage()
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -266,33 +266,22 @@ func setBackground(bgFile string) {
 	}
 
 	themeOutputDir := filepath.Join(optThemeOutputDir, themeNameNormal)
-	bgImg, err = adjustBackground(themeOutputDir, bgImg)
+	err = saveJpeg(bgImg, filepath.Join(themeOutputDir, "background.jpg"))
 	if err != nil {
 		logger.Fatal(err)
 	}
-
-	themeTxtFile := filepath.Join(themeOutputDir, "theme.txt")
-	theme, err := tt.ParseThemeFile(themeTxtFile)
-	if err != nil {
-		logger.Warning(err)
-		return
-	}
-
-	var bmComp *tt.Component
-	for _, comp := range theme.Components {
-		if comp.Type == tt.ComponentTypeBootMenu {
-			bmComp = comp
-			break
+	if themeBgImg != nil {
+		err = saveJpeg(themeBgImg, filepath.Join(themeOutputDir, "background_in_theme.jpg"))
+		if err != nil {
+			logger.Fatal(err)
+		}
+	} else {
+		_, err = copyFile(filepath.Join(themeOutputDir, "background.jpg"),
+			filepath.Join(themeOutputDir, "background_in_theme.jpg"))
+		if err != nil {
+			logger.Fatal(err)
 		}
 	}
-	if bmComp == nil {
-		logger.Warning("not found boot_menu component")
-		return
-	}
-
-	convertPropRel2Abs(bmComp, "left", orientationHorizontal)
-	convertPropRel2Abs(bmComp, "top", orientationVertical)
-	adjustBootMenuPixmapStyle(themeOutputDir, bmComp, bgImg)
 }
 
 func adjustTheme() {
