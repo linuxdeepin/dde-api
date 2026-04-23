@@ -2,6 +2,7 @@ PREFIX = /usr
 GOBUILD_DIR = gobuild
 GOPKG_PREFIX = github.com/linuxdeepin/dde-api
 GOSITE_DIR = ${PREFIX}/share/gocode
+CPP_INCLUDE_DIR = ${PREFIX}/include
 libdir = /lib
 SYSTEMD_LIB_DIR = ${libdir}
 SYSTEMD_SERVICE_DIR = ${SYSTEMD_LIB_DIR}/systemd/system/
@@ -83,10 +84,10 @@ ts-to-policy:
 	deepin-policy-ts-convert ts2policy misc/polkit-action/org.deepin.dde.locale-helper.policy.in misc/ts/org.deepin.dde.locale-helper.policy misc/polkit-action/org.deepin.dde.locale-helper.policy
 	deepin-policy-ts-convert ts2policy misc/polkit-action/org.deepin.dde.device.unblock-bluetooth-devices.policy.in misc/ts/org.deepin.dde.device.unblock-bluetooth-devices.policy misc/polkit-action/org.deepin.dde.device.unblock-bluetooth-devices.policy
 
-out/bin/%:
+out/bin/%: | prepare
 	${GOBUILD} -o $@ ${GOBUILD_OPTIONS} ${GOPKG_PREFIX}/${@F}
 
-build-binary: prepare $(addprefix out/bin/, ${BINARIES})
+build-binary: $(addprefix out/bin/, ${BINARIES})
 
 install-binary:
 	mkdir -pv ${DESTDIR}${PREFIX}${libdir}/deepin-api
@@ -135,9 +136,14 @@ install/lib/%:
 	mkdir -pv ${DESTDIR}${GOSITE_DIR}/src/${GOPKG_PREFIX}
 	cp -R ${CURDIR}/${GOBUILD_DIR}/src/${GOPKG_PREFIX}/${@F} ${DESTDIR}${GOSITE_DIR}/src/${GOPKG_PREFIX}
 
+install-misc:
+#Need to copy cpp-include/eventlogger.hpp to /usr/include
+	mkdir -pv ${DESTDIR}${CPP_INCLUDE_DIR}/dde-api
+	cp -R cpp-include/eventlogger.hpp ${DESTDIR}${CPP_INCLUDE_DIR}/dde-api
+
 install-dev: ${addprefix install/lib/, ${ININSTALLS}}
 
-install: install-binary install-dev
+install: install-binary install-dev install-misc
 
 clean:
 	rm -rf out/bin gobuild out
