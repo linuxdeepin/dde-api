@@ -1,3 +1,9 @@
+dde-api (6.0.39) unstable; urgency=medium
+
+  * feat: add eventlogger.hpp header for DDE applications
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 23 Apr 2026 21:46:42 +0800
+
 dde-api (6.0.38) unstable; urgency=medium
 
   * fix: Process for adapting v25 command line to set grub background
