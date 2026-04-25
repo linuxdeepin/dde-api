@@ -7,6 +7,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLibrary>
+#include <DSGApplication>
 #include <DSysInfo>
 
 #include <mutex>
@@ -14,23 +15,15 @@
 #include <dlfcn.h>
 #include <unistd.h>
 
-// Enable logging for current system version (debug only, remove before release)
-// #define DDE_EVENTLOG_DEBUG_ENABLE_CURRENT_VERSION
-
 namespace DDE_EventLogger {
 
 // Check if event logging should be enabled based on system edition
 // Only UosProfessional is enabled by default
 inline bool shouldEnableEventLog()
 {
-#ifdef DDE_EVENTLOG_DEBUG_ENABLE_CURRENT_VERSION
-    // Debug mode: enable for current system version
-    return true;
-#else
     // Production mode: only enable for UosProfessional edition
     // Note: DSysInfo is in Dtk::Core namespace
     return Dtk::Core::DSysInfo::uosEditionType() == Dtk::Core::DSysInfo::UosProfessional;
-#endif
 }
 
 typedef bool (*Initialize)(const std::string &package_id, bool enable_sig);
@@ -40,16 +33,16 @@ typedef struct _EventLoggerData
 {
     qint64 tid;
     QString target;
-    QMap<QString, QString> message;
+    QJsonObject message;
 
     _EventLoggerData()
         : tid(0)
         , target(QString())
-        , message(QMap<QString, QString>())
+        , message(QJsonObject())
     {
     }
 
-    _EventLoggerData(qint64 tid, const QString &target, const QMap<QString, QString> &message)
+    _EventLoggerData(qint64 tid, const QString &target, const QJsonObject &message)
         : tid(tid)
         , target(target)
         , message(message)
@@ -82,40 +75,14 @@ public:
 
         std::lock_guard<std::mutex> lock(m_mutex);
         if (!m_initialized) {
+            doInit(QString::fromUtf8(Dtk::Core::DSGApplication::id()), false);
+        }
+        if (!m_initialized) {
             return;
         }
 
         QJsonDocument json = structToJson(data);
         m_writeEventLog(json.toJson(QJsonDocument::Compact).toStdString());
-    }
-
-    void writeEventLog(qint64 tid, const QString &target, const QString &key, const QString &value)
-    {
-        writeEventLog(EventLoggerData(tid, target, {{key, value}}));
-    }
-
-    bool init(QString package_id, bool enable_sig)
-    {
-        if (!shouldEnableEventLog()) {
-            return false;
-        }
-
-        std::lock_guard<std::mutex> lock(m_mutex);
-
-        if (nullptr == m_initialize || nullptr == m_writeEventLog) {
-            return false;
-        }
-
-        if (m_initialized) {
-            return true;
-        }
-
-        m_initialized = m_initialize(package_id.toStdString(), enable_sig);
-        if (!m_initialized) {
-            qDebug() << "Failed to initialize event logger";
-            return false;
-        }
-        return true;
     }
 
 private:
@@ -147,20 +114,30 @@ private:
     EventLogger(const EventLogger &) = delete;            // 禁止拷贝构造函数
     EventLogger &operator=(const EventLogger &) = delete; // 禁止赋值运算符
 
+    bool doInit(const QString &package_id, bool enable_sig)
+    {
+        if (nullptr == m_initialize || nullptr == m_writeEventLog) {
+            return false;
+        }
+
+        if (m_initialized) {
+            return true;
+        }
+
+        m_initialized = m_initialize(package_id.toStdString(), enable_sig);
+        if (!m_initialized) {
+            qDebug() << "Failed to initialize event logger";
+        }
+        return m_initialized;
+    }
+
     // 将结构体转换为 JSON 内容
     QJsonDocument structToJson(const EventLoggerData &data)
     {
         QJsonObject jsonObject;
         jsonObject["tid"] = data.tid;
         jsonObject["target"] = data.target;
-        QJsonObject msgJson;
-        QMapIterator<QString, QString> iterator(data.message);
-        while (iterator.hasNext()) {
-            iterator.next();
-            msgJson[iterator.key()] = iterator.value();
-        }
-
-        jsonObject["message"] = msgJson;
+        jsonObject["message"] = data.message;
         QJsonDocument jsonDocument(jsonObject);
         return jsonDocument;
     }
