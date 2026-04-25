@@ -140,6 +140,9 @@ install-misc:
 #Need to copy cpp-include/eventlogger.hpp to /usr/include
 	mkdir -pv ${DESTDIR}${CPP_INCLUDE_DIR}/dde-api
 	cp -R cpp-include/eventlogger.hpp ${DESTDIR}${CPP_INCLUDE_DIR}/dde-api
+#Install cmake config for find_package(DdeApi)
+	mkdir -pv ${DESTDIR}${PREFIX}/share/cmake/DDEAPI
+	cp -R cmake/DDEAPI/DDEAPIConfig.cmake ${DESTDIR}${PREFIX}/share/cmake/DDEAPI
 
 install-dev: ${addprefix install/lib/, ${ININSTALLS}}
 
