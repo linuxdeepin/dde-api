@@ -1,3 +1,10 @@
+dde-api (6.0.40) unstable; urgency=medium
+
+  * feat: add cmake find_package support and auto-init for EventLogger 为
+    EventLogger 添加 cmake find_package 支持和自动初始化
+
+ -- zhangkun <zhangkun2@uniontech.com>  Fri, 08 May 2026 15:03:27 +0800
+
 dde-api (6.0.39) unstable; urgency=medium
 
   * feat: add eventlogger.hpp header for DDE applications
