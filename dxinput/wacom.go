@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2018 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2018 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -88,14 +88,13 @@ func (w *Wacom) QueryType() int {
 // Set  the tablet input area in device coordinates in the form top
 // left x/y and bottom right x/y.
 func (w *Wacom) SetArea(x1, y1, x2, y2 int) error {
-	var cmd = fmt.Sprintf("%s set %v %s %v %v %v %v", cmdXSetWacom, w.Id,
-		cmdKeyArea, x1, y1, x2, y2)
-	return doAction(cmd)
+	return doAction("set", w.getIdAsStr(), cmdKeyArea,
+		strconv.Itoa(x1), strconv.Itoa(y1),
+		strconv.Itoa(x2), strconv.Itoa(y2))
 }
 
 func (w *Wacom) ResetArea() error {
-	var cmd = fmt.Sprintf("%s set %v %s", cmdXSetWacom, w.Id, cmdKeyResetArea)
-	return doAction(cmd)
+	return doAction("set", w.getIdAsStr(), cmdKeyResetArea)
 }
 
 func (w *Wacom) getIdAsStr() string {
@@ -130,9 +129,7 @@ func (w *Wacom) SetRotate(value string) error {
 		return fmt.Errorf("Invalid value: %s", value)
 	}
 
-	var cmd = fmt.Sprintf("%s set %v %s %v", cmdXSetWacom, w.Id,
-		cmdKeyRotate, value)
-	return doAction(cmd)
+	return doAction("set", w.getIdAsStr(), cmdKeyRotate, value)
 }
 
 // Button button-number [mapping]
@@ -148,9 +145,8 @@ func (w *Wacom) SetRotate(value string) error {
 // series  of  keystrokes,  in  this example "press a, press shift,
 // press and release b, release shift, release a".
 func (w *Wacom) SetButton(btn int, value string) error {
-	var cmd = fmt.Sprintf("%s set %v %s %v %s", cmdXSetWacom, w.Id,
-		cmdKeyButton, btn, value)
-	return doAction(cmd)
+	return doAction("set", w.getIdAsStr(), cmdKeyButton,
+		strconv.Itoa(btn), value)
 }
 
 // Mode Absolute|Relative
@@ -166,9 +162,7 @@ func (w *Wacom) SetMode(mode string) error {
 	default:
 		return fmt.Errorf("Invalid value: %s", mode)
 	}
-	var cmd = fmt.Sprintf("%s set %v %s %s", cmdXSetWacom, w.Id,
-		cmdKeyMode, mode)
-	return doAction(cmd)
+	return doAction("set", w.getIdAsStr(), cmdKeyMode, mode)
 }
 
 // PressureCurve  x1 y1 x2 y2
@@ -187,9 +181,9 @@ func (w *Wacom) SetPressureCurve(x1, y1, x2, y2 int) error {
 		return fmt.Errorf("Invalid value: %v %v %v %v", x1, y1, x2, y2)
 	}
 
-	var cmd = fmt.Sprintf("%s set %v %s %v %v %v %v", cmdXSetWacom, w.Id,
-		cmdKeyPressureCurve, x1, y1, x2, y2)
-	return doAction(cmd)
+	return doAction("set", w.getIdAsStr(), cmdKeyPressureCurve,
+		strconv.Itoa(x1), strconv.Itoa(y1),
+		strconv.Itoa(x2), strconv.Itoa(y2))
 }
 
 // Suppress level
@@ -202,9 +196,8 @@ func (w *Wacom) SetSuppress(value int) error {
 		return fmt.Errorf("Invalid value: %v", value)
 	}
 
-	var cmd = fmt.Sprintf("%s set %v %s %v", cmdXSetWacom, w.Id,
-		cmdKeySuppress, value)
-	return doAction(cmd)
+	return doAction("set", w.getIdAsStr(), cmdKeySuppress,
+		strconv.Itoa(value))
 }
 
 // Threshold level
@@ -219,9 +212,8 @@ func (w *Wacom) SetThreshold(thres int) error {
 		return fmt.Errorf("Invalid value: %v", thres)
 	}
 
-	var cmd = fmt.Sprintf("%s set %v %s %v", cmdXSetWacom, w.Id,
-		cmdKeyThreshold, thres)
-	return doAction(cmd)
+	return doAction("set", w.getIdAsStr(), cmdKeyThreshold,
+		strconv.Itoa(thres))
 }
 
 // The the window size for incoming input tool raw data points
@@ -231,9 +223,8 @@ func (w *Wacom) SetRawSample(sample uint32) error {
 		return fmt.Errorf("Invalid raw sample: %v", sample)
 	}
 
-	var cmd = fmt.Sprintf("%s set %v %s %v", cmdXSetWacom, w.Id,
-		cmdKeyRawSample, sample)
-	return doAction(cmd)
+	return doAction("set", w.getIdAsStr(), cmdKeyRawSample,
+		strconv.FormatUint(uint64(sample), 10))
 }
 
 // Mapping PC screen to tablet, such as "VGA1"
@@ -242,14 +233,11 @@ func (w *Wacom) MapToOutput(output string) error {
 		return nil
 	}
 
-	var cmd = fmt.Sprintf("%s set %v %s %s", cmdXSetWacom, w.Id,
-		cmdKeyMapToOutput, output)
-	return doAction(cmd)
+	return doAction("set", w.getIdAsStr(), cmdKeyMapToOutput, output)
 }
 
-func doAction(cmd string) error {
-	// #nosec G204
-	out, err := exec.Command("/bin/sh", "-c", cmd).CombinedOutput()
+func doAction(args ...string) error {
+	out, err := exec.Command(cmdXSetWacom, args...).CombinedOutput()
 	if err != nil {
 		return errors.New(string(out))
 	}
