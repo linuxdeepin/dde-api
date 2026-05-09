@@ -1,3 +1,9 @@
+dde-api (6.0.41) unstable; urgency=medium
+
+  * fix(grub-theme): 调整 1024x768 分辨率下启动菜单宽度，修复显示不完整问题
+
+ -- zengwei <zengwei@uniontech.com>  Fri, 09 May 2026 10:00:00 +0800
+
 dde-api (6.0.40) unstable; urgency=medium
 
   * feat: add cmake find_package support and auto-init for EventLogger 为
