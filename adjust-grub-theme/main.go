@@ -1071,7 +1071,7 @@ func adjustBootMenuV25(comp *tt.Component, width, height int) {
 	if width == 1024 && height == 768 {
 		// halfWidthPercent represents half of the boot menu width percentage.
 		// The boot menu is centered, so width = halfWidthPercent * 2, left = 50% - halfWidthPercent,
-		halfWidthPercent := 22
+		halfWidthPercent := 27
 		comp.SetProp("width", tt.RelNum(halfWidthPercent*2))
 		comp.SetProp("left", tt.RelNum(50-halfWidthPercent))
 	}

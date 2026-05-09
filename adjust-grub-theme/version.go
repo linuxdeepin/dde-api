@@ -4,4 +4,4 @@
 
 package main
 
-const VERSION int = 19
+const VERSION int = 20
