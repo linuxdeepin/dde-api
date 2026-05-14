@@ -1,3 +1,10 @@
+dde-api (6.0.42) unstable; urgency=medium
+
+  * refactor(wacom): replace shell command with direct exec call
+  * fix: eliminate remaining memory leaks in application-tray
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 14 May 2026 20:03:21 +0800
+
 dde-api (6.0.41) unstable; urgency=medium
 
   * fix(grub-theme): 调整 1024x768 分辨率下启动菜单宽度，修复显示不完整问题
