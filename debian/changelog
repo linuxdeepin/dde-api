@@ -1,3 +1,10 @@
+dde-api (6.0.43) unstable; urgency=medium
+
+  * fix(eventlogger): change event log enable condition from
+    professional-only to non-community 为 EventLogger 事件日志启用条件由仅专业版改为非社区版
+
+ -- zhangkun <zhangkun2@uniontech.com>  Wed, 20 May 2026 13:56:44 +0800
+
 dde-api (6.0.42) unstable; urgency=medium
 
   * refactor(wacom): replace shell command with direct exec call
