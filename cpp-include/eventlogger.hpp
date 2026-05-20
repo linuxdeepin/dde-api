@@ -18,12 +18,12 @@
 namespace DDE_EventLogger {
 
 // Check if event logging should be enabled based on system edition
-// Only UosProfessional is enabled by default
+// Enable for all editions except UosCommunity
 inline bool shouldEnableEventLog()
 {
-    // Production mode: only enable for UosProfessional edition
+    // Production mode: enable for all editions except UosCommunity
     // Note: DSysInfo is in Dtk::Core namespace
-    return Dtk::Core::DSysInfo::uosEditionType() == Dtk::Core::DSysInfo::UosProfessional;
+    return Dtk::Core::DSysInfo::uosEditionType() != Dtk::Core::DSysInfo::UosCommunity;
 }
 
 typedef bool (*Initialize)(const std::string &package_id, bool enable_sig);
