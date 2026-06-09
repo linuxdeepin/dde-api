@@ -141,13 +141,16 @@ func eval(vars map[string]float64, expr string) (float64, error) {
 }
 
 func decodeShellValue(in string) string {
-	// #nosec G204
-	output, err := exec.Command("/bin/sh", "-c", "echo -n "+in).Output()
-	if err != nil {
-		// fallback
-		return strings.Trim(in, "\"")
+	in = strings.TrimSpace(in)
+	if len(in) >= 2 {
+		if in[0] == '"' && in[len(in)-1] == '"' {
+			return in[1 : len(in)-1]
+		}
+		if in[0] == '\'' && in[len(in)-1] == '\'' {
+			return in[1 : len(in)-1]
+		}
 	}
-	return string(output)
+	return in
 }
 
 const defaultGrubGfxMode = "auto"
