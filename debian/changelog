@@ -1,3 +1,10 @@
+dde-api (6.0.44) unstable; urgency=medium
+
+  * fix(grub-theme): replace unsafe shell decode with Go string
+    processing
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 11 Jun 2026 15:39:14 +0800
+
 dde-api (6.0.43) unstable; urgency=medium
 
   * fix(eventlogger): change event log enable condition from
