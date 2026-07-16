@@ -1,3 +1,11 @@
+dde-api (6.0.45) unstable; urgency=medium
+
+  * chore: Sync by
+    https://github.com/linuxdeepin/.github/commit/88706fa723e3771211cb07
+    81d3d97fd4a6cd2a68
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 16 Jul 2026 21:54:06 +0800
+
 dde-api (6.0.44) unstable; urgency=medium
 
   * fix(grub-theme): replace unsafe shell decode with Go string
