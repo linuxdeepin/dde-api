@@ -10,6 +10,11 @@ Type=dbus
 BusName=org.deepin.dde.LocaleHelper1
 ExecStart=/usr/lib/deepin-api/locale-helper
 
+RuntimeDirectory=dde-api
+RuntimeDirectoryMode=0700
+RuntimeDirectoryPreserve=yes
+
+ReadWritePaths=/run/dde-api
 ReadWritePaths=/etc/default/locale
 ReadWritePaths=/etc/locale.gen
 

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2018 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2018-2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -25,9 +25,10 @@ const (
 )
 
 type Helper struct {
-	service *dbusutil.Service
-	mu      sync.Mutex
-	running bool
+	service      *dbusutil.Service
+	allowCallers *allowCallerRegistry
+	mu           sync.Mutex
+	running      bool
 
 	//nolint
 	signals *struct {
@@ -62,9 +63,16 @@ func main() {
 		logger.Fatalf("name %q already has the owner", dbusServiceName)
 	}
 
+	allowCallers, err := newAllowCallerRegistry(service)
+	if err != nil {
+		logger.Fatal("failed to initialize allow-caller registry:", err)
+	}
+	defer allowCallers.close()
+
 	var h = &Helper{
-		running: false,
-		service: service,
+		running:      false,
+		service:      service,
+		allowCallers: allowCallers,
 	}
 	err = service.Export(dbusPath, h)
 	if err != nil {

@@ -18,5 +18,10 @@ func (v *Helper) GetExportedMethods() dbusutil.ExportedMethods {
 			Fn:     v.SetLocale,
 			InArgs: []string{"locale"},
 		},
+		{
+			Name:   "SetAllowCaller",
+			Fn:     v.SetAllowCaller,
+			InArgs: []string{"uniqueName"},
+		},
 	}
 }

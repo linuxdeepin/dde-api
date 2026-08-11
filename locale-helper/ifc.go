@@ -1,10 +1,11 @@
-// SPDX-FileCopyrightText: 2018 - 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2018-2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 package main
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/godbus/dbus/v5"
@@ -25,9 +26,12 @@ var errAuthFailed = fmt.Errorf("authentication failed")
 func (h *Helper) SetLocale(sender dbus.Sender, locale string) *dbus.Error {
 	h.service.DelayAutoQuit()
 
-	ok, err := h.checkAuth(sender)
-	logger.Debug("---Auth ret:", ok, err)
-	if !ok || err != nil {
+	authorized, err := h.authorizeOrPolkit(sender)
+	if err != nil {
+		logger.Warning("SetLocale access denied:", err)
+		return dbusutil.ToError(err)
+	}
+	if !authorized {
 		return dbusutil.ToError(errAuthFailed)
 	}
 
@@ -54,9 +58,12 @@ func (h *Helper) emitRealSuccess() {
 }
 
 func (h *Helper) generateLocale(sender dbus.Sender, locale string) error {
-	ok, err := h.checkAuth(sender)
-	logger.Debug("---Auth ret:", ok, err)
-	if !ok || err != nil {
+	authorized, err := h.authorizeOrPolkit(sender)
+	if err != nil {
+		logger.Warning("GenerateLocale access denied:", err)
+		return err
+	}
+	if !authorized {
 		return errAuthFailed
 	}
 
@@ -84,6 +91,15 @@ func (h *Helper) generateLocale(sender dbus.Sender, locale string) error {
 	}
 
 	return nil
+}
+
+func (h *Helper) SetAllowCaller(sender dbus.Sender, uniqueName string) *dbus.Error {
+	h.service.DelayAutoQuit()
+	err := h.allowCallers.addCaller(sender, uniqueName)
+	if err != nil {
+		logger.Warningf("SetAllowCaller rejected sender %s for target %s: %v", sender, uniqueName, err)
+	}
+	return dbusutil.ToError(err)
 }
 
 func (h *Helper) GenerateLocale(sender dbus.Sender, locale string) *dbus.Error {
@@ -126,6 +142,21 @@ func enableLocaleInFile(locale, file string) error {
 	}
 
 	return nil
+}
+
+// authorizeOrPolkit checks the allow-caller registry first. If the registry is
+// not enabled (the service was not launched through deepin-security-loader),
+// fall back to the Polkit authorization dialog.
+func (h *Helper) authorizeOrPolkit(sender dbus.Sender) (bool, error) {
+	err := h.allowCallers.authorize(sender)
+	if err == nil {
+		return true, nil
+	}
+	if errors.Is(err, errAllowCallerNotEnabled) {
+		// Not launched via deepin-security-loader: fall back to Polkit.
+		return h.checkAuth(sender)
+	}
+	return false, err
 }
 
 func (h *Helper) checkAuth(sender dbus.Sender) (bool, error) {
