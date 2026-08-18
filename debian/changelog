@@ -1,3 +1,9 @@
+dde-api (6.0.46) unstable; urgency=medium
+
+  * feat: 添加D-Bus调用者白名单鉴权机制，org.deepin.dde.LocaleHelper1设置语言
+
+ -- zhangkun <zhangkun2@uniontech.com>  Tue, 18 Aug 2026 13:24:43 +0800
+
 dde-api (6.0.45) unstable; urgency=medium
 
   * chore: Sync by
