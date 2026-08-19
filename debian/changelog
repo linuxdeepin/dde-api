@@ -1,3 +1,9 @@
+dde-api (6.0.47) unstable; urgency=medium
+
+  * fix: make getProcessStartTime mockable for unit tests
+
+ -- zhangkun <zhangkun2@uniontech.com>  Wed, 19 Aug 2026 17:09:46 +0800
+
 dde-api (6.0.46) unstable; urgency=medium
 
   * feat: 添加D-Bus调用者白名单鉴权机制，org.deepin.dde.LocaleHelper1设置语言
