@@ -73,6 +73,7 @@ type allowCallerRegistry struct {
 	privilegedGroupID uint32
 	processGroups     func(uint32) ([]uint32, error)
 	processParent     func(uint32) (uint32, error)
+	processStartTime func(uint32) (uint64, error)
 
 	mu        sync.RWMutex
 	callers   map[string]callerInfo
@@ -128,6 +129,7 @@ func newAllowCallerRegistryWithConfig(service allowCallerBus, stateFile string, 
 		busID:             busID,
 		privilegedGroupID: privilegedGroupID,
 		processGroups:     getProcessGroups,
+		processStartTime: getProcessStartTime,
 		processParent:     getProcessParentPID,
 		callers:           make(map[string]callerInfo),
 	}, nil
@@ -336,7 +338,7 @@ func (r *allowCallerRegistry) authorizeRegistrar(sender dbus.Sender, uniqueName 
 	}
 
 	// Capture starttime before reading /proc to detect PID reuse (TOCTOU mitigation).
-	senderStartTime, err := getProcessStartTime(senderPID)
+	senderStartTime, err := r.processStartTime(senderPID)
 	if err != nil {
 		return fmt.Errorf("get sender %s start time failed: %w", sender, err)
 	}
@@ -347,7 +349,7 @@ func (r *allowCallerRegistry) authorizeRegistrar(sender dbus.Sender, uniqueName 
 	}
 
 	// Verify PID was not recycled during /proc access.
-	checkStartTime, err := getProcessStartTime(senderPID)
+	checkStartTime, err := r.processStartTime(senderPID)
 	if err != nil || checkStartTime != senderStartTime {
 		return fmt.Errorf("sender %s PID %d reused during authorization", sender, senderPID)
 	}

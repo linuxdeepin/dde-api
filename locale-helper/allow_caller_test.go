@@ -322,6 +322,9 @@ func TestAddCallerAuthorizedSender(t *testing.T) {
 
 	r := newRegistryForTest(t, bus)
 	r.privilegedGroupID = 42
+	r.processStartTime = func(pid uint32) (uint64, error) {
+		return 12345, nil
+	}
 	r.processGroups = func(pid uint32) ([]uint32, error) {
 		return []uint32{42}, nil
 	}
@@ -604,6 +607,9 @@ func TestAuthorizeRegistrar(t *testing.T) {
 		bus.connPID[":1.0"] = 5
 		r := newRegistryForTest(t, bus)
 		r.privilegedGroupID = 42
+		r.processStartTime = func(pid uint32) (uint64, error) {
+			return 12345, nil
+		}
 		r.processGroups = func(pid uint32) ([]uint32, error) {
 			return []uint32{99}, nil
 		}
@@ -619,6 +625,9 @@ func TestAuthorizeRegistrar(t *testing.T) {
 		bus.connUID[":1.100"] = 2000
 		r := newRegistryForTest(t, bus)
 		r.privilegedGroupID = 42
+		r.processStartTime = func(pid uint32) (uint64, error) {
+			return 12345, nil
+		}
 		r.processGroups = func(pid uint32) ([]uint32, error) {
 			return []uint32{42}, nil
 		}
@@ -635,6 +644,9 @@ func TestAuthorizeRegistrar(t *testing.T) {
 		bus.connPID[":1.100"] = 10
 		r := newRegistryForTest(t, bus)
 		r.privilegedGroupID = 42
+		r.processStartTime = func(pid uint32) (uint64, error) {
+			return 12345, nil
+		}
 		r.processGroups = func(pid uint32) ([]uint32, error) {
 			return []uint32{42}, nil
 		}
@@ -662,6 +674,9 @@ func TestAuthorizeRegistrar(t *testing.T) {
 		bus.connPID[":1.100"] = 10
 		r := newRegistryForTest(t, bus)
 		r.privilegedGroupID = 42
+		r.processStartTime = func(pid uint32) (uint64, error) {
+			return 12345, nil
+		}
 		r.processGroups = func(pid uint32) ([]uint32, error) {
 			return []uint32{42}, nil
 		}
