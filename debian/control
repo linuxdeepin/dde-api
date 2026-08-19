@@ -48,7 +48,6 @@ Depends:
  blur-effect,
  coreutils(>=8.30),
  fontconfig,
- fonts-noto-cjk,
  libcanberra-pulse,
  locales,
  rfkill,
