@@ -68,6 +68,9 @@ func newRegistryForTest(t *testing.T, bus *mockAllowCallerBus) *allowCallerRegis
 	require.NoError(t, err)
 	require.NotNil(t, r)
 	require.Equal(t, bus.busID, r.busID)
+	r.processStartTime = func(uint32) (uint64, error) {
+		return 1, nil
+	}
 	return r
 }
 
@@ -218,6 +221,7 @@ func TestNewAllowCallerRegistryWithConfig(t *testing.T) {
 		assert.Equal(t, uint32(42), r.privilegedGroupID)
 		assert.NotNil(t, r.callers)
 		assert.Len(t, r.callers, 0)
+		assert.NotNil(t, r.processStartTime)
 		assert.NotNil(t, r.processGroups)
 		assert.NotNil(t, r.processParent)
 	})
