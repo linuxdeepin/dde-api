@@ -1,3 +1,9 @@
+dde-api (6.0.48) unstable; urgency=medium
+
+  * chore(debian): remove unneeded fonts-noto-cjk runtime dependency
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 10 Sep 2026 20:27:51 +0800
+
 dde-api (6.0.47) unstable; urgency=medium
 
   * fix: make getProcessStartTime mockable for unit tests
