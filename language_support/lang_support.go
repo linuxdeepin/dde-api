@@ -1,16 +1,17 @@
-// SPDX-FileCopyrightText: 2022 UnionTech Software Technology Co., Ltd.
+// SPDX-FileCopyrightText: 2022 - 2026 UnionTech Software Technology Co., Ltd.
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 package language_support
 
 import (
-	"bytes"
+	"context"
 	"encoding/csv"
 	"io"
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	libLocale "github.com/linuxdeepin/go-lib/locale"
 )
@@ -35,84 +36,136 @@ func NewLanguageSupport() (ls *LanguageSupport, err error) {
 func (ls *LanguageSupport) Destroy() {
 }
 
-func (ls *LanguageSupport) isPkgInstalled(name string) (bool, error) {
-	output, err := exec.Command("/usr/bin/dpkg-query", "-W", "-f",
-		"${db:Status-Status}", "--", name).Output()
-	if err != nil {
-		return false, err
-	}
-	return bytes.Equal(bytes.TrimSpace(output), []byte("installed")), nil
+// commandTimeout bounds a single dpkg-query or apt-cache run.
+const commandTimeout = 30 * time.Second
+
+// dpkgQueryCommand and aptCacheCommand are variables so that tests can supply
+// canned output.
+var dpkgQueryCommand = func(args ...string) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), commandTimeout)
+	defer cancel()
+	return exec.CommandContext(ctx, "/usr/bin/dpkg-query", args...).Output()
 }
 
-func (ls *LanguageSupport) isPkgInstallable(name string) (bool, error) {
-	cmd := exec.Command("/usr/bin/apt-cache", "policy",
-		"--", name)
-	cmd.Env = []string{"LANG=en_US.UTF-8"}
-	output, err := cmd.Output()
-	if err != nil {
-		return false, err
-	}
-
-	const candidate = "Candidate: "
-	idx := bytes.Index(output, []byte(candidate))
-	if idx == -1 {
-		return false, nil
-	}
-
-	if bytes.HasPrefix(output[idx+len(candidate):], []byte("(none)")) {
-		return false, nil
-	}
-	return true, nil
+var aptCacheCommand = func(args ...string) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), commandTimeout)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "/usr/bin/apt-cache", args...)
+	// Only LC_ALL=C: a translated apt prints localized field names.
+	cmd.Env = []string{"LC_ALL=C"}
+	return cmd.Output()
 }
 
-// ByPackageAndLocale get language support packages for a package and locale.
-func (ls *LanguageSupport) ByPackageAndLocale(
-	package0 string, locale string, includeInstalled bool) (packages []string) {
+// pkgQuery is the dpkg/apt snapshot of a single call: one dpkg-query and one
+// apt-cache process, not cached across calls.
+type pkgQuery struct {
+	installed  map[string]bool
+	candidates map[string]bool
+}
 
-	packagesTemp := make(map[string]struct{})
+func newPkgQuery() *pkgQuery {
+	return &pkgQuery{candidates: make(map[string]bool)}
+}
+
+// isInstalled reads the whole dpkg database once; a multi-arch entry
+// ("name:arch") also marks the plain name.
+func (q *pkgQuery) isInstalled(name string) bool {
+	if q.installed == nil {
+		q.installed = make(map[string]bool)
+		output, err := dpkgQueryCommand("-W", "-f",
+			"${binary:Package} ${db:Status-Status}\n")
+		if err == nil {
+			for _, line := range strings.Split(string(output), "\n") {
+				pkg, status, found := strings.Cut(line, " ")
+				if !found || status != "installed" {
+					continue
+				}
+				q.installed[pkg] = true
+				if i := strings.IndexByte(pkg, ':'); i > 0 {
+					q.installed[pkg[:i]] = true
+				}
+			}
+		}
+	}
+	return q.installed[name]
+}
+
+// loadCandidates asks apt once for all given names; unknown names and
+// "(none)" candidates stay unmarked.
+func (q *pkgQuery) loadCandidates(names []string) {
+	if len(names) == 0 {
+		return
+	}
+	args := append([]string{"policy", "--"}, names...)
+	output, err := aptCacheCommand(args...)
+	if err != nil {
+		return
+	}
+
+	var pkg string
+	for _, line := range strings.Split(string(output), "\n") {
+		if line == "" {
+			continue
+		}
+		if line[0] != ' ' && strings.HasSuffix(line, ":") { // "package:" header
+			pkg = strings.TrimSuffix(line, ":")
+			continue
+		}
+		version, found := strings.CutPrefix(strings.TrimSpace(line), "Candidate:")
+		if !found || pkg == "" {
+			continue
+		}
+		version = strings.TrimSpace(version)
+		q.candidates[pkg] = version != "" && version != "(none)"
+	}
+}
+
+// candidateNames lists the packages offered for one trigger and locale.
+func (ls *LanguageSupport) candidateNames(package0, locale string) (names []string) {
 	depMap := ls.pkgDepends[package0]
 
 	// check explicit entries for that locale
 	for _, pkgs := range depMap[langCodeFromLocale(locale)] {
-		for _, pkg := range pkgs {
-			installable, err := ls.isPkgInstallable(pkg)
-			if err != nil {
-				continue
-			}
-			if installable {
-				packagesTemp[pkg] = struct{}{}
-			}
-		}
+		names = append(names, pkgs...)
 	}
 
 	// check patterns for empty locale string (i. e. applies to any locale)
 	for _, patternList := range depMap[""] {
 		for _, pattern := range patternList {
-			pkgs := expendPkgPattern(pattern, locale)
-			for _, pkg := range pkgs {
-				installable, err := ls.isPkgInstallable(pkg)
-				if err != nil {
-					continue
-				}
-				if installable {
-					packagesTemp[pkg] = struct{}{}
-				}
+			names = append(names, expendPkgPattern(pattern, locale)...)
+		}
+	}
+	return
+}
+
+// packagesFor batches the candidates of all given triggers and applies the
+// filtering rules to the result.
+func (ls *LanguageSupport) packagesFor(
+	triggers []string, locale string, includeInstalled bool, q *pkgQuery) []string {
+
+	names := make([]string, 0)
+	seen := make(map[string]struct{})
+	for _, trigger := range triggers {
+		for _, name := range ls.candidateNames(trigger, locale) {
+			if _, dup := seen[name]; dup {
+				continue
 			}
+			seen[name] = struct{}{}
+			names = append(names, name)
 		}
 	}
 
-	if !includeInstalled { // not show installed
-		for pkg := range packagesTemp {
-			isInstalled, err := ls.isPkgInstalled(pkg)
-			if err != nil {
-				continue
-			}
+	q.loadCandidates(names)
 
-			// filter out installed packages
-			if isInstalled {
-				delete(packagesTemp, pkg)
-			}
+	packagesTemp := make(map[string]struct{})
+	for _, name := range names {
+		if !q.candidates[name] {
+			continue
 		}
+		if !includeInstalled && q.isInstalled(name) { // not show installed
+			continue
+		}
+		packagesTemp[name] = struct{}{}
 	}
 
 	// exclude Fcitx packages if GNOME desktop
@@ -142,40 +195,32 @@ func (ls *LanguageSupport) ByPackageAndLocale(
 	// https://launchpad.net/bugs/1578821
 	delete(packagesTemp, "hunspell-gl")
 
-	packages = make([]string, 0, len(packagesTemp))
-	for pkg := range packagesTemp {
-		packages = append(packages, pkg)
-	}
-	return
-}
-
-// ByLocale get language support packages for a locale
-func (ls *LanguageSupport) ByLocale(locale string, includeInstalled bool) []string {
-	packagesTemp := make(map[string]struct{})
-	for trigger := range ls.pkgDepends {
-		var add bool
-		if trigger == "" {
-			add = true
-		} else {
-			pkgInstalled, err := ls.isPkgInstalled(trigger)
-			if err == nil && pkgInstalled {
-				add = true
-			}
-		}
-
-		if add {
-			pkgs := ls.ByPackageAndLocale(trigger, locale, includeInstalled)
-			for _, pkg := range pkgs {
-				packagesTemp[pkg] = struct{}{}
-			}
-		}
-	}
-
 	packages := make([]string, 0, len(packagesTemp))
 	for pkg := range packagesTemp {
 		packages = append(packages, pkg)
 	}
 	return packages
+}
+
+// ByPackageAndLocale get language support packages for a package and locale.
+func (ls *LanguageSupport) ByPackageAndLocale(
+	package0 string, locale string, includeInstalled bool) (packages []string) {
+
+	return ls.packagesFor([]string{package0}, locale, includeInstalled, newPkgQuery())
+}
+
+// ByLocale get language support packages for a locale
+func (ls *LanguageSupport) ByLocale(locale string, includeInstalled bool) []string {
+	q := newPkgQuery()
+
+	var triggers []string
+	for trigger := range ls.pkgDepends {
+		if trigger == "" || q.isInstalled(trigger) {
+			triggers = append(triggers, trigger)
+		}
+	}
+
+	return ls.packagesFor(triggers, locale, includeInstalled, q)
 }
 
 func expendPkgPattern(pattern, locale string) (pkgs []string) {
