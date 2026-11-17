@@ -1,3 +1,11 @@
+dde-api (6.2.0) unstable; urgency=medium
+
+  * chore: Sync by
+    https://github.com/linuxdeepin/.github/commit/88d36aea6c90c8d1de4d42
+    c68aebbf72bcb80b1c
+
+ -- zhangkun <zhangkun2@uniontech.com>  Tue, 17 Nov 2026 22:07:34 +0800
+
 dde-api (6.0.49) unstable; urgency=medium
 
   * fix(language_support): batch package queries per call
